@@ -60,6 +60,6 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparablePro
 
 extension PrimitiveType {
     var schemaName: SchemaName {
-        .init(String(reflecting: swiftType))
+        .init(String(describing: swiftType))
     }
 }

@@ -35,7 +35,7 @@ final class ApodiniMigratorTests: XCTestCase {
             let scores: [Int]
             let name: String
             let shops: [Shop]
-            let cars: [String: Shop]
+            let cars: [String: Car]
         }
         
         

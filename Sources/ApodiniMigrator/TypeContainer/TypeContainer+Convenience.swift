@@ -45,6 +45,27 @@ extension TypeContainer {
         type == .complex
     }
     
+    var schemaName: SchemaName {
+        switch self {
+        case let .primitive(primitiveType):
+            return primitiveType.schemaName
+        case let .array(element):
+            return element.schemaName
+        case let .dictionary(_, value):
+            return value.schemaName
+        case let .optional(wrappedValue):
+            return wrappedValue.schemaName
+        case let .enum(name, _):
+            return name
+        case let .complex(name, _):
+            return name
+        }
+    }
+    
+    func sameType(with typeContainer: TypeContainer) -> Bool {
+        type == typeContainer.type
+    }
+    
     var unwrapped: TypeContainer {
         if case let .optional(wrapped) = self {
             return wrapped
@@ -59,16 +80,16 @@ extension TypeContainer {
         return nil
     }
     
-    var dictionaryValue: TypeContainer? {
-        if case let .dictionary(_, value) = self {
-            return value
+    var dictionaryKey: PrimitiveType? {
+        if case let .dictionary(key, _) = self {
+            return key
         }
         return nil
     }
     
-    var dictionaryKey: PrimitiveType? {
-        if case let .dictionary(key, _) = self {
-            return key
+    var dictionaryValue: TypeContainer? {
+        if case let .dictionary(_, value) = self {
+            return value
         }
         return nil
     }
@@ -94,7 +115,68 @@ extension TypeContainer {
         return []
     }
     
-    func sameType(with typeContainer: TypeContainer) -> Bool {
-        type == typeContainer.type
+    func allTypes() -> [TypeContainer] {
+        var allTypes: Set<TypeContainer> = [self]
+        switch self {
+        case .array(element: let element):
+            allTypes += element.allTypes()
+        case .dictionary(key: let key, value: let value):
+            allTypes += .primitive(key) + value.allTypes()
+        case .optional(wrappedValue: let wrappedValue):
+            allTypes += wrappedValue.allTypes()
+        case .complex(name: _, properties: let properties):
+            allTypes += properties.flatMap { $0.type.allTypes() }
+        default: break
+        }
+        return allTypes.asArray
+    }
+    
+    func contains(_ typeContainer: TypeContainer?) -> Bool {
+        guard let typeContainer = typeContainer else { return false }
+        return allTypes().contains(typeContainer)
+    }
+    
+    func isContained(in typeContainer: TypeContainer) -> Bool {
+        typeContainer.contains(self)
+    }
+    
+    func filter(_ keyPath: KeyPath<TypeContainer, Bool>) -> [TypeContainer] {
+        allTypes().filter { $0[keyPath: keyPath] }
+    }
+    
+    func primitives() -> [TypeContainer] {
+        filter(\.isPrimitive)
+    }
+    
+    func arrays() -> [TypeContainer] {
+        filter(\.isArray)
+    }
+    
+    func dictionaries() -> [TypeContainer] {
+        filter(\.isDictionary)
+    }
+    
+    func optionals() -> [TypeContainer] {
+        filter(\.isOptional)
+    }
+    
+    func enums() -> [TypeContainer] {
+        filter(\.isEnum)
+    }
+    
+    func complexTypes() -> [TypeContainer] {
+        filter(\.isComplex)
+    }
+}
+
+fileprivate extension Array where Element == TypeContainer {
+    static func + (lhs: Self, rhs: Element) -> Self {
+        var mutableLhs = lhs
+        mutableLhs.append(rhs)
+        return mutableLhs
+    }
+    
+    static func + (lhs: Element, rhs: Self) -> Self {
+        return rhs + lhs
     }
 }
