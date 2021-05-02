@@ -1,8 +1,18 @@
 import XCTest
 @testable import ApodiniMigrator
 
+func isLinux() -> Bool {
+    #if os(Linux)
+    return true
+    #else
+    return false
+    #endif
+}
+
 final class ApodiniMigratorTests: XCTestCase {
     func testExample() throws {
+        guard !isLinux() else { return }
+        
         enum Direction: String, Codable {
             case left
             case right

@@ -5,13 +5,15 @@ enum TypeContainer: Hashable, Codable {
     indirect case array(element: TypeContainer)
     indirect case dictionary(key: PrimitiveType, value: TypeContainer)
     indirect case optional(wrappedValue: TypeContainer)
-    case `enum`(name: SchemaName, cases: [String])
+    case `enum`(name: SchemaName, cases: [EnumCase])
     case complex(name: SchemaName, properties: [TypeProperty])
 }
 
 // MARK: - TypeContainer + Equatable
 extension TypeContainer {
     static func == (lhs: TypeContainer, rhs: TypeContainer) -> Bool {
+        if !lhs.sameType(with: rhs) { return false }
+        
         switch (lhs, rhs) {
         case let (.primitive(lhsPrimitiveType), .primitive(rhsPrimitiveType)):
             return lhsPrimitiveType == rhsPrimitiveType
@@ -89,7 +91,7 @@ extension TypeContainer {
         case .enum:
             let enumContainer = try container.nestedContainer(keyedBy: EnumKeys.self, forKey: .enum)
             let name = try enumContainer.decode(SchemaName.self, forKey: .name)
-            let cases = try enumContainer.decode([String].self, forKey: .cases)
+            let cases = try enumContainer.decode([EnumCase].self, forKey: .cases)
             self = .enum(name: name, cases: cases)
         case .complex:
             let complexContainer = try container.nestedContainer(keyedBy: ComplexKeys.self, forKey: .complex)

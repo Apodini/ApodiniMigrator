@@ -8,7 +8,7 @@ extension TypeContainer {
     
     /// Initializes a type container from Any instance
     init(value: Any) throws {
-        self = try .init(type: type(of: value))
+        self = try .init(type: Swift.type(of: value))
     }
     
     /// Initializes a type container from Any type
@@ -31,7 +31,7 @@ extension TypeContainer {
             } else if mangledName == .optional, let wrappedValueType = genericTypes.first {
                 self = .optional(wrappedValue: try .init(type: wrappedValueType))
             } else if typeInfo.kind == .enum {
-                self = .enum(name: typeInfo.schemaName, cases: typeInfo.cases.map { $0.name })
+                self = .enum(name: typeInfo.schemaName, cases: typeInfo.cases.map { EnumCase($0.name) })
             } else {
                 let properties: [TypeProperty] = try typeInfo.properties.map { .init(name: .init($0.name), type: try .init(type: $0.type)) }
                 self = .complex(name: typeInfo.schemaName, properties: properties)
@@ -48,7 +48,7 @@ extension TypeContainer {
             let typeInfo = node.value.typeInfo
             
             if node.isEnum {
-                return .enum(name: typeInfo.schemaName, cases: typeInfo.cases.map { $0.name })
+                return .enum(name: typeInfo.schemaName, cases: typeInfo.cases.map { EnumCase($0.name) })
             }
             
             switch node.value.cardinality {

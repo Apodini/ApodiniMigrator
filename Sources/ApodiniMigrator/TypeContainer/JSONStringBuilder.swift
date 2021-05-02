@@ -40,7 +40,7 @@ struct JSONStringBuilder {
         case .optional(wrappedValue: let wrappedValue):
             return "\(JSONStringBuilder(wrappedValue).build())"
         case .enum(name: _, cases: let cases):
-            return cases.first?.asString ?? "{}"
+            return cases.first?.name.value.asString ?? "{}"
         case .complex(name: _, properties: let properties):
             let sorted = properties.sorted { $0.name.value < $1.name.value }
             return "{\(sorted.map { $0.name.value.asString + ": \(JSONStringBuilder($0.type).build())" }.joined(separator: ", "))}"
