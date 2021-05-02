@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Eldi Cano on 20.03.21.
-//
-
 import Foundation
 @_implementationOnly import Runtime
 
@@ -44,6 +37,6 @@ extension Node where T == ReflectionInfo {
 
 extension TypeInfo {
     var schemaName: SchemaName {
-        .init(String(reflecting: type))
+        .init(String(describing: type))
     }
 }

@@ -1,10 +1,3 @@
-//
-//  TypeInfo.swift
-//  
-//
-//  Created by Paul Schmiedmayer on 1/13/21.
-//
-
 import Foundation
 
 /// Whether the type is a supported scalar type
@@ -12,7 +5,7 @@ public func isSupportedScalarType(_ type: Any.Type) -> Bool {
     PrimitiveType(type) != nil
 }
 
-public enum PrimitiveType: String, RawRepresentable {
+public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparableProperty, CustomStringConvertible {
     case bool = "Bool"
     case int = "Int"
     case int8 = "Int8"
@@ -31,6 +24,8 @@ public enum PrimitiveType: String, RawRepresentable {
     case date = "Date"
     case data = "Data"
 
+    public var description: String { rawValue }
+    
     public init?(_ type: Any.Type) {
         if let primitiveType = PrimitiveType(rawValue: "\(type)") {
             self = primitiveType
@@ -59,5 +54,12 @@ public enum PrimitiveType: String, RawRepresentable {
         case .date: return Date.self
         case .data: return Data.self
         }
+    }
+    
+}
+
+extension PrimitiveType {
+    var schemaName: SchemaName {
+        .init(String(reflecting: swiftType))
     }
 }
