@@ -39,3 +39,7 @@ extension TypeContainer {
         }
     }
 }
+
+func testRuntime(_ type: Any.Type) throws {
+    _ = try Runtime.typeInfo(of: type)
+}

@@ -36,8 +36,6 @@ final class ApodiniMigratorTests: XCTestCase {
     }
     
     func testExample() throws {
-        guard !isLinux() else { return }
-        
-        XCTAssertNoThrow(try TypeContainer(type: User.self))
+        try testRuntime(User.self)
     }
 }
