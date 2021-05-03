@@ -1,6 +1,12 @@
 import Foundation
 
 struct JSONStringBuilder {
+    static let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .formatted(.iSO8601DateFormatter)
+        return decoder
+    }()
+    
     private let typeContainer: TypeContainer
     
     private var defaultInitializableType: DefaultInitializable.Type? {
@@ -52,16 +58,12 @@ struct JSONStringBuilder {
     
     
     static func instance<C: Codable>(_ type: C.Type) throws -> C {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .formatted(.iSO8601DateFormatter)
         let data = try Self(C.self).build().data(using: .utf8) ?? Data()
         return try decoder.decode(C.self, from: data)
     }
     
     static func instance<C: Codable>(_ typeContainer: TypeContainer, _ type: C.Type) throws -> C {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .formatted(.iSO8601DateFormatter)
-        let data = try Self(typeContainer).build().data(using: .utf8) ?? Data()
+        let data = Self(typeContainer).build().data(using: .utf8) ?? Data()
         return try decoder.decode(C.self, from: data)
     }
 }

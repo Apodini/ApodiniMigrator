@@ -36,18 +36,6 @@ final class ApodiniMigratorTests: XCTestCase {
     }
     
     func testExample() throws {
-        let typeContainer = try TypeContainer(type: User.self)
-        
-        print(typeContainer.json)
-
-        let instance = try JSONStringBuilder.instance(typeContainer, User.self)
-
-        XCTAssertTrue(instance.scores.first == 0)
-        XCTAssertTrue(instance.birthday == .test)
-        XCTAssertTrue(instance.shops.first?.id == .test)
+        XCTAssertNoThrow(try TypeContainer(type: User.self))
     }
-    
-    static var allTests = [
-        ("testExample", testExample)
-    ]
 }
