@@ -1,9 +1,10 @@
 import XCTest
 
 #if !canImport(ObjectiveC)
+/// :nodoc:
 public func allTests() -> [XCTestCaseEntry] {
-    return [
-        testCase(ApodiniMigratorTests.allTests),
+    [
+        testCase(ApodiniMigratorTests.allTests)
     ]
 }
 #endif

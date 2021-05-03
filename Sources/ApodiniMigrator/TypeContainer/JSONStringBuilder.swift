@@ -32,16 +32,18 @@ struct JSONStringBuilder {
     
     func build() -> String {
         switch typeContainer {
-        case .array(element: let element):
+        case let .array(element):
             return "[\(JSONStringBuilder(element).build())]"
-        case .dictionary(key: let key, value: let value):
-            if requiresCurlyBrackets(key) { return "{ \(jsonString(key)) : \(JSONStringBuilder(value).build()) }" }
+        case let .dictionary(key, value):
+            if requiresCurlyBrackets(key) {
+                return "{ \(jsonString(key)) : \(JSONStringBuilder(value).build()) }"
+            }
             return "[\(jsonString(key)), \(JSONStringBuilder(value).build())]"
-        case .optional(wrappedValue: let wrappedValue):
+        case let .optional(wrappedValue):
             return "\(JSONStringBuilder(wrappedValue).build())"
-        case .enum(name: _, cases: let cases):
+        case let .enum(_, cases):
             return cases.first?.name.value.asString ?? "{}"
-        case .complex(name: _, properties: let properties):
+        case let .complex(_, properties):
             let sorted = properties.sorted { $0.name.value < $1.name.value }
             return "{\(sorted.map { $0.name.value.asString + ": \(JSONStringBuilder($0.type).build())" }.joined(separator: ", "))}"
         default: return defaultInitializableType?.jsonString ?? "{}"

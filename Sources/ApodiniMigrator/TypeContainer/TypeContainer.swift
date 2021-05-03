@@ -1,6 +1,6 @@
 import Foundation
 
-enum TypeContainer: Hashable, Codable {
+enum TypeContainer: Value {
     case primitive(PrimitiveType)
     indirect case array(element: TypeContainer)
     indirect case dictionary(key: PrimitiveType, value: TypeContainer)
@@ -12,7 +12,9 @@ enum TypeContainer: Hashable, Codable {
 // MARK: - TypeContainer + Equatable
 extension TypeContainer {
     static func == (lhs: TypeContainer, rhs: TypeContainer) -> Bool {
-        if !lhs.sameType(with: rhs) { return false }
+        if !lhs.sameType(with: rhs) {
+            return false
+        }
         
         switch (lhs, rhs) {
         case let (.primitive(lhsPrimitiveType), .primitive(rhsPrimitiveType)):
@@ -54,16 +56,13 @@ extension TypeContainer {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
-        case let .primitive(primitiveType):
-            try container.encode(primitiveType, forKey: .primitive)
-        case let .array(element):
-            try container.encode(element, forKey: .array)
+        case let .primitive(primitiveType): try container.encode(primitiveType, forKey: .primitive)
+        case let .array(element): try container.encode(element, forKey: .array)
         case let .dictionary(key, value):
             var dictionaryContainer = container.nestedContainer(keyedBy: DictionaryKeys.self, forKey: .dictionary)
             try dictionaryContainer.encode(key, forKey: .key)
             try dictionaryContainer.encode(value, forKey: .value)
-        case let .optional(wrappedValue):
-            try container.encode(wrappedValue, forKey: .optional)
+        case let .optional(wrappedValue): try container.encode(wrappedValue, forKey: .optional)
         case let .enum(name, cases):
             var enumContainer = container.nestedContainer(keyedBy: EnumKeys.self, forKey: .enum)
             try enumContainer.encode(name, forKey: .name)

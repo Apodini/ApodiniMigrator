@@ -10,36 +10,35 @@ func isLinux() -> Bool {
 }
 
 final class ApodiniMigratorTests: XCTestCase {
+    enum Direction: String, Codable {
+        case left
+        case right
+    }
+    
+    struct Car: Codable {
+        let plateNumber: Int
+        let name: String
+    }
+    
+    struct Shop: Codable {
+        let id: UUID
+        let licence: UInt
+        let isOpen: Bool
+        let directions: [Direction]
+    }
+    
+    struct User: Codable {
+        let birthday: Date
+        let scores: [Int]
+        let name: String
+        let shops: [Shop]
+        let cars: [String: Car]
+    }
+    
     func testExample() throws {
-        guard !isLinux() else { return }
+        let typeContainer = XCTAssertNoThrowWithReturn(try TypeContainer(type: User.self))
         
-        enum Direction: String, Codable {
-            case left
-            case right
-        }
-        
-        struct Car: Codable {
-            let plateNumber: Int
-            let name: String
-        }
-        
-        struct Shop: Codable {
-            let id: UUID
-            let licence: UInt
-            let isOpen: Bool
-            let directions: [Direction]
-        }
-        
-        struct User: Codable {
-            let birthday: Date
-            let scores: [Int]
-            let name: String
-            let shops: [Shop]
-            let cars: [String: Car]
-        }
-        
-        
-        XCTAssertNoThrow(try TypeContainer(type: User.self))
+        print(typeContainer.json)
         
         let instance = XCTAssertNoThrowWithReturn(try JSONStringBuilder.instance(User.self))
         
@@ -60,6 +59,6 @@ final class ApodiniMigratorTests: XCTestCase {
     }
     
     static var allTests = [
-        ("testExample", testExample),
+        ("testExample", testExample)
     ]
 }

@@ -46,7 +46,7 @@ class CompositeChange: Change {
     }
     
     override func change<C: _Comparable>(_ type: C.Type) -> Change? {
-        if let _ = super.change(C.self) {
+        if super.change(C.self) != nil {
             return self
         }
         

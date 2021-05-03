@@ -55,7 +55,6 @@ struct Endpoint {
 
 // MARK: - ComparableObject
 extension Endpoint: ComparableObject {
-
     func evaluate(result: ChangeContextNode, embeddedInCollection: Bool) -> Change? {
         guard let context = context(from: result, embeddedInCollection: embeddedInCollection) else {
             return nil

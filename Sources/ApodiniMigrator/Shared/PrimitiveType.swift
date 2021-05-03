@@ -55,7 +55,6 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparablePro
         case .data: return Data.self
         }
     }
-    
 }
 
 extension PrimitiveType {

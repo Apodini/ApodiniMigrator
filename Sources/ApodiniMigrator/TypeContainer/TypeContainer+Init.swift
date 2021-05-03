@@ -65,7 +65,6 @@ extension TypeContainer {
                 return .complex(name: typeInfo.schemaName, properties: typeProperties)
             case let .zeroToMany(collectionContext):
                 switch collectionContext {
-                
                 case .array:
                     return .array(element: try .withReflectionInfo(typeInfo.type))
                     

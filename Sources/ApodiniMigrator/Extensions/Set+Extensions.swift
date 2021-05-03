@@ -13,11 +13,11 @@ extension Set {
         Array(self)
     }
 
-    public static func += (lhs: inout Self, rhs: Element) {
+    static func += (lhs: inout Self, rhs: Element) {
         lhs.insert(rhs)
     }
 
-    public static func += <S: Sequence> (lhs: inout Self, rhs: S) where S.Element == Element {
+    static func += <S: Sequence> (lhs: inout Self, rhs: S) where S.Element == Element {
         lhs.formUnion(rhs)
     }
 }

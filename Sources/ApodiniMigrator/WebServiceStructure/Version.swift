@@ -30,10 +30,12 @@ struct Version: Codable {
     ///   - major: The major version number
     ///   - minor: The minor version number
     ///   - patch: The patch version number
-    init(prefix: String = Defaults.prefix,
-                major: UInt = Defaults.major,
-                minor: UInt = Defaults.minor,
-                patch: UInt = Defaults.patch) {
+    init(
+        prefix: String = Defaults.prefix,
+        major: UInt = Defaults.major,
+        minor: UInt = Defaults.minor,
+        patch: UInt = Defaults.patch
+    ) {
         self.prefix = prefix
         self.major = major
         self.minor = minor

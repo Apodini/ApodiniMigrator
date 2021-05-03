@@ -24,6 +24,7 @@ enum MangledName: Equatable {
 }
 
 extension TypeInfo {
+    // swiftlint:disable:next identifier_name
     var _mangledName: MangledName {
         .init(type)
     }

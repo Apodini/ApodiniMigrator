@@ -118,13 +118,13 @@ extension TypeContainer {
     func allTypes() -> [TypeContainer] {
         var allTypes: Set<TypeContainer> = [self]
         switch self {
-        case .array(element: let element):
+        case let .array(element):
             allTypes += element.allTypes()
-        case .dictionary(key: let key, value: let value):
+        case let .dictionary(key, value):
             allTypes += .primitive(key) + value.allTypes()
-        case .optional(wrappedValue: let wrappedValue):
+        case let .optional(wrappedValue):
             allTypes += wrappedValue.allTypes()
-        case .complex(name: _, properties: let properties):
+        case let .complex(_, properties):
             allTypes += properties.flatMap { $0.type.allTypes() }
         default: break
         }
@@ -132,7 +132,9 @@ extension TypeContainer {
     }
     
     func contains(_ typeContainer: TypeContainer?) -> Bool {
-        guard let typeContainer = typeContainer else { return false }
+        guard let typeContainer = typeContainer else {
+            return false
+        }
         return allTypes().contains(typeContainer)
     }
     
@@ -177,6 +179,6 @@ fileprivate extension Array where Element == TypeContainer {
     }
     
     static func + (lhs: Element, rhs: Self) -> Self {
-        return rhs + lhs
+        rhs + lhs
     }
 }
