@@ -36,26 +36,15 @@ final class ApodiniMigratorTests: XCTestCase {
     }
     
     func testExample() throws {
-        let typeContainer = XCTAssertNoThrowWithReturn(try TypeContainer(type: User.self))
+        let typeContainer = try TypeContainer(type: User.self)
         
         print(typeContainer.json)
-        
-        let instance = XCTAssertNoThrowWithReturn(try JSONStringBuilder.instance(User.self))
-        
+
+        let instance = try JSONStringBuilder.instance(typeContainer, User.self)
+
         XCTAssertTrue(instance.scores.first == 0)
         XCTAssertTrue(instance.birthday == .test)
         XCTAssertTrue(instance.shops.first?.id == .test)
-    }
-    
-    
-    func XCTAssertNoThrowWithReturn<T>(_ expression: @autoclosure () throws -> T) -> T {
-        XCTAssertNoThrow(try expression())
-        do {
-            return try expression()
-        } catch {
-            XCTFail(error.localizedDescription)
-        }
-        fatalError("Expression throw an error")
     }
     
     static var allTests = [

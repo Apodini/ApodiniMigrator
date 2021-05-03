@@ -7,13 +7,7 @@ enum MangledName: Equatable {
     case optional
     case other(String)
     
-    init(_ type: Any.Type) {
-        let mangledName: String
-        do {
-            mangledName = try Runtime.typeInfo(of: type).mangledName
-        } catch {
-            mangledName = String(describing: type)
-        }
+    init(_ mangledName: String) {
         switch mangledName {
         case "Optional": self = .optional
         case "Dictionary": self = .dictionary
@@ -26,6 +20,6 @@ enum MangledName: Equatable {
 extension TypeInfo {
     // swiftlint:disable:next identifier_name
     var _mangledName: MangledName {
-        .init(type)
+        .init(mangledName)
     }
 }

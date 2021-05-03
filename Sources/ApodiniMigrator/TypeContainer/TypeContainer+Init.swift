@@ -18,7 +18,7 @@ extension TypeContainer {
         } else {
             let typeInfo = try Runtime.typeInfo(of: type)
             let genericTypes = typeInfo.genericTypes
-            let mangledName = MangledName(type)
+            let mangledName = typeInfo._mangledName
             
             if mangledName == .array, let elementType = genericTypes.first {
                 self = .array(element: try .init(type: elementType))
@@ -35,45 +35,6 @@ extension TypeContainer {
             } else {
                 let properties: [TypeProperty] = try typeInfo.properties.map { .init(name: .init($0.name), type: try .init(type: $0.type)) }
                 self = .complex(name: typeInfo.schemaName, properties: properties)
-            }
-        }
-    }
-    
-    /// A convinience static function that returns a type container using Apodini's ReflectionInfo implementation
-    static func withReflectionInfo(_ type: Any.Type) throws -> TypeContainer {
-        if let primitiveType = PrimitiveType(type) {
-            return .primitive(primitiveType)
-        } else {
-            let node = try ReflectionInfo.node(type).handleCardinalities()
-            let typeInfo = node.value.typeInfo
-            
-            if node.isEnum {
-                return .enum(name: typeInfo.schemaName, cases: typeInfo.cases.map { EnumCase($0.name) })
-            }
-            
-            switch node.value.cardinality {
-            case .zeroToOne:
-                return .optional(wrappedValue: try .withReflectionInfo(typeInfo.type))
-            case .exactlyOne:
-                let typeProperties = node.children.compactMap { node -> TypeProperty? in
-                    do {
-                        let typeInfo = node.value.typeInfo
-                        let propertyName = node.value.propertyInfo?.name ?? typeInfo.name
-                        return .init(name: .init(propertyName), type: try .withReflectionInfo(typeInfo.type))
-                    } catch { return nil }
-                }
-                return .complex(name: typeInfo.schemaName, properties: typeProperties)
-            case let .zeroToMany(collectionContext):
-                switch collectionContext {
-                case .array:
-                    return .array(element: try .withReflectionInfo(typeInfo.type))
-                    
-                case let .dictionary(key: key, value: value):
-                    guard let primitiveKey = PrimitiveType(key.typeInfo.type) else {
-                        throw TypeContainerError.notSupportedDictionaryKeyType
-                    }
-                    return .dictionary(key: primitiveKey, value: try .withReflectionInfo(value.typeInfo.type))
-                }
             }
         }
     }
