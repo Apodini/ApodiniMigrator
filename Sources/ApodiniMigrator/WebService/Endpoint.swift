@@ -22,8 +22,8 @@ struct Endpoint {
     /// Parameters of the endpoint
     let parameters: [Parameter]
 
-    /// Schema name of the response type of the endpoint
-    let response: SchemaName
+    /// Type name of the response type of the endpoint
+    let response: TypeName
     
     /// Name of the operation specified via `.pallidor(_:)` modified
     let operationName: PallidorOperationName
@@ -38,7 +38,7 @@ struct Endpoint {
         operation: Operation,
         absolutePath: String,
         parameters: [Parameter],
-        response: SchemaName,
+        response: TypeName,
         operationName: String,
         endpointName: PallidorEndpointName
     ) {
@@ -83,7 +83,7 @@ extension Endpoint: ComparableObject {
             .register(compare(\.operation, with: other), for: Operation.self)
             .register(compare(\.absolutePath, with: other), for: Path.self)
             .register(result: compare(\.parameters, with: other), for: Parameter.self)
-            .register(compare(\.response, with: other), for: SchemaName.self)
+            .register(compare(\.response, with: other), for: TypeName.self)
             .register(compare(\.operationName, with: other), for: PallidorOperationName.self)
             .register(compare(\.endpointName, with: other), for: PallidorEndpointName.self)
     }

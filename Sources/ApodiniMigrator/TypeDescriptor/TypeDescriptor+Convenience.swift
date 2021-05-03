@@ -1,28 +1,28 @@
 import Foundation
 
-extension TypeContainer {
+extension TypeDescriptor {
     enum ResolvedType {
-        case primitive
+        case scalar
         case array
         case dictionary
         case optional
         case `enum`
-        case complex
+        case object
     }
     
     var type: ResolvedType {
         switch self {
-        case .primitive: return .primitive
+        case .scalar: return .scalar
         case .array: return .array
         case .dictionary: return .dictionary
         case .optional: return .optional
         case .enum: return .enum
-        case .complex: return .complex
+        case .object: return .object
         }
     }
     
-    var isPrimitive: Bool {
-        type == .primitive
+    var isScalar: Bool {
+        type == .scalar
     }
     
     var isArray: Bool {
@@ -41,41 +41,45 @@ extension TypeContainer {
         type == .enum
     }
     
-    var isComplex: Bool {
-        type == .complex
+    var isObject: Bool {
+        type == .object
     }
     
-    var schemaName: SchemaName {
+    var isComplex: Bool {
+        isEnum && isObject
+    }
+    
+    var typeName: TypeName {
         switch self {
-        case let .primitive(primitiveType):
-            return primitiveType.schemaName
+        case let .scalar(primitiveType):
+            return primitiveType.typeName
         case let .array(element):
-            return element.schemaName
+            return element.typeName
         case let .dictionary(_, value):
-            return value.schemaName
+            return value.typeName
         case let .optional(wrappedValue):
-            return wrappedValue.schemaName
+            return wrappedValue.typeName
         case let .enum(name, _):
             return name
-        case let .complex(name, _):
+        case let .object(name, _):
             return name
         }
     }
     
-    func sameType(with typeContainer: TypeContainer) -> Bool {
-        type == typeContainer.type
+    func sameType(with typeDescriptor: TypeDescriptor) -> Bool {
+        type == typeDescriptor.type
     }
     
-    var unwrapped: TypeContainer {
+    var unwrapped: TypeDescriptor {
         if case let .optional(wrapped) = self {
-            return wrapped
+            return wrapped.unwrapped
         }
         return self
     }
     
-    var arrayElement: TypeContainer? {
+    var arrayElement: TypeDescriptor? {
         if case let .array(element) = self {
-            return element
+            return element.arrayElement
         }
         return nil
     }
@@ -87,7 +91,7 @@ extension TypeContainer {
         return nil
     }
     
-    var dictionaryValue: TypeContainer? {
+    var dictionaryValue: TypeDescriptor? {
         if case let .dictionary(_, value) = self {
             return value
         }
@@ -102,7 +106,7 @@ extension TypeContainer {
             return value.typeProperties
         case .optional(wrappedValue: let wrappedValue):
             return wrappedValue.typeProperties
-        case .complex(name: _, properties: let properties):
+        case .object(name: _, properties: let properties):
             return properties
         default: return []
         }
@@ -115,63 +119,67 @@ extension TypeContainer {
         return []
     }
     
-    func allTypes() -> [TypeContainer] {
-        var allTypes: Set<TypeContainer> = [self]
+    func allTypes() -> [TypeDescriptor] {
+        var allTypes: Set<TypeDescriptor> = [self]
         switch self {
         case let .array(element):
             allTypes += element.allTypes()
         case let .dictionary(key, value):
-            allTypes += .primitive(key) + value.allTypes()
+            allTypes += .scalar(key) + value.allTypes()
         case let .optional(wrappedValue):
             allTypes += wrappedValue.allTypes()
-        case let .complex(_, properties):
+        case let .object(_, properties):
             allTypes += properties.flatMap { $0.type.allTypes() }
         default: break
         }
         return allTypes.asArray
     }
     
-    func contains(_ typeContainer: TypeContainer?) -> Bool {
-        guard let typeContainer = typeContainer else {
+    func contains(_ typeDescriptor: TypeDescriptor?) -> Bool {
+        guard let typeDescriptor = typeDescriptor else {
             return false
         }
-        return allTypes().contains(typeContainer)
+        return allTypes().contains(typeDescriptor)
     }
     
-    func isContained(in typeContainer: TypeContainer) -> Bool {
-        typeContainer.contains(self)
+    func isContained(in typeDescriptor: TypeDescriptor) -> Bool {
+        typeDescriptor.contains(self)
     }
     
-    func filter(_ keyPath: KeyPath<TypeContainer, Bool>) -> [TypeContainer] {
+    func filter(_ keyPath: KeyPath<TypeDescriptor, Bool>) -> [TypeDescriptor] {
         allTypes().filter { $0[keyPath: keyPath] }
     }
     
-    func primitives() -> [TypeContainer] {
-        filter(\.isPrimitive)
+    func scalars() -> [TypeDescriptor] {
+        filter(\.isScalar)
     }
     
-    func arrays() -> [TypeContainer] {
+    func arrays() -> [TypeDescriptor] {
         filter(\.isArray)
     }
     
-    func dictionaries() -> [TypeContainer] {
+    func dictionaries() -> [TypeDescriptor] {
         filter(\.isDictionary)
     }
     
-    func optionals() -> [TypeContainer] {
+    func optionals() -> [TypeDescriptor] {
         filter(\.isOptional)
     }
     
-    func enums() -> [TypeContainer] {
+    func enums() -> [TypeDescriptor] {
         filter(\.isEnum)
     }
     
-    func complexTypes() -> [TypeContainer] {
+    func objectTypes() -> [TypeDescriptor] {
+        filter(\.isObject)
+    }
+    
+    func complexTypes() -> [TypeDescriptor] {
         filter(\.isComplex)
     }
 }
 
-fileprivate extension Array where Element == TypeContainer {
+fileprivate extension Array where Element == TypeDescriptor {
     static func + (lhs: Self, rhs: Element) -> Self {
         var mutableLhs = lhs
         mutableLhs.append(rhs)

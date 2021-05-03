@@ -1,23 +1,23 @@
 import Foundation
 
-enum TypeContainer: Value {
-    case primitive(PrimitiveType)
-    indirect case array(element: TypeContainer)
-    indirect case dictionary(key: PrimitiveType, value: TypeContainer)
-    indirect case optional(wrappedValue: TypeContainer)
-    case `enum`(name: SchemaName, cases: [EnumCase])
-    case complex(name: SchemaName, properties: [TypeProperty])
+enum TypeDescriptor: Value {
+    case scalar(PrimitiveType)
+    indirect case array(element: TypeDescriptor)
+    indirect case dictionary(key: PrimitiveType, value: TypeDescriptor)
+    indirect case optional(wrappedValue: TypeDescriptor)
+    case `enum`(name: TypeName, cases: [EnumCase])
+    case object(name: TypeName, properties: [TypeProperty])
 }
 
-// MARK: - TypeContainer + Equatable
-extension TypeContainer {
-    static func == (lhs: TypeContainer, rhs: TypeContainer) -> Bool {
+// MARK: - TypeDescriptor + Equatable
+extension TypeDescriptor {
+    static func == (lhs: TypeDescriptor, rhs: TypeDescriptor) -> Bool {
         if !lhs.sameType(with: rhs) {
             return false
         }
         
         switch (lhs, rhs) {
-        case let (.primitive(lhsPrimitiveType), .primitive(rhsPrimitiveType)):
+        case let (.scalar(lhsPrimitiveType), .scalar(rhsPrimitiveType)):
             return lhsPrimitiveType == rhsPrimitiveType
         case let (.array(lhsElement), .array(rhsElement)):
             return lhsElement == rhsElement
@@ -27,18 +27,18 @@ extension TypeContainer {
             return lhsWrappedValue == rhsWrappedValue
         case let (.enum(lhsName, lhsCases), .enum(rhsName, rhsCases)):
             return lhsName == rhsName && lhsCases.equalsIgnoringOrder(to: rhsCases)
-        case let (.complex(lhsName, lhsProperties), .complex(rhsName, rhsProperties)):
+        case let (.object(lhsName, lhsProperties), .object(rhsName, rhsProperties)):
             return lhsName == rhsName && lhsProperties.equalsIgnoringOrder(to: rhsProperties)
         default: return false
         }
     }
 }
 
-// MARK: - TypeContainer + Codable
-extension TypeContainer {
+// MARK: - TypeDescriptor + Codable
+extension TypeDescriptor {
     // MARK: CodingKeys
     private enum CodingKeys: String, CodingKey {
-        case primitive, array, dictionary, optional, `enum`, complex
+        case scalar, array, dictionary, optional, `enum`, object
     }
     
     private enum DictionaryKeys: String, CodingKey {
@@ -46,17 +46,17 @@ extension TypeContainer {
     }
     
     private enum EnumKeys: String, CodingKey {
-        case name, cases
+        case typeName, cases
     }
     
-    private enum ComplexKeys: String, CodingKey {
-        case name, properties
+    private enum ObjectKeys: String, CodingKey {
+        case typeName, properties
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
-        case let .primitive(primitiveType): try container.encode(primitiveType, forKey: .primitive)
+        case let .scalar(primitiveType): try container.encode(primitiveType, forKey: .scalar)
         case let .array(element): try container.encode(element, forKey: .array)
         case let .dictionary(key, value):
             var dictionaryContainer = container.nestedContainer(keyedBy: DictionaryKeys.self, forKey: .dictionary)
@@ -65,12 +65,12 @@ extension TypeContainer {
         case let .optional(wrappedValue): try container.encode(wrappedValue, forKey: .optional)
         case let .enum(name, cases):
             var enumContainer = container.nestedContainer(keyedBy: EnumKeys.self, forKey: .enum)
-            try enumContainer.encode(name, forKey: .name)
+            try enumContainer.encode(name, forKey: .typeName)
             try enumContainer.encode(cases, forKey: .cases)
-        case let .complex(name, properties):
-            var complexContainer = container.nestedContainer(keyedBy: ComplexKeys.self, forKey: .complex)
-            try complexContainer.encode(name, forKey: .name)
-            try complexContainer.encode(properties, forKey: .properties)
+        case let .object(name, properties):
+            var objectContainer = container.nestedContainer(keyedBy: ObjectKeys.self, forKey: .object)
+            try objectContainer.encode(name, forKey: .typeName)
+            try objectContainer.encode(properties, forKey: .properties)
         }
     }
     
@@ -78,27 +78,37 @@ extension TypeContainer {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let key = container.allKeys.first
         switch key {
-        case .primitive: self = .primitive(try container.decode(PrimitiveType.self, forKey: .primitive))
-        case .array: self = .array(element: try container.decode(TypeContainer.self, forKey: .array))
-        case .optional: self = .optional(wrappedValue: try container.decode(TypeContainer.self, forKey: .optional))
+        case .scalar: self = .scalar(try container.decode(PrimitiveType.self, forKey: .scalar))
+        case .array: self = .array(element: try container.decode(TypeDescriptor.self, forKey: .array))
+        case .optional: self = .optional(wrappedValue: try container.decode(TypeDescriptor.self, forKey: .optional))
         case .dictionary:
             let dictionaryContainer = try container.nestedContainer(keyedBy: DictionaryKeys.self, forKey: .dictionary)
             self = .dictionary(
                 key: try dictionaryContainer.decode(PrimitiveType.self, forKey: .key),
-                value: try dictionaryContainer.decode(TypeContainer.self, forKey: .value)
+                value: try dictionaryContainer.decode(TypeDescriptor.self, forKey: .value)
             )
         case .enum:
             let enumContainer = try container.nestedContainer(keyedBy: EnumKeys.self, forKey: .enum)
-            let name = try enumContainer.decode(SchemaName.self, forKey: .name)
+            let name = try enumContainer.decode(TypeName.self, forKey: .typeName)
             let cases = try enumContainer.decode([EnumCase].self, forKey: .cases)
             self = .enum(name: name, cases: cases)
-        case .complex:
-            let complexContainer = try container.nestedContainer(keyedBy: ComplexKeys.self, forKey: .complex)
-            self = .complex(
-                name: try complexContainer.decode(SchemaName.self, forKey: .name),
-                properties: try complexContainer.decode([TypeProperty].self, forKey: .properties)
+        case .object:
+            let objectContainer = try container.nestedContainer(keyedBy: ObjectKeys.self, forKey: .object)
+            self = .object(
+                name: try objectContainer.decode(TypeName.self, forKey: .typeName),
+                properties: try objectContainer.decode([TypeProperty].self, forKey: .properties)
             )
         default: fatalError("Failed to decode type container")
         }
+    }
+}
+
+extension TypeDescriptor: CustomStringConvertible, CustomDebugStringConvertible {
+    var description: String {
+        json
+    }
+    
+    var debugDescription: String {
+        json
     }
 }

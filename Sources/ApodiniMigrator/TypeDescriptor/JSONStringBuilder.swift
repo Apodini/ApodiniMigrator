@@ -7,25 +7,25 @@ struct JSONStringBuilder {
         return decoder
     }()
     
-    private let typeContainer: TypeContainer
+    private let typeDescriptor: TypeDescriptor
     
     private var defaultInitializableType: DefaultInitializable.Type? {
-        switch typeContainer {
-        case let .primitive(primitiveType): return primitiveType.swiftType
+        switch typeDescriptor {
+        case let .scalar(primitiveType): return primitiveType.swiftType
         default: return nil
         }
     }
     
-    init(_ typeContainer: TypeContainer) {
-        self.typeContainer = typeContainer
+    init(_ typeDescriptor: TypeDescriptor) {
+        self.typeDescriptor = typeDescriptor
     }
     
     init(_ type: Any.Type) throws {
-        typeContainer = try .init(type: type)
+        typeDescriptor = try .init(type: type)
     }
     
     init(value: Any) throws {
-        typeContainer = try .init(value: value)
+        typeDescriptor = try .init(value: value)
     }
     
     func requiresCurlyBrackets(_ primitiveType: PrimitiveType) -> Bool {
@@ -37,7 +37,7 @@ struct JSONStringBuilder {
     }
     
     func build() -> String {
-        switch typeContainer {
+        switch typeDescriptor {
         case let .array(element):
             return "[\(JSONStringBuilder(element).build())]"
         case let .dictionary(key, value):
@@ -49,7 +49,7 @@ struct JSONStringBuilder {
             return "\(JSONStringBuilder(wrappedValue).build())"
         case let .enum(_, cases):
             return cases.first?.name.value.asString ?? "{}"
-        case let .complex(_, properties):
+        case let .object(_, properties):
             let sorted = properties.sorted { $0.name.value < $1.name.value }
             return "{\(sorted.map { $0.name.value.asString + ": \(JSONStringBuilder($0.type).build())" }.joined(separator: ", "))}"
         default: return defaultInitializableType?.jsonString ?? "{}"
@@ -62,8 +62,8 @@ struct JSONStringBuilder {
         return try decoder.decode(C.self, from: data)
     }
     
-    static func instance<C: Codable>(_ typeContainer: TypeContainer, _ type: C.Type) throws -> C {
-        let data = Self(typeContainer).build().data(using: .utf8) ?? Data()
+    static func instance<C: Codable>(_ typeDescriptor: TypeDescriptor, _ type: C.Type) throws -> C {
+        let data = Self(typeDescriptor).build().data(using: .utf8) ?? Data()
         return try decoder.decode(C.self, from: data)
     }
 }

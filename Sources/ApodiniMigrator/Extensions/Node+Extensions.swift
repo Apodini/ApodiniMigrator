@@ -36,7 +36,7 @@ extension Node where T == ReflectionInfo {
 }
 
 extension TypeInfo {
-    var schemaName: SchemaName {
-        .init(String(describing: type))
+    var typeName: TypeName {
+        .init(type)
     }
 }

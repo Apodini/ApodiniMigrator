@@ -1,8 +1,8 @@
 import Foundation
 @_implementationOnly import Runtime
 
-extension TypeContainer {
-    enum TypeContainerError: Error {
+extension TypeDescriptor {
+    enum TypeDescriptorError: Error {
         case notSupportedDictionaryKeyType
     }
     
@@ -14,7 +14,7 @@ extension TypeContainer {
     /// Initializes a type container from Any type
     init(type: Any.Type) throws {
         if let primitiveType = PrimitiveType(type) {
-            self = .primitive(primitiveType)
+            self = .scalar(primitiveType)
         } else {
             let typeInfo = try Runtime.typeInfo(of: type)
             let genericTypes = typeInfo.genericTypes
@@ -26,15 +26,15 @@ extension TypeContainer {
                 if let keyType = PrimitiveType(keyType) {
                     self = .dictionary(key: keyType, value: try .init(type: valueType))
                 } else {
-                    throw TypeContainerError.notSupportedDictionaryKeyType
+                    throw TypeDescriptorError.notSupportedDictionaryKeyType
                 }
             } else if mangledName == .optional, let wrappedValueType = genericTypes.first {
                 self = .optional(wrappedValue: try .init(type: wrappedValueType))
             } else if typeInfo.kind == .enum {
-                self = .enum(name: typeInfo.schemaName, cases: typeInfo.cases.map { EnumCase($0.name) })
+                self = .enum(name: typeInfo.typeName, cases: typeInfo.cases.map { EnumCase($0.name) })
             } else {
                 let properties: [TypeProperty] = try typeInfo.properties.map { .init(name: .init($0.name), type: try .init(type: $0.type)) }
-                self = .complex(name: typeInfo.schemaName, properties: properties)
+                self = .object(name: typeInfo.typeName, properties: properties)
             }
         }
     }

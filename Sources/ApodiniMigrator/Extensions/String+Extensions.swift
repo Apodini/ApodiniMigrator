@@ -5,4 +5,8 @@ extension String {
     var asString: String {
         "\"\(self)\""
     }
+    
+    func split(character: Character) -> [String] {
+        split(separator: character).map { String($0) }
+    }
 }

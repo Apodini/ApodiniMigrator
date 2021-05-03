@@ -56,8 +56,8 @@ struct Parameter {
     /// Indicates whether `nil` is a valid value
     let nilIsValidValue: NilIsValidValue
 
-    /// Schema name of the type of the parameter
-    let schemaName: SchemaName
+    /// Type name of the type of the parameter
+    let typeName: TypeName
 }
 
 // MARK: - ComparableObject
@@ -72,7 +72,7 @@ extension Parameter: ComparableObject {
             .register(compare(\.necessity, with: other), for: Necessity.self)
             .register(compare(\.type, with: other), for: ParameterType.self)
             .register(compare(\.nilIsValidValue, with: other), for: NilIsValidValue.self)
-            .register(compare(\.schemaName, with: other), for: SchemaName.self)
+            .register(compare(\.typeName, with: other), for: TypeName.self)
     }
 
     func evaluate(result: ChangeContextNode, embeddedInCollection: Bool) -> Change? {
@@ -85,7 +85,7 @@ extension Parameter: ComparableObject {
             necessity.change(in: context),
             type.change(in: context),
             nilIsValidValue.change(in: context),
-            schemaName.change(in: context)
+            typeName.change(in: context)
         ].compactMap { $0 }
 
         guard !changes.isEmpty else {
