@@ -9,6 +9,10 @@ struct TypeName: ComparableProperty { // TODO add generics
     
     let name: String
     let definedIn: String
+    
+    var absoluteName: String {
+        definedIn + "/" + name
+    }
 
     init(_ type: Any.Type) {
         var components = String(reflecting: type).split(character: ".")
@@ -24,6 +28,11 @@ struct TypeName: ComparableProperty { // TODO add generics
     init(name: String, definedIn: String) {
         self.name = name
         self.definedIn = definedIn
+    }
+    
+    init(name: String) {
+        self.name = name
+        self.definedIn = name
     }
 
     init(definedIn: String) {

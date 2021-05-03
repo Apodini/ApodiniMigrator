@@ -8,6 +8,7 @@ extension TypeDescriptor {
         case optional
         case `enum`
         case object
+        case reference
     }
     
     var type: ResolvedType {
@@ -18,6 +19,7 @@ extension TypeDescriptor {
         case .optional: return .optional
         case .enum: return .enum
         case .object: return .object
+        case .reference: return .reference
         }
     }
     
@@ -37,33 +39,77 @@ extension TypeDescriptor {
         type == .optional
     }
     
-    var isEnum: Bool {
-        type == .enum
-    }
-    
     var isObject: Bool {
         type == .object
     }
     
-    var isComplex: Bool {
-        isEnum && isObject
+    var isReference: Bool {
+        type == .reference
+    }
+    
+    var enumType: TypeDescriptor? {
+        switch self {
+        case let .array(element): return element.enumType
+        case let .dictionary(_, value): return value.enumType
+        case let .optional(wrappedValue): return wrappedValue.unwrapped.enumType
+        case .enum: return self
+        default: return nil
+        }
+    }
+    
+    var objectType: TypeDescriptor? {
+        switch self {
+        case let .array(element): return element.objectType
+        case let .dictionary(_, value): return value.objectType
+        case let .optional(wrappedValue): return wrappedValue.objectType
+        case .object: return self
+        default: return nil
+        }
+    }
+
+    var referenceKey: String? {
+        if case let .reference(key) = reference {
+            return key
+        }
+        return nil
+    }
+    
+    var reference: TypeDescriptor? {
+        switch self {
+        case let .array(element): return element.reference
+        case let .dictionary(_, value): return value.reference
+        case let .optional(wrappedValue): return wrappedValue.reference
+        case .reference: return self
+        default: return nil
+        }
+    }
+    
+    var elementIsObject: Bool {
+        objectType != nil
+    }
+    
+    var elementIsEnum: Bool {
+        enumType != nil
+    }
+    
+    var isReferencable: Bool {
+        elementIsObject || elementIsEnum
     }
     
     var typeName: TypeName {
         switch self {
-        case let .scalar(primitiveType):
-            return primitiveType.typeName
-        case let .array(element):
-            return element.typeName
-        case let .dictionary(_, value):
-            return value.typeName
-        case let .optional(wrappedValue):
-            return wrappedValue.typeName
-        case let .enum(name, _):
-            return name
-        case let .object(name, _):
-            return name
+        case let .scalar(primitiveType): return primitiveType.typeName
+        case let .array(element): return element.typeName
+        case let .dictionary(_, value): return value.typeName
+        case let .optional(wrappedValue): return wrappedValue.typeName
+        case let .enum(name, _): return name
+        case let .object(name, _): return name
+        case let .reference(reference): return .init(name: reference)
         }
+    }
+    
+    func filterProperties(_ keyPath: KeyPath<TypeDescriptor, Bool>) -> [TypeProperty] {
+        objectProperties.filter { $0.type[keyPath: keyPath] }
     }
     
     func sameType(with typeDescriptor: TypeDescriptor) -> Bool {
@@ -93,22 +139,15 @@ extension TypeDescriptor {
     
     var dictionaryValue: TypeDescriptor? {
         if case let .dictionary(_, value) = self {
-            return value
+            return value.dictionaryValue
         }
         return nil
     }
     
-    var typeProperties: [TypeProperty] {
+    var objectProperties: [TypeProperty] {
         switch self {
-        case .array(element: let element):
-            return element.typeProperties
-        case .dictionary(key: _, value: let value):
-            return value.typeProperties
-        case .optional(wrappedValue: let wrappedValue):
-            return wrappedValue.typeProperties
-        case .object(name: _, properties: let properties):
-            return properties
-        default: return []
+        case let .object(_, properties): return properties
+        default: return objectType?.objectProperties ?? []
         }
     }
     
@@ -167,15 +206,11 @@ extension TypeDescriptor {
     }
     
     func enums() -> [TypeDescriptor] {
-        filter(\.isEnum)
+        filter(\.elementIsEnum).filter { $0.type == .enum }
     }
     
     func objectTypes() -> [TypeDescriptor] {
-        filter(\.isObject)
-    }
-    
-    func complexTypes() -> [TypeDescriptor] {
-        filter(\.isComplex)
+        filter(\.elementIsObject).filter { $0.type == .object }
     }
 }
 
