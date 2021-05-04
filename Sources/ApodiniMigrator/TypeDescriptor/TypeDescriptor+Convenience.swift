@@ -1,7 +1,7 @@
 import Foundation
 
 extension TypeDescriptor {
-    enum ResolvedType {
+    enum RootType {
         case scalar
         case array
         case dictionary
@@ -11,7 +11,7 @@ extension TypeDescriptor {
         case reference
     }
     
-    var type: ResolvedType {
+    var rootType: RootType {
         switch self {
         case .scalar: return .scalar
         case .array: return .array
@@ -24,27 +24,27 @@ extension TypeDescriptor {
     }
     
     var isScalar: Bool {
-        type == .scalar
+        rootType == .scalar
     }
     
     var isArray: Bool {
-        type == .array
+        rootType == .array
     }
     
     var isDictionary: Bool {
-        type == .dictionary
+        rootType == .dictionary
     }
     
     var isOptional: Bool {
-        type == .optional
+        rootType == .optional
     }
     
     var isObject: Bool {
-        type == .object
+        rootType == .object
     }
     
     var isReference: Bool {
-        type == .reference
+        rootType == .reference
     }
     
     var enumType: TypeDescriptor? {
@@ -67,7 +67,7 @@ extension TypeDescriptor {
         }
     }
 
-    var referenceKey: String? {
+    var referenceKey: ReferenceKey? {
         if case let .reference(key) = reference {
             return key
         }
@@ -104,7 +104,7 @@ extension TypeDescriptor {
         case let .optional(wrappedValue): return wrappedValue.typeName
         case let .enum(name, _): return name
         case let .object(name, _): return name
-        case let .reference(reference): return .init(name: reference)
+        case let .reference: fatalError("Attempted to request type name from a reference")
         }
     }
     
@@ -113,7 +113,7 @@ extension TypeDescriptor {
     }
     
     func sameType(with typeDescriptor: TypeDescriptor) -> Bool {
-        type == typeDescriptor.type
+        rootType == typeDescriptor.rootType
     }
     
     var unwrapped: TypeDescriptor {
@@ -206,11 +206,11 @@ extension TypeDescriptor {
     }
     
     func enums() -> [TypeDescriptor] {
-        filter(\.elementIsEnum).filter { $0.type == .enum }
+        filter(\.elementIsEnum).filter { $0.rootType == .enum }
     }
     
     func objectTypes() -> [TypeDescriptor] {
-        filter(\.elementIsObject).filter { $0.type == .object }
+        filter(\.elementIsObject).filter { $0.rootType == .object }
     }
 }
 

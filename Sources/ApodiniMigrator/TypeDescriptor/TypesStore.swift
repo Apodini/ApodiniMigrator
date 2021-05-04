@@ -13,11 +13,11 @@ struct TypesStore: Codable {
             return type
         }
         
-        let key = type.typeName.name
+        let key = ReferenceKey(type.typeName.name)
         
         
         if let enumType = type.enumType {
-            types[key] = enumType
+            types[key.rawValue] = enumType
             return type.asReference(with: key)
         }
         
@@ -27,7 +27,7 @@ struct TypesStore: Codable {
                 .init(name: property.name, type: store(property.type))
             }
             
-            types[key] = .object(name: objectType.typeName, properties: referencedProperties)
+            types[key.rawValue] = .object(name: objectType.typeName, properties: referencedProperties)
             return type.asReference(with: key)
         }
         
@@ -35,7 +35,7 @@ struct TypesStore: Codable {
     }
     
     mutating func construct(from reference: TypeDescriptor) -> TypeDescriptor {
-        guard let referenceKey = reference.referenceKey, let stored = types[referenceKey] else {
+        guard let referenceKey = reference.referenceKey, let stored = types[referenceKey.rawValue] else {
             fatalError("No type stored with reference")
         }
         
@@ -85,7 +85,7 @@ struct TypesStore: Codable {
 }
 
 fileprivate extension TypeDescriptor {
-    func asReference(with key: String) -> TypeDescriptor {
+    func asReference(with key: ReferenceKey) -> TypeDescriptor {
         switch self {
         case .scalar: return self
         case let .array(element): return .array(element: element.asReference(with: key))

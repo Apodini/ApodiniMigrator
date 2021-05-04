@@ -60,11 +60,11 @@ final class ApodiniMigratorTests: XCTestCase {
         
 //        let references = result.filter(\.isReference)
         
-//        print(store.json)
+        print(store.json)
         
-        let allKeys = store.types.keys
-        print(allKeys)
-        print(result.json)
+//        let allKeys = store.types.keys
+//        print(allKeys)
+//        print(result.json)
         
         XCTAssertEqual(result, typeDescriptor)
     }

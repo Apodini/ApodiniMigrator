@@ -7,7 +7,7 @@ enum TypeDescriptor: Value {
     indirect case optional(wrappedValue: TypeDescriptor)
     case `enum`(name: TypeName, cases: [EnumCase])
     case object(name: TypeName, properties: [TypeProperty])
-    case reference(String)
+    case reference(ReferenceKey)
 }
 
 // MARK: - TypeDescriptor + Equatable
@@ -72,7 +72,7 @@ extension TypeDescriptor {
             var objectContainer = container.nestedContainer(keyedBy: ObjectKeys.self, forKey: .object)
             try objectContainer.encode(name, forKey: .typeName)
             try objectContainer.encode(properties, forKey: .properties)
-        case let .reference(name): try container.encode(name, forKey: .reference)
+        case let .reference(key): try container.encode(key, forKey: .reference)
         }
     }
     
@@ -100,7 +100,7 @@ extension TypeDescriptor {
                 name: try objectContainer.decode(TypeName.self, forKey: .typeName),
                 properties: try objectContainer.decode([TypeProperty].self, forKey: .properties)
             )
-        case .reference: self = .reference(try container.decode(String.self, forKey: .reference))
+        case .reference: self = .reference(try container.decode(ReferenceKey.self, forKey: .reference))
         default: fatalError("Failed to decode type container")
         }
     }
