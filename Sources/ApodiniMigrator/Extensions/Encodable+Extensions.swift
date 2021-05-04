@@ -1,6 +1,9 @@
 import Foundation
 
+// MARK: - Encodable extensions
 extension Encodable {
+    /// JSON String of this encodable with `.prettyPrinted, .sortedKeys, .withoutEscapingSlashes` output formatting
+    /// and `iSO8601DateFormatter` as date encoding strategy
     var json: String {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .formatted(.iSO8601DateFormatter)

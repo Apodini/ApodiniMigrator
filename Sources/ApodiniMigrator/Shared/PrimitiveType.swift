@@ -20,6 +20,7 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparablePro
     case string = "String"
     case double = "Double"
     case float = "Float"
+    case url = "URL"
     case uuid = "UUID"
     case date = "Date"
     case data = "Data"
@@ -27,7 +28,13 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparablePro
     public var description: String { rawValue }
     
     public init?(_ type: Any.Type) {
-        if let primitiveType = PrimitiveType(rawValue: "\(type)") {
+        if type == NSDate.self {
+            self = .date
+        } else if type == NSURL.self {
+            self = .url
+        } else if type == Decimal.self || type == NSDecimalNumber.self {
+            self = .int64
+        } else if let primitiveType = PrimitiveType(rawValue: "\(type)") {
             self = primitiveType
         } else {
             return nil
@@ -50,6 +57,7 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparablePro
         case .string: return String.self
         case .double: return Double.self
         case .float: return Float.self
+        case .url: return URL.self
         case .uuid: return UUID.self
         case .date: return Date.self
         case .data: return Data.self
@@ -58,7 +66,7 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparablePro
 }
 
 extension PrimitiveType {
-    var schemaName: SchemaName {
-        .init(String(describing: swiftType))
+    var typeName: TypeName {
+        .init(swiftType)
     }
 }

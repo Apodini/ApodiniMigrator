@@ -1,9 +1,12 @@
 import Foundation
 
+/// A protocol that forces the presence of an empty initializer
 protocol DefaultInitializable: CustomStringConvertible {
     init()
     static var jsonString: String { get }
 }
+
+// MARK: - Default
 extension DefaultInitializable {
     static var defaultValue: Self { .init() }
     static var jsonString: String { defaultValue.description }
@@ -12,6 +15,7 @@ extension DefaultInitializable {
     }
 }
 
+// MARK: - DefaultInitializable conformance
 extension Int: DefaultInitializable {}
 extension Int8: DefaultInitializable {}
 extension Int16: DefaultInitializable {}
@@ -35,27 +39,42 @@ extension String: DefaultInitializable {
     }
 }
 
-extension UUID: DefaultInitializable {
-    static var jsonString: String {
-        test.uuidString.asString
+extension URL: DefaultInitializable {
+    static var defaultURL: URL {
+        // swiftlint:disable:next force_unwrapping
+        URL(string: "https://github.com/Apodini/ApodiniMigrator.git")!
     }
     
-    static var test: UUID {
+    init() {
+        self = .defaultURL
+    }
+    
+    static var jsonString: String {
+        defaultValue.absoluteString.asString
+    }
+}
+
+extension UUID: DefaultInitializable {
+    static var jsonString: String {
+        defaultUUID.uuidString.asString
+    }
+    
+    static var defaultUUID: UUID {
         UUID(uuidString: "3070B293-C664-412B-A43E-21FF445608B7") ?? UUID()
     }
 }
 
 extension Date: DefaultInitializable {
     var noon: Date {
-        let calendar = Calendar(identifier: .gregorian)
-        return calendar.date(bySettingHour: 12, minute: 0, second: 0, of: self) ?? self
+        Calendar(identifier: .gregorian).date(bySettingHour: 12, minute: 0, second: 0, of: self) ?? self
     }
     
-    static var test: Date {
+    static var today: Date {
         Date().noon
     }
+    
     static var jsonString: String {
-        DateFormatter.iSO8601DateFormatter.string(from: test).asString
+        DateFormatter.iSO8601DateFormatter.string(from: today).asString
     }
 }
 extension Data: DefaultInitializable {

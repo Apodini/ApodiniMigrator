@@ -1,13 +1,8 @@
-//
-//  File.swift
-//  
-//
-//  Created by Eldi Cano on 22.03.21.
-//
-
 import Foundation
 
-/// `Parameter` categorization needed for certain interface exporters (e.g., HTTP-based).
+/** ParameterType from Apodini*/
+
+/// Categorization needed for certain interface exporters (e.g., HTTP-based).
 enum ParameterType: String, ComparableProperty {
     /// Lightweight parameters are any parameters which are
     /// considered to be lightweight in some sort of way.
@@ -30,6 +25,7 @@ extension ParameterType: CustomStringConvertible {
     }
 }
 
+/** Necessity from Apodini*/
 /// Defines the necessity of a `Parameter`
 enum Necessity: String, ComparableProperty {
     /// `.required` necessity describes parameters which require a valuer in any case.
@@ -56,8 +52,8 @@ struct Parameter {
     /// Indicates whether `nil` is a valid value
     let nilIsValidValue: NilIsValidValue
 
-    /// Schema name of the type of the parameter
-    let schemaName: SchemaName
+    /// The reference of the type descriptor of the parameter
+    let typeDescriptor: TypeDescriptor
 }
 
 // MARK: - ComparableObject
@@ -72,7 +68,6 @@ extension Parameter: ComparableObject {
             .register(compare(\.necessity, with: other), for: Necessity.self)
             .register(compare(\.type, with: other), for: ParameterType.self)
             .register(compare(\.nilIsValidValue, with: other), for: NilIsValidValue.self)
-            .register(compare(\.schemaName, with: other), for: SchemaName.self)
     }
 
     func evaluate(result: ChangeContextNode, embeddedInCollection: Bool) -> Change? {
@@ -84,8 +79,7 @@ extension Parameter: ComparableObject {
             parameterName.change(in: context),
             necessity.change(in: context),
             type.change(in: context),
-            nilIsValidValue.change(in: context),
-            schemaName.change(in: context)
+            nilIsValidValue.change(in: context)
         ].compactMap { $0 }
 
         guard !changes.isEmpty else {
