@@ -3,8 +3,8 @@ import Foundation
 enum TypeDescriptor: Value {
     /// A scalar type
     case scalar(PrimitiveType)
-    /// An array type, with `TypeDescriptor` elements
-    indirect case array(element: TypeDescriptor)
+    /// A repeated type (set or array), with `TypeDescriptor` elements
+    indirect case repeated(element: TypeDescriptor)
     /// A dictionary with primitive keys and `TypeDescriptor` values
     indirect case dictionary(key: PrimitiveType, value: TypeDescriptor)
     /// An optional type with `TypeDescriptor` wrapped values
@@ -27,7 +27,7 @@ extension TypeDescriptor {
         switch (lhs, rhs) {
         case let (.scalar(lhsPrimitiveType), .scalar(rhsPrimitiveType)):
             return lhsPrimitiveType == rhsPrimitiveType
-        case let (.array(lhsElement), .array(rhsElement)):
+        case let (.repeated(lhsElement), .repeated(rhsElement)):
             return lhsElement == rhsElement
         case let (.dictionary(lhsKey, lhsValue), .dictionary(rhsKey, rhsValue)):
             return lhsKey == rhsKey && lhsValue == rhsValue
@@ -48,7 +48,7 @@ extension TypeDescriptor {
 extension TypeDescriptor {
     // MARK: CodingKeys
     private enum CodingKeys: String, CodingKey {
-        case scalar, array, dictionary, optional, `enum`, object, reference
+        case scalar, repeated, dictionary, optional, `enum`, object, reference
     }
     
     private enum DictionaryKeys: String, CodingKey {
@@ -67,7 +67,7 @@ extension TypeDescriptor {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
         case let .scalar(primitiveType): try container.encode(primitiveType, forKey: .scalar)
-        case let .array(element): try container.encode(element, forKey: .array)
+        case let .repeated(element): try container.encode(element, forKey: .repeated)
         case let .dictionary(key, value):
             var dictionaryContainer = container.nestedContainer(keyedBy: DictionaryKeys.self, forKey: .dictionary)
             try dictionaryContainer.encode(key, forKey: .key)
@@ -90,7 +90,7 @@ extension TypeDescriptor {
         let key = container.allKeys.first
         switch key {
         case .scalar: self = .scalar(try container.decode(PrimitiveType.self, forKey: .scalar))
-        case .array: self = .array(element: try container.decode(TypeDescriptor.self, forKey: .array))
+        case .repeated: self = .repeated(element: try container.decode(TypeDescriptor.self, forKey: .repeated))
         case .optional: self = .optional(wrappedValue: try container.decode(TypeDescriptor.self, forKey: .optional))
         case .dictionary:
             let dictionaryContainer = try container.nestedContainer(keyedBy: DictionaryKeys.self, forKey: .dictionary)

@@ -1,5 +1,7 @@
 import Foundation
 
+/** Operation from Apodini*/
+
 /// Defines the Operation of a given endpoint
 enum Operation: String, CaseIterable, CustomStringConvertible, ComparableProperty {
     /// The associated endpoint is used for a `create` operation

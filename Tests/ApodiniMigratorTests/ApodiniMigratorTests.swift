@@ -21,36 +21,56 @@ final class ApodiniMigratorTests: XCTestCase {
     }
     
     struct Student: Codable {
-        let ids: [Date]
-        let name: String
+        // MARK: Private Inner Types
+        private enum CodingKeys: String, CodingKey {
+            case exams
+        }
+        let exams: [Date]
+        let testClass: ApodiniMigratorTests /// non-codable properties are ignored from initializer of `TypeDescriptor`
+        
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(exams, forKey: .exams)
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            exams = try container.decode([Date].self, forKey: .exams)
+            testClass = .init()
+        }
     }
     
     struct Shop: Codable {
         let id: UUID
         let licence: UInt?
-        let isOpen: Bool
+        let url: URL
         let directions: [UUID: Direction]
     }
     
     struct SomeStruct: Codable {
-        let someDictionary: [Bool: Shop]
+        let someDictionary: [URL: Shop]
     }
     
     struct User: Codable {
         let student: [Int: Student??]
         let birthday: [Date]
-        let scores: [Int]
+        let url: URL
+        let scores: [Set<Int>]
         let name: String?
-        let nestedDirections: [[[[[Direction]]]]]
+        // swiftlint:disable:next discouraged_optional_collection
+        let nestedDirections: Set<[[[[[Direction]?]?]?]]> /// testing recursive storing and reconstructing in `TypesStore`
         let shops: [Shop]
         let cars: [String: Car]
-        let otherCar: [Car]
+        let otherCars: [Car]
     }
     
     let someComplexType = [Int: [UUID: User?????]].self
     
+    /// testing recursive storing and reconstructing in `TypesStore`
     func testTypeStore() throws {
-        guard !isLinux() else { return }
+        guard !isLinux() else {
+            return
+        }
         
         let typeDescriptor = try TypeDescriptor(type: someComplexType.self)
         
@@ -65,7 +85,9 @@ final class ApodiniMigratorTests: XCTestCase {
     
     
     func testJSONStringBuilder() throws {
-        guard !isLinux() else { return }
+        guard !isLinux() else {
+            return
+        }
         
         let typeDescriptor = try TypeDescriptor(type: someComplexType)
         let instance = XCTAssertNoThrowWithResult(try JSONStringBuilder.instance(typeDescriptor, someComplexType))
@@ -75,6 +97,7 @@ final class ApodiniMigratorTests: XCTestCase {
         let userInstance = instance.values.first!.values.first!!!!!!
         XCTAssert(userInstance.birthday.first == .today)
         XCTAssert(userInstance.shops.first?.id == .defaultUUID)
+        XCTAssert(userInstance.url == .defaultURL)
     }
     
     
@@ -86,6 +109,6 @@ final class ApodiniMigratorTests: XCTestCase {
         } catch {
             XCTFail(error.localizedDescription)
         }
-        fatalError("Expression threw an error")
+        preconditionFailure("Expression threw an error")
     }
 }

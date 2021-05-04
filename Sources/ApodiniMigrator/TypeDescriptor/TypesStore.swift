@@ -1,8 +1,11 @@
 import Foundation
 
+/// `TypesStore` provides logic to reference and store type descriptors, while e.g. an endpoint keeps only the reference of the response type
+/// Provided with a reference from `TypeStore`, the instance of type descriptor
+/// can be constructed without information-loss via `construct(from reference:)`
 struct TypesStore: Codable {
     /// Stored references of enums and objects
-    /// Properties of objects are recursivly stored
+    /// Properties of objects are recursively stored
     var types: [String: TypeDescriptor]
     
     /// Initializes a store with no types
@@ -17,15 +20,18 @@ struct TypesStore: Codable {
             return type
         }
         
-        /// TODO unique key would be `absolutName` of typeName which includes the module
-        /// e.g. `ApodiniMigrator/TypesStore`, currently only using `TypeStore`
+        #warning(
+            """
+            unique key would be `absoluteName` of typeName which includes the module,
+            e.g. `ApodiniMigrator/User`, currently only using type name `User`
+            """)
         let key = ReferenceKey(type.typeName.name)
         
         if let enumType = type.enumType { // retrieving the nested enum
             types[key.rawValue] = enumType
         }
         
-        if let objectType = type.objectType { // retrieving the nested enum
+        if let objectType = type.objectType { // retrieving the nested object
             let referencedProperties = objectType.objectProperties.map { property -> TypeProperty in
                 .init(name: property.name, type: store(property.type)) // storing potentially referencable properties
             }
@@ -56,7 +62,7 @@ struct TypesStore: Codable {
         /// If the reference is at root, means the stored object has either been an object or enum -> return directly
         case .reference: return stored
         /// otherwise the stored object has been nested -> construct recursively
-        case let .array(element): return .array(element: element.construct(from: reference, in: &self))
+        case let .repeated(element): return .repeated(element: element.construct(from: reference, in: &self))
         case let .dictionary(key, value): return .dictionary(key: key, value: value.construct(from: reference, in: &self))
         case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue.construct(from: reference, in: &self))
         default: fatalError("Encountered an invalid reference \(reference)")
@@ -65,10 +71,10 @@ struct TypesStore: Codable {
 }
 
 fileprivate extension TypeDescriptor {
-    /// Wraps the element into a reference, e.g. .array(User) -> .array(.reference(User)) after all properties of user have been stored
+    /// Wraps the element into a reference, e.g. .repeated(User) -> .repeated(.reference(User)) after all properties of user have been stored
     func asReference(with key: ReferenceKey) -> TypeDescriptor {
         switch self {
-        case let .array(element): return .array(element: element.asReference(with: key))
+        case let .repeated(element): return .repeated(element: element.asReference(with: key))
         case let .dictionary(dictionaryKey, value): return .dictionary(key: dictionaryKey, value: value.asReference(with: key))
         case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue.asReference(with: key))
         case .enum, .object: return .reference(key)
@@ -76,10 +82,10 @@ fileprivate extension TypeDescriptor {
         }
     }
     
-    /// Used to construct properties of object types recursively
+    /// Used to construct properties of object or enum types recursively
     func construct(from reference: TypeDescriptor, in store: inout TypesStore) -> TypeDescriptor {
         switch self {
-        case let .array(element): return .array(element: element.construct(from: reference, in: &store))
+        case let .repeated(element): return .repeated(element: element.construct(from: reference, in: &store))
         case let .dictionary(key, value): return .dictionary(key: key, value: value.construct(from: reference, in: &store))
         case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue.construct(from: reference, in: &store))
         // initial reference has been recursively deconstructed until here -> construct from self

@@ -1,12 +1,12 @@
 import Foundation
 
-struct TypeName: ComparableProperty { // TODO add generics
-    
+struct TypeName: ComparableProperty {
     // MARK: Coding Keys
     private enum CodingKeys: String, CodingKey {
         case name, definedIn = "defined-in"
     }
     
+    #warning("Include names of generic types as computed properties")
     let name: String
     let definedIn: String
     

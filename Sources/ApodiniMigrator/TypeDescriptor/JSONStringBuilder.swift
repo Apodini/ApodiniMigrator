@@ -37,7 +37,7 @@ struct JSONStringBuilder {
     }
     
     /// Dictionaries are encoded either with curly brackes `{ "key" : value }` if the key is String or Int,
-    /// or as an array e.g. [key, value] for keys of other types
+    /// or as an array containing keys and values interchangeably e.g. [key, value] for keys of other types
     func requiresCurlyBrackets(_ primitiveType: PrimitiveType) -> Bool {
         [.string, .int].contains(primitiveType)
     }
@@ -51,7 +51,7 @@ struct JSONStringBuilder {
     /// Builds and returns a valid JSON string from the type descriptor.
     func build() -> String {
         switch typeDescriptor {
-        case let .array(element):
+        case let .repeated(element):
             return "[\(JSONStringBuilder(element).build())]"
         case let .dictionary(key, value):
             if requiresCurlyBrackets(key) {
@@ -59,7 +59,7 @@ struct JSONStringBuilder {
             }
             return "[\(dictionaryKey(key)), \(JSONStringBuilder(value).build())]"
         case let .optional(wrappedValue):
-            return "\(JSONStringBuilder(wrappedValue).build())"
+            return "\(JSONStringBuilder(wrappedValue.unwrapped).build())"
         case let .enum(_, cases):
             return cases.first?.name.value.asString ?? "{}"
         case let .object(_, properties):

@@ -22,8 +22,8 @@ struct Endpoint {
     /// Parameters of the endpoint
     let parameters: [Parameter]
 
-    /// Type name of the response type of the endpoint
-    let response: TypeName
+    /// The reference of the type descriptor of the response
+    let response: TypeDescriptor
     
     /// Name of the operation specified via `.pallidor(_:)` modified
     let operationName: PallidorOperationName
@@ -38,7 +38,7 @@ struct Endpoint {
         operation: Operation,
         absolutePath: String,
         parameters: [Parameter],
-        response: TypeName,
+        response: TypeDescriptor,
         operationName: String,
         endpointName: PallidorEndpointName
     ) {
@@ -66,8 +66,7 @@ extension Endpoint: ComparableObject {
             absolutePath.change(in: context),
             parameters.evaluate(node: context),
             operationName.change(in: context),
-            endpointName.change(in: context),
-            response.change(in: context)
+            endpointName.change(in: context)
         ].compactMap { $0 }
 
         guard !changes.isEmpty else {
@@ -83,7 +82,6 @@ extension Endpoint: ComparableObject {
             .register(compare(\.operation, with: other), for: Operation.self)
             .register(compare(\.absolutePath, with: other), for: Path.self)
             .register(result: compare(\.parameters, with: other), for: Parameter.self)
-            .register(compare(\.response, with: other), for: TypeName.self)
             .register(compare(\.operationName, with: other), for: PallidorOperationName.self)
             .register(compare(\.endpointName, with: other), for: PallidorEndpointName.self)
     }

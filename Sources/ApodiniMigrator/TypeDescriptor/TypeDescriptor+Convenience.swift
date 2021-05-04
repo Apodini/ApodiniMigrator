@@ -4,7 +4,7 @@ extension TypeDescriptor {
     /// A simplified enum of the type descriptor
     enum RootType {
         case scalar
-        case array
+        case repeated
         case dictionary
         case optional
         case `enum`
@@ -16,7 +16,7 @@ extension TypeDescriptor {
     var rootType: RootType {
         switch self {
         case .scalar: return .scalar
-        case .array: return .array
+        case .repeated: return .repeated
         case .dictionary: return .dictionary
         case .optional: return .optional
         case .enum: return .enum
@@ -30,9 +30,9 @@ extension TypeDescriptor {
         rootType == .scalar
     }
     
-    /// Indicates whether the root type is an array
-    var isArray: Bool {
-        rootType == .array
+    /// Indicates whether the root type is a repeated type
+    var isRepeated: Bool {
+        rootType == .repeated
     }
     
     /// Indicates whether the root type is a dictionary
@@ -63,7 +63,7 @@ extension TypeDescriptor {
     /// If the root type is enum, returns `self`, otherwise the nested types are searched recursively
     var enumType: TypeDescriptor? {
         switch self {
-        case let .array(element): return element.enumType
+        case let .repeated(element): return element.enumType
         case let .dictionary(_, value): return value.enumType
         case let .optional(wrappedValue): return wrappedValue.unwrapped.enumType
         case .enum: return self
@@ -74,7 +74,7 @@ extension TypeDescriptor {
     /// If the root type is an object, returns `self`, otherwise the nested types are searched recursively
     var objectType: TypeDescriptor? {
         switch self {
-        case let .array(element): return element.objectType
+        case let .repeated(element): return element.objectType
         case let .dictionary(_, value): return value.objectType
         case let .optional(wrappedValue): return wrappedValue.objectType
         case .object: return self
@@ -90,10 +90,10 @@ extension TypeDescriptor {
         return nil
     }
     
-    /// Returns the nested reference if any. References can be stored inside array, dictionaries, optionals, or at top level
+    /// Returns the nested reference if any. References can be stored inside repeated types, dictionaries, optionals, or at top level
     var reference: TypeDescriptor? {
         switch self {
-        case let .array(element): return element.reference
+        case let .repeated(element): return element.reference
         case let .dictionary(_, value): return value.reference
         case let .optional(wrappedValue): return wrappedValue.reference
         case .reference: return self
@@ -121,7 +121,7 @@ extension TypeDescriptor {
     var typeName: TypeName {
         switch self {
         case let .scalar(primitiveType): return primitiveType.typeName
-        case let .array(element): return element.typeName
+        case let .repeated(element): return element.typeName
         case let .dictionary(_, value): return value.typeName
         case let .optional(wrappedValue): return wrappedValue.typeName
         case let .enum(name, _): return name
@@ -148,10 +148,10 @@ extension TypeDescriptor {
         return self
     }
     
-    /// Recursively returns the element of the array (also unwrapped)
-    var arrayElement: TypeDescriptor? {
-        if case let .array(element) = self {
-            return element.arrayElement?.unwrapped
+    /// Recursively returns the element of the repeated types (also unwrapped)
+    var repeatedElement: TypeDescriptor? {
+        if case let .repeated(element) = self {
+            return element.repeatedElement?.unwrapped
         }
         return nil
     }
@@ -189,11 +189,11 @@ extension TypeDescriptor {
     }
     
     /// Recursively returns all types included in this type descriptor, e.g. primitive types, enums, objects
-    ///  and nested elements in arrays, dictionaries and optionals
+    ///  and nested elements in repeated Types, dictionaries and optionals
     func allTypes() -> [TypeDescriptor] {
         var allTypes: Set<TypeDescriptor> = [self]
         switch self {
-        case let .array(element):
+        case let .repeated(element):
             allTypes += element.allTypes()
         case let .dictionary(key, value):
             allTypes += .scalar(key) + value.allTypes()
@@ -230,9 +230,9 @@ extension TypeDescriptor {
         filter(\.isScalar)
     }
     
-    /// Returns all distinct arrays in `allTypes()`
-    func arrays() -> [TypeDescriptor] {
-        filter(\.isArray)
+    /// Returns all distinct repeated types in `allTypes()`
+    func repeatedTypes() -> [TypeDescriptor] {
+        filter(\.isRepeated)
     }
     
     /// Returns all distinct dictionaries in `allTypes()`

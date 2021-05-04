@@ -1,5 +1,7 @@
 import Foundation
 
+/** Version from Apodini */
+
 /// A `Version` can be  used to specify the version of a Web API using semantic versioning
 struct Version: Codable {
     /// Default values for a `Version`

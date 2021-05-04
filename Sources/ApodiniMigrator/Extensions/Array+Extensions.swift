@@ -8,8 +8,8 @@
 import Foundation
 
 extension Array where Element: Hashable {
-    func unique() -> Set<Element> {
-        Set(self)
+    func unique() -> Self {
+        Set(self).asArray
     }
 }
 

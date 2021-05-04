@@ -12,7 +12,7 @@ class CollectionChangeContextNode<C: ComparableObject> {
     private(set) var additionsAndRemovals: [DeltaIdentifier: ComparisonResult<C>] = [:]
     private(set) var changes: [DeltaIdentifier: ChangeContextNode] = [:]
 
-    var allDeltaIdentifiers: Set<DeltaIdentifier> {
+    var allDeltaIdentifiers: [DeltaIdentifier] {
         (Array(additionsAndRemovals.keys) + changes.keys).unique()
     }
 

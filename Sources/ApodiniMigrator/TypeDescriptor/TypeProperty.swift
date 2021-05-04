@@ -2,9 +2,13 @@ import Foundation
 
 class PropertyName: PropertyValueWrapper<String> {}
 
-struct TypeProperty: Value { // todo add required / cardinality based on type descriptor type
+struct TypeProperty: Value {
     let name: PropertyName
     let type: TypeDescriptor
+    
+    var isRequired: Bool {
+        !type.isOptional
+    }
 }
 
 struct EnumCase: Value {

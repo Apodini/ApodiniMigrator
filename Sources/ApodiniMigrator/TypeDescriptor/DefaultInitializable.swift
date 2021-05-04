@@ -1,6 +1,6 @@
 import Foundation
 
-/// A protocol that forces the presence of an empty initializers
+/// A protocol that forces the presence of an empty initializer
 protocol DefaultInitializable: CustomStringConvertible {
     init()
     static var jsonString: String { get }
@@ -39,6 +39,21 @@ extension String: DefaultInitializable {
     }
 }
 
+extension URL: DefaultInitializable {
+    static var defaultURL: URL {
+        // swiftlint:disable:next force_unwrapping
+        URL(string: "https://github.com/Apodini/ApodiniMigrator.git")!
+    }
+    
+    init() {
+        self = .defaultURL
+    }
+    
+    static var jsonString: String {
+        defaultValue.absoluteString.asString
+    }
+}
+
 extension UUID: DefaultInitializable {
     static var jsonString: String {
         defaultUUID.uuidString.asString
@@ -51,13 +66,13 @@ extension UUID: DefaultInitializable {
 
 extension Date: DefaultInitializable {
     var noon: Date {
-        let calendar = Calendar(identifier: .gregorian)
-        return calendar.date(bySettingHour: 12, minute: 0, second: 0, of: self) ?? self
+        Calendar(identifier: .gregorian).date(bySettingHour: 12, minute: 0, second: 0, of: self) ?? self
     }
     
     static var today: Date {
         Date().noon
     }
+    
     static var jsonString: String {
         DateFormatter.iSO8601DateFormatter.string(from: today).asString
     }
