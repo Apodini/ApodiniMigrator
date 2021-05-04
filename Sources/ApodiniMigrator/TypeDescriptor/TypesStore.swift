@@ -1,115 +1,90 @@
 import Foundation
 
 struct TypesStore: Codable {
+    /// Stored references of enums and objects
+    /// Properties of objects are recursivly stored
     var types: [String: TypeDescriptor]
     
+    /// Initializes a store with no types
     init() {
         types = [:]
     }
     
-    @discardableResult
+    /// Stores an enum or object type by its type name, and returns the reference
+    /// If attempting to store a non referencable type, the operation is ignored and the input type is returned directly
     mutating func store(_ type: TypeDescriptor) -> TypeDescriptor {
         guard type.isReferencable else {
             return type
         }
         
+        /// TODO unique key would be `absolutName` of typeName which includes the module
+        /// e.g. `ApodiniMigrator/TypesStore`, currently only using `TypeStore`
         let key = ReferenceKey(type.typeName.name)
         
-        
-        if let enumType = type.enumType {
+        if let enumType = type.enumType { // retrieving the nested enum
             types[key.rawValue] = enumType
-            return type.asReference(with: key)
         }
         
-        
-        if let objectType = type.objectType {
+        if let objectType = type.objectType { // retrieving the nested enum
             let referencedProperties = objectType.objectProperties.map { property -> TypeProperty in
-                .init(name: property.name, type: store(property.type))
+                .init(name: property.name, type: store(property.type)) // storing potentially referencable properties
             }
-            
             types[key.rawValue] = .object(name: objectType.typeName, properties: referencedProperties)
-            return type.asReference(with: key)
         }
         
-        fatalError("TypeDescriptor model is malformed")
+        return type.asReference(with: key) // referencing the type
     }
     
+    /// Constructs a type from a reference
     mutating func construct(from reference: TypeDescriptor) -> TypeDescriptor {
-        guard let referenceKey = reference.referenceKey, let stored = types[referenceKey.rawValue] else {
-            fatalError("No type stored with reference")
+        guard let referenceKey = reference.referenceKey, var stored = types[referenceKey.rawValue] else {
+            fatalError("Attempted to construct a type that does not contain a reference")
         }
         
-        switch stored {
-        case .enum:
-            return stored
-        case let .object(name, properties):
+        /// If the stored type is an object, we recursively construct its properties and update the stored
+        if case let .object(name, properties) = stored {
             let newProperties = properties.map { property -> TypeProperty in
-                if let reference = property.type.reference {
-                    return self.property(type: property, from: reference)
+                if let propertyReference = property.type.reference {
+                    return .init(name: property.name, type: property.type.construct(from: propertyReference, in: &self))
                 }
                 return property
             }
-            return .object(name: name, properties: newProperties)
-        default: fatalError("Encountered a non referencable type \(stored.typeName.name)")
+            stored = .object(name: name, properties: newProperties)
         }
-    }
-    
-    mutating func stored(type: TypeDescriptor, with reference: TypeDescriptor) -> TypeDescriptor {
-        switch reference {
-        case .array(element: let element):
-            return .array(element: type)
-        case .dictionary(key: let key, value: let value):
-            return .dictionary(key: key, value: type)
-        case .optional(wrappedValue: let wrappedValue):
-            return .optional(wrappedValue: type)
         
-        default: fatalError(" errorr")
+        switch reference {
+        /// If the reference is at root, means the stored object has either been an object or enum -> return directly
+        case .reference: return stored
+        /// otherwise the stored object has been nested -> construct recursively
+        case let .array(element): return .array(element: element.construct(from: reference, in: &self))
+        case let .dictionary(key, value): return .dictionary(key: key, value: value.construct(from: reference, in: &self))
+        case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue.construct(from: reference, in: &self))
+        default: fatalError("Encountered an invalid reference \(reference)")
         }
-    }
-    
-    mutating func property(type: TypeProperty, from reference: TypeDescriptor) -> TypeProperty {
-        let propertyName = type.name
-        let adjusted = construct(from: reference)
-        let newPropertyType: TypeDescriptor
-        switch type.type {
-        case .array: newPropertyType = .array(element: adjusted)
-        case let .dictionary(dictionaryKey, _): newPropertyType = .dictionary(key: dictionaryKey, value: adjusted)
-        case .optional: newPropertyType = .optional(wrappedValue: adjusted)
-        case .enum: newPropertyType = adjusted
-        case .object: newPropertyType = adjusted
-        case .reference: newPropertyType = adjusted
-        default: fatalError(" Error")
-        }
-        return .init(name: propertyName, type: newPropertyType)
     }
 }
 
 fileprivate extension TypeDescriptor {
+    /// Wraps the element into a reference, e.g. .array(User) -> .array(.reference(User)) after all properties of user have been stored
     func asReference(with key: ReferenceKey) -> TypeDescriptor {
         switch self {
-        case .scalar: return self
         case let .array(element): return .array(element: element.asReference(with: key))
         case let .dictionary(dictionaryKey, value): return .dictionary(key: dictionaryKey, value: value.asReference(with: key))
-        case let .optional(wrappedValue):
-            
-            return .optional(wrappedValue: wrappedValue.asReference(with: key))
+        case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue.asReference(with: key))
         case .enum, .object: return .reference(key)
-        case .reference: fatalError("Attempted to create a reference from a reference")
+        default: fatalError("Attempted to create a reference from a non referencable type")
         }
     }
     
-    func inject(type: TypeDescriptor) -> TypeDescriptor {
-        guard type != self else {
-            return self
-        }
-        
+    /// Used to construct properties of object types recursively
+    func construct(from reference: TypeDescriptor, in store: inout TypesStore) -> TypeDescriptor {
         switch self {
-        case .optional: return .optional(wrappedValue: type)
-        case .array: return .array(element: type)
-        case let .dictionary(key, _): return .dictionary(key: key, value: type)
-        case .enum: return type
-        case .object: return type
-        default: return self
+        case let .array(element): return .array(element: element.construct(from: reference, in: &store))
+        case let .dictionary(key, value): return .dictionary(key: key, value: value.construct(from: reference, in: &store))
+        case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue.construct(from: reference, in: &store))
+        // initial reference has been recursively deconstructed until here -> construct from self
+        case .reference: return store.construct(from: self)
+        default: fatalError("Attempted to construct a non referencable type")
         }
     }
 }

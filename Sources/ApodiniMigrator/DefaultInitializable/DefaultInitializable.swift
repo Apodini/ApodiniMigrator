@@ -1,9 +1,12 @@
 import Foundation
 
+/// A protocol that forces the presence of an empty initializers
 protocol DefaultInitializable: CustomStringConvertible {
     init()
     static var jsonString: String { get }
 }
+
+// MARK: - Default
 extension DefaultInitializable {
     static var defaultValue: Self { .init() }
     static var jsonString: String { defaultValue.description }
@@ -12,6 +15,7 @@ extension DefaultInitializable {
     }
 }
 
+// MARK: - DefaultInitializable conformance
 extension Int: DefaultInitializable {}
 extension Int8: DefaultInitializable {}
 extension Int16: DefaultInitializable {}
@@ -37,10 +41,10 @@ extension String: DefaultInitializable {
 
 extension UUID: DefaultInitializable {
     static var jsonString: String {
-        test.uuidString.asString
+        defaultUUID.uuidString.asString
     }
     
-    static var test: UUID {
+    static var defaultUUID: UUID {
         UUID(uuidString: "3070B293-C664-412B-A43E-21FF445608B7") ?? UUID()
     }
 }
@@ -51,11 +55,11 @@ extension Date: DefaultInitializable {
         return calendar.date(bySettingHour: 12, minute: 0, second: 0, of: self) ?? self
     }
     
-    static var test: Date {
+    static var today: Date {
         Date().noon
     }
     static var jsonString: String {
-        DateFormatter.iSO8601DateFormatter.string(from: test).asString
+        DateFormatter.iSO8601DateFormatter.string(from: today).asString
     }
 }
 extension Data: DefaultInitializable {

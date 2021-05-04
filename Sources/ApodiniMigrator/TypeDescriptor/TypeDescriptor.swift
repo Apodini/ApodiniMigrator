@@ -1,12 +1,19 @@
 import Foundation
 
 enum TypeDescriptor: Value {
+    /// A scalar type
     case scalar(PrimitiveType)
+    /// An array type, with `TypeDescriptor` elements
     indirect case array(element: TypeDescriptor)
+    /// A dictionary with primitive keys and `TypeDescriptor` values
     indirect case dictionary(key: PrimitiveType, value: TypeDescriptor)
+    /// An optional type with `TypeDescriptor` wrapped values
     indirect case optional(wrappedValue: TypeDescriptor)
+    /// An enum type with `String` cases
     case `enum`(name: TypeName, cases: [EnumCase])
+    /// An object type with properties of containing `TypeDescriptor` and a name
     case object(name: TypeName, properties: [TypeProperty])
+    /// A reference created at `TypesStore` that uniquely identifies the type inside the store
     case reference(ReferenceKey)
 }
 
@@ -30,6 +37,8 @@ extension TypeDescriptor {
             return lhsName == rhsName && lhsCases.equalsIgnoringOrder(to: rhsCases)
         case let (.object(lhsName, lhsProperties), .object(rhsName, rhsProperties)):
             return lhsName == rhsName && lhsProperties.equalsIgnoringOrder(to: rhsProperties)
+        case let (.reference(lhsKey), .reference(rhsKey)):
+            return lhsKey == rhsKey
         default: return false
         }
     }
@@ -106,6 +115,7 @@ extension TypeDescriptor {
     }
 }
 
+// MARK: - TypeDescriptor + CustomStringConvertible + CustomDebugStringConvertible
 extension TypeDescriptor: CustomStringConvertible, CustomDebugStringConvertible {
     var description: String {
         json

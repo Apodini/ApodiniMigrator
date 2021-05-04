@@ -32,40 +32,60 @@ final class ApodiniMigratorTests: XCTestCase {
         let directions: [UUID: Direction]
     }
     
-    struct SomeThingElse: Codable {
-        let somesoem: [Bool: Shop]
+    struct SomeStruct: Codable {
+        let someDictionary: [Bool: Shop]
     }
     
     struct User: Codable {
-        let student: Student?
-        let birthday: [Date: SomeThingElse]
+        let student: [Int: Student??]
+        let birthday: [Date]
         let scores: [Int]
         let name: String?
+        let nestedDirections: [[[[[Direction]]]]]
         let shops: [Shop]
         let cars: [String: Car]
         let otherCar: [Car]
     }
     
-    func testExample() throws {
+    let someComplexType = [Int: [UUID: User?????]].self
+    
+    func testTypeStore() throws {
         guard !isLinux() else { return }
         
-        let typeDescriptor = try TypeDescriptor(type: User.self)
+        let typeDescriptor = try TypeDescriptor(type: someComplexType.self)
         
         var store = TypesStore()
         
-        let reference = store.store(typeDescriptor)
+        let reference = store.store(typeDescriptor) /// storing and retrieving a reference
 
-        
-        let result = store.construct(from: reference)
-        
-//        let references = result.filter(\.isReference)
-        
-        print(store.json)
-        
-//        let allKeys = store.types.keys
-//        print(allKeys)
-//        print(result.json)
+        let result = store.construct(from: reference) /// reconstructing type from the reference
         
         XCTAssertEqual(result, typeDescriptor)
+    }
+    
+    
+    func testJSONStringBuilder() throws {
+        guard !isLinux() else { return }
+        
+        let typeDescriptor = try TypeDescriptor(type: someComplexType)
+        let instance = XCTAssertNoThrowWithResult(try JSONStringBuilder.instance(typeDescriptor, someComplexType))
+        
+        XCTAssert(instance.keys.first == 0)
+        // swiftlint:disable:next force_unwrapping
+        let userInstance = instance.values.first!.values.first!!!!!!
+        XCTAssert(userInstance.birthday.first == .today)
+        XCTAssert(userInstance.shops.first?.id == .defaultUUID)
+    }
+    
+    
+    func XCTAssertNoThrowWithResult<T>(_ expression: @autoclosure () throws -> T) -> T {
+        XCTAssertNoThrow(try expression())
+        
+        do {
+            return try expression()
+        } catch {
+            XCTFail(error.localizedDescription)
+        }
+        fatalError("Expression threw an error")
     }
 }
