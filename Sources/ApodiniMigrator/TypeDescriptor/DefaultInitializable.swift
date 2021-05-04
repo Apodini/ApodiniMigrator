@@ -1,3 +1,5 @@
+
+
 import Foundation
 
 /// A protocol that forces the presence of an empty initializer

@@ -1,9 +1,6 @@
-import Foundation
 
-/// Whether the type is a supported scalar type
-public func isSupportedScalarType(_ type: Any.Type) -> Bool {
-    PrimitiveType(type) != nil
-}
+
+import Foundation
 
 public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparableProperty, CustomStringConvertible {
     case bool = "Bool"
