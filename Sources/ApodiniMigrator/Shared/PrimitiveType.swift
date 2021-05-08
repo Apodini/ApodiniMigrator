@@ -1,5 +1,3 @@
-
-
 import Foundation
 
 public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparableProperty, CustomStringConvertible {

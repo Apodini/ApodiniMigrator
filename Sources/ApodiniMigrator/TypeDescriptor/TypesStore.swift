@@ -1,5 +1,3 @@
-
-
 import Foundation
 
 /// `TypesStore` provides logic to reference and store type descriptors, while e.g. an endpoint keeps only the reference of the response type

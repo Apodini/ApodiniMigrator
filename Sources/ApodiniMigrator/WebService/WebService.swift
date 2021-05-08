@@ -1,5 +1,3 @@
-
-
 import Foundation
 
 /// Holds the list of all registered endpoints

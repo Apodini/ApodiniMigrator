@@ -1,8 +1,6 @@
-
-
 import Foundation
 
-class Path: PropertyValueWrapper<String> {}
+class EndpointPath: PropertyValueWrapper<String> {}
 class HandlerName: PropertyValueWrapper<String> {}
 class PallidorOperationName: PropertyValueWrapper<String> {}
 class PallidorEndpointName: PropertyValueWrapper<String> {}
@@ -19,7 +17,7 @@ struct Endpoint {
     let operation: Operation
 
     /// The absolute path string of the endpoint
-    let absolutePath: Path
+    let absolutePath: EndpointPath
 
     /// Parameters of the endpoint
     let parameters: [Parameter]
@@ -82,7 +80,7 @@ extension Endpoint: ComparableObject {
         ChangeContextNode()
             .register(compare(\.handlerName, with: other), for: HandlerName.self)
             .register(compare(\.operation, with: other), for: Operation.self)
-            .register(compare(\.absolutePath, with: other), for: Path.self)
+            .register(compare(\.absolutePath, with: other), for: EndpointPath.self)
             .register(result: compare(\.parameters, with: other), for: Parameter.self)
             .register(compare(\.operationName, with: other), for: PallidorOperationName.self)
             .register(compare(\.endpointName, with: other), for: PallidorEndpointName.self)

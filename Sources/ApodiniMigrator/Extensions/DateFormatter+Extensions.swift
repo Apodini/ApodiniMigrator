@@ -1,6 +1,9 @@
-
-
 import Foundation
+
+enum CustomDateFormat: String {
+    case date = "dd.MM.yyyy"
+    case year = "yyyy"
+}
 
 extension DateFormatter {
     static var iSO8601DateFormatter: DateFormatter = {
@@ -11,4 +14,12 @@ extension DateFormatter {
         dateFormatter.calendar = Calendar(identifier: .gregorian)
         return dateFormatter
     }()
+}
+
+extension Date {
+    func string(_ format: CustomDateFormat) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format.rawValue
+        return formatter.string(from: self)
+    }
 }

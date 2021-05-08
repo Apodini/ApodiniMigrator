@@ -1,5 +1,3 @@
-
-
 import Foundation
 
 /** Operation from Apodini*/

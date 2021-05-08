@@ -1,5 +1,3 @@
-
-
 import Foundation
 
 /// A protocol that forces the presence of an empty initializer
@@ -82,5 +80,13 @@ extension Date: DefaultInitializable {
 extension Data: DefaultInitializable {
     static var jsonString: String {
         Data().base64EncodedString().asString
+    }
+}
+
+protocol ApodiniMigratorCodable: Codable {}
+
+extension ApodiniMigratorCodable {
+    static func defaultValue() throws -> Self {
+        try JSONStringBuilder.instance(Self.self)
     }
 }

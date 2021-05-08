@@ -1,5 +1,3 @@
-
-
 import XCTest
 @testable import ApodiniMigrator
 
@@ -22,7 +20,7 @@ final class ApodiniMigratorTests: XCTestCase {
         let name: String
     }
     
-    struct Student: Codable {
+    struct SomeStudent: Codable {
         // MARK: Private Inner Types
         private enum CodingKeys: String, CodingKey {
             case exams
@@ -54,7 +52,7 @@ final class ApodiniMigratorTests: XCTestCase {
     }
     
     struct User: Codable {
-        let student: [Int: Student??]
+        let student: [Int: SomeStudent??]
         let birthday: [Date]
         let url: URL
         let scores: [Set<Int>]
@@ -112,5 +110,26 @@ final class ApodiniMigratorTests: XCTestCase {
             XCTFail(error.localizedDescription)
         }
         preconditionFailure("Expression threw an error")
+    }
+    
+    func testFileGenerator() throws {
+        let desktop = Path.desktop
+        guard !isLinux(), desktop.exists else {
+            return
+        }
+        
+        struct Student {
+            let id: UUID
+            let name: String
+            let friendsNames: [String]
+            let age: Int
+            let grades: [Double]
+            let birthday: Date
+            let url: URL
+        }
+        
+        let student = XCTAssertNoThrowWithResult(try TypeDescriptor(type: Student.self))
+        let absolutePath = XCTAssertNoThrowWithResult(try ObjectFileTemplate(student).write(at: desktop))
+        XCTAssertTrue(absolutePath.exists)
     }
 }
