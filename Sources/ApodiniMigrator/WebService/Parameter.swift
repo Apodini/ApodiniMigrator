@@ -52,8 +52,8 @@ struct Parameter {
     /// Indicates whether `nil` is a valid value
     let nilIsValidValue: NilIsValidValue
 
-    /// The reference of the type descriptor of the parameter
-    let typeDescriptor: TypeDescriptor
+    /// The reference of the `typeInformation` of the parameter
+    let typeInformation: TypeInformation
 }
 
 // MARK: - ComparableObject

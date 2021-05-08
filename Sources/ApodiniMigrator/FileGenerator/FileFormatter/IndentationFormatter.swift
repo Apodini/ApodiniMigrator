@@ -8,17 +8,22 @@
 import Foundation
 
 /// An enumeration representing opening and closing curly brackets of `Swift` code blocks
-enum CurlyBracket: Character {
+private enum CurlyBracket: Character {
     case opening = "{"
     case closing = "}"
+    
+    /// The weight the curly bracket contributes to the `storage` of `IndentationFormatter`
+    var weight: Int {
+        self == .opening ? 1 : -1
+    }
 }
 
 /// An indentation swift file formatter.
 /// The result of `format(_:)` is the one obtained by `(Command+A, Control+I)` `Xcode` command combinations.
-/// Additionally the formatter replaces double empty lines with a single one.
+/// Additionally the formatter replaces multiple empty lines with a single one.
 struct IndentationFormatter: SwiftFileFormatter {
-    /// Difference between counts of visited opening and closing brackets
-    /// For correct swift files, storage is always greater than zero
+    /// Difference between counts of visited opening and closing brackets.
+    /// For compilable swift files, storage is always greater than zero
     private var storage = 0
     
     /// The indentation to be applied in a line based on the state of the storage
@@ -36,11 +41,9 @@ struct IndentationFormatter: SwiftFileFormatter {
         // ignoring comments (not considering /***/ comments though)
         if !line.hasPrefix("//") {
             let curlyBrackets = line.compactMap { CurlyBracket(rawValue: $0) }
-            storage += curlyBrackets.reduce(into: 0) { result, current in
-                result += current == .opening ? 1 : -1
-            }
-            /// if encountered a line with a single closing bracket, return it
-            /// needed to decrease the indentation level for `line`
+            storage += curlyBrackets.reduce(0) { $0 + $1.weight }
+            // if encountered a line with a single closing bracket, return it
+            // needed to decrease the indentation level for `line`
             if curlyBrackets == [.closing] {
                 return .closing
             }

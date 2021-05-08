@@ -20,22 +20,22 @@ enum Kind: String {
 }
 
 /// A protocol that template models can conform to
-protocol FileTemplate: Renderable {
-    /// The type descriptor for which the template will be created
-    var typeDescriptor: TypeDescriptor { get }
+protocol SwiftFileTemplate: Renderable {
+    /// The `typeInformation` for which the template will be created
+    var typeInformation: TypeInformation { get }
     
     /// The type of the content of the file
     var kind: Kind { get }
     
-    /// Initializes a template out of a `TypeDescriptor`
-    /// - Parameter typeDescriptor: type descriptor for which the template will be created
+    /// Initializes a template out of a `TypeInformation`
+    /// - Parameter typeInformation: `typeInformation` for which the template will be created
     /// - Parameter kind: swift kind of the object
-    /// - Throws: `FileTemplateError.incompatibleType(message:)` if the template does not support the `typeDescriptor`
-    init(_ typeDescriptor: TypeDescriptor, kind: Kind) throws
+    /// - Throws: `SwiftFileTemplateError.incompatibleType(message:)` if the template does not support the `typeInformation`
+    init(_ typeInformation: TypeInformation, kind: Kind) throws
 }
 
-/// Errors that can be thrown from a `FileTemplate` initializer
-enum FileTemplateError: Error {
+/// Errors that can be thrown from a `SwiftFileTemplate` initializer
+enum SwiftFileTemplateError: Error {
     case incompatibleType(message: String)
 }
 
@@ -48,11 +48,11 @@ enum MARKCommentType: String {
     case decodable
 }
 
-/// `FileTemplate` default implementations
-extension FileTemplate {
-    /// The string of the type name of the type descriptor, without the name of the module
+/// `SwiftFileTemplate` default implementations
+extension SwiftFileTemplate {
+    /// The string of the type name of the `typeInformation`, without the name of the module
     var typeNameString: String {
-        typeDescriptor.typeName.name
+        typeInformation.typeName.name
     }
     
     /// File extension
@@ -76,14 +76,14 @@ extension FileTemplate {
         .init(type == .signature ? typeNameString : type.rawValue.upperFirst)
     }
     
-    /// Writes the content of `render()` method at the specified path
+    /// Writes the content of `render()` method at the specified path, formatted with `IndentationFormatter`
     /// - Parameter directory: The path of directory where the content should be written
     /// - Throws: if the writing of the content fails
     /// - Returns: absolute path where the file is located
     @discardableResult
     func write(at directory: Path) throws -> Path {
         let absolutePath = directory + fileName
-        try absolutePath.write(render())
+        try absolutePath.write(render().formatted(with: IndentationFormatter.self))
         return absolutePath
     }
 }

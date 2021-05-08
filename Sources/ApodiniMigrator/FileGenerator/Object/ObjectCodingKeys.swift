@@ -9,8 +9,8 @@ import Foundation
 
 /// Represents the CodingKeys enum defined inside an `ObjectFileTemplate`
 struct ObjectCodingKeys: Renderable {
-    /// An enumeration type descriptor of the object, name is always `CodingKeys`
-    let codingKeysEnum: TypeDescriptor
+    /// An enumeration `typeInformation` of the object, name is always `CodingKeys`
+    let codingKeysEnum: TypeInformation
     
     /// Cases of `codingKeysEnum`
     var enumCases: [EnumCase] {

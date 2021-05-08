@@ -4,10 +4,10 @@ class PropertyName: PropertyValueWrapper<String> {}
 
 struct TypeProperty: Value {
     let name: PropertyName
-    let type: TypeDescriptor
+    let type: TypeInformation
 }
 
-extension TypeDescriptor {
+extension TypeInformation {
     var propertyTypeString: String {
         switch self {
         case let .scalar(primitiveType): return primitiveType.description
@@ -23,7 +23,7 @@ extension TypeDescriptor {
 
 struct EnumCase: Value {
     let name: PropertyName
-    let type: TypeDescriptor // currently only .scalar(.string)
+    let type: TypeInformation // currently only .scalar(.string)
     
     init(_ name: String) {
         self.name = .init(name)

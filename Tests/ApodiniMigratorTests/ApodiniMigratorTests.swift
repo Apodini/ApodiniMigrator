@@ -26,7 +26,7 @@ final class ApodiniMigratorTests: XCTestCase {
             case exams
         }
         let exams: [Date]
-        let testClass: ApodiniMigratorTests /// non-codable properties are ignored from initializer of `TypeDescriptor`
+        let testClass: ApodiniMigratorTests /// non-codable properties are ignored from initializer of `TypeInformation`
         
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -72,15 +72,15 @@ final class ApodiniMigratorTests: XCTestCase {
             return
         }
         
-        let typeDescriptor = try TypeDescriptor(type: someComplexType.self)
+        let typeInformation = try TypeInformation(type: someComplexType.self)
         
         var store = TypesStore()
         
-        let reference = store.store(typeDescriptor) /// storing and retrieving a reference
+        let reference = store.store(typeInformation) /// storing and retrieving a reference
 
         let result = store.construct(from: reference) /// reconstructing type from the reference
         
-        XCTAssertEqual(result, typeDescriptor)
+        XCTAssertEqual(result, typeInformation)
     }
     
     
@@ -89,8 +89,8 @@ final class ApodiniMigratorTests: XCTestCase {
             return
         }
         
-        let typeDescriptor = try TypeDescriptor(type: someComplexType)
-        let instance = XCTAssertNoThrowWithResult(try JSONStringBuilder.instance(typeDescriptor, someComplexType))
+        let typeInformation = try TypeInformation(type: someComplexType)
+        let instance = XCTAssertNoThrowWithResult(try JSONStringBuilder.instance(typeInformation, someComplexType))
         
         XCTAssert(instance.keys.first == 0)
         // swiftlint:disable:next force_unwrapping
@@ -121,14 +121,14 @@ final class ApodiniMigratorTests: XCTestCase {
         struct Student {
             let id: UUID
             let name: String
-            let friendsNames: [String]
+            let friends: [String]
             let age: Int
             let grades: [Double]
             let birthday: Date
             let url: URL
         }
         
-        let student = XCTAssertNoThrowWithResult(try TypeDescriptor(type: Student.self))
+        let student = XCTAssertNoThrowWithResult(try TypeInformation(type: Student.self))
         let absolutePath = XCTAssertNoThrowWithResult(try ObjectFileTemplate(student).write(at: desktop))
         XCTAssertTrue(absolutePath.exists)
     }

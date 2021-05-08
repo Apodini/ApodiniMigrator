@@ -1,6 +1,6 @@
 import Foundation
 
-/// A `ReferenceKey` uniquely identifies a type descriptor stored in `TypesStore`
+/// A `ReferenceKey` uniquely identifies a `typeInformation` stored in `TypesStore`
 struct ReferenceKey: Value, RawRepresentable {
     let rawValue: String
 

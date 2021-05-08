@@ -1,8 +1,8 @@
 import Foundation
 
-extension TypeDescriptor {
-    /// A simplified enum of the type descriptor
-    enum RootType {
+extension TypeInformation {
+    /// A simplified enum of the `typeInformation`
+    enum RootType: String, CustomStringConvertible {
         case scalar
         case repeated
         case dictionary
@@ -10,9 +10,11 @@ extension TypeDescriptor {
         case `enum`
         case object
         case reference
+        
+        var description: String { rawValue.upperFirst }
     }
     
-    /// The root type of this type descriptor
+    /// The root type of this `typeInformation`
     var rootType: RootType {
         switch self {
         case .scalar: return .scalar
@@ -61,7 +63,7 @@ extension TypeDescriptor {
     }
     
     /// If the root type is enum, returns `self`, otherwise the nested types are searched recursively
-    var enumType: TypeDescriptor? {
+    var enumType: TypeInformation? {
         switch self {
         case let .repeated(element): return element.enumType
         case let .dictionary(_, value): return value.enumType
@@ -72,7 +74,7 @@ extension TypeDescriptor {
     }
     
     /// If the root type is an object, returns `self`, otherwise the nested types are searched recursively
-    var objectType: TypeDescriptor? {
+    var objectType: TypeInformation? {
         switch self {
         case let .repeated(element): return element.objectType
         case let .dictionary(_, value): return value.objectType
@@ -91,7 +93,7 @@ extension TypeDescriptor {
     }
     
     /// Returns the nested reference if any. References can be stored inside repeated types, dictionaries, optionals, or at top level
-    var reference: TypeDescriptor? {
+    var reference: TypeInformation? {
         switch self {
         case let .repeated(element): return element.reference
         case let .dictionary(_, value): return value.reference
@@ -116,7 +118,7 @@ extension TypeDescriptor {
         elementIsObject || elementIsEnum
     }
     
-    /// The typeName of this type descriptor
+    /// The typeName of this `typeInformation`
     /// results in fatal error if requested for a `.reference`
     var typeName: TypeName {
         switch self {
@@ -131,17 +133,17 @@ extension TypeDescriptor {
     }
     
     /// Returns the `objectProperties` by keypath
-    func filterProperties(_ keyPath: KeyPath<TypeDescriptor, Bool>) -> [TypeProperty] {
+    func filterProperties(_ keyPath: KeyPath<TypeInformation, Bool>) -> [TypeProperty] {
         objectProperties.filter { $0.type[keyPath: keyPath] }
     }
     
-    /// Indicate whether `self` has the same root type with other `typeDescriptor`
-    func sameType(with typeDescriptor: TypeDescriptor) -> Bool {
-        rootType == typeDescriptor.rootType
+    /// Indicate whether `self` has the same root type with other `typeInformation`
+    func sameType(with typeInformation: TypeInformation) -> Bool {
+        rootType == typeInformation.rootType
     }
     
     /// Recursively unwrappes the value of optional type if `self` is `.optional`
-    var unwrapped: TypeDescriptor {
+    var unwrapped: TypeInformation {
         if case let .optional(wrapped) = self {
             return wrapped.unwrapped
         }
@@ -149,7 +151,7 @@ extension TypeDescriptor {
     }
     
     /// Recursively returns the element of the repeated types (also unwrapped)
-    var repeatedElement: TypeDescriptor? {
+    var repeatedElement: TypeInformation? {
         if case let .repeated(element) = self {
             return element.repeatedElement?.unwrapped
         }
@@ -165,7 +167,7 @@ extension TypeDescriptor {
     }
     
     /// Returns the dictionary value type if `self` is `.dictionary`
-    var dictionaryValue: TypeDescriptor? {
+    var dictionaryValue: TypeInformation? {
         if case let .dictionary(_, value) = self {
             return value.dictionaryValue
         }
@@ -188,10 +190,10 @@ extension TypeDescriptor {
         return []
     }
     
-    /// Recursively returns all types included in this type descriptor, e.g. primitive types, enums, objects
-    ///  and nested elements in repeated Types, dictionaries and optionals
-    func allTypes() -> [TypeDescriptor] {
-        var allTypes: Set<TypeDescriptor> = [self]
+    /// Recursively returns all types included in this `typeInformation`, e.g. primitive types, enums, objects
+    ///  and nested elements in repeated types, dictionaries and optionals
+    func allTypes() -> [TypeInformation] {
+        var allTypes: Set<TypeInformation> = [self]
         switch self {
         case let .repeated(element):
             allTypes += element.allTypes()
@@ -206,58 +208,85 @@ extension TypeDescriptor {
         return allTypes.asArray
     }
     
-    /// Returns whether the typeDescriptor is contained in `allTypes()` of self
-    func contains(_ typeDescriptor: TypeDescriptor?) -> Bool {
-        guard let typeDescriptor = typeDescriptor else {
+    /// Returns whether the typeInformation is contained in `allTypes()` of self
+    func contains(_ typeInformation: TypeInformation?) -> Bool {
+        guard let typeInformation = typeInformation else {
             return false
         }
-        return allTypes().contains(typeDescriptor)
+        return allTypes().contains(typeInformation)
     }
     
     
-    /// Returns whether the `self` is contained in `allTypes()` of `typeDescriptor`
-    func isContained(in typeDescriptor: TypeDescriptor) -> Bool {
-        typeDescriptor.contains(self)
+    /// Returns whether the `self` is contained in `allTypes()` of `typeInformation`
+    func isContained(in typeInformation: TypeInformation) -> Bool {
+        typeInformation.contains(self)
     }
     
-    /// Filters `allTypes()` by a boolean keypath of `TypeDescriptor`
-    func filter(_ keyPath: KeyPath<TypeDescriptor, Bool>) -> [TypeDescriptor] {
+    /// Filters `allTypes()` by a boolean keypath of `TypeInformation`
+    func filter(_ keyPath: KeyPath<TypeInformation, Bool>) -> [TypeInformation] {
         allTypes().filter { $0[keyPath: keyPath] }
     }
     
     /// Returns all distinct scalars in `allTypes()`
-    func scalars() -> [TypeDescriptor] {
+    func scalars() -> [TypeInformation] {
         filter(\.isScalar)
     }
     
     /// Returns all distinct repeated types in `allTypes()`
-    func repeatedTypes() -> [TypeDescriptor] {
+    func repeatedTypes() -> [TypeInformation] {
         filter(\.isRepeated)
     }
     
     /// Returns all distinct dictionaries in `allTypes()`
-    func dictionaries() -> [TypeDescriptor] {
+    func dictionaries() -> [TypeInformation] {
         filter(\.isDictionary)
     }
     
     /// Returns all distinct optionals in `allTypes()`
-    func optionals() -> [TypeDescriptor] {
+    func optionals() -> [TypeInformation] {
         filter(\.isOptional)
     }
     
     /// Returns all distinct enums in `allTypes()`
-    func enums() -> [TypeDescriptor] {
+    func enums() -> [TypeInformation] {
         filter(\.isEnum)
     }
     
     /// Returns all distinct objects in `allTypes()`
-    func objectTypes() -> [TypeDescriptor] {
+    func objectTypes() -> [TypeInformation] {
         filter(\.isObject)
+    }
+    
+    /// Returns unique enum and object types defined in `self`
+    /// ```swift
+    /// // MARK: - Code example
+    /// struct User {
+    ///     let name: String
+    ///     let surname: String
+    ///     let uni: Uni
+    /// }
+    ///
+    /// struct Uni {
+    ///     let city: String
+    ///     let name: String
+    ///     let chairs: [Chair]
+    /// }
+    ///
+    /// enum Chair {
+    ///     case ls1
+    ///     case other
+    /// }
+    ///
+    /// ```
+    /// Applied on `User`, the functions returns `[.object(User), .object(Uni), .enum(Chair)]`, respectively with
+    /// the corresponding object properties and enum cases.
+    func fileRenderableTypes() -> [TypeInformation] {
+        enums() + objectTypes()
     }
 }
 
 // MARK: - Array extensions
-fileprivate extension Array where Element == TypeDescriptor {
+fileprivate extension Array where Element == TypeInformation {
     static func + (lhs: Self, rhs: Element) -> Self {
         var mutableLhs = lhs
         mutableLhs.append(rhs)
@@ -266,5 +295,11 @@ fileprivate extension Array where Element == TypeDescriptor {
     
     static func + (lhs: Element, rhs: Self) -> Self {
         rhs + lhs
+    }
+    
+    static func + (lhs: Self, rhs: Self) -> Self {
+        var mutableLhs = lhs
+        mutableLhs.append(contentsOf: rhs)
+        return mutableLhs.unique()
     }
 }

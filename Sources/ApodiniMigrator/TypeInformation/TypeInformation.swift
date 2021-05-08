@@ -1,25 +1,25 @@
 import Foundation
 
-enum TypeDescriptor: Value {
+enum TypeInformation: Value {
     /// A scalar type
     case scalar(PrimitiveType)
-    /// A repeated type (set or array), with `TypeDescriptor` elements
-    indirect case repeated(element: TypeDescriptor)
-    /// A dictionary with primitive keys and `TypeDescriptor` values
-    indirect case dictionary(key: PrimitiveType, value: TypeDescriptor)
-    /// An optional type with `TypeDescriptor` wrapped values
-    indirect case optional(wrappedValue: TypeDescriptor)
+    /// A repeated type (set or array), with `TypeInformation` elements
+    indirect case repeated(element: TypeInformation)
+    /// A dictionary with primitive keys and `TypeInformation` values
+    indirect case dictionary(key: PrimitiveType, value: TypeInformation)
+    /// An optional type with `TypeInformation` wrapped values
+    indirect case optional(wrappedValue: TypeInformation)
     /// An enum type with `String` cases
     case `enum`(name: TypeName, cases: [EnumCase])
-    /// An object type with properties of containing `TypeDescriptor` and a name
+    /// An object type with properties of containing `TypeInformation` and a name
     case object(name: TypeName, properties: [TypeProperty])
     /// A reference created at `TypesStore` that uniquely identifies the type inside the store
     case reference(ReferenceKey)
 }
 
-// MARK: - TypeDescriptor + Equatable
-extension TypeDescriptor {
-    static func == (lhs: TypeDescriptor, rhs: TypeDescriptor) -> Bool {
+// MARK: - TypeInformation + Equatable
+extension TypeInformation {
+    static func == (lhs: TypeInformation, rhs: TypeInformation) -> Bool {
         if !lhs.sameType(with: rhs) {
             return false
         }
@@ -44,8 +44,8 @@ extension TypeDescriptor {
     }
 }
 
-// MARK: - TypeDescriptor + Codable
-extension TypeDescriptor {
+// MARK: - TypeInformation + Codable
+extension TypeInformation {
     // MARK: CodingKeys
     private enum CodingKeys: String, CodingKey {
         case scalar, repeated, dictionary, optional, `enum`, object, reference
@@ -90,13 +90,13 @@ extension TypeDescriptor {
         let key = container.allKeys.first
         switch key {
         case .scalar: self = .scalar(try container.decode(PrimitiveType.self, forKey: .scalar))
-        case .repeated: self = .repeated(element: try container.decode(TypeDescriptor.self, forKey: .repeated))
-        case .optional: self = .optional(wrappedValue: try container.decode(TypeDescriptor.self, forKey: .optional))
+        case .repeated: self = .repeated(element: try container.decode(TypeInformation.self, forKey: .repeated))
+        case .optional: self = .optional(wrappedValue: try container.decode(TypeInformation.self, forKey: .optional))
         case .dictionary:
             let dictionaryContainer = try container.nestedContainer(keyedBy: DictionaryKeys.self, forKey: .dictionary)
             self = .dictionary(
                 key: try dictionaryContainer.decode(PrimitiveType.self, forKey: .key),
-                value: try dictionaryContainer.decode(TypeDescriptor.self, forKey: .value)
+                value: try dictionaryContainer.decode(TypeInformation.self, forKey: .value)
             )
         case .enum:
             let enumContainer = try container.nestedContainer(keyedBy: EnumKeys.self, forKey: .enum)
@@ -115,8 +115,8 @@ extension TypeDescriptor {
     }
 }
 
-// MARK: - TypeDescriptor + CustomStringConvertible + CustomDebugStringConvertible
-extension TypeDescriptor: CustomStringConvertible, CustomDebugStringConvertible {
+// MARK: - TypeInformation + CustomStringConvertible + CustomDebugStringConvertible
+extension TypeInformation: CustomStringConvertible, CustomDebugStringConvertible {
     var description: String {
         json
     }

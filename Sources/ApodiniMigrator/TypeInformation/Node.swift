@@ -2,7 +2,7 @@
 //  Created by Nityananda on 26.11.20.
 //
 
-/// Node from Apodini -> currently not used, might be useful for the tree structure of `TypeDescriptor`
+/// Node from Apodini -> currently not used, might be useful for the tree structure of `TypeInformation`
 
 // swiftlint:disable missing_docs
 // MARK: - Tree

@@ -22,8 +22,8 @@ struct Endpoint {
     /// Parameters of the endpoint
     let parameters: [Parameter]
 
-    /// The reference of the type descriptor of the response
-    let response: TypeDescriptor
+    /// The reference of the `typeInformation` of the response
+    let response: TypeInformation
     
     /// Name of the operation specified via `.pallidor(_:)` modified
     let operationName: PallidorOperationName
@@ -38,7 +38,7 @@ struct Endpoint {
         operation: Operation,
         absolutePath: String,
         parameters: [Parameter],
-        response: TypeDescriptor,
+        response: TypeInformation,
         operationName: String,
         endpointName: PallidorEndpointName
     ) {

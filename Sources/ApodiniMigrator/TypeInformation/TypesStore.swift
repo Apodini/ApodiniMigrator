@@ -1,49 +1,49 @@
 import Foundation
 
-/// `TypesStore` provides logic to reference and store type descriptors, while e.g. an endpoint keeps only the reference of the response type
-/// Provided with a reference from `TypeStore`, the instance of type descriptor
+/// `TypesStore` provides logic to reference and store `typeInformation` instances, while e.g. an endpoint keeps only the reference of the response type
+/// Provided with a reference from `TypeStore`, the instance of `typeInformation`
 /// can be constructed without information-loss via `construct(from reference:)`
 struct TypesStore: Codable {
     /// Stored references of enums and objects
     /// Properties of objects are recursively stored
-    var types: [String: TypeDescriptor]
+    var storage: [String: TypeInformation]
     
-    /// Initializes a store with no types
+    /// Initializes a store with an empty storage
     init() {
-        types = [:]
+        storage = [:]
     }
     
     /// Stores an enum or object type by its type name, and returns the reference
     /// If attempting to store a non referencable type, the operation is ignored and the input type is returned directly
-    mutating func store(_ type: TypeDescriptor) -> TypeDescriptor {
+    mutating func store(_ type: TypeInformation) -> TypeInformation {
         guard type.isReferencable else {
             return type
         }
         
         #warning(
             """
-            unique key would be `absoluteName` of typeName which includes the module,
+            unique key must be `absoluteName` of typeName which includes the module,
             e.g. `ApodiniMigrator/User`, currently only using type name `User`
             """)
         let key = ReferenceKey(type.typeName.name)
         
         if let enumType = type.enumType { // retrieving the nested enum
-            types[key.rawValue] = enumType
+            storage[key.rawValue] = enumType
         }
         
         if let objectType = type.objectType { // retrieving the nested object
             let referencedProperties = objectType.objectProperties.map { property -> TypeProperty in
                 .init(name: property.name, type: store(property.type)) // storing potentially referencable properties
             }
-            types[key.rawValue] = .object(name: objectType.typeName, properties: referencedProperties)
+            storage[key.rawValue] = .object(name: objectType.typeName, properties: referencedProperties)
         }
         
         return type.asReference(with: key) // referencing the type
     }
     
     /// Constructs a type from a reference
-    mutating func construct(from reference: TypeDescriptor) -> TypeDescriptor {
-        guard let referenceKey = reference.referenceKey, var stored = types[referenceKey.rawValue] else {
+    mutating func construct(from reference: TypeInformation) -> TypeInformation {
+        guard let referenceKey = reference.referenceKey, var stored = storage[referenceKey.rawValue] else {
             fatalError("Attempted to construct a type that does not contain a reference")
         }
         
@@ -70,9 +70,9 @@ struct TypesStore: Codable {
     }
 }
 
-fileprivate extension TypeDescriptor {
+fileprivate extension TypeInformation {
     /// Wraps the element into a reference, e.g. .repeated(User) -> .repeated(.reference(User)) after all properties of user have been stored
-    func asReference(with key: ReferenceKey) -> TypeDescriptor {
+    func asReference(with key: ReferenceKey) -> TypeInformation {
         switch self {
         case let .repeated(element): return .repeated(element: element.asReference(with: key))
         case let .dictionary(dictionaryKey, value): return .dictionary(key: dictionaryKey, value: value.asReference(with: key))
@@ -83,7 +83,7 @@ fileprivate extension TypeDescriptor {
     }
     
     /// Used to construct properties of object or enum types recursively
-    func construct(from reference: TypeDescriptor, in store: inout TypesStore) -> TypeDescriptor {
+    func construct(from reference: TypeInformation, in store: inout TypesStore) -> TypeInformation {
         switch self {
         case let .repeated(element): return .repeated(element: element.construct(from: reference, in: &store))
         case let .dictionary(key, value): return .dictionary(key: key, value: value.construct(from: reference, in: &store))

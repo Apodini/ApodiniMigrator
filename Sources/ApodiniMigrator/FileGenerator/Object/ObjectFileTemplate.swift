@@ -8,9 +8,9 @@
 import Foundation
 
 /// Represents an `object` file template
-struct ObjectFileTemplate: FileTemplate {
-    /// Type descriptor to be rendered in this file
-    let typeDescriptor: TypeDescriptor
+struct ObjectFileTemplate: SwiftFileTemplate {
+    /// `TypeInformation` to be rendered in this file
+    let typeInformation: TypeInformation
     
     /// Kind of the object, either `struct` or `class`
     let kind: Kind
@@ -35,19 +35,19 @@ struct ObjectFileTemplate: FileTemplate {
     
     /// Initializer
     /// - Parameters:
-    ///     - typeDescriptor: typeDescriptor to render
+    ///     - typeInformation: typeInformation to render
     ///     - kind: kind of the object
-    /// - Throws: if the type descriptor is not an object, or kind is other than `class` or `struct`
-    init(_ typeDescriptor: TypeDescriptor, kind: Kind = .struct) throws {
-        guard typeDescriptor.isObject, [.struct, .class].contains(kind) else {
-            throw FileTemplateError.incompatibleType(message: "Attempted to initialize ObjectFileTemplate with a non object TypeDescriptor \(typeDescriptor.rootType)")
+    /// - Throws: if the `typeInformation` is not an object, or kind is other than `class` or `struct`
+    init(_ typeInformation: TypeInformation, kind: Kind = .struct) throws {
+        guard typeInformation.isObject, [.struct, .class].contains(kind) else {
+            throw SwiftFileTemplateError.incompatibleType(message: "Attempted to initialize ObjectFileTemplate with a non object TypeInformation \(typeInformation.rootType)")
         }
-        self.typeDescriptor = typeDescriptor
+        self.typeInformation = typeInformation
         self.kind = kind
-        self.properties = typeDescriptor.objectProperties
+        self.properties = typeInformation.objectProperties
     }
     
-    /// Renders and formats the `typeDescriptor` in a swift file compliant way
+    /// Renders and formats the `typeInformation` in a swift file compliant way
     func render() -> String {
         """
         \(fileComment)
@@ -68,7 +68,7 @@ struct ObjectFileTemplate: FileTemplate {
         \(markComment(.decodable))
         \(decoderInitializer.render())
         }
-        """.formatted(with: IndentationFormatter.self)
+        """
     }
 }
 

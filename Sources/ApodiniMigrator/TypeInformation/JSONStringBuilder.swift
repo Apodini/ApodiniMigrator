@@ -1,7 +1,7 @@
 import Foundation
 
 /// Builds a valid JSON string with values empty strings, 0 for numbers, empty Data, date of today, and random UUID
-/// by means of a type descriptor object
+/// by means of a `typeInformation` object
 struct JSONStringBuilder {
     /// JSONDecoder
     static let decoder: JSONDecoder = {
@@ -11,30 +11,30 @@ struct JSONStringBuilder {
         return decoder
     }()
     
-    /// Type descriptor of the type that is used as template for JSONString
-    private let typeDescriptor: TypeDescriptor
+    /// `TypeInformation` of the type that is used as template for JSONString
+    private let typeInformation: TypeInformation
     
-    /// Retrieves the default initializable type if type descriptor is a scalar
+    /// Retrieves the default initializable type if `typeInformation` is a scalar
     private var defaultInitializableType: DefaultInitializable.Type? {
-        switch typeDescriptor {
+        switch typeInformation {
         case let .scalar(primitiveType): return primitiveType.swiftType
         default: return nil
         }
     }
     
-    /// Initializes an instance from a TypeDescriptor
-    init(_ typeDescriptor: TypeDescriptor) {
-        self.typeDescriptor = typeDescriptor
+    /// Initializes an instance from a TypeInformation
+    init(_ typeInformation: TypeInformation) {
+        self.typeInformation = typeInformation
     }
     
     /// Initializes an instance from Any Type
     init(_ type: Any.Type) throws {
-        typeDescriptor = try .init(type: type)
+        typeInformation = try .init(type: type)
     }
     
     /// Initializes an instance from Any instance
     init(value: Any) throws {
-        typeDescriptor = try .init(value: value)
+        typeInformation = try .init(value: value)
     }
     
     /// Dictionaries are encoded either with curly brackes `{ "key" : value }` if the key is String or Int,
@@ -49,9 +49,9 @@ struct JSONStringBuilder {
         return primitiveType == .int ? jsonString.asString : jsonString
     }
     
-    /// Builds and returns a valid JSON string from the type descriptor.
+    /// Builds and returns a valid JSON string from the `typeInformation`.
     func build() -> String {
-        switch typeDescriptor {
+        switch typeInformation {
         case let .repeated(element):
             return "[\(JSONStringBuilder(element).build())]"
         case let .dictionary(key, value):
@@ -76,9 +76,9 @@ struct JSONStringBuilder {
         return try decoder.decode(D.self, from: data)
     }
     
-    /// Initializes an instance out of a type descriptor and a specified decodable type
-    static func instance<D: Decodable>(_ typeDescriptor: TypeDescriptor, _ type: D.Type) throws -> D {
-        let data = Self(typeDescriptor).build().data(using: .utf8) ?? Data()
+    /// Initializes an instance out of a `typeInformation` and a specified decodable type
+    static func instance<D: Decodable>(_ typeInformation: TypeInformation, _ type: D.Type) throws -> D {
+        let data = Self(typeInformation).build().data(using: .utf8) ?? Data()
         return try decoder.decode(D.self, from: data)
     }
 }
