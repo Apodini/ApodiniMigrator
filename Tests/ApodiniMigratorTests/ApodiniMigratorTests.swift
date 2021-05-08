@@ -118,18 +118,28 @@ final class ApodiniMigratorTests: XCTestCase {
             return
         }
         
-        struct Student {
-            let id: UUID
-            let name: String
-            let friends: [String]
-            let age: Int
-            let grades: [Double]
-            let birthday: Date
-            let url: URL
-        }
-        
         let student = XCTAssertNoThrowWithResult(try TypeInformation(type: Student.self))
         let absolutePath = XCTAssertNoThrowWithResult(try ObjectFileTemplate(student).write(at: desktop))
         XCTAssertTrue(absolutePath.exists)
+    }
+    
+    struct Student: Codable {
+        let id: UUID
+        let name: String
+        let friends: [String]
+        let age: Int
+        let grades: [Double]
+        let birthday: Date
+        let url: URL
+    }
+    
+    let jsonPath: Path = .desktop + "Student.json"
+    
+    func testJSONCreation() throws {
+        try jsonPath.write(try JSONStringBuilder(Student.self).build())
+    }
+    
+    func testJSONRead() throws {
+        _ = XCTAssertNoThrowWithResult(try JSONStringBuilder.decode(Student.self, at: jsonPath))
     }
 }

@@ -4,7 +4,7 @@ import Foundation
 /// by means of a `typeInformation` object
 struct JSONStringBuilder {
     /// JSONDecoder
-    static let decoder: JSONDecoder = {
+    private static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .formatted(.iSO8601DateFormatter)
         decoder.dataDecodingStrategy = .base64
@@ -72,13 +72,29 @@ struct JSONStringBuilder {
     
     /// Initializes an Instance out of a decodable type.
     static func instance<D: Decodable>(_ type: D.Type) throws -> D {
-        let data = try Self(D.self).build().data(using: .utf8) ?? Data()
-        return try decoder.decode(D.self, from: data)
+        try decode(D.self, from: try Self(D.self).build())
     }
     
     /// Initializes an instance out of a `typeInformation` and a specified decodable type
     static func instance<D: Decodable>(_ typeInformation: TypeInformation, _ type: D.Type) throws -> D {
-        let data = Self(typeInformation).build().data(using: .utf8) ?? Data()
+        try decode(D.self, from: Self(typeInformation).build())
+    }
+    
+    /// Decodes type from data
+    static func decode<D: Decodable>(_ type: D.Type, from data: Data) throws -> D {
+        try decoder.decode(D.self, from: data)
+    }
+    
+    /// Decodes type from path
+    static func decode<D: Decodable>(_ type: D.Type, at path: Path) throws -> D {
+        try decoder.decode(D.self, from: try path.read())
+    }
+    
+    /// Decodes type from string content
+    static func decode<D: Decodable>(_ type: D.Type, from string: String) throws -> D {
+        guard let data = string.data(using: .utf8) else {
+            fatalError("String encoding failed")
+        }
         return try decoder.decode(D.self, from: data)
     }
 }
