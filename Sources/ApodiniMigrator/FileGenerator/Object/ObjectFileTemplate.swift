@@ -55,7 +55,7 @@ struct ObjectFileTemplate: FileTemplate {
         \(Import(.foundation).render())
         
         \(markComment(.signature))
-        \(kind.rawValue) \(typeNameString): \(ApodiniMigratorCodable.self) {
+        \(kind.signature) \(typeNameString): Codable {
         \(markComment(.codingKeys))
         \(codingKeysEnum.render())
         

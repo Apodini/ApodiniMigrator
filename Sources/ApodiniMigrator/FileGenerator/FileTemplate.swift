@@ -12,6 +12,11 @@ enum Kind: String {
     case `struct`
     case `class`
     case `enum`
+    
+    /// Signature of `self`, classes are marked with `final` keyword
+    var signature: String {
+        "\(self == .class ? "final " : "")\(rawValue)"
+    }
 }
 
 /// A protocol that template models can conform to

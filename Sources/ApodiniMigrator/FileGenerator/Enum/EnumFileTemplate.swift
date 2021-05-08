@@ -27,7 +27,7 @@ struct EnumFileTemplate: FileTemplate {
     /// - Throws: if the type descriptor is not an enum, or kind is other than `.enum`
     init(_ typeDescriptor: TypeDescriptor, kind: Kind) throws {
         guard typeDescriptor.isEnum, kind == .enum else {
-            throw FileTemplateError.incompatibleType(message: "Attempted to initialize EnumCodeTemplate with a non object TypeDescriptor")
+            throw FileTemplateError.incompatibleType(message: "Attempted to initialize EnumFileTemplate with a non enum TypeDescriptor \(typeDescriptor.rootType)")
         }
         
         self.typeDescriptor = typeDescriptor
@@ -42,7 +42,7 @@ struct EnumFileTemplate: FileTemplate {
         \(Import(.foundation).render())
         
         \(markComment(.signature))
-        \(kind.rawValue) \(typeNameString): String, \(ApodiniMigratorCodable.self) {
+        \(kind.signature) \(typeNameString): String, Codable {
         \(enumCases.map { "case \($0.name.value)" }.withBreakingLines())
         }
         """.formatted(with: IndentationFormatter.self)

@@ -83,9 +83,7 @@ extension Data: DefaultInitializable {
     }
 }
 
-protocol ApodiniMigratorCodable: Codable {}
-
-extension ApodiniMigratorCodable {
+extension Decodable {
     static func defaultValue() throws -> Self {
         try JSONStringBuilder.instance(Self.self)
     }

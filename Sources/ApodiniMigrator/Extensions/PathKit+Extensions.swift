@@ -10,5 +10,9 @@ import Foundation
 #if DEBUG
 extension PathKit.Path {
     static var desktop: Path { Path("/Users/eld/Desktop") }
+    
+    static func testTarget(_ file: String = #file) -> Path {
+        Path(file).parent()
+    }
 }
 #endif

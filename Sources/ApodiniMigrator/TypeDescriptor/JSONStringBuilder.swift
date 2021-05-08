@@ -7,6 +7,7 @@ struct JSONStringBuilder {
     static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .formatted(.iSO8601DateFormatter)
+        decoder.dataDecodingStrategy = .base64
         return decoder
     }()
     
@@ -69,15 +70,15 @@ struct JSONStringBuilder {
         }
     }
     
-    /// Initializes an Instance out of a codable type.
-    static func instance<C: Codable>(_ type: C.Type) throws -> C {
-        let data = try Self(C.self).build().data(using: .utf8) ?? Data()
-        return try decoder.decode(C.self, from: data)
+    /// Initializes an Instance out of a decodable type.
+    static func instance<D: Decodable>(_ type: D.Type) throws -> D {
+        let data = try Self(D.self).build().data(using: .utf8) ?? Data()
+        return try decoder.decode(D.self, from: data)
     }
     
-    /// Initializes an instance out of a type descriptor and a specified codable type
-    static func instance<C: Codable>(_ typeDescriptor: TypeDescriptor, _ type: C.Type) throws -> C {
+    /// Initializes an instance out of a type descriptor and a specified decodable type
+    static func instance<D: Decodable>(_ typeDescriptor: TypeDescriptor, _ type: D.Type) throws -> D {
         let data = Self(typeDescriptor).build().data(using: .utf8) ?? Data()
-        return try decoder.decode(C.self, from: data)
+        return try decoder.decode(D.self, from: data)
     }
 }
