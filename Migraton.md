@@ -112,7 +112,7 @@ enum ProgrammingLanguage: String, Codable, CaseIterable {
 }
 ```
 
- To migrate the clients means: Never ***touch*** the properties of objects and the enum cases after the first library generation, handle migration
+ To migrate the clients means: Never **touch** the properties of objects and the enum cases after the first library generation, handle migration
  in the encoding and decoding methods.
  
  First, there is a distinguishment to be made, whether both encode method and decode initializer are needed or not. Decisive for that is:
@@ -169,7 +169,7 @@ struct Experience {
     1. If the type is not present in the library yet, generate a new Swift File for `Experience` struct, similar to `Developer` struct
     2. Add new case to the `CodingKeys` of `Developer` `case experience`
     3. Now the `TypeInformation`, `JSONStringBuilder` and the `DefaultInititializable` protocol come into action, which can either be added as
-    files in the library, or as a dependency in the client package. I have extended Decodable protocol with:
+    files in the library, or as a dependency in the client package. I have extended `Decodable` protocol with:
     ```swift
     extension Decodable {
         static func defaultValue() throws -> Self {
@@ -210,9 +210,9 @@ replace `name = try container.decode(String.self, forKey: .name)` with
 - `encode(to:)` the server will always expect a value for `githubRepository`, replace
 `try container.encode(githubRepository, forKey: .githubRepository)` with
 `try container.encode(githubRepository ?? try URL.defaultValue(), forKey: .githubRepository)`
-- `init(from decoder: Decoder)`, the server might or might not send the value even if we expect it
-replace `name = try container.decode(String.self, forKey: .name)` with
-`name = try container.decodeIfPresent(String.self, forKey: .name) ?? try String.defaultValue()`
+- `init(from decoder: Decoder)`, the server will always send a value for `githubRepository`,
+replace `URL?` to `URL` in the corresponding line: `githubRepository = try container.decode(`**URL**`.self, forKey: .githubRepository)`
+(have no tested this case yet, perhaps an adjustment might not be needed at all)
 
 ## Next steps
 - The approach discourages the need for the facade layer of Pallidor since the adjustments are always made in the initial files. There is no need to introduce
