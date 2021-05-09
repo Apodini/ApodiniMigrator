@@ -221,7 +221,12 @@ func encode(to encoder: Encoder) throws {
   try Student.defaultValue().encode(to: encoder)
 }
 ```
-- `init(from decoder: Decoder)` Simply provide default values for each property
+- `init(from decoder: Decoder)` Simply provide default values for each property or even for `self` directly by adjusting the initializer to:
+```swift
+init(from decoder: Decoder) throws {
+  self = try Self.defaultValue()
+}
+```
 ## Next steps
 - The approach discourages the need for the facade layer of Pallidor since the adjustments are always made in one single file. 
 Perhaps I might generate two files for each object: `TypeName.swift` that will only contain the properties or enum cases, and `TypeName+Migratable.swift` 
