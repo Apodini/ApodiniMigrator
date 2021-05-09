@@ -214,6 +214,14 @@ replace `name = try container.decode(String.self, forKey: .name)` with
 replace `URL?` to `URL` in the corresponding line: `githubRepository = try container.decode(`**URL**`.self, forKey: .githubRepository)`
 (have no tested this case yet, perhaps an adjustment might not be needed at all)
 
+### `Developer` object has been removed and replaced with another complex object e.g. `Student`
+- `encode(to:)` Create new Student file if not present yet and replace the method `encode(to:)` of `Developer` with:
+```swift
+func encode(to encoder: Encoder) throws {
+  try Student.defaultValue().encode(to: encoder)
+}
+```
+- `init(from decoder: Decoder)` Simply provide default values for each property
 ## Next steps
 - The approach discourages the need for the facade layer of Pallidor since the adjustments are always made in the initial files. There is no need to introduce
 JavaScript code in general, there is also no need to adjust API call methods with converting types, since we are migrating the changes at the source of truth.
