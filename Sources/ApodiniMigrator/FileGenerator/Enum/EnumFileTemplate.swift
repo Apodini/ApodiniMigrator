@@ -20,6 +20,16 @@ struct EnumFileTemplate: SwiftFileTemplate {
         typeInformation.enumCases
     }
     
+    /// Encoding method of the enum
+    var enumEncodingMethod: EnumEncodingMethod {
+        .init(enumCases)
+    }
+    
+    /// Decoding method of the enum
+    var enumDecoderInitializer: EnumDecoderInitializer {
+        .init(enumCases)
+    }
+    
     /// Initializer
     /// - Parameters:
     ///     - typeInformation: typeInformation to render
@@ -44,6 +54,12 @@ struct EnumFileTemplate: SwiftFileTemplate {
         \(markComment(.signature))
         \(kind.signature) \(typeNameString): String, Codable {
         \(enumCases.map { "case \($0.name.value)" }.withBreakingLines())
+
+        \(markComment(.encodable))
+        \(enumEncodingMethod.render())
+
+        \(markComment(.decodable))
+        \(enumDecoderInitializer.render())
         }
         """
     }

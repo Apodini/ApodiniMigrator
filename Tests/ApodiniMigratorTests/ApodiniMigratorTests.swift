@@ -152,7 +152,7 @@ final class ApodiniMigratorTests: XCTestCase {
             Student.self
         ]
         
-        try RecursiveFileGenerator(types).persist(at: .testTarget() + "TestModels")
+        try RecursiveFileGenerator(types).persist(at: .desktop + "TestModels")
         #endif
     }
 }
