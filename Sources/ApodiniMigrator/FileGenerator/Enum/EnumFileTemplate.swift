@@ -16,9 +16,7 @@ struct EnumFileTemplate: SwiftFileTemplate {
     let kind: Kind
     
     /// Enum cases of the `typeInformation`
-    var enumCases: [EnumCase] {
-        typeInformation.enumCases
-    }
+    let enumCases: [EnumCase]
     
     /// Encoding method of the enum
     var enumEncodingMethod: EnumEncodingMethod {
@@ -42,6 +40,7 @@ struct EnumFileTemplate: SwiftFileTemplate {
         
         self.typeInformation = typeInformation
         self.kind = kind
+        self.enumCases = typeInformation.enumCases
     }
     
     /// Renders and formats the `typeInformation` in an enum swift file compliant way
@@ -52,7 +51,7 @@ struct EnumFileTemplate: SwiftFileTemplate {
         \(Import(.foundation).render())
         
         \(markComment(.signature))
-        \(kind.signature) \(typeNameString): String, Codable {
+        \(kind.signature) \(typeNameString): String, Codable, CaseIterable {
         \(enumCases.map { "case \($0.name.value)" }.withBreakingLines())
 
         \(markComment(.encodable))

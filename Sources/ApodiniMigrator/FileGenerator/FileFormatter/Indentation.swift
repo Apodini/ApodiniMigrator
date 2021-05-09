@@ -21,7 +21,7 @@ struct Indentation: CustomStringConvertible {
     
     /// Decreases level by one
     mutating func dropLevel() {
-        level = max(0, level - 1)
+        level = level > 0 ? level - 1 : 0
     }
     
     /// Adds indentation to `rhs`

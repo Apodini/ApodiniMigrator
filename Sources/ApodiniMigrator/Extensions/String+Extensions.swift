@@ -27,17 +27,18 @@ extension String {
     /// Splits `self` by the passed string
     /// - Parameters:
     ///      - string: separator
-    ///      - ingoreEmptyComponents: flag whether empty components should be ignored, `false` by default
+    ///      - ignoreEmptyComponents: flag whether empty components should be ignored, `false` by default
     /// - Returns: the array of string components
-    func split(string: String, ingoreEmptyComponents: Bool = false) -> [String] {
-        components(separatedBy: string).filter { ingoreEmptyComponents ? !$0.isEmpty : true }
+    func split(string: String, ignoreEmptyComponents: Bool = false) -> [String] {
+        components(separatedBy: string).filter { ignoreEmptyComponents ? !$0.isEmpty : true }
     }
     
     func sanitizedLines() -> [String] {
         // splitting the string, empty lines are mapped into empty string array elements
         split(string: .lineBreak).reduce(into: [String]()) { result, current in
-            if !(result.last?.isEmpty == true && current.isEmpty) { // not allowing double empty lines
-                result.append(current.trimmingCharacters(in: .whitespaces)) // trimming whitespaces if any
+            let trimmed = current.trimmingCharacters(in: .whitespaces)
+            if !(result.last?.isEmpty == true && trimmed.isEmpty) { // not allowing double empty lines
+                result.append(trimmed)
             }
         }
     }

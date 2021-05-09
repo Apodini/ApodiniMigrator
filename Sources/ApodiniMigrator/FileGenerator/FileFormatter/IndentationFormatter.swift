@@ -23,7 +23,7 @@ private enum CurlyBracket: Character {
 /// Additionally the formatter replaces multiple empty lines with a single one.
 struct IndentationFormatter: SwiftFileFormatter {
     /// Difference between counts of visited opening and closing brackets.
-    /// For compilable swift files, storage is always greater than zero
+    /// For compilable swift files, storage is always greater than zero while formatting, and zero at the end
     private var storage = 0
     
     /// The indentation to be applied in a line based on the state of the storage
@@ -55,24 +55,25 @@ struct IndentationFormatter: SwiftFileFormatter {
     /// - Parameters content: string content of the swift file
     /// - Returns the formatted content
     mutating func format(_ content: String) -> String {
-        content.sanitizedLines().reduce(into: "") { result, line in
+        let formatted = content.sanitizedLines().reduce(into: "") { result, line in
             var indentation = currentIndentation
             if updateStorage(with: line) == .closing {
                 indentation.dropLevel()
             }
             result += indentation + line + .lineBreak
         }
+        assert(storage == 0, "Encountered a malformed swift file. Non-balanced number of opening a closing brackets: \(abs(storage))")
+        return formatted
     }
     
-    /// Formats content at the specified path with `(Command+A, Control+I)` `Xcode` command combinations
+    /// Formats content at the specified path with `(Command+A, Control+I)` `Xcode` command combinations, and persists the changes
     /// - Parameters path: Path where the swift file is located
     /// - Throws if the read operation failed
     /// - Note results in fatalError if path does not exists, or if not a swift file
-    /// - Returns the formatted content
-    mutating func format(_ path: Path) throws -> String {
-        guard path.exists, path.lastComponent.hasSuffix(".swift") else {
+    mutating func format(_ path: Path) throws {
+        guard path.exists, path.extension == "swift" else {
             fatalError("Invalid swift file path: \(path.string)")
         }
-        return format(try path.read())
+        try path.write(format(try path.read()))
     }
 }

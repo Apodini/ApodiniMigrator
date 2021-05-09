@@ -20,8 +20,7 @@ protocol SwiftFileFormatter {
     /// Formats content at the specified path
     /// - Parameters path: Path where the swift file is located
     /// - Throws if invalid path, or if the read operation failed
-    /// - Returns the formatted content
-    mutating func format(_ path: Path) throws -> String
+    mutating func format(_ path: Path) throws
 }
 
 extension String {
@@ -32,7 +31,7 @@ extension String {
 }
 
 extension Path {
-    func formatted(with formatterType: SwiftFileFormatter.Type) throws -> String {
+    func formatted(with formatterType: SwiftFileFormatter.Type) throws {
         var formatter = formatterType.init()
         return try formatter.format(self)
     }
