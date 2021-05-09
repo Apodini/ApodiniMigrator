@@ -58,10 +58,6 @@ struct Developer: Codable {
     let githubRepository: URL?
     let programmingLanguages: [ProgrammingLanguage]
     
-    struct Experience: Codable {
-        let name: String
-    }
-    
     // MARK: - Encodable
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
