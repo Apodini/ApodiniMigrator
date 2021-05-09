@@ -10,7 +10,7 @@
  
  ```swift
  struct Developer: Content {
-     let id: UUID
+     let id: Int
      let name: String
      let birthday: Date
      let githubRepository: URL
