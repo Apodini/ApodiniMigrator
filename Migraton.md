@@ -228,4 +228,16 @@ and the logic will be handled in the client library, e.g. content of Delete prop
     "target" : { "property" : "birthday" }
 }
 ```
+or if we would want to include the steps , it would look like this:
+```json
+{
+    "change" : "delete",
+    "element" : { "object" : "Developer" },
+    "target" : { "property" : "birthday" },
+    "migratingSteps": [
+      { "location" : "encode", "replacement" : "string of the new method body" },
+      { "location" : "decode", "replacement" : "string of the new init body" }
+    ]
+}
+```
 
