@@ -44,11 +44,13 @@ struct RecursiveFileGenerator: Persistable {
         try self.init(anyTypes.map { try TypeInformation(type: $0) })
     }
     
-    /// Persists `files` at the specified directory
+    /// Persists `files` at the specified directory. Additionally it creates the directory if it does not exist
     /// - Parameter directory: path of directory where the files should be persisted
     /// - Throws: if the path is not a valid directory path, or if the write operation fails
     func persist(at directory: Path) throws {
-        try directory.createDirectoryIfNeeded()
+        if !directory.exists {
+            try directory.mkpath()
+        }
         
         try files.forEach {
             try $0.write(at: directory)

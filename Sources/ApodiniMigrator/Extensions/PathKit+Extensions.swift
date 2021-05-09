@@ -7,14 +7,6 @@
 
 import Foundation
 
-extension Path {
-    func createDirectoryIfNeeded() throws {
-        if !exists {
-            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
-        }
-    }
-}
-
 #if DEBUG
 extension PathKit.Path {
     static var desktop: Path { Path("/Users/eld/Desktop") }

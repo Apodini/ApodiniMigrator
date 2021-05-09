@@ -5,28 +5,28 @@ struct WebService {
     /// Version of the web service
     var version: Version = .default
 
-    /// Services
-    var services: [Endpoint] = []
+    /// Endpoints
+    var endpoints: [Endpoint] = []
 }
 
 // MARK: - Codable
 extension WebService: Codable {
     private enum CodingKeys: String, CodingKey {
         case version
-        case services
+        case endpoints
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(version, forKey: .version)
-        try container.encode(services, forKey: .services)
+        try container.encode(endpoints, forKey: .endpoints)
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         version = try container.decode(Version.self, forKey: .version)
-        services = try container.decode([Endpoint].self, forKey: .services)
+        endpoints = try container.decode([Endpoint].self, forKey: .endpoints)
     }
 }
 
@@ -38,7 +38,7 @@ extension WebService: ComparableObject {
 
     func evaluate(result: ChangeContextNode, embeddedInCollection: Bool) -> Change? {
         let changes = [
-            services.evaluate(node: result)
+            endpoints.evaluate(node: result)
         ].compactMap { $0 }
 
         guard !changes.isEmpty else {
@@ -50,7 +50,7 @@ extension WebService: ComparableObject {
 
     func compare(to other: WebService) -> ChangeContextNode {
         ChangeContextNode()
-            .register(result: compare(\.services, with: other), for: Endpoint.self)
+            .register(result: compare(\.endpoints, with: other), for: Endpoint.self)
     }
 
     // Required from ComparableObject protocol, however not used for WebService
