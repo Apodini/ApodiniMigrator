@@ -57,6 +57,11 @@ extension TypeInformation {
         rootType == .object
     }
     
+    /// Indicates whether the root type is an enum or an object
+    var isEnumOrObject: Bool {
+        isEnum || isObject
+    }
+    
     /// Indicates whether the root type is a reference
     var isReference: Bool {
         rootType == .reference
@@ -222,7 +227,7 @@ extension TypeInformation {
         typeInformation.contains(self)
     }
     
-    /// Filters `allTypes()` by a boolean keypath of `TypeInformation`
+    /// Filters `allTypes()` by a boolean property of `TypeInformation`
     func filter(_ keyPath: KeyPath<TypeInformation, Bool>) -> [TypeInformation] {
         allTypes().filter { $0[keyPath: keyPath] }
     }
@@ -260,7 +265,7 @@ extension TypeInformation {
     /// Returns unique enum and object types defined in `self`
     /// ```swift
     /// // MARK: - Code example
-    /// struct User {
+    /// struct Student {
     ///     let name: String
     ///     let surname: String
     ///     let uni: Uni
@@ -278,15 +283,15 @@ extension TypeInformation {
     /// }
     ///
     /// ```
-    /// Applied on `User`, the functions returns `[.object(User), .object(Uni), .enum(Chair)]`, respectively with
+    /// Applied on `Student`, the functions returns `[.object(Student), .object(Uni), .enum(Chair)]`, respectively with
     /// the corresponding object properties and enum cases.
     func fileRenderableTypes() -> [TypeInformation] {
-        enums() + objectTypes()
+        filter(\.isEnumOrObject)
     }
 }
 
 // MARK: - Array extensions
-fileprivate extension Array where Element == TypeInformation {
+extension Array where Element == TypeInformation {
     static func + (lhs: Self, rhs: Element) -> Self {
         var mutableLhs = lhs
         mutableLhs.append(rhs)
@@ -301,5 +306,9 @@ fileprivate extension Array where Element == TypeInformation {
         var mutableLhs = lhs
         mutableLhs.append(contentsOf: rhs)
         return mutableLhs.unique()
+    }
+    
+    func fileRenderableTypes() -> Self {
+        flatMap { $0.fileRenderableTypes() }.unique()
     }
 }

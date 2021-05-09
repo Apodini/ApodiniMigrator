@@ -131,6 +131,8 @@ final class ApodiniMigratorTests: XCTestCase {
         let grades: [Double]
         let birthday: Date
         let url: URL
+        let shop: Shop
+        let car: Car
     }
     
     let jsonPath: Path = .desktop + "Student.json"
@@ -141,5 +143,16 @@ final class ApodiniMigratorTests: XCTestCase {
     
     func testJSONRead() throws {
         _ = XCTAssertNoThrowWithResult(try JSONStringBuilder.decode(Student.self, at: jsonPath))
+    }
+    
+    func testRecursiveFileGenerator() throws {
+        #if Xcode
+        let types: [Any.Type] = [
+            User.self,
+            Student.self
+        ]
+        
+        try RecursiveFileGenerator(types).persist(at: .testTarget() + "TestModels")
+        #endif
     }
 }

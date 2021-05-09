@@ -35,6 +35,7 @@ extension TypeInformation {
                 self = .enum(name: typeInfo.typeName, cases: typeInfo.cases.map { EnumCase($0.name) })
             } else if [.struct, .class].contains(typeInfo.kind) {
                 let properties: [TypeProperty] = try typeInfo.properties
+                    .filter { $0.type is Codable.Type }
                     .compactMap {
                         do {
                             return .init(name: .init($0.name), type: try .init(type: $0.type))
