@@ -154,7 +154,7 @@ case other = "undefined"
         fatalError("The web service does not support the cases of this enum anymore")
     }
     ```
-    2. Replace `try container.encode(rawValue)` in `encode(to:)` method with `try container.encode(encodableValue())`
+    2. Replace `try container.encode(rawValue)` in `encode(to:)` method with `try container.encode(encodableValue().rawValue)`
  
  ## `Developer` object:
 ### Add new property, e.g `let experience: Experience` of type:
