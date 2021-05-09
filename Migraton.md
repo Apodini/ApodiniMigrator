@@ -25,7 +25,8 @@
  }
  ```
  
- Out of the `Developer` type I generate the following swift files for the client library:
+ Out of the `Developer` type I generate the following swift files for the client library (I am trying to keep the library as lightweight as possible, not including
+ swift syntax formatter, have implementated a custom formatter for indenting the file)
  
 ```swift
 // MARK: - File 1
