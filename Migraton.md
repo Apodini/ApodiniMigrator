@@ -223,8 +223,10 @@ func encode(to encoder: Encoder) throws {
 ```
 - `init(from decoder: Decoder)` Simply provide default values for each property
 ## Next steps
-- The approach discourages the need for the facade layer of Pallidor since the adjustments are always made in the initial files. There is no need to introduce
-JavaScript code in general, there is also no need to adjust API call methods with converting types, since we are migrating the changes at the source of truth.
+- The approach discourages the need for the facade layer of Pallidor since the adjustments are always made in one single file. 
+Perhaps I might generate two files for each object: `TypeName.swift` that will only contain the properties or enum cases, and `TypeName+Migratable.swift` 
+as extension with `CodingKeys`, `encode(to:)` method and `init(from decoder: Decoder)`. 
+- There is no need to introduce JavaScript code in general, there is also no need to adjust API call methods with converting types, since we are migrating the changes at the source of truth.
 - Similar convertion approaches can be followed for changes in `lightweight` / `CustomStringConvertible` parameters, inside of API call methods.
 - Adjusting Pallidor with this approach, requires a lot of effort, if you agree, I could handle the library generation with a custom `WebServiceStructure`obtained from the DSL (no need for OpenAPI), and handle the changes accordingly.
 - The approach simplifies the structure of the migration guide. It will only contain the type of change and id of the affected element,
