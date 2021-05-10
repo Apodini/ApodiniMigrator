@@ -26,7 +26,7 @@ struct ObjectCodingKeys: Renderable {
     func render() -> String {
         """
         private \(Kind.enum.signature) \(codingKeysEnum.typeName.name): String, CodingKey {
-        \(enumCases.map { "case \($0.name.value)" }.withBreakingLines())
+        \(enumCases.map { "case \($0.name.value) = \($0.name.value.asString)" }.withBreakingLines())
         }
         """
     }

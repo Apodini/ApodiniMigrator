@@ -46,6 +46,7 @@ enum MARKCommentType: String {
     case properties
     case encodable
     case decodable
+    case utils
 }
 
 /// `SwiftFileTemplate` default implementations

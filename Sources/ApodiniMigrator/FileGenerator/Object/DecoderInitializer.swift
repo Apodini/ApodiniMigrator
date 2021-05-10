@@ -33,6 +33,7 @@ struct DecoderInitializer: Renderable {
 extension TypeProperty {
     /// The corresponding line of the property to be rendered inside `init(from decoder: Decoder)`
     var decoderInitLine: String {
-        "\(name.value) = try container.decode(\(type.propertyTypeString).self, forKey: .\(name.value))"
+        let decodeMethodString = "decode\(type.isOptional ? "IfPresent" : "")"
+        return "\(name.value) = try container.\(decodeMethodString)(\(type.propertyTypeString.dropQuestionMark).self, forKey: .\(name.value))"
     }
 }

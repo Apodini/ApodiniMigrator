@@ -11,6 +11,13 @@ extension String {
         "\"\(self)\""
     }
     
+    var dropQuestionMark: String {
+        if last == "?" {
+            return String(dropLast())
+        }
+        return self
+    }
+    
     /// Return the string with a uppercased first character
     var upperFirst: String {
         if let first = first {
