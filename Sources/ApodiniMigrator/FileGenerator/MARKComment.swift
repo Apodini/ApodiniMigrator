@@ -33,6 +33,13 @@ struct MARKComment: Annotation {
     /// - Parameters:
     ///     - comment: The string that follows `// MARK: - `
     init(_ comment: String) {
-        self.comment = Self.base + comment.replacingOccurrences(of: Self.base, with: "")
+        self.comment = Self.base + comment.without(Self.base)
+    }
+    
+    /// Initializer for a `MARKComment` instance
+    /// - Parameters:
+    ///     - markCommentType: the type of the comment
+    init(_ markCommentType: MARKCommentType) {
+        self.init(markCommentType.comment)
     }
 }

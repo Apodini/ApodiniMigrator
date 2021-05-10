@@ -49,6 +49,10 @@ extension String {
             }
         }
     }
+    
+    func without(_ string: String) -> String {
+        replacingOccurrences(of: string, with: "")
+    }
 }
 
 extension Collection where Element == String {

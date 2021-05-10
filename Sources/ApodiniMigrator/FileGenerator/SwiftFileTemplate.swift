@@ -41,12 +41,16 @@ enum SwiftFileTemplateError: Error {
 
 /// Distinct cases of mark comments that might appear in a file
 enum MARKCommentType: String {
-    case signature
+    case model
     case codingKeys
     case properties
     case encodable
     case decodable
     case utils
+    
+    var comment: String {
+        rawValue.upperFirst
+    }
 }
 
 /// `SwiftFileTemplate` default implementations
@@ -66,15 +70,6 @@ extension SwiftFileTemplate {
     /// File comment in the header of the `Swift` file
     var fileComment: String {
         FileHeaderComment(fileName: fileName).render()
-    }
-    
-    /// A function to create a mark comment of a specific type
-    /// - Parameters:
-    ///    - type: type of the mark comment
-    ///    - indentation: indentation to be applied to the comment
-    /// - Returns: `MARKComment` instance
-    func markComment(_ type: MARKCommentType) -> MARKComment {
-        .init(type == .signature ? typeNameString : type.rawValue.upperFirst)
     }
     
     /// Writes the content of `render()` method at the specified path, formatted with `IndentationFormatter`

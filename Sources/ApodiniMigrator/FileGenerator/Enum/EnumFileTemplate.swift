@@ -53,17 +53,17 @@ struct EnumFileTemplate: SwiftFileTemplate {
         
         \(Import(.foundation).render())
         
-        \(markComment(.signature))
+        \(MARKComment(.model))
         \(kind.signature) \(typeNameString): String, Codable, CaseIterable {
         \(enumCases.map { "case \($0.name.value) = \($0.name.value.asString)" }.withBreakingLines())
 
-        \(markComment(.encodable))
+        \(MARKComment(.encodable))
         \(enumEncodingMethod.render())
 
-        \(markComment(.decodable))
+        \(MARKComment(.decodable))
         \(enumDecoderInitializer.render())
 
-        \(markComment(.utils))
+        \(MARKComment(.utils))
         \(encodeValueMethod.render())
         }
         """

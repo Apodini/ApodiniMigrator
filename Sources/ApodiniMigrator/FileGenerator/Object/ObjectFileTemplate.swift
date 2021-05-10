@@ -54,18 +54,18 @@ struct ObjectFileTemplate: SwiftFileTemplate {
 
         \(Import(.foundation).render())
         
-        \(markComment(.signature))
+        \(MARKComment(.model))
         \(kind.signature) \(typeNameString): Codable {
-        \(markComment(.codingKeys))
+        \(MARKComment(.codingKeys))
         \(codingKeysEnum.render())
         
-        \(markComment(.properties))
+        \(MARKComment(.properties))
         \(properties.map { $0.propertyLine }.withBreakingLines())
         
-        \(markComment(.encodable))
+        \(MARKComment(.encodable))
         \(encodingMethod.render())
         
-        \(markComment(.decodable))
+        \(MARKComment(.decodable))
         \(decoderInitializer.render())
         }
         """

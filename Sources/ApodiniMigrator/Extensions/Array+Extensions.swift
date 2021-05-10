@@ -25,4 +25,11 @@ extension Array where Element: Equatable {
 
         return true
     }
+    
+    /// Returns a new array in which all occurrences of a `target` element are replaced with `replacement` element.
+    func replacingOccurrences(of target: Element, with replacement: Element) -> Self {
+        reduce(into: Self()) { result, current in
+            result.append(current == target ? replacement : current)
+        }
+    }
 }
