@@ -8,6 +8,8 @@
 import Foundation
 
 struct EnumEncodeValueMethod: Renderable {
+    /// Static property used also from the parser to identify the line
+    static let base = "let deletedCases: [Self] = "
     /// The deleted cases of the enum
     let deletedCases: [EnumCase]
     
@@ -20,7 +22,7 @@ struct EnumEncodeValueMethod: Renderable {
     func render() -> String {
         """
         private func encodableValue() -> Self {
-        let deletedCases: [Self] = [\(deletedCases.map { ".\($0.name.value)" }.joined(separator: ", "))]
+        \(Self.base)[\(deletedCases.map { ".\($0.name.value)" }.joined(separator: ", "))]
         guard deletedCases.contains(self) else {
         return self
         }

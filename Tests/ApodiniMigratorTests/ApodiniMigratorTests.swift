@@ -145,14 +145,28 @@ final class ApodiniMigratorTests: XCTestCase {
         _ = XCTAssertNoThrowWithResult(try JSONStringBuilder.decode(Student.self, at: jsonPath))
     }
     
-    func testRecursiveFileGenerator() throws {
-        #if Xcode
+    
+    let testModels: Path = .desktop + "TestModels"
+    
+    func generateTestModels() throws {
         let types: [Any.Type] = [
             User.self,
             Student.self
         ]
         
-        try RecursiveFileGenerator(types).persist(at: .desktop + "TestModels")
+        try RecursiveFileGenerator(types).persist(at: testModels)
+    }
+    
+    
+    func testEnumFileUpdate() throws {
+        #if Xcode
+        try generateTestModels()
+        
+        var enumFileParser = try EnumFileParser(path: testModels + "Direction.swift")
+        
+        enumFileParser.rename(case: "left", to: "links")
+        enumFileParser.deleted(case: "right")
+        try enumFileParser.save()
         #endif
     }
 }

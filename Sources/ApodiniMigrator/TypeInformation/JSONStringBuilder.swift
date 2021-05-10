@@ -65,9 +65,13 @@ struct JSONStringBuilder {
             return cases.first?.name.value.asString ?? "{}"
         case let .object(_, properties):
             let sorted = properties.sorted { $0.name.value < $1.name.value }
-            return "{\(sorted.map { $0.name.value.asString + " : \(JSONStringBuilder($0.type).build())" }.joined(separator: ", "))}"
+            return "{\(sorted.map { "\(String.lineBreak)" + $0.name.value.asString + " : \(JSONStringBuilder($0.type).build())" }.joined(separator: ", "))\(String.lineBreak)}"
         default: return defaultInitializableType?.jsonString ?? "{}"
         }
+    }
+    
+    func formatted() -> String {
+        build().formatted(with: IndentationFormatter.self)
     }
     
     /// Initializes an Instance out of a decodable type.
