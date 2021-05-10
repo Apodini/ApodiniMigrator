@@ -179,9 +179,10 @@ struct Experience {
     ```
     4. The static function generates a valid instance based on the json string, for any arbitrary decodable type
     with empty string properties, zero numeric values, date of today for dates, a random UUID, and the github link of ApodiniMigrator for URLs.
-    5. If we stick with including the package as a dependency, `import ApodiniMigrator` in `Developer` file.
-    6. In `encode(to:)` method add: `try container.encode(try Experience.defaultValue(), forKey: .experience)`
-    7. Now every `developer` instance that we will transmit to the server, will contain the required `experience` field
+    5. Steps inside `JSONStringBuilder.instance(Self.self)`: creates a `TypeInformation`, creates a valid jsonString for an instance of the type, decodes the string as `Self.self`
+    6. If we stick with including the package as a dependency, `import ApodiniMigrator` in `Developer` file.
+    7. In `encode(to:)` method add: `try container.encode(try Experience.defaultValue(), forKey: .experience)`
+    8. Now every `developer` instance that we will transmit to the server, will contain the required `experience` field
  
 ### Rename property, e.g. from `id` to `identifier`
 - Similar to renaming an enum case in enums, the migrating step that would satisfy both `encode(to:)` and `init(from decoder: Decoder)`
