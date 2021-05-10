@@ -15,18 +15,22 @@ struct EnumFileParser: FileParser {
     var header: [String]
     /// The section that contains the cases of the enum
     var cases: [String]
+    /// The section that contains the deprecated cases array
+    var deprecated: [String]
     /// The section containing the `encode(to:)` method and `init(from:)` initializer
     let codable: [String]
-    /// The section that contains `encodableValue()` method
-    var utils: [String]
-    
     /// Sections of the file
     var sections: Sections {
-        [header, cases, codable, utils]
+        [header, cases, deprecated, codable]
     }
     
-    /// The string line inside of `encodableValue()`, method that holds the deleted cases
-    var deletedCasesLine: String
+    /// The string line that holds the deprecated cases
+    var deprecatedCasesLine: String {
+        if let deletedCasesLine = deprecated.first(where: { $0.contains(EnumDeprecatedCases.base) }) {
+            return deletedCasesLine
+        }
+        fatalError("The enum file is malformed")
+    }
     
     /// The parsed cases of the enum
     var parsedCases: [ParsedEnumCase] {
@@ -35,7 +39,7 @@ struct EnumFileParser: FileParser {
     
     /// Parsed deleted cases of the enum inside of `encodableValue()` method
     var deletedCases: [ParsedEnumCase] {
-        parsedCases.filter { deletedCasesLine.contains(".\($0.caseName)") }
+        parsedCases.filter { deprecatedCasesLine.contains(".\($0.caseName)") }
     }
     
     /// Initializes the parser with a file at the specified path
@@ -44,15 +48,14 @@ struct EnumFileParser: FileParser {
         let content: String = try path.read()
         let lines = content.sanitizedLines()
         header = Self.sublines(in: lines, to: .model)
-        cases = Self.sublines(in: lines, from: .model, to: .encodable)
-        codable = Self.sublines(in: lines, from: .encodable, to: .utils)
-        utils = Self.sublines(in: lines, from: .utils)
-        self.deletedCasesLine = Self.resolveDeletedCasesLine(from: utils)
+        cases = Self.sublines(in: lines, from: .model, to: .deprecated)
+        deprecated = Self.sublines(in: lines, from: .deprecated, to: .encodable)
+        codable = Self.sublines(in: lines, from: .encodable)
     }
     
     /// Static method to retrieve the deleted cases line inside of `encodableValue()` method
     private static func resolveDeletedCasesLine(from lines: [String]) -> String {
-        if let deletedCasesLine = lines.first(where: { $0.contains(EnumEncodeValueMethod.base) }) {
+        if let deletedCasesLine = lines.first(where: { $0.contains(EnumDeprecatedCases.base) }) {
             return deletedCasesLine
         } else {
             fatalError("The enum file is malformed")
@@ -76,9 +79,9 @@ struct EnumFileParser: FileParser {
         if let affectedCase = parsedCases.first(where: { $0.rawValue == `case` }) {
             var updated = deletedCases.map { $0.caseName }
             updated.append(affectedCase.caseName)
-            utils = utils.replacingOccurrences(
-                    of: deletedCasesLine,
-                    with: "\(EnumEncodeValueMethod.base)[\(updated.map { ".\($0)" }.joined(separator: ", "))]"
+            deprecated = deprecated.replacingOccurrences(
+                    of: deprecatedCasesLine,
+                    with: "\(EnumDeprecatedCases.base)[\(updated.map { ".\($0)" }.joined(separator: ", "))]"
                 )
         }
     }
@@ -89,9 +92,9 @@ struct EnumFileParser: FileParser {
             return
         }
         
-        utils = utils.replacingOccurrences(
-            of: deletedCasesLine,
-            with: "\(EnumEncodeValueMethod.base)[\(deletedCases.filter { $0 != recovered }.map { ".\($0.caseName)" }.joined(separator: ", "))]"
+        deprecated = deprecated.replacingOccurrences(
+            of: deprecatedCasesLine,
+            with: "\(EnumDeprecatedCases.base)[\(deletedCases.filter { $0 != recovered }.map { ".\($0.caseName)" }.joined(separator: ", "))]"
         )
     }
 }

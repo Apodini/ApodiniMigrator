@@ -42,6 +42,7 @@ enum SwiftFileTemplateError: Error {
 /// Distinct cases of mark comments that might appear in a file
 enum MARKCommentType: String {
     case model
+    case deprecated
     case codingKeys
     case properties
     case encodable

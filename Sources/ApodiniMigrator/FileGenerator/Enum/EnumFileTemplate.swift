@@ -18,6 +18,9 @@ struct EnumFileTemplate: SwiftFileTemplate {
     /// Enum cases of the `typeInformation`
     let enumCases: [EnumCase]
     
+    /// Deprecated cases
+    let deprecatedCases = EnumDeprecatedCases()
+    
     /// Encode value method
     let encodeValueMethod = EnumEncodeValueMethod()
     
@@ -56,6 +59,9 @@ struct EnumFileTemplate: SwiftFileTemplate {
         \(MARKComment(.model))
         \(kind.signature) \(typeNameString): String, Codable, CaseIterable {
         \(enumCases.map { "case \($0.name.value) = \($0.name.value.asString)" }.withBreakingLines())
+
+        \(MARKComment(.deprecated))
+        \(deprecatedCases.render())
 
         \(MARKComment(.encodable))
         \(enumEncodingMethod.render())
