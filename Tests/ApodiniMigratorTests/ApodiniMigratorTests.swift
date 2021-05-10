@@ -169,4 +169,16 @@ final class ApodiniMigratorTests: XCTestCase {
         try enumFileParser.save()
         #endif
     }
+    
+    func testObjectFileUpdate() throws {
+        #if Xcode
+        try generateTestModels()
+        
+        var objectFileParser = try ObjectFileParser(path: testModels + "Student.swift")
+        
+        objectFileParser.renamed(property: "id", to: "identifier")
+        
+        try objectFileParser.save()
+        #endif
+    }
 }
