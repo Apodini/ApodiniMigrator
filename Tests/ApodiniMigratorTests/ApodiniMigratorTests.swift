@@ -135,10 +135,10 @@ final class ApodiniMigratorTests: XCTestCase {
         let car: Car
     }
     
-    let jsonPath: Path = .desktop + "Student.json"
+    let jsonPath: Path = .desktop + "\(Student.self).json"
     
     func testJSONCreation() throws {
-        try jsonPath.write(try JSONStringBuilder(Student.self).build())
+        try jsonPath.write(try JSONStringBuilder.string(Student.self))
     }
     
     func testJSONRead() throws {

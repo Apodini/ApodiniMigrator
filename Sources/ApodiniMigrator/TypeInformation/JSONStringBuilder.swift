@@ -70,8 +70,8 @@ struct JSONStringBuilder {
         }
     }
     
-    func formatted() -> String {
-        build().formatted(with: IndentationFormatter.self)
+    static func string<C: Codable>(_ type: C.Type) throws -> String {
+        try instance(C.self).json
     }
     
     /// Initializes an Instance out of a decodable type.
