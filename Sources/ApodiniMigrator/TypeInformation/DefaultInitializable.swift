@@ -82,9 +82,3 @@ extension Data: DefaultInitializable {
         Data().base64EncodedString().asString
     }
 }
-
-extension Decodable {
-    static func defaultValue() throws -> Self {
-        try JSONStringBuilder.instance(Self.self)
-    }
-}
