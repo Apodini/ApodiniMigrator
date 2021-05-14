@@ -19,6 +19,5 @@ struct Test {
         
         let s = try! TypeInformation(type: User.self)
         
-        var store = TypesStore()
     }
 }

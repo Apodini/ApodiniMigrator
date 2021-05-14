@@ -56,11 +56,11 @@ public class PropertyValueWrapper<P: PropertyProtocol>: ComparableProperty {
 }
 
 public extension PropertyValueWrapper {
-    public static func == (lhs: PropertyValueWrapper<P>, rhs: PropertyValueWrapper<P>) -> Bool {
+    static func == (lhs: PropertyValueWrapper<P>, rhs: PropertyValueWrapper<P>) -> Bool {
         lhs.value == rhs.value
     }
 
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(value)
     }
 }

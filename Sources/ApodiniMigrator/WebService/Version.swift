@@ -3,7 +3,7 @@ import Foundation
 /** Version from Apodini */
 
 /// A `Version` can be  used to specify the version of a Web API using semantic versioning
-struct Version: Codable {
+public struct Version: Codable {
     /// Default values for a `Version`
     enum Defaults {
         /// The default prefix
@@ -50,7 +50,7 @@ struct Version: Codable {
 }
 
 extension Version: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         "\(prefix)\(major)"
     }
 }

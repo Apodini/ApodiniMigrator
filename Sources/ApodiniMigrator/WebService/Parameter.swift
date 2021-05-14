@@ -3,7 +3,7 @@ import Foundation
 /** ParameterType from Apodini*/
 
 /// Categorization needed for certain interface exporters (e.g., HTTP-based).
-enum ParameterType: String, ComparableProperty {
+public enum ParameterType: String, ComparableProperty {
     /// Lightweight parameters are any parameters which are
     /// considered to be lightweight in some sort of way.
     /// This is the default parameter type for any primitive type properties.
@@ -33,27 +33,38 @@ enum Necessity: String, ComparableProperty {
     /// `.optional` necessity describes parameters which does not necessarily require a value.
     /// This does not necessarily translate to `nil` being a valid value.
     case optional
+    
+    init(_ hasDefaultValue: HasDefaultValue) {
+        self = hasDefaultValue.value ? .optional : .required
+    }
 }
 
-class ParameterName: PropertyValueWrapper<String> {}
+public class ParameterName: PropertyValueWrapper<String> {}
 class NilIsValidValue: PropertyValueWrapper<Bool> {}
+public class HasDefaultValue: PropertyValueWrapper<Bool> {}
 
 /// Represents a parameter of an endpoint
-struct Parameter {
+public struct Parameter {
     /// Name of the parameter
-    let parameterName: ParameterName
-
-    /// The necessity of the parameter
-    let necessity: Necessity
+    public let parameterName: ParameterName
+    /// The reference of the `typeInformation` of the parameter
+    public let typeInformation: TypeInformation
+    
+    /// Indicates whether the parameter has a default value
+    public let hasDefaultValue: HasDefaultValue
 
     /// Parameter type
-    let type: ParameterType
-
-    /// Indicates whether `nil` is a valid value
-    let nilIsValidValue: NilIsValidValue
-
-    /// The reference of the `typeInformation` of the parameter
-    let typeInformation: TypeInformation
+    public let parameterType: ParameterType
+    
+    /// Indicates whether `nil` is a valid value, equavalent of `typeInformation` beeing optional
+    var nilIsValidValue: NilIsValidValue {
+        .init(typeInformation.isOptional)
+    }
+    
+    /// The necessity of the parameter
+    var necessity: Necessity {
+        nilIsValidValue.value ? .optional : .init(hasDefaultValue)
+    }
 }
 
 // MARK: - ComparableObject
@@ -64,28 +75,34 @@ extension Parameter: ComparableObject {
 
     func compare(to other: Parameter) -> ChangeContextNode {
         ChangeContextNode()
-            .register(compare(\.parameterName, with: other), for: ParameterName.self)
-            .register(compare(\.necessity, with: other), for: Necessity.self)
-            .register(compare(\.type, with: other), for: ParameterType.self)
-            .register(compare(\.nilIsValidValue, with: other), for: NilIsValidValue.self)
     }
 
     func evaluate(result: ChangeContextNode, embeddedInCollection: Bool) -> Change? {
-        guard let context = context(from: result, embeddedInCollection: embeddedInCollection) else {
-            return nil
-        }
+        nil
+    }
+}
 
-        let changes = [
-            parameterName.change(in: context),
-            necessity.change(in: context),
-            type.change(in: context),
-            nilIsValidValue.change(in: context)
-        ].compactMap { $0 }
-
-        guard !changes.isEmpty else {
-            return nil
-        }
-
-        return .compositeChange(location: Self.changeLocation, changes: changes)
+extension Parameter {
+    // MARK: Private Inner Types
+    private enum CodingKeys: String, CodingKey {
+        case parameterName, typeInformation, hasDefaultValue, parameterType, nilIsValid, necessity
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(parameterName, forKey: .parameterName)
+        try container.encode(typeInformation, forKey: .typeInformation)
+        try container.encode(hasDefaultValue, forKey: .hasDefaultValue)
+        try container.encode(parameterType, forKey: .parameterType)
+        try container.encode(nilIsValidValue, forKey: .nilIsValid)
+        try container.encode(necessity, forKey: .necessity)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        parameterName = try container.decode(ParameterName.self, forKey: .parameterName)
+        typeInformation = try container.decode(TypeInformation.self, forKey: .typeInformation)
+        hasDefaultValue = try container.decode(HasDefaultValue.self, forKey: .hasDefaultValue)
+        parameterType = try container.decode(ParameterType.self, forKey: .parameterType)
     }
 }

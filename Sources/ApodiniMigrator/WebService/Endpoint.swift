@@ -2,11 +2,11 @@ import Foundation
 
 class EndpointPath: PropertyValueWrapper<String> {}
 class HandlerName: PropertyValueWrapper<String> {}
-class PallidorOperationName: PropertyValueWrapper<String> {}
-class PallidorEndpointName: PropertyValueWrapper<String> {}
+
+public typealias EndpointInput = [Parameter]
 
 /// Represents an endpoint
-struct Endpoint {
+public struct Endpoint {
     /// Name of the handler
     let handlerName: HandlerName
 
@@ -20,36 +20,25 @@ struct Endpoint {
     let absolutePath: EndpointPath
 
     /// Parameters of the endpoint
-    let parameters: [Parameter]
+    let parameters: EndpointInput
 
     /// The reference of the `typeInformation` of the response
     let response: TypeInformation
     
-    /// Name of the operation specified via `.pallidor(_:)` modified
-    let operationName: PallidorOperationName
-    
-    /// The first path component of the endpoint after dropping the version
-    /// e.g. `/v1/users` -> `users`. Used in Pallidor to group endpoints in one file
-    let endpointName: PallidorEndpointName
-
-    init(
+    public init(
         handlerName: String,
-        deltaIdentifier: DeltaIdentifier,
+        deltaIdentifier: String,
         operation: Operation,
         absolutePath: String,
-        parameters: [Parameter],
-        response: TypeInformation,
-        operationName: String,
-        endpointName: PallidorEndpointName
+        parameters: EndpointInput,
+        response: TypeInformation
     ) {
         self.handlerName = .init(handlerName)
-        self.deltaIdentifier = deltaIdentifier
+        self.deltaIdentifier = .init(deltaIdentifier)
         self.operation = operation
         self.absolutePath = .init(absolutePath)
         self.parameters = parameters
         self.response = response
-        self.operationName = .init(operationName)
-        self.endpointName = endpointName
     }
 }
 
@@ -65,8 +54,6 @@ extension Endpoint: ComparableObject {
             operation.change(in: context),
             absolutePath.change(in: context),
             parameters.evaluate(node: context),
-            operationName.change(in: context),
-            endpointName.change(in: context)
         ].compactMap { $0 }
 
         guard !changes.isEmpty else {
@@ -82,7 +69,5 @@ extension Endpoint: ComparableObject {
             .register(compare(\.operation, with: other), for: Operation.self)
             .register(compare(\.absolutePath, with: other), for: EndpointPath.self)
             .register(result: compare(\.parameters, with: other), for: Parameter.self)
-            .register(compare(\.operationName, with: other), for: PallidorOperationName.self)
-            .register(compare(\.endpointName, with: other), for: PallidorEndpointName.self)
     }
 }

@@ -195,6 +195,11 @@ public extension TypeInformation {
         return []
     }
     
+    /// Wrapps a type descriptor as an optional type. If already an optional, returns self
+    var asOptional: TypeInformation {
+        isOptional ? self : .optional(wrappedValue: self)
+    }
+    
     /// Recursively returns all types included in this `typeInformation`, e.g. primitive types, enums, objects
     ///  and nested elements in repeated types, dictionaries and optionals
     func allTypes() -> [TypeInformation] {
