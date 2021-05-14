@@ -1,13 +1,13 @@
 import Foundation
 
 /// A protocol that forces the presence of an empty initializer
-protocol DefaultInitializable: CustomStringConvertible {
+public protocol DefaultInitializable: CustomStringConvertible {
     init()
     static var jsonString: String { get }
 }
 
 // MARK: - Default
-extension DefaultInitializable {
+public extension DefaultInitializable {
     static var defaultValue: Self { .init() }
     static var jsonString: String { defaultValue.description }
     static func jsonString(_ optionalValue: Self?) -> String {
@@ -31,10 +31,10 @@ extension Double: DefaultInitializable {}
 extension Float: DefaultInitializable {}
 
 extension String: DefaultInitializable {
-    static var jsonString: String {
+    public static var jsonString: String {
         defaultValue.description.asString
     }
-    static func jsonString(_ optionalValue: Self?) -> String {
+    public static func jsonString(_ optionalValue: Self?) -> String {
         optionalValue?.description.asString ?? jsonString
     }
 }
@@ -45,17 +45,17 @@ extension URL: DefaultInitializable {
         URL(string: "https://github.com/Apodini/ApodiniMigrator.git")!
     }
     
-    init() {
+    public init() {
         self = .defaultURL
     }
     
-    static var jsonString: String {
+    public static var jsonString: String {
         defaultValue.absoluteString.asString
     }
 }
 
 extension UUID: DefaultInitializable {
-    static var jsonString: String {
+    public static var jsonString: String {
         defaultUUID.uuidString.asString
     }
     
@@ -73,12 +73,12 @@ extension Date: DefaultInitializable {
         Date().noon
     }
     
-    static var jsonString: String {
+    public static var jsonString: String {
         DateFormatter.iSO8601DateFormatter.string(from: today).asString
     }
 }
 extension Data: DefaultInitializable {
-    static var jsonString: String {
+    public static var jsonString: String {
         Data().base64EncodedString().asString
     }
 }

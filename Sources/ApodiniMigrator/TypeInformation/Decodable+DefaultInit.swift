@@ -2,7 +2,7 @@ import Foundation
 import JavaScriptCore
 
 
-extension Decodable {
+public extension Decodable {
     /// A function to that creates an instance of type `Self` with empty values
     static func defaultValue() throws -> Self {
         try JSONStringBuilder.instance(Self.self)
@@ -75,7 +75,7 @@ fileprivate extension Decodable {
     }
 }
 
-extension Decodable {
+public extension Decodable {
     
     /// Creates an instance of type `Self`, by means of the `value` of `EncodableContainer`
     ///
@@ -243,22 +243,22 @@ extension Decodable {
 /// ```
 /// Doing so, we obtain a valid json that can be used to decode the `Student` accordingly
 /// - Note: Uses a `KeyedEncodingContainer` to encode the value under the key `value`
-struct EncodableContainer<E: Encodable>: Encodable {
+public struct EncodableContainer<E: Encodable>: Encodable {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case value
     }
     
     /// The encodable value of the container
-    let value: E
+    public let value: E
     
     /// Initializer for `EncodableContainer`
-    init(_ value: E) {
+    public init(_ value: E) {
         self.value = value
     }
     
     /// Encode method
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(value, forKey: .value)

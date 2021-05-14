@@ -3,19 +3,19 @@ import Foundation
 /// `TypesStore` provides logic to reference and store `typeInformation` instances, while e.g. an endpoint keeps only the reference of the response type
 /// Provided with a reference from `TypeStore`, the instance of `typeInformation`
 /// can be constructed without information-loss via `construct(from reference:)`
-struct TypesStore: Codable {
+public struct TypesStore: Codable {
     /// Stored references of enums and objects
     /// Properties of objects are recursively stored
-    var storage: [String: TypeInformation]
+    public var storage: [String: TypeInformation]
     
     /// Initializes a store with an empty storage
-    init() {
+    public init() {
         storage = [:]
     }
     
     /// Stores an enum or object type by its type name, and returns the reference
     /// If attempting to store a non referencable type, the operation is ignored and the input type is returned directly
-    mutating func store(_ type: TypeInformation) -> TypeInformation {
+    public mutating func store(_ type: TypeInformation) -> TypeInformation {
         guard type.isReferencable else {
             return type
         }
@@ -42,7 +42,7 @@ struct TypesStore: Codable {
     }
     
     /// Constructs a type from a reference
-    mutating func construct(from reference: TypeInformation) -> TypeInformation {
+    public mutating func construct(from reference: TypeInformation) -> TypeInformation {
         guard let referenceKey = reference.referenceKey, var stored = storage[referenceKey.rawValue] else {
             fatalError("Attempted to construct a type that does not contain a reference")
         }

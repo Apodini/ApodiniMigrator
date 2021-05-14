@@ -1,6 +1,6 @@
 import Foundation
 
-extension TypeInformation {
+public extension TypeInformation {
     /// A simplified enum of the `typeInformation`
     enum RootType: String, CustomStringConvertible {
         case scalar
@@ -11,7 +11,7 @@ extension TypeInformation {
         case object
         case reference
         
-        var description: String { rawValue.upperFirst }
+        public var description: String { rawValue.upperFirst }
     }
     
     /// The root type of this `typeInformation`
@@ -291,7 +291,7 @@ extension TypeInformation {
 }
 
 // MARK: - Array extensions
-extension Array where Element == TypeInformation {
+public extension Array where Element == TypeInformation {
     static func + (lhs: Self, rhs: Element) -> Self {
         var mutableLhs = lhs
         mutableLhs.append(rhs)

@@ -1,7 +1,7 @@
 import Foundation
 @_implementationOnly import Runtime
 
-extension TypeInformation {
+public extension TypeInformation {
     enum TypeInformationError: Error {
         case notSupportedDictionaryKeyType
         case initFailure(message: String)
@@ -61,7 +61,7 @@ extension TypeInformation {
     }
 }
 
-extension TypeInfo {
+fileprivate extension TypeInfo {
     var typeName: TypeName {
         .init(type)
     }

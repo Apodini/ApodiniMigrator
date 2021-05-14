@@ -1,13 +1,13 @@
 import Foundation
 
-class PropertyName: PropertyValueWrapper<String> {}
+public class PropertyName: PropertyValueWrapper<String> {}
 
-struct TypeProperty: Value {
-    let name: PropertyName
-    let type: TypeInformation
+public struct TypeProperty: Value {
+    public let name: PropertyName
+    public let type: TypeInformation
 }
 
-extension TypeInformation {
+public extension TypeInformation {
     var propertyTypeString: String {
         switch self {
         case let .scalar(primitiveType): return primitiveType.description
@@ -21,11 +21,11 @@ extension TypeInformation {
     }
 }
 
-struct EnumCase: Value {
-    let name: PropertyName
-    let type: TypeInformation // currently only .scalar(.string)
+public struct EnumCase: Value {
+    public let name: PropertyName
+    public let type: TypeInformation // currently only .scalar(.string)
     
-    init(_ name: String) {
+    public init(_ name: String) {
         self.name = .init(name)
         self.type = .scalar(.string)
     }

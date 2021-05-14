@@ -8,7 +8,7 @@
 import Foundation
 
 /// A protocol used to restrict values passed to `PropertyValueWrapper`
-protocol PropertyProtocol: Value {}
+public protocol PropertyProtocol: Value {}
 
 extension String: PropertyProtocol {}
 extension Bool: PropertyProtocol {}
@@ -38,29 +38,29 @@ extension Int: PropertyProtocol {}
 ///     let surname: UserSurname
 /// }
 /// ```
-class PropertyValueWrapper<P: PropertyProtocol>: ComparableProperty {
-    let value: P
+public class PropertyValueWrapper<P: PropertyProtocol>: ComparableProperty {
+    public let value: P
 
-    init(_ value: P) {
+    public init(_ value: P) {
         self.value = value
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(value)
     }
     
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         value = try decoder.singleValueContainer().decode(P.self)
     }
 }
 
-extension PropertyValueWrapper {
-    static func == (lhs: PropertyValueWrapper<P>, rhs: PropertyValueWrapper<P>) -> Bool {
+public extension PropertyValueWrapper {
+    public static func == (lhs: PropertyValueWrapper<P>, rhs: PropertyValueWrapper<P>) -> Bool {
         lhs.value == rhs.value
     }
 
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(value)
     }
 }

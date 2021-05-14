@@ -1,6 +1,6 @@
 import Foundation
 
-enum TypeInformation: Value {
+public enum TypeInformation: Value {
     /// A scalar type
     case scalar(PrimitiveType)
     /// A repeated type (set or array), with `TypeInformation` elements
@@ -18,7 +18,7 @@ enum TypeInformation: Value {
 }
 
 // MARK: - TypeInformation + Equatable
-extension TypeInformation {
+public extension TypeInformation {
     static func == (lhs: TypeInformation, rhs: TypeInformation) -> Bool {
         if !lhs.sameType(with: rhs) {
             return false
@@ -63,7 +63,7 @@ extension TypeInformation {
         case typeName, properties
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
         case let .scalar(primitiveType): try container.encode(primitiveType, forKey: .scalar)
@@ -85,7 +85,7 @@ extension TypeInformation {
         }
     }
     
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let key = container.allKeys.first
         switch key {
@@ -117,11 +117,11 @@ extension TypeInformation {
 
 // MARK: - TypeInformation + CustomStringConvertible + CustomDebugStringConvertible
 extension TypeInformation: CustomStringConvertible, CustomDebugStringConvertible {
-    var description: String {
+    public var description: String {
         json
     }
     
-    var debugDescription: String {
+    public var debugDescription: String {
         json
     }
 }

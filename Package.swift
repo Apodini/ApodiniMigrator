@@ -10,9 +10,8 @@ let package = Package(
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
-        .library(
-            name: "ApodiniMigrator",
-            targets: ["ApodiniMigrator"])
+        .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
+        .library(name: "Migrator", targets: ["Migrator"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -28,6 +27,11 @@ let package = Package(
             dependencies: [
                 .product(name: "Runtime", package: "Runtime"),
                 .product(name: "PathKit", package: "PathKit")
+            ]),
+        .target(
+            name: "Migrator",
+            dependencies: [
+                .target(name: "ApodiniMigrator")
             ]),
         .testTarget(
             name: "ApodiniMigratorTests",
