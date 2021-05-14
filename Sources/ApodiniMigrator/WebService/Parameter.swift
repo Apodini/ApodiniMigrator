@@ -65,6 +65,18 @@ public struct Parameter {
     var necessity: Necessity {
         nilIsValidValue.value ? .optional : .init(hasDefaultValue)
     }
+    
+    public init(
+        parameterName: String,
+        typeInformation: TypeInformation,
+        hasDefaultValue: Bool,
+        parameterType: ParameterType
+    ) {
+        self.parameterName = .init(parameterName)
+        self.typeInformation = typeInformation
+        self.hasDefaultValue = .init(hasDefaultValue)
+        self.parameterType = parameterType
+    }
 }
 
 // MARK: - ComparableObject

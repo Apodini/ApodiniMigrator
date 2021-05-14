@@ -5,15 +5,15 @@ import Foundation
 /// A `Version` can be  used to specify the version of a Web API using semantic versioning
 public struct Version: Codable {
     /// Default values for a `Version`
-    enum Defaults {
+    public enum Defaults {
         /// The default prefix
-        static let prefix: String = "v"
+        public static let prefix: String = "v"
         /// The default major version
-        static let major: UInt = 1
+        public static let major: UInt = 1
         /// The default major minor
-        static let minor: UInt = 0
+        public static let minor: UInt = 0
         /// The default major patch
-        static let patch: UInt = 0
+        public static let patch: UInt = 0
     }
     
     
@@ -32,7 +32,7 @@ public struct Version: Codable {
     ///   - major: The major version number
     ///   - minor: The minor version number
     ///   - patch: The patch version number
-    init(
+    public init(
         prefix: String = Defaults.prefix,
         major: UInt = Defaults.major,
         minor: UInt = Defaults.minor,
@@ -42,6 +42,33 @@ public struct Version: Codable {
         self.major = major
         self.minor = minor
         self.patch = patch
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode("\(prefix)_\(major).\(minor).\(patch)")
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let string = try container.decode(String.self)
+        
+        let components = string.split(string: "_")
+        let prefix = components.first
+        let numbers = components.last?.split(string: ".")
+        
+        if
+            let prefix = prefix,
+            let numbers = numbers,
+            numbers.count == 3
+        {
+            self.prefix = prefix
+            self.major = UInt(numbers[0]) ?? 0
+            self.minor = UInt(numbers[1]) ?? 0
+            self.patch = UInt(numbers[2]) ?? 0
+        } else {
+            fatalError("Failed to decode Version. The string is malformed")
+        }
     }
     
     static var `default`: Version {
