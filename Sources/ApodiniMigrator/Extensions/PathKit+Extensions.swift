@@ -8,7 +8,7 @@
 import Foundation
 
 #if DEBUG
-extension PathKit.Path {
+extension Path {
     static var desktop: Path { Path("/Users/eld/Desktop") }
     
     static func testTarget(_ file: String = #file) -> Path {
@@ -16,3 +16,10 @@ extension PathKit.Path {
     }
 }
 #endif
+
+extension Path {
+    /// Indicates whether the path corresponds to a file with the corresponding extension
+    func `is`(_ fileExtension: FileExtension) -> Bool {
+        `extension` == fileExtension.description
+    }
+}

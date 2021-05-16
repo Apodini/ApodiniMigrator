@@ -7,14 +7,25 @@
 
 import Foundation
 
-/// An enumeration representing opening and closing curly brackets of `Swift` code blocks
-private enum CurlyBracket: Character {
-    case opening = "{"
-    case closing = "}"
+/// An enumeration representing opening and closing brackets (curly or rounding) of `Swift` code blocks
+private enum Bracket: Int {
+    case opening = 1
+    case closing = -1
     
-    /// The weight the curly bracket contributes to the `storage` of `IndentationFormatter`
+    /// Initializer of a bracket type out of a character
+    init?(_ character: Character) {
+        if ["{", "("].contains(character) {
+            self = .opening
+        } else if ["}", ")"].contains(character){
+            self = .closing
+        } else {
+            return nil
+        }
+    }
+    
+    /// The weight the bracket contributes to the `storage` of `IndentationFormatter`
     var weight: Int {
-        self == .opening ? 1 : -1
+        rawValue
     }
 }
 
@@ -36,15 +47,15 @@ struct IndentationFormatter: SwiftFileFormatter {
     
     /// Updates the storage with the difference between counts of opening and closing brackets in `line`
     /// - Parameter line: the line to be processed
-    /// - Returns: If `line` contains only one closing curly bracket, returns a `.closing`, otherwise `nil`
-    private mutating func updateStorage(with line: String) -> CurlyBracket? {
+    /// - Returns: If `line` contains only one closing bracket, returns a `.closing`, otherwise `nil`
+    private mutating func updateStorage(with line: String) -> Bracket? {
         // ignoring comments (not considering /***/ comments though)
         if !line.hasPrefix("//") {
-            let curlyBrackets = line.compactMap { CurlyBracket(rawValue: $0) }
-            storage += curlyBrackets.reduce(0) { $0 + $1.weight }
-            // if encountered a line with a single closing bracket, return it
+            let lineBrackets = line.compactMap { Bracket($0) }
+            storage += lineBrackets.reduce(0) { $0 + $1.weight }
+            // if encountered a line with a single closing bracket, return it.
             // needed to decrease the indentation level for `line`
-            if curlyBrackets == [.closing] {
+            if lineBrackets == [.closing] {
                 return .closing
             }
         }
@@ -71,7 +82,7 @@ struct IndentationFormatter: SwiftFileFormatter {
     /// - Throws if the read operation failed
     /// - Note results in fatalError if path does not exists, or if not a swift file
     mutating func format(_ path: Path) throws {
-        guard path.exists, path.extension == "swift" else {
+        guard path.exists, path.is(.swift) else {
             fatalError("Invalid swift file path: \(path.string)")
         }
         try path.write(format(try path.read()))
