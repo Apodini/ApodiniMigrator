@@ -36,7 +36,7 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparablePro
         }
     }
     
-    var swiftType: DefaultInitializable.Type {
+    public var swiftType: DefaultInitializable.Type {
         switch self {
         case .bool: return Bool.self
         case .int: return Int.self

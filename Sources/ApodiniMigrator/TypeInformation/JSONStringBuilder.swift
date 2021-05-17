@@ -4,12 +4,7 @@ import Foundation
 /// by means of a `typeInformation` object
 struct JSONStringBuilder {
     /// JSONDecoder
-    private static let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .formatted(.iSO8601DateFormatter)
-        decoder.dataDecodingStrategy = .base64
-        return decoder
-    }()
+    private static let decoder = JSONDecoder()
     
     /// `TypeInformation` of the type that is used as template for JSONString
     private let typeInformation: TypeInformation

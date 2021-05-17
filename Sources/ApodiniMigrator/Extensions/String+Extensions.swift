@@ -1,6 +1,6 @@
 import Foundation
 
-extension String {
+public extension String {
     /// Line break
     static var lineBreak: String {
         "\n"

@@ -1,7 +1,7 @@
 import Foundation
 
 /// A protocol that forces the presence of an empty initializer
-public protocol DefaultInitializable: CustomStringConvertible {
+public protocol DefaultInitializable: CustomStringConvertible, Encodable {
     init()
     static var jsonString: String { get }
 }
@@ -9,10 +9,7 @@ public protocol DefaultInitializable: CustomStringConvertible {
 // MARK: - Default
 public extension DefaultInitializable {
     static var defaultValue: Self { .init() }
-    static var jsonString: String { defaultValue.description }
-    static func jsonString(_ optionalValue: Self?) -> String {
-        optionalValue?.description ?? jsonString
-    }
+    static var jsonString: String { defaultValue.json }
 }
 
 // MARK: - DefaultInitializable conformance
@@ -29,15 +26,8 @@ extension UInt64: DefaultInitializable {}
 extension Bool: DefaultInitializable {}
 extension Double: DefaultInitializable {}
 extension Float: DefaultInitializable {}
-
-extension String: DefaultInitializable {
-    public static var jsonString: String {
-        defaultValue.description.asString
-    }
-    public static func jsonString(_ optionalValue: Self?) -> String {
-        optionalValue?.description.asString ?? jsonString
-    }
-}
+extension Data: DefaultInitializable {}
+extension String: DefaultInitializable {}
 
 extension URL: DefaultInitializable {
     static var defaultURL: URL {
@@ -47,10 +37,6 @@ extension URL: DefaultInitializable {
     
     public init() {
         self = .defaultURL
-    }
-    
-    public static var jsonString: String {
-        defaultValue.absoluteString.asString
     }
 }
 
@@ -74,11 +60,6 @@ extension Date: DefaultInitializable {
     }
     
     public static var jsonString: String {
-        DateFormatter.iSO8601DateFormatter.string(from: today).asString
-    }
-}
-extension Data: DefaultInitializable {
-    public static var jsonString: String {
-        Data().base64EncodedString().asString
+        today.json
     }
 }
