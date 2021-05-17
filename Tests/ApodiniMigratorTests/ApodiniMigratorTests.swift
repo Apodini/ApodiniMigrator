@@ -1,5 +1,6 @@
 import XCTest
 @testable import ApodiniMigrator
+@testable import ApodiniMigratorClientSupport
 
 func isLinux() -> Bool {
     #if os(Linux)
@@ -90,13 +91,12 @@ final class ApodiniMigratorTests: XCTestCase {
         }
         
         let typeInformation = try TypeInformation(type: someComplexType)
-        let instance = XCTAssertNoThrowWithResult(try JSONStringBuilder.instance(typeInformation, someComplexType))
+        let instance = XCTAssertNoThrowWithResult(try ClientJSONStringBuilder.instance(typeInformation, someComplexType))
         
         XCTAssert(instance.keys.first == 0)
         // swiftlint:disable:next force_unwrapping
         let userInstance = instance.values.first!.values.first!!!!!!
-        XCTAssert(userInstance.birthday.first == .today)
-        XCTAssert(userInstance.shops.first?.id == .defaultUUID)
+        XCTAssert(userInstance.birthday.first?.noon == .today)
         XCTAssert(userInstance.url == .defaultURL)
     }
     
@@ -138,11 +138,11 @@ final class ApodiniMigratorTests: XCTestCase {
     let jsonPath: Path = .desktop + "\(Student.self).json"
     
     func testJSONCreation() throws {
-        try jsonPath.write(try JSONStringBuilder.string(Student.self))
+        try jsonPath.write(try ClientJSONStringBuilder.string(Student.self))
     }
     
     func testJSONRead() throws {
-        _ = XCTAssertNoThrowWithResult(try JSONStringBuilder.decode(Student.self, at: jsonPath))
+        _ = XCTAssertNoThrowWithResult(try ClientJSONStringBuilder.decode(Student.self, at: jsonPath))
     }
     
     

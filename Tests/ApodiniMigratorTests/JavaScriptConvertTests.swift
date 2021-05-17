@@ -1,5 +1,17 @@
 import XCTest
 @testable import ApodiniMigrator
+@testable import ApodiniMigratorClientSupport
+
+extension ApodiniMigratorCodable {
+    static var encoder: JSONEncoder {
+        .init()
+    }
+    static var decoder: JSONDecoder {
+        .init()
+    }
+}
+
+typealias Codable = ApodiniMigratorCodable
 
 final class JavaScriptConvertTests: XCTestCase {
     
@@ -70,7 +82,7 @@ final class JavaScriptConvertTests: XCTestCase {
     func testMalformedInputAndScript() throws {
         struct Student: Codable, Equatable {
             let name: String
-            let matrNr: UUID
+            let github: URL
             let dog: Dog
         }
         
@@ -85,10 +97,12 @@ final class JavaScriptConvertTests: XCTestCase {
         }
         """
         
-        // input is wrong, and the script is invalid, the default empty instance is created
-        let student = try Student.from(5, script: constructScript)
+        let someInstance: [String???]? = []
         
-        XCTAssert(student.name == "")
-        XCTAssert(student.matrNr == .defaultUUID)
+        // input is wrong, and the script is invalid, the default empty instance is created
+        let student = try Student.from(someInstance, script: constructScript)
+        
+        XCTAssert(student.name == .defaultValue)
+        XCTAssert(student.github == .defaultValue)
     }
 }

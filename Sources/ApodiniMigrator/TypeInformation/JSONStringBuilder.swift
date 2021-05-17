@@ -2,6 +2,7 @@ import Foundation
 
 /// Builds a valid JSON string with values empty strings, 0 for numbers, empty Data, date of today, and random UUID
 /// by means of a `typeInformation` object
+@available(*, deprecated, message: "Replace with 'ClientJSONStringBuilder'")
 struct JSONStringBuilder {
     /// JSONDecoder
     private static let decoder = JSONDecoder()

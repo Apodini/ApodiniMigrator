@@ -3,7 +3,7 @@ import JavaScriptCore
 
 public extension ApodiniMigratorCodable {
     /// A function that creates an instance of type `Self` with empty values
-    static func defaultValue() throws -> Self {
+    fileprivate static func defaultValue() throws -> Self {
         try ClientJSONStringBuilder.instance(Self.self)
     }
     
@@ -17,7 +17,7 @@ public extension ApodiniMigratorCodable {
         try ClientJSONStringBuilder.decode(Self.self, from: data)
     }
     
-    /// Creates an instance of type `Self`, out of an encodable value
+    /// Creates an instance of type `Self`, out of an `ApodiniMigratorEncodable` value
     /// ```swift
     /// // MARK: - Code example
     /// struct Student: Codable {
@@ -50,14 +50,14 @@ public extension ApodiniMigratorCodable {
     /// 5. The developer instance as defined in the script, is created with `id` from `matrNr` and `name` from `name` of the student
     /// 6. In case that the script is invalid, the instance is created with default empty values, e.g `Developer(name: "", id: UUID())`
     ///
-    /// - Throws: The function throws if decoding fails
-    static func from(_ value: ApodiniMigratorCodable, script: String) throws -> Self {
+    /// - Throws: if decoding fails
+    static func from(_ value: ApodiniMigratorEncodable, script: String) throws -> Self {
         return try initialize(from: [value.jsonString], script: script)
     }
 }
 
-/// ApodiniMigratorCodable fileprivate extension
-public extension ApodiniMigratorCodable {
+/// ApodiniMigratorEncodable fileprivate extension
+fileprivate extension ApodiniMigratorEncodable {
     /// `jsonString` representation of `self` encoded with `Self.encoder`
     var jsonString: String {
         let encoder = Self.encoder
@@ -65,7 +65,10 @@ public extension ApodiniMigratorCodable {
         let data = (try? encoder.encode(self)) ?? Data()
         return String(decoding: data, as: UTF8.self)
     }
-    
+}
+
+/// ApodiniMigratorCodable fileprivate extension
+fileprivate extension ApodiniMigratorCodable {
     /// The function that handles the javascript code evaluation
     /// In case of invalidity of the script, the instance is created with default empty values
     /// - Parameters:
@@ -94,7 +97,6 @@ public extension ApodiniMigratorCodable {
 }
 
 public extension ApodiniMigratorCodable {
-    
     /// Creates an instance of type `Self`, by means of the `value` of `EncodableContainer`
     ///
     /// ```swift
@@ -290,12 +292,7 @@ public struct EncodableContainer<E: ApodiniMigratorEncodable>: Encodable {
     }
 }
 
-fileprivate extension EncodableContainer {
-    
-}
-
 fileprivate extension String {
-    
     /// A function to be applied on js scripts to retrieve the name of the function
     func functionName() -> String {
         let dropFunction = without("function ")

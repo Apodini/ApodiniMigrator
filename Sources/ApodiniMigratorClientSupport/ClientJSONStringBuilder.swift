@@ -45,39 +45,52 @@ struct ClientJSONStringBuilder {
         case let .scalar(primitiveType):
             return primitiveType.jsonString(with: encoder)
         case let .repeated(element):
-            return "[\(ClientJSONStringBuilder(element, encoder: encoder).build())]"
+            return "[\(Self(element, encoder: encoder).build())]"
         case let .dictionary(key, value):
             if requiresCurlyBrackets(key) {
-                return "{ \(dictionaryKey(key)) : \(ClientJSONStringBuilder(value, encoder: encoder).build()) }"
+                return "{ \(dictionaryKey(key)) : \(Self(value, encoder: encoder).build()) }"
             }
-            return "[\(dictionaryKey(key)), \(ClientJSONStringBuilder(value, encoder: encoder).build())]"
+            return "[\(dictionaryKey(key)), \(Self(value, encoder: encoder).build())]"
         case let .optional(wrappedValue):
-            return "\(ClientJSONStringBuilder(wrappedValue.unwrapped, encoder: encoder).build())"
+            return "\(Self(wrappedValue.unwrapped, encoder: encoder).build())"
         case let .enum(_, cases):
             return cases.first?.name.value.asString ?? "{}"
         case let .object(_, properties):
             let sorted = properties.sorted { $0.name.value < $1.name.value }
-            return "{\(sorted.map { $0.name.value.asString + " : \(ClientJSONStringBuilder($0.type, encoder: encoder).build())" }.joined(separator: ", "))}"
+            return "{\(sorted.map { $0.name.value.asString + " : \(Self($0.type, encoder: encoder).build())" }.joined(separator: ", "))}"
         default: return "{}"
         }
     }
     
-    /// Initializes an Instance out of a decodable type.
+    static func string<C: ApodiniMigratorCodable>(_ type: C.Type) throws -> String {
+        try instance(C.self).jsonString(with: C.encoder)
+    }
+    
+    /// Initializes an instance out of a `ApodiniMigratorCodable` type.
     static func instance<C: ApodiniMigratorCodable>(_ type: C.Type) throws -> C {
         try decode(C.self, from: try Self(C.self).build())
     }
     
+    /// Initializes an `ApodiniMigratorCodable` instance out of a `typeInformation`
+    static func instance<C: ApodiniMigratorCodable>(_ typeInformation: TypeInformation, _ type: C.Type) throws -> C {
+        try decode(C.self, from: Self(typeInformation, encoder: C.encoder).build())
+    }
+    
     /// Decodes type from data
-    static func decode<C: ApodiniMigratorCodable>(_ type: C.Type, from data: Data) throws -> C {
-        try C.decoder.decode(C.self, from: data)
+    static func decode<D: ApodiniMigratorDecodable>(_ type: D.Type, from data: Data) throws -> D {
+        try D.decoder.decode(D.self, from: data)
     }
     
     /// Decodes type from string content
-    static func decode<C: ApodiniMigratorCodable>(_ type: C.Type, from string: String) throws -> C {
+    static func decode<C: ApodiniMigratorDecodable>(_ type: C.Type, from string: String) throws -> C {
         guard let data = string.data(using: .utf8) else {
             fatalError("String encoding failed")
         }
         return try C.decoder.decode(C.self, from: data)
+    }
+    
+    static func decode<D: ApodiniMigratorDecodable>(_ type: D.Type, at path: Path) throws -> D {
+        try D.decoder.decode(D.self, from: try path.read())
     }
 }
 

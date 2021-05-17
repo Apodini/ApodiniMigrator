@@ -35,6 +35,6 @@ let package = Package(
             ]),
         .testTarget(
             name: "ApodiniMigratorTests",
-            dependencies: ["ApodiniMigrator"])
+            dependencies: ["ApodiniMigrator", "ApodiniMigratorClientSupport"])
     ]
 )
