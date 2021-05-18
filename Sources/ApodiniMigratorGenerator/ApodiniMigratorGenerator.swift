@@ -10,15 +10,15 @@ import PathKit
 import ApodiniMigrator
 import ApodiniMigratorShared
 
-struct ApodiniMigratorGenerator {
-    let packageName: String
-    let packagePath: Path
-    var document: Document
-    let directories: ProjectDirectories
-    let endpoints: [Endpoint]
-    let metaData: MetaData
+public struct ApodiniMigratorGenerator {
+    public let packageName: String
+    public let packagePath: Path
+    public var document: Document
+    public let directories: ProjectDirectories
+    public let endpoints: [Endpoint]
+    public let metaData: MetaData
     
-    init(packageName: String, packagePath: String, documentPath: String) throws {
+    public init(packageName: String, packagePath: String, documentPath: String) throws {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
         self.packagePath = Path(packagePath)
         document = try JSONDecoder().decode(Document.self, from: try Path(documentPath).read())
@@ -28,7 +28,7 @@ struct ApodiniMigratorGenerator {
         metaData = document.metaData
     }
     
-    func build() throws {
+    public func build() throws {
         try directories.build()
         try writeRootFiles()
         try writeHTTP()
@@ -39,11 +39,11 @@ struct ApodiniMigratorGenerator {
         try writeTests()
     }
     
-    func readTemplate(_ template: Template) -> String {
+    private func readTemplate(_ template: Template) -> String {
         template.content()
     }
     
-    func writeRootFiles() throws {
+    private func writeRootFiles() throws {
         let readMe = readTemplate(.readme)
         
         try (directories.root + Template.readme.projectFileName).write(readMe)
@@ -55,7 +55,7 @@ struct ApodiniMigratorGenerator {
         try (directories.root + Template.package.projectFileName).write(package)
     }
     
-    func writeHTTP() throws {
+    private func writeHTTP() throws {
         let https = Template.httpTemplates
         
         try https.forEach { template in
@@ -64,7 +64,7 @@ struct ApodiniMigratorGenerator {
         }
     }
     
-    func writeModels() throws { // TODO distinguish decodable encodable
+    private func writeModels() throws { // TODO distinguish decodable encodable
         let models = endpoints.reduce(into: Set<TypeInformation>()) { result, current in
             result.insert(current.restResponse)
             current.parameters.forEach { parameter in
@@ -76,7 +76,7 @@ struct ApodiniMigratorGenerator {
         try recursiveFileGenerator.persist(at: directories.models)
     }
     
-    func writeEndpoints() throws {
+    private func writeEndpoints() throws {
         let endpointGroups = endpoints.reduce(into: [TypeInformation: Set<Endpoint>]()) { result, current in
             let restResponse = current.restResponse
             if result[restResponse] == nil {
@@ -92,7 +92,7 @@ struct ApodiniMigratorGenerator {
         }
     }
     
-    func writeNetworking() throws {
+    private func writeNetworking() throws {
         let metaData = document.metaData
         let serverPath = metaData.serverPath
         let encoderConfiguration = metaData.encoderConfiguration.networkingDescription
@@ -110,17 +110,15 @@ struct ApodiniMigratorGenerator {
         try (networkingDirectory + Template.networkingService.projectFileName).write(networking)
     }
     
-    func writeUtils() throws {
+    private func writeUtils() throws {
         let utils = templateContentWithFileComment(.utils)
         
         try (directories.utils + Template.utils.projectFileName).write(utils)
     }
     
-    func writeTests() throws {
+    private func writeTests() throws {
         let tests = directories.tests
-        
         let testsTarget = directories.testsTarget
-        
         let testFileName = packageName + "Tests.swift"
         let testFile = templateContentWithFileComment(.testFile, alternativeFileName: testFileName)
             .with(packageName: packageName)
@@ -133,10 +131,10 @@ struct ApodiniMigratorGenerator {
         try (tests + Template.linuxMain.projectFileName).write(linuxMain)
     }
     
-    func templateContentWithFileComment(_ template: Template, alternativeFileName: String? = nil) -> String {
+    private func templateContentWithFileComment(_ template: Template, alternativeFileName: String? = nil) -> String {
         let fileHeader = FileHeaderComment(fileName: alternativeFileName ?? template.projectFileName).render() + .doubleLineBreak
         
-        return (fileHeader + template.content()).formatted(with: IndentationFormatter.self)
+        return (fileHeader + readTemplate(template)).formatted(with: IndentationFormatter.self)
     }
 }
 

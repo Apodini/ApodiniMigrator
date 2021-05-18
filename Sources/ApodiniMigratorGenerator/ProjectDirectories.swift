@@ -8,54 +8,55 @@
 import Foundation
 import PathKit
 
-struct ProjectDirectories {
-    let packageName: String
-    let packagePath: Path
-    var root: Path {
+public struct ProjectDirectories {
+    public let packageName: String
+    public let packagePath: Path
+    
+    public var root: Path {
         packagePath + Path(packageName)
     }
-    var sources: Path {
+    public var sources: Path {
         root + Path("Sources")
     }
     
-    var target: Path {
+    public var target: Path {
         sources + Path(packageName)
     }
     
-    var http: Path {
+    public var http: Path {
         target + Path("HTTP")
     }
     
-    var models: Path {
+    public var models: Path {
         target + Path("Models")
     }
     
-    var endpoints: Path {
+    public var endpoints: Path {
         target + Path("Endpoints")
     }
     
-    var networking: Path {
+    public var networking: Path {
         target + Path("Networking")
     }
     
-    var utils: Path {
+    public var utils: Path {
         target + Path("Utils")
     }
     
-    var tests: Path {
+    public var tests: Path {
         root + Path("Tests")
     }
     
-    var testsTarget: Path {
+    public var testsTarget: Path {
         tests + Path(packageName + "Tests")
     }
     
-    init(packageName: String, packagePath: Path) {
+    public init(packageName: String, packagePath: Path) {
         self.packageName = packageName
         self.packagePath = packagePath
     }
     
-    func build() throws {
+    public func build() throws {
         try [http, models, endpoints, networking, utils, testsTarget].forEach { try $0.mkpath() }
     }
 }

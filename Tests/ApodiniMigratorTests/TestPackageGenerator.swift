@@ -7,7 +7,7 @@ final class PackageGeneratorTests: XCTestCase {
         let packageName = "HelloWorld"
         let desktop = Path.desktop.string
         let docPath = Path.desktop + "document.json"
-        let generator = try ApodiniMigratorGenerator(packageName: packageName, packagePath: desktop, documentPath: docPath.string)
+        let generator = try ApodiniMigratorGenerator(packageName: packageName, packagePath: Path.projectRoot.string, documentPath: docPath.string)
         try generator.build()
     }
 }
