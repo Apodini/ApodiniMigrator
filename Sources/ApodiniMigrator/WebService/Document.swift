@@ -1,4 +1,5 @@
 import Foundation
+import ApodiniMigratorShared
 
 public struct MetaData: Codable {
     public var serverPath: String
