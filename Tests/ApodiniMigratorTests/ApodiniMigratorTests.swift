@@ -138,10 +138,18 @@ final class ApodiniMigratorTests: XCTestCase {
     let jsonPath: Path = .desktop + "\(Student.self).json"
     
     func testJSONCreation() throws {
+        let desktop = Path.desktop
+        guard !isLinux(), desktop.exists else {
+            return
+        }
         try jsonPath.write(try ClientJSONStringBuilder.string(Student.self))
     }
     
     func testJSONRead() throws {
+        let desktop = Path.desktop
+        guard !isLinux(), desktop.exists else {
+            return
+        }
         _ = XCTAssertNoThrowWithResult(try ClientJSONStringBuilder.decode(Student.self, at: jsonPath))
     }
     
@@ -149,6 +157,9 @@ final class ApodiniMigratorTests: XCTestCase {
     let testModels: Path = .desktop + "TestModels"
     
     func generateTestModels() throws {
+        guard !isLinux(), testModels.exists else {
+            return
+        }
         let types: [Any.Type] = [
             User.self,
             Student.self
@@ -160,6 +171,10 @@ final class ApodiniMigratorTests: XCTestCase {
     
     func testEnumFileUpdate() throws {
         #if Xcode
+        let desktop = Path.desktop
+        guard desktop.exists else {
+            return
+        }
         try generateTestModels()
         
         var enumFileParser = try EnumFileParser(path: testModels + "Direction.swift")
@@ -172,6 +187,10 @@ final class ApodiniMigratorTests: XCTestCase {
     
     func testObjectFileUpdate() throws {
         #if Xcode
+        let desktop = Path.desktop
+        guard desktop.exists else {
+            return
+        }
         try generateTestModels()
         
         var objectFileParser = try ObjectFileParser(path: testModels + "Student.swift")
