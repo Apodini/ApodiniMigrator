@@ -11,6 +11,7 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
+        .library(name: "ApodiniMigratorGenerator", targets: ["ApodiniMigratorGenerator"]),
         .library(name: "ApodiniMigratorShared", targets: ["ApodiniMigratorShared"]),
         .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"])
     ],
@@ -36,9 +37,30 @@ let package = Package(
                 .target(name: "ApodiniMigrator"),
                 .target(name: "ApodiniMigratorShared"),
             ]),
+        .target(
+            name: "ApodiniMigratorGenerator",
+            dependencies: [
+                .target(name: "ApodiniMigrator"),
+                .product(name: "PathKit", package: "PathKit")
+            ],
+            resources: [
+                .process("Templates/Package.md"),
+                .process("Templates/Readme.md"),
+                .process("Templates/HTTP/ApodiniError.md"),
+                .process("Templates/HTTP/HTTPAuthorization.md"),
+                .process("Templates/HTTP/HTTPHeaders.md"),
+                .process("Templates/HTTP/HTTPMethod.md"),
+                .process("Templates/HTTP/Parameters.md"),
+                .process("Templates/Networking/Handler.md"),
+                .process("Templates/Networking/NetworkingService.md"),
+                .process("Templates/Utils/Utils.md"),
+                .process("Templates/Tests/TestFile.md"),
+                .process("Templates/Tests/XCTestManifests.md"),
+                .process("Templates/Tests/LinuxMain.md")
+            ]),
         .target(name: "ApodiniMigratorShared"),
         .testTarget(
             name: "ApodiniMigratorTests",
-            dependencies: ["ApodiniMigrator", "ApodiniMigratorClientSupport"])
+            dependencies: ["ApodiniMigrator", "ApodiniMigratorGenerator", "ApodiniMigratorClientSupport"])
     ]
 )

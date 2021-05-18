@@ -48,7 +48,7 @@ public struct Parameter {
     /// Name of the parameter
     public let parameterName: ParameterName
     /// The reference of the `typeInformation` of the parameter
-    public let typeInformation: TypeInformation
+    public var typeInformation: TypeInformation
     
     /// Indicates whether the parameter has a default value
     public let hasDefaultValue: HasDefaultValue
@@ -76,6 +76,10 @@ public struct Parameter {
         self.typeInformation = typeInformation
         self.hasDefaultValue = .init(hasDefaultValue)
         self.parameterType = parameterType
+    }
+    
+    mutating func dereference(in typeStore: inout TypesStore) {
+        typeInformation = typeStore.construct(from: typeInformation)
     }
 }
 

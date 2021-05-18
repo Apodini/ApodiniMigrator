@@ -44,7 +44,7 @@ struct TypesStore: Codable {
     /// Constructs a type from a reference
     mutating func construct(from reference: TypeInformation) -> TypeInformation {
         guard let referenceKey = reference.referenceKey, var stored = storage[referenceKey.rawValue] else {
-            fatalError("Attempted to construct a type that does not contain a reference")
+            return reference
         }
         
         /// If the stored type is an object, we recursively construct its properties and update the stored

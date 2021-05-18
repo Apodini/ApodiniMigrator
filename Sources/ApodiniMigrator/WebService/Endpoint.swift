@@ -20,10 +20,13 @@ public struct Endpoint {
     let absolutePath: EndpointPath
 
     /// Parameters of the endpoint
-    let parameters: EndpointInput
+    var parameters: EndpointInput
 
     /// The reference of the `typeInformation` of the response
-    let response: TypeInformation
+    var response: TypeInformation
+    
+    /// Errors
+    let errors: [ErrorCode]
     
     public init(
         handlerName: String,
@@ -31,7 +34,8 @@ public struct Endpoint {
         operation: Operation,
         absolutePath: String,
         parameters: EndpointInput,
-        response: TypeInformation
+        response: TypeInformation,
+        errors: [ErrorCode]
     ) {
         self.handlerName = .init(handlerName)
         self.deltaIdentifier = .init(deltaIdentifier)
@@ -39,6 +43,16 @@ public struct Endpoint {
         self.absolutePath = .init(absolutePath)
         self.parameters = parameters
         self.response = response
+        self.errors = errors
+    }
+    
+    mutating func dereference(in typeStore: inout TypesStore) {
+        response = typeStore.construct(from: response)
+        self.parameters = parameters.map {
+            var param = $0
+            param.dereference(in: &typeStore)
+            return param
+        }
     }
 }
 

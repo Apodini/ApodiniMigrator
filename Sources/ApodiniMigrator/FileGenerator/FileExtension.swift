@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represent different cases of file extensions
-enum FileExtension: CustomStringConvertible {
+public enum FileExtension: CustomStringConvertible {
     /// Markdown
     case markdown
     /// JSON
@@ -21,7 +21,7 @@ enum FileExtension: CustomStringConvertible {
     case other(String)
     
     /// String representation this extension
-    var description: String {
+    public var description: String {
         switch self {
         case .markdown: return "md"
         case .json: return "json"

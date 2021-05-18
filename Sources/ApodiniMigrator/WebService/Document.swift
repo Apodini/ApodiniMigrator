@@ -36,6 +36,14 @@ public struct Document: Codable {
         endpoints.append(endpoint)
     }
     
+    public mutating func dereference() {
+        endpoints = endpoints.map {
+            var endpoint = $0
+            endpoint.dereference(in: &typesStore)
+            return endpoint
+        }
+    }
+    
     public mutating func setServerPath(_ path: String) {
         metaData.serverPath = path
     }
