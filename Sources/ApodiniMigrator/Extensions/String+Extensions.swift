@@ -6,6 +6,10 @@ public extension String {
         "\n"
     }
     
+    static var doubleLineBreak: String {
+        .lineBreak + .lineBreak
+    }
+    
     /// `self` wrapped with apostrophes complying to json strings
     var asString: String {
         "\"\(self)\""

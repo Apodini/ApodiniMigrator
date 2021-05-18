@@ -14,7 +14,6 @@ extension ApodiniMigratorCodable {
 typealias Codable = ApodiniMigratorCodable
 
 final class JavaScriptConvertTests: XCTestCase {
-    
     func testDecodableExample() throws {
         struct Student: Codable, Equatable {
             let name: String

@@ -8,7 +8,7 @@
 import Foundation
 
 /// A protocol to format swift files
-protocol SwiftFileFormatter {
+public protocol SwiftFileFormatter {
     /// Initializer
     init()
     
@@ -23,14 +23,14 @@ protocol SwiftFileFormatter {
     mutating func format(_ path: Path) throws
 }
 
-extension String {
+public extension String {
     func formatted(with formatterType: SwiftFileFormatter.Type) -> String {
         var formatter = formatterType.init()
         return formatter.format(self)
     }
 }
 
-extension Path {
+public extension Path {
     func formatted(with formatterType: SwiftFileFormatter.Type) throws {
         var formatter = formatterType.init()
         return try formatter.format(self)

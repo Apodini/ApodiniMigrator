@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ApodiniMigrator
 
 enum Template: String, Resource {
     case package
@@ -22,18 +23,30 @@ enum Template: String, Resource {
     case xCTestManifests
     case linuxMain
     
+    static var httpTemplates: [Template] {
+        [.apodiniError, .hTTPAuthorization, .hTTPHeaders, .hTTPMethod, .parameters]
+    }
+    
     /// Resource
     var name: String { rawValue.upperFirst }
     var bundle: Bundle { .module }
+    
+    var projectFileExtension: FileExtension {
+        switch self {
+        case .readme: return .markdown
+        default: return .swift
+        }
+    }
+    
+    var projectFileName: String {
+        rawValue.upperFirst + "." + projectFileExtension.description
+    }
 }
 
 // MARK: - Placeholders
 extension Template {
     static let packageName = "___PACKAGE_NAME___"
-    static let decoderDate = "___decoder___date___"
-    static let decoderData = "___decoder___data___"
-    static let encoderDate = "___encoder___date___"
-    static let encoderData = "___encoder___data___"
+    static let encoderConfiguration = "___encoder___configuration___"
+    static let decoderConfiguration = "___decoder___configuration___"
     static let serverPath = "___serverpath___"
-    
 }

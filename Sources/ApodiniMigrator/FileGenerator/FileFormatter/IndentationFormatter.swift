@@ -14,9 +14,9 @@ private enum Bracket: Int {
     
     /// Initializer of a bracket type out of a character
     init?(_ character: Character) {
-        if ["{", "("].contains(character) {
+        if ["{", "(", "["].contains(character) {
             self = .opening
-        } else if ["}", ")"].contains(character){
+        } else if ["}", ")", "]"].contains(character) {
             self = .closing
         } else {
             return nil
@@ -32,7 +32,7 @@ private enum Bracket: Int {
 /// An indentation swift file formatter.
 /// The result of `format(_:)` is the one obtained by `(Command+A, Control+I)` `Xcode` command combinations.
 /// Additionally the formatter replaces multiple empty lines with a single one.
-struct IndentationFormatter: SwiftFileFormatter {
+public struct IndentationFormatter: SwiftFileFormatter {
     /// Difference between counts of visited opening and closing brackets.
     /// For compilable swift files, storage is always greater than zero while formatting, and zero at the end
     private var storage = 0
@@ -45,6 +45,8 @@ struct IndentationFormatter: SwiftFileFormatter {
         return .init(UInt(storage))
     }
     
+    public init() {}
+    
     /// Updates the storage with the difference between counts of opening and closing brackets in `line`
     /// - Parameter line: the line to be processed
     /// - Returns: If `line` contains only one closing bracket, returns a `.closing`, otherwise `nil`
@@ -55,7 +57,7 @@ struct IndentationFormatter: SwiftFileFormatter {
             storage += lineBrackets.reduce(0) { $0 + $1.weight }
             // if encountered a line with a single closing bracket, return it.
             // needed to decrease the indentation level for `line`
-            if lineBrackets == [.closing] {
+            if lineBrackets == [.closing] || lineBrackets == [.closing, .opening] {
                 return .closing
             }
         }
@@ -65,7 +67,7 @@ struct IndentationFormatter: SwiftFileFormatter {
     /// Formats content with `(Command+A, Control+I)` `Xcode` command combinations
     /// - Parameters content: string content of the swift file
     /// - Returns the formatted content
-    mutating func format(_ content: String) -> String {
+    public mutating func format(_ content: String) -> String {
         let formatted = content.sanitizedLines().reduce(into: "") { result, line in
             var indentation = currentIndentation
             if updateStorage(with: line) == .closing {
@@ -81,7 +83,7 @@ struct IndentationFormatter: SwiftFileFormatter {
     /// - Parameters path: Path where the swift file is located
     /// - Throws if the read operation failed
     /// - Note results in fatalError if path does not exists, or if not a swift file
-    mutating func format(_ path: Path) throws {
+    public mutating func format(_ path: Path) throws {
         guard path.exists, path.is(.swift) else {
             fatalError("Invalid swift file path: \(path.string)")
         }

@@ -20,10 +20,14 @@ public struct Endpoint {
     let absolutePath: EndpointPath
 
     /// Parameters of the endpoint
-    var parameters: EndpointInput
+    public var parameters: EndpointInput
 
     /// The reference of the `typeInformation` of the response
-    var response: TypeInformation
+    public var response: TypeInformation
+    
+    public var restResponse: TypeInformation {
+        response.asRESTResponse
+    }
     
     /// Errors
     let errors: [ErrorCode]
@@ -67,7 +71,7 @@ extension Endpoint: ComparableObject {
             handlerName.change(in: context),
             operation.change(in: context),
             absolutePath.change(in: context),
-            parameters.evaluate(node: context),
+            parameters.evaluate(node: context)
         ].compactMap { $0 }
 
         guard !changes.isEmpty else {

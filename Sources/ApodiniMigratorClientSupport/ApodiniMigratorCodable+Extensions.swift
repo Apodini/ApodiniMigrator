@@ -52,7 +52,7 @@ public extension ApodiniMigratorCodable {
     ///
     /// - Throws: if decoding fails
     static func from(_ value: ApodiniMigratorEncodable, script: String) throws -> Self {
-        return try initialize(from: [value.jsonString], script: script)
+        try initialize(from: [value.jsonString], script: script)
     }
 }
 
@@ -133,7 +133,7 @@ public extension ApodiniMigratorCodable {
     ///     - script: a valid js script that handles the convertion
     /// - Throws: The function throws if decoding fails
     static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self {
-        return try initialize(from: [arg.jsonString], script: script)
+        try initialize(from: [arg.jsonString], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
@@ -142,7 +142,7 @@ public extension ApodiniMigratorCodable {
     /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, script: String) throws -> Self {
-        return try initialize(from: [arg1.jsonString, arg2.jsonString], script: script)
+        try initialize(from: [arg1.jsonString, arg2.jsonString], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
@@ -151,7 +151,7 @@ public extension ApodiniMigratorCodable {
     /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, script: String) throws -> Self {
-        return try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString], script: script)
+        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
@@ -160,7 +160,7 @@ public extension ApodiniMigratorCodable {
     /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, script: String) throws -> Self {
-        return try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString], script: script)
+        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
@@ -169,7 +169,7 @@ public extension ApodiniMigratorCodable {
     /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, script: String) throws -> Self {
-        return try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString], script: script)
+        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
@@ -178,7 +178,7 @@ public extension ApodiniMigratorCodable {
     /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, script: String) throws -> Self {
-        return try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString], script: script)
+        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
@@ -187,7 +187,7 @@ public extension ApodiniMigratorCodable {
     /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, arg7: EncodableContainer<E7>, script: String) throws -> Self {
-        return try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString], script: script)
+        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
@@ -196,7 +196,7 @@ public extension ApodiniMigratorCodable {
     /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, arg7: EncodableContainer<E7>, arg8: EncodableContainer<E8>, script: String) throws -> Self {
-        return try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString, arg8.jsonString], script: script)
+        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString, arg8.jsonString], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
@@ -205,7 +205,7 @@ public extension ApodiniMigratorCodable {
     /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable, E9: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, arg7: EncodableContainer<E7>, arg8: EncodableContainer<E8>, arg9: EncodableContainer<E9>, script: String) throws -> Self {
-        return try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString, arg8.jsonString, arg9.jsonString], script: script)
+        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString, arg8.jsonString, arg9.jsonString], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
@@ -214,7 +214,7 @@ public extension ApodiniMigratorCodable {
     /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable, E9: ApodiniMigratorEncodable, E10: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, arg7: EncodableContainer<E7>, arg8: EncodableContainer<E8>, arg9: EncodableContainer<E9>, arg10: EncodableContainer<E10>, script: String) throws -> Self {
-        return try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString, arg8.jsonString, arg9.jsonString, arg10.jsonString], script: script)
+        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString, arg8.jsonString, arg9.jsonString, arg10.jsonString], script: script)
     }
 }
 

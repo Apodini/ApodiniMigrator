@@ -75,7 +75,6 @@ public struct EncoderConfiguration: Codable {
 public extension JSONEncoder {
     /// Configures `self` with the properties of `EncoderConfiguration`
     func configured(with configuration: EncoderConfiguration) -> JSONEncoder {
-        
         dateEncodingStrategy = configuration.dateEncodingStrategy.toJSONEncoderStrategy
         dataEncodingStrategy = configuration.dataEncodingStrategy.toJSONEncoderStrategy
         return self

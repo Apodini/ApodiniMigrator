@@ -21,6 +21,14 @@ extension Annotation {
     }
 }
 
+struct EndpointComment: Annotation {
+    let comment: String
+    
+    init(_ comment: String) {
+        self.comment = "/// " + comment
+    }
+}
+
 /// A `MARK` comment annotation
 struct MARKComment: Annotation {
     /// The `// MARK: - ` string of the comment

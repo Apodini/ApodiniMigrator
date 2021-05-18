@@ -39,4 +39,3 @@ extension FileParser {
         return Array(lines[min(fromIndex, toIndex) ..< max(fromIndex, toIndex)])
     }
 }
-

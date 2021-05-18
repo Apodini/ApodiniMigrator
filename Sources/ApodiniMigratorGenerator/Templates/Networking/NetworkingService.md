@@ -8,14 +8,12 @@ public typealias ApodiniPublisher<D> = AnyPublisher<D, Error> where D: Decodable
 public enum NetworkingService {
     /// A configuration object for a `JSONDecoder`
     private static let decoderConfiguration = DecoderConfiguration(
-        dateDecodingStrategy: ___decoder___date___,
-        dataDecodingStrategy: ___decoder___data___
+        ___decoder___configuration___
     )
     
     /// A configuration object for a `JSONEncoder`
     private static let encoderConfiguration = EncoderConfiguration(
-        dateEncodingStrategy: ___encoder___date___,
-        dataEncodingStrategy: ___encoder___data___
+        ___encoder___configuration___
     )
     
     /// `JSONDecoder` used for decoding responses of an Apodini web service

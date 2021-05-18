@@ -128,9 +128,9 @@ public extension TypeInformation {
     var typeName: TypeName {
         switch self {
         case let .scalar(primitiveType): return primitiveType.typeName
-        case let .repeated(element): return element.typeName
-        case let .dictionary(_, value): return value.typeName
-        case let .optional(wrappedValue): return wrappedValue.typeName
+        case let .repeated(element): return element.unwrapped.typeName
+        case let .dictionary(_, value): return value.unwrapped.typeName
+        case let .optional(wrappedValue): return wrappedValue.unwrapped.typeName
         case let .enum(name, _): return name
         case let .object(name, _): return name
         case .reference: fatalError("Attempted to request type name from a reference")
@@ -292,6 +292,29 @@ public extension TypeInformation {
     /// the corresponding object properties and enum cases.
     func fileRenderableTypes() -> [TypeInformation] {
         filter(\.isEnumOrObject)
+    }
+}
+
+// MARK: - TypeInformation + ApodiniREST
+public extension TypeInformation {
+    var responseName: String {
+        let response = "Response"
+        switch self {
+        case .scalar, .enum, .object: return unwrapped.typeName.name + response
+        case let .repeated(element): return element.unwrapped.typeName.name + "s" + response
+        case let .dictionary(_, value): return value.unwrapped.typeName.name + "sDictionary" + response
+        case let .optional(wrappedValue): return "Optional" + wrappedValue.unwrapped.typeName.name + response
+        case .reference: fatalError("Attempted to request response name of a reference")
+        }
+    }
+    
+    var asRESTResponse: TypeInformation {
+        .object(
+            name: TypeName(name: responseName),
+            properties: [
+                TypeProperty(name: .init("_links"), type: .dictionary(key: .string, value: .scalar(.string))),
+                TypeProperty(name: .init("data"), type: self)
+            ])
     }
 }
 

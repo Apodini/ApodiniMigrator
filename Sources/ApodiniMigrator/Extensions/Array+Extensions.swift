@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Array where Element: Hashable {
+public extension Array where Element: Hashable {
     func unique() -> Self {
         Set(self).asArray
     }

@@ -10,6 +10,7 @@ import Foundation
 #if DEBUG
 extension Path {
     static var desktop: Path { Path("/Users/eld/Desktop") }
+    static var projectRoot: Path { desktop + "mswag/ApodiniMigrator" }
     
     static func testTarget(_ file: String = #file) -> Path {
         Path(file).parent()

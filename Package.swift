@@ -35,7 +35,7 @@ let package = Package(
             name: "ApodiniMigratorClientSupport",
             dependencies: [
                 .target(name: "ApodiniMigrator"),
-                .target(name: "ApodiniMigratorShared"),
+                .target(name: "ApodiniMigratorShared")
             ]),
         .target(
             name: "ApodiniMigratorGenerator",

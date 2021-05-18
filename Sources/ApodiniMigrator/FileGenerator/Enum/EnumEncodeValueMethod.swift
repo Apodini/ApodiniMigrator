@@ -17,7 +17,6 @@ struct EnumDeprecatedCases: Renderable {
 }
 
 struct EnumEncodeValueMethod: Renderable {
-    
     /// Renders the content of the initializer in a non-formatted way
     func render() -> String {
         """
