@@ -1,5 +1,5 @@
 //
-//  StringResponse+Endpoint
+//  StringResponse+Endpoint.swift
 //
 //  Created by ApodiniMigrator on 18.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
@@ -9,11 +9,8 @@ import Foundation
 
 // MARK: - Endpoints
 extension StringResponse {
-    /// API call for Auction at: /v1/auction
-    static func placeBid(bid: UInt) -> ApodiniPublisher<StringResponse> {
-        var parameters: Parameters = [:]
-        parameters.set(bid, forKey: "bid")
-        
+    /// API call for Text at: /v1/swift/5/3
+    static func helloSwiftFiveDotThree() -> ApodiniPublisher<StringResponse> {
         var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -24,9 +21,9 @@ extension StringResponse {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<StringResponse>(
-            path: "/v1/auction",
+            path: "/v1/swift/5/3",
             httpMethod: .get,
-            parameters: parameters,
+            parameters: [:],
             headers: headers,
             content: nil,
             authorization: nil,
@@ -60,8 +57,11 @@ extension StringResponse {
         return NetworkingService.trigger(handler)
     }
     
-    /// API call for Text at: /v1/swift/5/3
-    static func helloSwiftFiveDotThree() -> ApodiniPublisher<StringResponse> {
+    /// API call for Auction at: /v1/auction
+    static func placeBid(bid: UInt) -> ApodiniPublisher<StringResponse> {
+        var parameters: Parameters = [:]
+        parameters.set(bid, forKey: "bid")
+        
         var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -72,9 +72,9 @@ extension StringResponse {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<StringResponse>(
-            path: "/v1/swift/5/3",
+            path: "/v1/auction",
             httpMethod: .get,
-            parameters: [:],
+            parameters: parameters,
             headers: headers,
             content: nil,
             authorization: nil,

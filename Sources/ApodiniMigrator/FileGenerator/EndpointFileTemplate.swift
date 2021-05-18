@@ -18,7 +18,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
     }
     
     var endpointFileComment: FileHeaderComment {
-        .init(fileName: stringTypeName + "+Endpoint")
+        .init(fileName: stringTypeName + "+Endpoint.swift")
     }
     
     init(_ typeInformation: TypeInformation, kind: Kind) throws {
