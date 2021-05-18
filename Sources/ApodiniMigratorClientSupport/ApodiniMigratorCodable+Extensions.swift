@@ -3,7 +3,7 @@ import JavaScriptCore
 
 public extension ApodiniMigratorCodable {
     /// A function that creates an instance of type `Self` with empty values
-    fileprivate static func defaultValue() throws -> Self {
+    static func defaultValue() throws -> Self {
         try ClientJSONStringBuilder.instance(Self.self)
     }
     
@@ -57,7 +57,7 @@ public extension ApodiniMigratorCodable {
 }
 
 /// ApodiniMigratorEncodable fileprivate extension
-fileprivate extension ApodiniMigratorEncodable {
+public extension ApodiniMigratorEncodable {
     /// `jsonString` representation of `self` encoded with `Self.encoder`
     var jsonString: String {
         let encoder = Self.encoder

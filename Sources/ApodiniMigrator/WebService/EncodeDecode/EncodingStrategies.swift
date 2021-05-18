@@ -9,7 +9,7 @@ import Foundation
 
 /// A custom `DateEncodingStrategy` of `JSONEncoder`
 /// - Note: Does not support `.formatted` and `.custom` cases of `JSONEncoder`
-public enum DateEncodingStrategy {
+public enum DateEncodingStrategy: String, Codable {
     /// Defer to `Date` for choosing an encoding. This is the default strategy.
     case deferredToDate
 
@@ -36,7 +36,7 @@ public enum DateEncodingStrategy {
 
 /// A custom `DataEncodingStrategy` of `JSONEncoder`
 /// - Note: Does not support `.custom` case `JSONEncoder`
-public enum DataEncodingStrategy {
+public enum DataEncodingStrategy: String, Codable {
     /// Defer to `Data` for choosing an encoding.
     case deferredToData
 
@@ -53,7 +53,7 @@ public enum DataEncodingStrategy {
 }
 
 /// A configuration object for `JSONEncoder`
-public struct EncoderConfiguration {
+public struct EncoderConfiguration: Codable {
     /// `dateEncodingStrategy` to be set to a `JSONEncoder`
     public let dateEncodingStrategy: DateEncodingStrategy
     /// `dataEncodingStrategy` to be set to a `JSONEncoder`
