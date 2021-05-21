@@ -1,5 +1,6 @@
 import XCTest
 @testable import ApodiniMigrator
+@testable import ApodiniMigratorGenerator
 @testable import ApodiniMigratorClientSupport
 
 func isLinux() -> Bool {
@@ -196,6 +197,8 @@ final class ApodiniMigratorTests: XCTestCase {
         var objectFileParser = try ObjectFileParser(path: testModels + "Student.swift")
         
         objectFileParser.renamed(property: "id", to: "identifier")
+        objectFileParser.addCodingKeyCase(name: "githubProfile")
+        objectFileParser.changedType(of: "name")
         
         try objectFileParser.save()
         #endif

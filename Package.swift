@@ -28,9 +28,7 @@ let package = Package(
             name: "ApodiniMigrator",
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
-                .product(name: "Runtime", package: "Runtime"),
-                .product(name: "PathKit", package: "PathKit"),
-                .target(name: "ApodiniMigratorShared")
+                .product(name: "Runtime", package: "Runtime")
             ]),
         .target(
             name: "ApodiniMigratorClientSupport",
@@ -41,8 +39,7 @@ let package = Package(
         .target(
             name: "ApodiniMigratorGenerator",
             dependencies: [
-                .target(name: "ApodiniMigrator"),
-                .product(name: "PathKit", package: "PathKit")
+                .target(name: "ApodiniMigrator")
             ],
             resources: [
                 .process("Templates/Package.md"),

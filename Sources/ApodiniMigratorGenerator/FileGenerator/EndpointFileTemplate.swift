@@ -122,7 +122,7 @@ extension Endpoint {
     }
 }
 
-extension Operation {
+extension ApodiniMigrator.Operation {
     var asHTTPMethodString: String {
         switch self {
         case .create: return "post"

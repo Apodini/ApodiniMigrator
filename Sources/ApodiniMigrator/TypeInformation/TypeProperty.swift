@@ -17,7 +17,7 @@ public extension TypeInformation {
         case let .scalar(primitiveType): return primitiveType.description
         case let .repeated(element): return "[\(element.propertyTypeString)]"
         case let .dictionary(key, value): return "[\(key.description): \(value.propertyTypeString)]"
-        case .optional(wrappedValue: let wrappedValue): return wrappedValue.propertyTypeString + "?"
+        case let .optional(wrappedValue): return wrappedValue.propertyTypeString + "?"
         case let .enum(name, _): return name.name
         case let .object(name, _): return name.name
         case .reference: fatalError("Attempted to request property type string from a reference")

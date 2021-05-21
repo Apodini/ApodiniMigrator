@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import PathKit
 
 public struct ProjectDirectories {
     public let packageName: String
@@ -17,7 +16,7 @@ public struct ProjectDirectories {
     }
     
     public var sources: Path {
-        root + Path("Sources")
+        root + .sources
     }
     
     public var target: Path {
@@ -25,27 +24,27 @@ public struct ProjectDirectories {
     }
     
     public var http: Path {
-        target + Path("HTTP")
+        target + .http
     }
     
     public var models: Path {
-        target + Path("Models")
+        target + .models
     }
     
     public var endpoints: Path {
-        target + Path("Endpoints")
+        target + .endpoints
     }
     
     public var networking: Path {
-        target + Path("Networking")
+        target + .networking
     }
     
     public var utils: Path {
-        target + Path("Utils")
+        target + DirectoryName.utils
     }
     
     public var tests: Path {
-        root + Path("Tests")
+        root + .tests
     }
     
     public var testsTarget: Path {
@@ -59,5 +58,17 @@ public struct ProjectDirectories {
     
     public func build() throws {
         try [http, models, endpoints, networking, utils, testsTarget].forEach { try $0.mkpath() }
+    }
+    
+    func path(of directory: DirectoryName) -> Path {
+        switch directory {
+        case .sources: return sources
+        case .http: return http
+        case .models: return models
+        case .endpoints: return endpoints
+        case .networking: return networking
+        case .utils: return utils
+        case .tests: return tests
+        }
     }
 }

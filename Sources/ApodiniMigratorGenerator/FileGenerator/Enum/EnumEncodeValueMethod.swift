@@ -7,15 +7,6 @@
 
 import Foundation
 
-struct EnumDeprecatedCases: Renderable {
-    static let base = "private static let deprecatedCases: [Self] = "
-    func render() -> String {
-        """
-        \(Self.base)[]
-        """
-    }
-}
-
 struct EnumEncodeValueMethod: Renderable {
     /// Renders the content of the initializer in a non-formatted way
     func render() -> String {

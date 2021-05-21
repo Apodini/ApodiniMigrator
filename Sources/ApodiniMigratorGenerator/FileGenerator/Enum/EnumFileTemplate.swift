@@ -25,9 +25,7 @@ struct EnumFileTemplate: SwiftFileTemplate {
     let encodeValueMethod = EnumEncodeValueMethod()
     
     /// Encoding method of the enum
-    var enumEncodingMethod: EnumEncodingMethod {
-        .init(enumCases)
-    }
+    let enumEncodingMethod = EnumEncodingMethod()
     
     /// Decoding method of the enum
     var enumDecoderInitializer: EnumDecoderInitializer {

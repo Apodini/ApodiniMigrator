@@ -7,16 +7,8 @@
 
 import Foundation
 
-
 /// Represents `encode(to:)` method of an Enum object
 struct EnumEncodingMethod: Renderable {
-    /// The cases of the enum
-    let cases: [EnumCase]
-    
-    /// Initializer
-    init(_ cases: [EnumCase]) {
-        self.cases = cases
-    }
     
     /// Renders the content of the method in a non-formatted way
     func render() -> String {

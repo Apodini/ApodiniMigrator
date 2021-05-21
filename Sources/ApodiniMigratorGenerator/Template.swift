@@ -43,6 +43,13 @@ enum Template: String, Resource {
     }
 }
 
+
+extension Path {
+    static func + (lhs: Path, rhs: Template) -> Self {
+        lhs + rhs.projectFileName
+    }
+}
+
 // MARK: - Placeholders
 extension Template {
     static let packageName = "___PACKAGE_NAME___"

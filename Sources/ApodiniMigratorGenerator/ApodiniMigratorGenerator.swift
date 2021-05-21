@@ -6,9 +6,6 @@
 //
 
 import Foundation
-import PathKit
-import ApodiniMigrator
-import ApodiniMigratorShared
 
 public struct ApodiniMigratorGenerator {
     public let packageName: String
@@ -37,36 +34,29 @@ public struct ApodiniMigratorGenerator {
         try writeModels()
         try writeEndpoints()
         try writeTests()
-        try writeWebService()
     }
     
     private func readTemplate(_ template: Template) -> String {
         template.content()
     }
     
-    private func writeWebService() throws {
-        let webServiceFile = WebServiceFileTemplate(endpoints)
-        
-        try (directories.networking + (WebServiceFileTemplate.fileName + .swift)).write(webServiceFile.render().formatted(with: IndentationFormatter.self))
-    }
-    
     private func writeRootFiles() throws {
         let readMe = readTemplate(.readme)
         
-        try (directories.root + Template.readme.projectFileName).write(readMe)
+        try (directories.root + .readme).write(readMe)
         
         let package = readTemplate(.package)
             .with(packageName: packageName)
             .formatted(with: IndentationFormatter.self)
         
-        try (directories.root + Template.package.projectFileName).write(package)
+        try (directories.root + .package).write(package)
     }
     
     private func writeHTTP() throws {
         let https = Template.httpTemplates
         
         try https.forEach { template in
-            let path = directories.http + template.projectFileName
+            let path = directories.http + template
             try path.write(templateContentWithFileComment(template))
         }
     }
@@ -110,17 +100,18 @@ public struct ApodiniMigratorGenerator {
             .replacingOccurrences(of: Template.encoderConfiguration, with: encoderConfiguration)
             .replacingOccurrences(of: Template.decoderConfiguration, with: decoderConfiguration)
             .formatted(with: IndentationFormatter.self)
-        
+        let webServiceFile = WebServiceFileTemplate(endpoints).render().formatted(with: IndentationFormatter.self)
         let networkingDirectory = directories.networking
         
-        try (networkingDirectory + Template.handler.projectFileName).write(handler)
-        try (networkingDirectory + Template.networkingService.projectFileName).write(networking)
+        try (networkingDirectory + .handler).write(handler)
+        try (networkingDirectory + .networkingService).write(networking)
+        try (networkingDirectory + (WebServiceFileTemplate.fileName + .swift)).write(webServiceFile)
     }
     
     private func writeUtils() throws {
         let utils = templateContentWithFileComment(.utils)
         
-        try (directories.utils + Template.utils.projectFileName).write(utils)
+        try (directories.utils + Template.utils).write(utils)
     }
     
     private func writeTests() throws {
@@ -132,10 +123,10 @@ public struct ApodiniMigratorGenerator {
         try (testsTarget + testFileName).write(testFile)
         
         let manifests = templateContentWithFileComment(.xCTestManifests).with(packageName: packageName)
-        try (testsTarget + Template.xCTestManifests.projectFileName).write(manifests)
+        try (testsTarget + .xCTestManifests).write(manifests)
         let linuxMain = readTemplate(.linuxMain)
         
-        try (tests + Template.linuxMain.projectFileName).write(linuxMain.formatted(with: IndentationFormatter.self))
+        try (tests + .linuxMain).write(linuxMain.formatted(with: IndentationFormatter.self))
     }
     
     private func templateContentWithFileComment(_ template: Template, alternativeFileName: String? = nil) -> String {

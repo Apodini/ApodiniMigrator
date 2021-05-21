@@ -20,9 +20,9 @@ struct ObjectFileParser: FileParser {
     /// Initializer section
     var initializer: [String]
     /// The section containing the `encode(to:)` method
-    let encodable: [String]
+    var encodable: [String]
     /// The section containing the `init(from decoder: Decoder)` initializer
-    let decodable: [String]
+    var decodable: [String]
     /// The sections of the file
     var sections: Sections {
         [header, codingKeys, properties, initializer, encodable, decodable]
@@ -39,8 +39,7 @@ struct ObjectFileParser: FileParser {
     /// Initializes the parser with a file at the specified path
     init(path: Path) throws {
         self.path = path
-        let content: String = try path.read()
-        let lines = content.sanitizedLines()
+        let lines = try path.read().sanitizedLines()
         header = Self.sublines(in: lines, to: .model)
         codingKeys = Self.sublines(in: lines, from: .model, to: .properties)
         properties = Self.sublines(in: lines, from: .properties, to: .initializer)
@@ -57,41 +56,22 @@ struct ObjectFileParser: FileParser {
             .forEach { line in
                 if var parsed = ParsedEnumCase(from: line), parsed.rawValue == property {
                     parsed.update(rawValue: newName)
-                    codingKeys = codingKeys.replacingOccurrences(of: line, with: parsed.description)
+                    return codingKeys.replacingOccurrences(of: line, with: parsed.description)
                 }
             }
     }
-}
-
-/// A parsed proeprty from the swift file
-struct ParsedProperty: Equatable, CustomStringConvertible {
-    /// name of the property
-    let name: String
-    /// The raw string of the type
-    var type: String
     
-    /// Description
-    var description: String {
-        "let \(name): \(type)"
+    mutating func addCodingKeyCase(name: String) {
+        if let last = codingKeys.last(where: { $0.contains("case ") }), let index = codingKeys.firstIndex(of: last) {
+            return codingKeys.insert("case \(name) = \(name.asString)", at: index + 1)
+        }
     }
     
-    /// Initializes an instance from a string line of the file
-    /// Returns `nil`if the line does not correspond to the format of a property
-    /// - Note Initializer is used in sections of the file where we know for sure that the lines correspond to a property
-    init?(from line: String) {
-        if line.contains("let ") || line.contains("var ") {
-            let sanitized = line
-                .without("let ")
-                .without("var ")
-                .split(character: ":")
-                .map { $0.trimmingCharacters(in: .whitespaces) }
-            guard sanitized.count == 2, let propertyName = sanitized.first, let typeName = sanitized.last else {
-                return nil
+    mutating func changedType(of property: String) {
+        if let caseName = parsedCodingKeysCases.first(where: { $0.rawValue == property })?.caseName {
+            if let line = encodable.first(where: { $0.contains("forKey: .\(caseName)") }) {
+                encodable.replacingOccurrences(of: line, with: "try container.encode(\("hello world".asString), forKey: .\(caseName))")
             }
-            self.name = propertyName
-            self.type = typeName
-        } else {
-            return nil
         }
     }
 }
