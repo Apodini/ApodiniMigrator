@@ -37,10 +37,17 @@ public struct ApodiniMigratorGenerator {
         try writeModels()
         try writeEndpoints()
         try writeTests()
+        try writeWebService()
     }
     
     private func readTemplate(_ template: Template) -> String {
         template.content()
+    }
+    
+    private func writeWebService() throws {
+        let webServiceFile = WebServiceFileTemplate(endpoints)
+        
+        try (directories.networking + (WebServiceFileTemplate.fileName + ".swift")).write(webServiceFile.render().formatted(with: IndentationFormatter.self))
     }
     
     private func writeRootFiles() throws {
@@ -64,7 +71,7 @@ public struct ApodiniMigratorGenerator {
         }
     }
     
-    private func writeModels() throws { // TODO distinguish decodable encodable
+    private func writeModels() throws {
         let models = endpoints.reduce(into: Set<TypeInformation>()) { result, current in
             result.insert(current.restResponse)
             current.parameters.forEach { parameter in
@@ -128,7 +135,7 @@ public struct ApodiniMigratorGenerator {
         try (testsTarget + Template.xCTestManifests.projectFileName).write(manifests)
         let linuxMain = readTemplate(.linuxMain)
         
-        try (tests + Template.linuxMain.projectFileName).write(linuxMain)
+        try (tests + Template.linuxMain.projectFileName).write(linuxMain.formatted(with: IndentationFormatter.self))
     }
     
     private func templateContentWithFileComment(_ template: Template, alternativeFileName: String? = nil) -> String {

@@ -1,6 +1,7 @@
 import XCTest
 @testable import ApodiniMigrator
 @testable import ApodiniMigratorClientSupport
+@testable import ApodiniMigratorGenerator
 
 extension ApodiniMigratorCodable {
     static var encoder: JSONEncoder {
@@ -103,5 +104,16 @@ final class JavaScriptConvertTests: XCTestCase {
         
         XCTAssert(student.name == .defaultValue)
         XCTAssert(student.github == .defaultValue)
+    }
+    
+    func testPackageGenerator() throws {
+        let writeToProjectFolder = true
+        
+        let projectRoot: Path = writeToProjectFolder ? .projectRoot : .desktop
+        
+        let document = Path.desktop + "document.json"
+        
+        let gen = try ApodiniMigratorGenerator(packageName: "HelloWorld", packagePath: projectRoot.string, documentPath: document.string)
+        XCTAssertNoThrow(try gen.build())
     }
 }

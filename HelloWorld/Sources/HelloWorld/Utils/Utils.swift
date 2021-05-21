@@ -1,7 +1,7 @@
 //
 //  Utils.swift
 //
-//  Created by ApodiniMigrator on 18.05.2021
+//  Created by ApodiniMigrator on 21.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -36,4 +36,3 @@ public extension ApodiniMigratorCodable {
 extension Date: Codable {}
 /// Data conformance to `ApodiniMigratorCodable`
 extension Data: Codable {}
-

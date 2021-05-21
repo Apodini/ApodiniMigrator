@@ -8,6 +8,6 @@ final class ___PACKAGE_NAME___Tests: XCTestCase {
     }
 
     static var allTests = [
-        ("testExample", testExample),
+        ("testExample", testExample)
     ]
 }

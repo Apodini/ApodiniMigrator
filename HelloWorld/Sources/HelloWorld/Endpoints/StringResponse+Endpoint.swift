@@ -1,7 +1,7 @@
 //
 //  StringResponse+Endpoint.swift
 //
-//  Created by ApodiniMigrator on 18.05.2021
+//  Created by ApodiniMigrator on 21.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -9,6 +9,35 @@ import Foundation
 
 // MARK: - Endpoints
 extension StringResponse {
+    /// API call for TraditionalGreeter at: /v1/greet
+    static func greetMe(age: Int, name: String?, surname: String) -> ApodiniPublisher<StringResponse> {
+        var parameters: Parameters = [:]
+        parameters.set(surname, forKey: "surname")
+        parameters.set(age, forKey: "age")
+        parameters.set(name, forKey: "name")
+        
+        var headers: HTTPHeaders = [:]
+        headers.setContentType(to: "application/json")
+        
+        var errors: [ApodiniError] = []
+        errors.addError(401, message: "Unauthorized")
+        errors.addError(403, message: "Forbidden")
+        errors.addError(404, message: "Not found")
+        errors.addError(500, message: "Internal server error")
+        
+        let handler = Handler<StringResponse>(
+            path: "/v1/greet",
+            httpMethod: .get,
+            parameters: parameters,
+            headers: headers,
+            content: nil,
+            authorization: nil,
+            errors: errors
+        )
+        
+        return NetworkingService.trigger(handler)
+    }
+    
     /// API call for Text at: /v1/swift/5/3
     static func helloSwiftFiveDotThree() -> ApodiniPublisher<StringResponse> {
         var headers: HTTPHeaders = [:]
@@ -22,30 +51,6 @@ extension StringResponse {
         
         let handler = Handler<StringResponse>(
             path: "/v1/swift/5/3",
-            httpMethod: .get,
-            parameters: [:],
-            headers: headers,
-            content: nil,
-            authorization: nil,
-            errors: errors
-        )
-        
-        return NetworkingService.trigger(handler)
-    }
-    
-    /// API call for Text at: /v1
-    static func sayHelloWorld() -> ApodiniPublisher<StringResponse> {
-        var headers: HTTPHeaders = [:]
-        headers.setContentType(to: "application/json")
-        
-        var errors: [ApodiniError] = []
-        errors.addError(401, message: "Unauthorized")
-        errors.addError(403, message: "Forbidden")
-        errors.addError(404, message: "Not found")
-        errors.addError(500, message: "Internal server error")
-        
-        let handler = Handler<StringResponse>(
-            path: "/v1",
             httpMethod: .get,
             parameters: [:],
             headers: headers,
@@ -108,13 +113,8 @@ extension StringResponse {
         return NetworkingService.trigger(handler)
     }
     
-    /// API call for TraditionalGreeter at: /v1/greet
-    static func greetMe(surname: String, age: Int, name: String?) -> ApodiniPublisher<StringResponse> {
-        var parameters: Parameters = [:]
-        parameters.set(surname, forKey: "surname")
-        parameters.set(age, forKey: "age")
-        parameters.set(name, forKey: "name")
-        
+    /// API call for Text at: /v1
+    static func sayHelloWorld() -> ApodiniPublisher<StringResponse> {
         var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -125,9 +125,9 @@ extension StringResponse {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<StringResponse>(
-            path: "/v1/greet",
+            path: "/v1",
             httpMethod: .get,
-            parameters: parameters,
+            parameters: [:],
             headers: headers,
             content: nil,
             authorization: nil,
@@ -136,5 +136,4 @@ extension StringResponse {
         
         return NetworkingService.trigger(handler)
     }
-    
 }

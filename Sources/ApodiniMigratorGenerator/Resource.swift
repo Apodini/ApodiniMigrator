@@ -70,7 +70,8 @@ public extension Resource {
         guard let content = try? String(contentsOf: fileURL, encoding: .utf8) else {
             fatalError("Failed to read the resource")
         }
-        return content
+        let lines = content.sanitizedLines()
+        return lines.last?.isEmpty == true ? (lines.dropLast().joined(separator: .lineBreak)) : content
     }
     
     func data() throws -> Data {

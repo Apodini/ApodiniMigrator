@@ -11,7 +11,7 @@ let package = Package(
     ],
     products: [
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
-        .library(name: "HelloWorld", targets: ["HelloWorld"]),
+        .library(name: "HelloWorld", targets: ["HelloWorld"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -25,10 +25,9 @@ let package = Package(
             name: "HelloWorld",
             dependencies: [
                 .product(name: "ApodiniMigratorClientSupport", package: "ApodiniMigrator")
-                ]),
+            ]),
         .testTarget(
             name: "HelloWorldTests",
-            dependencies: ["HelloWorld"]),
+            dependencies: ["HelloWorld"])
     ]
 )
-

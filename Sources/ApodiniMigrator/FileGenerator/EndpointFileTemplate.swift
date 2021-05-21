@@ -37,7 +37,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         }
         
         try self.init(response, kind: .extension)
-        self.endpoints = endpoints
+        self.endpoints = endpoints.sorted { $0.deltaIdentifier.rawValue < $1.deltaIdentifier.rawValue }
     }
     
     
@@ -58,7 +58,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         let body =
         """
         \(EndpointComment("API call for \(endpoint.handlerName.value) at: \(endpoint.absolutePath.value)"))
-        static func \(endpoint.deltaIdentifier.rawValue)(\(endpoint.parameters.methodSignature())) -> ApodiniPublisher<\(stringTypeName)> {
+        static func \(endpoint.deltaIdentifier.rawValue)(\(endpoint.signatureParameters.methodSignature())) -> ApodiniPublisher<\(stringTypeName)> {
         \(queryParametersString)var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -77,7 +77,6 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
 
         return NetworkingService.trigger(handler)
         }
-        
         """
         return body
     }
@@ -91,7 +90,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
 
         \(MARKComment(.endpoints))
         \(kind.rawValue) \(typeInformation.typeName.name) {
-        \(endpoints.map { endpointMethod(endpoint: $0) }.withBreakingLines())
+        \(endpoints.map { endpointMethod(endpoint: $0) }.joined(separator: .doubleLineBreak))
         }
         """
     }
@@ -99,14 +98,19 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
 
 extension Array where Element == Parameter {
     func methodSignature() -> String {
-        filter { $0.parameterType != .header }
-        .map { "\($0.parameterName.value): \($0.typeInformation.propertyTypeString)" }.joined(separator: ", ")
+        map { "\($0.parameterName.value): \($0.typeInformation.propertyTypeString)" }.joined(separator: ", ")
     }
 }
 
 extension Endpoint {
     var queryParameters: [Parameter] {
         parameters.filter { $0.parameterType == .lightweight }
+    }
+    
+    var signatureParameters: [Parameter] {
+        parameters
+            .filter { $0.parameterType != .header }
+            .sorted { $0.parameterName.value < $1.parameterName.value }
     }
     
     var contentParameterString: String {

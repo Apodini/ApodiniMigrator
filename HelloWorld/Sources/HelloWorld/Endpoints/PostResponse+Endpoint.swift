@@ -1,7 +1,7 @@
 //
 //  PostResponse+Endpoint.swift
 //
-//  Created by ApodiniMigrator on 18.05.2021
+//  Created by ApodiniMigrator on 21.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -10,7 +10,7 @@ import Foundation
 // MARK: - Endpoints
 extension PostResponse {
     /// API call for PostHandler at: /v1/user/{userId}/post/{postId}
-    static func getPost(userId: Int, postId: UUID) -> ApodiniPublisher<PostResponse> {
+    static func getPost(postId: UUID, userId: Int) -> ApodiniPublisher<PostResponse> {
         var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -32,5 +32,4 @@ extension PostResponse {
         
         return NetworkingService.trigger(handler)
     }
-    
 }

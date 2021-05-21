@@ -1,7 +1,7 @@
 //
 //  Parameters.swift
 //
-//  Created by ApodiniMigrator on 18.05.2021
+//  Created by ApodiniMigrator on 21.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -11,8 +11,8 @@ import Foundation
 /// Represents `query` of a `URL`
 public typealias Parameters = [String: LosslessStringConvertible]
 
-/// Dictionary extension for `Parameters` support
-public extension Dictionary where Key == String, Value == LosslessStringConvertible {
+/// `Parameters` extension
+public extension Parameters {
     /// Updates `self` with a new `key`-`value` pair iff `value` is not `nil`
     /// - Parameters:
     ///    - value: the value of the dictionary entry
@@ -43,4 +43,3 @@ extension UUID: LosslessStringConvertible {
         }
     }
 }
-

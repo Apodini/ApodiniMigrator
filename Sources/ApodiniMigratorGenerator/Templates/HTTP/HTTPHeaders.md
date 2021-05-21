@@ -3,8 +3,8 @@ import Foundation
 /// A `typealias` representing a `key`-`value` pair of a `HTTPHeader`
 public typealias HTTPHeaders = [String: String]
 
-/// Dictionary extension for `Headers` support
-public extension Dictionary where Key == String, Value == String {
+/// `HTTPHeaders` extension
+public extension HTTPHeaders {
     /// Updates `self` with a new `key`-`value` pair
     /// - Parameters:
     ///    - value: the value of the dictionary entry

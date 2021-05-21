@@ -4,8 +4,8 @@ import Foundation
 /// Represents `query` of a `URL`
 public typealias Parameters = [String: LosslessStringConvertible]
 
-/// Dictionary extension for `Parameters` support
-public extension Dictionary where Key == String, Value == LosslessStringConvertible {
+/// `Parameters` extension
+public extension Parameters {
     /// Updates `self` with a new `key`-`value` pair iff `value` is not `nil`
     /// - Parameters:
     ///    - value: the value of the dictionary entry

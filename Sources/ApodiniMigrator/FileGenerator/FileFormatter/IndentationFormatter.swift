@@ -57,7 +57,7 @@ public struct IndentationFormatter: SwiftFileFormatter {
             storage += lineBrackets.reduce(0) { $0 + $1.weight }
             // if encountered a line with a single closing bracket, return it.
             // needed to decrease the indentation level for `line`
-            if lineBrackets == [.closing] || lineBrackets == [.closing, .opening] {
+            if lineBrackets == [.closing] || lineBrackets == [.closing, .opening] || lineBrackets == [.closing, .closing] {
                 return .closing
             }
         }
