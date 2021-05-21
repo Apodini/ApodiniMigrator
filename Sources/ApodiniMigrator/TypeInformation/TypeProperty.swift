@@ -1,10 +1,6 @@
 import Foundation
 
-public class PropertyName: PropertyValueWrapper<String>, Comparable {
-    public static func < (lhs: PropertyName, rhs: PropertyName) -> Bool {
-        lhs.value < rhs.value
-    }
-}
+public class PropertyName: PropertyValueWrapper<String> {}
 
 public struct TypeProperty: Value {
     public let name: PropertyName

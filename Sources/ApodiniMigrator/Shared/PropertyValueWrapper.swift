@@ -55,6 +55,12 @@ public class PropertyValueWrapper<P: PropertyProtocol>: ComparableProperty {
     }
 }
 
+extension PropertyValueWrapper: Comparable where P: Comparable {
+    public static func < (lhs: PropertyValueWrapper, rhs: PropertyValueWrapper) -> Bool {
+        lhs.value < rhs.value
+    }
+}
+
 public extension PropertyValueWrapper {
     static func == (lhs: PropertyValueWrapper<P>, rhs: PropertyValueWrapper<P>) -> Bool {
         lhs.value == rhs.value

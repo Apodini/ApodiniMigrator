@@ -38,28 +38,18 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         }
         
         try self.init(response, kind: .extension)
-        self.endpoints = endpoints.sorted { $0.deltaIdentifier.rawValue < $1.deltaIdentifier.rawValue }
+        self.endpoints = endpoints.sorted(by: \.deltaIdentifier)
     }
     
     
     private func endpointMethod(endpoint: Endpoint) -> String {
         let path = endpoint.absolutePath.value.replacingOccurrences(of: "{", with: "\\(").replacingOccurrences(of: "}", with: ")")
-        let queryParametersString: String = {
-            guard !endpoint.queryParameters.isEmpty else {
-                return ""
-            }
-            let string =
-            """
-            var parameters: Parameters = [:]
-            \(endpoint.queryParameters.map { "parameters.set(\($0.parameterName.value), forKey: \($0.parameterName.value.asString))" }.lineBreaked)
-            """
-            return string + .doubleLineBreak
-        }()
-        
+        let queryParametersString = endpoint.queryParametersString
+        let methodName = endpoint.deltaIdentifier
         let body =
         """
-        \(EndpointComment("API call for \(endpoint.handlerName.value) at: \(endpoint.absolutePath.value)"))
-        static func \(endpoint.deltaIdentifier.rawValue)(\(endpoint.signatureParameters.methodSignature())) -> ApodiniPublisher<\(stringTypeName)> {
+        \(EndpointComment(endpoint))
+        static func \(methodName)(\(endpoint.methodInputString())) -> ApodiniPublisher<\(stringTypeName)> {
         \(queryParametersString)var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -94,31 +84,6 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         \(endpoints.map { endpointMethod(endpoint: $0) }.joined(separator: .doubleLineBreak))
         }
         """
-    }
-}
-
-extension Array where Element == Parameter {
-    func methodSignature() -> String {
-        map { "\($0.parameterName.value): \($0.typeInformation.propertyTypeString)" }.joined(separator: ", ")
-    }
-}
-
-extension Endpoint {
-    var queryParameters: [Parameter] {
-        parameters.filter { $0.parameterType == .lightweight }
-    }
-    
-    var signatureParameters: [Parameter] {
-        parameters
-            .filter { $0.parameterType != .header }
-            .sorted { $0.parameterName.value < $1.parameterName.value }
-    }
-    
-    var contentParameterString: String {
-        if let contentParameter = parameters.first(where: { $0.parameterType == .content }) {
-            return "NetworkingService.encode(\(contentParameter.parameterName.value)"
-        }
-        return "nil"
     }
 }
 

@@ -14,21 +14,25 @@ public struct WebServiceFileTemplate: Renderable {
     public init(_ endpoints: [Endpoint]) {
         self.endpoints = endpoints.sorted { lhs, rhs in
             if lhs.restResponse == rhs.restResponse {
-                return lhs.deltaIdentifier.rawValue < rhs.deltaIdentifier.rawValue
+                return lhs.deltaIdentifier < rhs.deltaIdentifier
             }
             return lhs.restResponse.typeName.name < rhs.restResponse.typeName.name
         }
     }
     
     
-    func method(for endpoint: Endpoint) -> String {
+    private func method(for endpoint: Endpoint) -> String {
         let responseName = endpoint.restResponse.typeName.name
-        let methodParameters = endpoint.signatureParameters.map { "\($0.parameterName.value): \($0.parameterName.value)" }.joined(separator: ", ")
+        let methodParameters = endpoint.signatureParameters
+            .map { "\($0.parameterName.value): \($0.parameterName.value)" }
+            .joined(separator: ", ")
+        let methodInputString = endpoint.methodInputString()
+        let methodName = endpoint.deltaIdentifier
         let body =
         """
-        \(EndpointComment("API call for \(endpoint.handlerName.value) at: \(endpoint.absolutePath.value)"))
-        static func \(endpoint.deltaIdentifier.rawValue)(\(endpoint.signatureParameters.methodSignature())) -> ApodiniPublisher<\(responseName)> {
-        \(responseName).\(endpoint.deltaIdentifier.rawValue)(\(methodParameters))
+        \(EndpointComment(endpoint))
+        static func \(methodName)(\(methodInputString)) -> ApodiniPublisher<\(responseName)> {
+        \(responseName).\(methodName)(\(methodParameters))
         }
         """
         return body

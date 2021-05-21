@@ -48,6 +48,12 @@ extension DeltaIdentifier {
     }
 }
 
+extension DeltaIdentifier: Comparable {
+    public static func < (lhs: DeltaIdentifier, rhs: DeltaIdentifier) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+}
+
 extension DeltaIdentifier {
     public static func == (lhs: DeltaIdentifier, rhs: DeltaIdentifier) -> Bool {
         lhs.rawValue == rhs.rawValue

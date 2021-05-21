@@ -24,8 +24,8 @@ extension Annotation {
 struct EndpointComment: Annotation {
     let comment: String
     
-    init(_ comment: String) {
-        self.comment = "/// " + comment
+    init(_ endpoint: Endpoint) {
+        comment = "/// API call for \(endpoint.handlerName.value) at: \(endpoint.absolutePath.value)"
     }
 }
 
