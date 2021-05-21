@@ -1,23 +1,23 @@
 import Foundation
 
-class EndpointPath: PropertyValueWrapper<String> {}
-class HandlerName: PropertyValueWrapper<String> {}
+public class EndpointPath: PropertyValueWrapper<String> {}
+public class HandlerName: PropertyValueWrapper<String> {}
 
 public typealias EndpointInput = [Parameter]
 
 /// Represents an endpoint
 public struct Endpoint {
     /// Name of the handler
-    let handlerName: HandlerName
+    public let handlerName: HandlerName
 
     /// Identifier of the handler
-    let deltaIdentifier: DeltaIdentifier
+    public let deltaIdentifier: DeltaIdentifier
 
     /// The operation of the endpoint
-    let operation: Operation
+    public let operation: Operation
 
     /// The absolute path string of the endpoint
-    let absolutePath: EndpointPath
+    public let absolutePath: EndpointPath
 
     /// Parameters of the endpoint
     public var parameters: EndpointInput
@@ -30,7 +30,7 @@ public struct Endpoint {
     }
     
     /// Errors
-    let errors: [ErrorCode]
+    public let errors: [ErrorCode]
     
     public init(
         handlerName: String,

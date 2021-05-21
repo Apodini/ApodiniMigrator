@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - Encodable extensions
-extension Encodable {
+public extension Encodable {
     /// JSON String of this encodable with `.prettyPrinted, .sortedKeys, .withoutEscapingSlashes` output formatting
     var json: String {
         let encoder = JSONEncoder()

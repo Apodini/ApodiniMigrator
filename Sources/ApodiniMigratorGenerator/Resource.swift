@@ -28,7 +28,7 @@ public protocol Resource {
 }
 
 /// Default internal implementations
-extension Resource {
+public extension Resource {
     var fileName: String {
         "\(name).\(fileExtension.description)"
     }
@@ -43,22 +43,6 @@ extension Resource {
     
     func replaceOccurrencies(of target: String, with replacement: String) -> String {
         content().replacingOccurrences(of: target, with: replacement)
-    }
-    
-    func write(_ content: String, file: String) throws {
-//        var path = Path(file)
-//        
-//        path.assert()
-//        
-//        path.cdResources()
-//        
-//        let children = path.children()
-//        
-//        guard let resourcePath = children.first(where: { $0.last == fileName }) else {
-//            return
-//        }
-//        
-//        try content.write(to: resourcePath.url, atomically: true, encoding: .utf8)
     }
 }
 

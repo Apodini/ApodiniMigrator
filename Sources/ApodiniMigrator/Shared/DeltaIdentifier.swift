@@ -13,26 +13,26 @@ protocol DeltaIdentifiable {
 }
 
 /// A `DeltaIdentifier` uniquely identifies an object in ApodiniDelta
-struct DeltaIdentifier: Value, RawRepresentable {
-    let rawValue: String
+public struct DeltaIdentifier: Value, RawRepresentable {
+    public let rawValue: String
 
-    init(rawValue: String) {
+    public init(rawValue: String) {
         self.rawValue = rawValue
     }
 
-    init(_ rawValue: String) {
+    public init(_ rawValue: String) {
         self.init(rawValue: rawValue)
     }
     
-    init<R: RawRepresentable>(_ rawRepresentable: R) where R.RawValue == String {
+    public init<R: RawRepresentable>(_ rawRepresentable: R) where R.RawValue == String {
         self.rawValue = rawRepresentable.rawValue
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         rawValue = try decoder.singleValueContainer().decode(String.self)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(rawValue)
     }
@@ -43,13 +43,13 @@ extension DeltaIdentifier: CustomStringConvertible {
 }
 
 extension DeltaIdentifier {
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(rawValue)
     }
 }
 
 extension DeltaIdentifier {
-    static func == (lhs: DeltaIdentifier, rhs: DeltaIdentifier) -> Bool {
+    public static func == (lhs: DeltaIdentifier, rhs: DeltaIdentifier) -> Bool {
         lhs.rawValue == rhs.rawValue
     }
 }

@@ -20,7 +20,7 @@ public extension Sequence {
     }
 }
 
-extension Array where Element: Equatable {
+public extension Array where Element: Equatable {
     func equalsIgnoringOrder(to other: Self) -> Bool {
         guard count == other.count else {
             return false

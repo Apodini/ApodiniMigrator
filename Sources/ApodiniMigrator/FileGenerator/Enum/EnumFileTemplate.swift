@@ -58,7 +58,7 @@ struct EnumFileTemplate: SwiftFileTemplate {
         
         \(MARKComment(.model))
         \(kind.signature) \(typeNameString): String, Codable, CaseIterable {
-        \(enumCases.map { "case \($0.name.value) = \($0.name.value.asString)" }.withBreakingLines())
+        \(enumCases.map { "case \($0.name.value) = \($0.name.value.asString)" }.lineBreaked)
 
         \(MARKComment(.deprecated))
         \(deprecatedCases.render())

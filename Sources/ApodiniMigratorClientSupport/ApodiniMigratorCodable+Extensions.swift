@@ -4,17 +4,17 @@ import JavaScriptCore
 public extension ApodiniMigratorCodable {
     /// A function that creates an instance of type `Self` with empty values
     static func defaultValue() throws -> Self {
-        try ClientJSONStringBuilder.instance(Self.self)
+        try JSONStringBuilder.instance(Self.self)
     }
     
     /// A function that creates an instance of type `Self` from a valid json string
     static func instance(from jsonString: String) throws -> Self {
-        try ClientJSONStringBuilder.decode(Self.self, from: jsonString)
+        try JSONStringBuilder.decode(Self.self, from: jsonString)
     }
     
     /// A function that creates an instance of type `Self` from data
     static func instance(from data: Data) throws -> Self {
-        try ClientJSONStringBuilder.decode(Self.self, from: data)
+        try JSONStringBuilder.decode(Self.self, from: data)
     }
     
     /// Creates an instance of type `Self`, out of an `ApodiniMigratorEncodable` value
@@ -89,7 +89,7 @@ fileprivate extension ApodiniMigratorCodable {
         }
         
         do {
-            return try ClientJSONStringBuilder.decode(Self.self, from: data)
+            return try JSONStringBuilder.decode(Self.self, from: data)
         } catch {
             return try defaultValue()
         }

@@ -1,6 +1,6 @@
 import Foundation
 
-extension Set {
+public extension Set {
     static var empty: Self { [] }
     
     var asArray: [Element] {

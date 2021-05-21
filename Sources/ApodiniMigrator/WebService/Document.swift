@@ -15,7 +15,7 @@ public struct MetaData: Codable {
     }
 }
 
-public struct Document: Codable {
+public struct Document: Codable { // TODO handle referencing in encode and init from decoder
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case metaData = "info", endpoints, components

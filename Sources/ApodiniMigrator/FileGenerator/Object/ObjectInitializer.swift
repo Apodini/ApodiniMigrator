@@ -23,7 +23,7 @@ struct ObjectInitializer: Renderable {
         init(
         \(properties.map { "\($0.name.value): \($0.type.propertyTypeString)" }.joined(separator: ",\(String.lineBreak)"))
         ) {
-        \(properties.map { "\($0.initLine)" }.withBreakingLines())
+        \(properties.map { "\($0.initLine)" }.lineBreaked)
         }
         """
     }

@@ -107,7 +107,7 @@ final class JavaScriptConvertTests: XCTestCase {
     }
     
     func testPackageGenerator() throws {
-        let packagePath: Path = .projectRoot
+        let packagePath: Path = .desktop
         
         let document = Path.desktop + "document.json"
         

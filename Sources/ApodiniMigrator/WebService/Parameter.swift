@@ -27,20 +27,20 @@ extension ParameterType: CustomStringConvertible {
 
 /** Necessity from Apodini*/
 /// Defines the necessity of a `Parameter`
-enum Necessity: String, ComparableProperty {
+public enum Necessity: String, ComparableProperty {
     /// `.required` necessity describes parameters which require a valuer in any case.
     case required
     /// `.optional` necessity describes parameters which does not necessarily require a value.
     /// This does not necessarily translate to `nil` being a valid value.
     case optional
     
-    init(_ hasDefaultValue: HasDefaultValue) {
+    public init(_ hasDefaultValue: HasDefaultValue) {
         self = hasDefaultValue.value ? .optional : .required
     }
 }
 
 public class ParameterName: PropertyValueWrapper<String> {}
-class NilIsValidValue: PropertyValueWrapper<Bool> {}
+public class NilIsValidValue: PropertyValueWrapper<Bool> {}
 public class HasDefaultValue: PropertyValueWrapper<Bool> {}
 
 /// Represents a parameter of an endpoint
@@ -57,12 +57,12 @@ public struct Parameter {
     public let parameterType: ParameterType
     
     /// Indicates whether `nil` is a valid value, equavalent of `typeInformation` beeing optional
-    var nilIsValidValue: NilIsValidValue {
+    public var nilIsValidValue: NilIsValidValue {
         .init(typeInformation.isOptional)
     }
     
     /// The necessity of the parameter
-    var necessity: Necessity {
+    public var necessity: Necessity {
         nilIsValidValue.value ? .optional : .init(hasDefaultValue)
     }
     

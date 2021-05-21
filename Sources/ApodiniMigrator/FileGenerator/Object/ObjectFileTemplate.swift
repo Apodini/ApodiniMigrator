@@ -65,7 +65,7 @@ struct ObjectFileTemplate: SwiftFileTemplate {
         \(codingKeysEnum.render())
         
         \(MARKComment(.properties))
-        \(properties.map { $0.propertyLine }.withBreakingLines())
+        \(properties.map { $0.propertyLine }.lineBreaked)
 
         \(MARKComment(.initializer))
         \(objectInitializer.render())

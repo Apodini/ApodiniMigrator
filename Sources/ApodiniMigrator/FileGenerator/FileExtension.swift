@@ -31,3 +31,16 @@ public enum FileExtension: CustomStringConvertible {
         }
     }
 }
+
+public extension String {
+    static func + (lhs: Self, rhs: FileExtension) -> Self {
+        lhs + "." + rhs.description
+    }
+}
+
+public extension Path {
+    /// Indicates whether the path corresponds to a file with the corresponding extension
+    func `is`(_ fileExtension: FileExtension) -> Bool {
+        `extension` == fileExtension.description
+    }
+}

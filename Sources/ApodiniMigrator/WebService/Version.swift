@@ -18,13 +18,13 @@ public struct Version: Codable {
     
     
     /// The version prefix
-    let prefix: String
+    public let prefix: String
     /// The major version number
-    let major: UInt
+    public let major: UInt
     /// The minor version number
-    let minor: UInt
+    public let minor: UInt
     /// The patch version number
-    let patch: UInt
+    public let patch: UInt
     
     
     /// - Parameters:
@@ -50,8 +50,7 @@ public struct Version: Codable {
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let string = try container.decode(String.self)
+        let string = try decoder.singleValueContainer().decode(String.self)
         
         let components = string.split(string: "_")
         let prefix = components.first

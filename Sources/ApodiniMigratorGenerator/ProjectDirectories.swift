@@ -15,6 +15,7 @@ public struct ProjectDirectories {
     public var root: Path {
         packagePath + Path(packageName)
     }
+    
     public var sources: Path {
         root + Path("Sources")
     }

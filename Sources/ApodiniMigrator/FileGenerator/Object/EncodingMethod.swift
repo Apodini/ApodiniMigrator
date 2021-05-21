@@ -23,7 +23,7 @@ struct EncodingMethod: Renderable {
         func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        \(properties.map { "\($0.encodingMethodLine)" }.withBreakingLines())
+        \(properties.map { "\($0.encodingMethodLine)" }.lineBreaked)
         }
         """
     }

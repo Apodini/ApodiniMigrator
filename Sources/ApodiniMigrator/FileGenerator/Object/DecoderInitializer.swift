@@ -23,7 +23,7 @@ struct DecoderInitializer: Renderable {
         init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        \(properties.map { "\($0.decoderInitLine)" }.withBreakingLines())
+        \(properties.map { "\($0.decoderInitLine)" }.lineBreaked)
         }
         """
     }

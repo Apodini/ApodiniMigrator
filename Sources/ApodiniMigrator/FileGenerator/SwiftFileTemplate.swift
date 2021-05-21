@@ -141,7 +141,7 @@ struct Import: Renderable {
     /// One line per framwork, no empty lines in between
     func render() -> String {
         """
-        \(frameworks.map { $0.string }.withBreakingLines())
+        \(frameworks.map { $0.string }.lineBreaked)
         """
     }
 }

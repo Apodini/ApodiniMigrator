@@ -1,11 +1,11 @@
 import Foundation
 
-enum CustomDateFormat: String {
+public enum CustomDateFormat: String {
     case date = "dd.MM.yyyy"
     case year = "yyyy"
 }
 
-extension DateFormatter {
+public extension DateFormatter {
     static var iSO8601DateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         let enUSPosixLocale = Locale(identifier: "en_US_POSIX")
@@ -16,7 +16,7 @@ extension DateFormatter {
     }()
 }
 
-extension Date {
+public extension Date {
     func string(_ format: CustomDateFormat) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = format.rawValue

@@ -59,8 +59,8 @@ public extension String {
     }
 }
 
-extension Collection where Element == String {
-    func withBreakingLines() -> String {
+public extension Collection where Element == String {
+    var lineBreaked: String {
         joined(separator: .lineBreak)
     }
 }

@@ -5,10 +5,10 @@
 //  Created by Eldi Cano on 07.05.21.
 //
 
-import Foundation
+import PathKit
 
 #if DEBUG
-extension Path {
+public extension Path {
     static var desktop: Path { Path("/Users/eld/Desktop") }
     static var projectRoot: Path { desktop + "mswag/ApodiniMigrator" }
     
@@ -17,10 +17,3 @@ extension Path {
     }
 }
 #endif
-
-extension Path {
-    /// Indicates whether the path corresponds to a file with the corresponding extension
-    func `is`(_ fileExtension: FileExtension) -> Bool {
-        `extension` == fileExtension.description
-    }
-}

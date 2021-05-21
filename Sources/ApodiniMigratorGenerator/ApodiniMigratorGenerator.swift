@@ -47,7 +47,7 @@ public struct ApodiniMigratorGenerator {
     private func writeWebService() throws {
         let webServiceFile = WebServiceFileTemplate(endpoints)
         
-        try (directories.networking + (WebServiceFileTemplate.fileName + ".swift")).write(webServiceFile.render().formatted(with: IndentationFormatter.self))
+        try (directories.networking + (WebServiceFileTemplate.fileName + .swift)).write(webServiceFile.render().formatted(with: IndentationFormatter.self))
     }
     
     private func writeRootFiles() throws {
@@ -93,7 +93,7 @@ public struct ApodiniMigratorGenerator {
         }
         let endpointsDirectory = directories.endpoints
         for group in endpointGroups {
-            let filePath = group.key.typeName.name + "+Endpoint.swift"
+            let filePath = group.key.typeName.name + EndpointFileTemplate.fileSuffix
             let endpointFileTemplate = try EndpointFileTemplate(with: group.key, endpoints: Array(group.value))
             try (endpointsDirectory + filePath).write(endpointFileTemplate.render().formatted(with: IndentationFormatter.self))
         }
@@ -126,7 +126,7 @@ public struct ApodiniMigratorGenerator {
     private func writeTests() throws {
         let tests = directories.tests
         let testsTarget = directories.testsTarget
-        let testFileName = packageName + "Tests.swift"
+        let testFileName = packageName + "Tests" + .swift
         let testFile = templateContentWithFileComment(.testFile, alternativeFileName: testFileName)
             .with(packageName: packageName)
         try (testsTarget + testFileName).write(testFile)

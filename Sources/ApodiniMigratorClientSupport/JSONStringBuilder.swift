@@ -4,7 +4,7 @@ import ApodiniMigrator
 
 /// Builds a valid JSON string with values empty strings, 0 for numbers, empty Data, date of today, and random UUID
 /// by means of a `typeInformation` object
-struct ClientJSONStringBuilder {
+struct JSONStringBuilder {
    /// `TypeInformation` of the type that is used as template for JSONString
     private let typeInformation: TypeInformation
     /// `JSONEncoder` used to encode the value of the type
@@ -14,6 +14,10 @@ struct ClientJSONStringBuilder {
     init<C: ApodiniMigratorCodable>(_ type: C.Type) throws {
         self.typeInformation = try TypeInformation(type: C.self)
         self.encoder = C.encoder
+    }
+    
+    init(_ type: Any.Type, encoder: JSONEncoder = .init()) throws {
+        self.init(try TypeInformation(type: type), encoder: encoder)
     }
     
     /// Private initializer for `json` string builder of an empty instance
@@ -57,10 +61,14 @@ struct ClientJSONStringBuilder {
         case let .enum(_, cases):
             return cases.first?.name.value.asString ?? "{}"
         case let .object(_, properties):
-            let sorted = properties.sorted { $0.name.value < $1.name.value }
+            let sorted = properties.sorted(by: \.name)
             return "{\(sorted.map { $0.name.value.asString + " : \(Self($0.type, encoder: encoder).build())" }.joined(separator: ", "))}"
         default: return "{}"
         }
+    }
+    
+    static func jsonString(_ type: Any.Type) throws -> String {
+        try Self(type).build()
     }
     
     static func string<C: ApodiniMigratorCodable>(_ type: C.Type) throws -> String {
@@ -84,10 +92,7 @@ struct ClientJSONStringBuilder {
     
     /// Decodes type from string content
     static func decode<C: ApodiniMigratorDecodable>(_ type: C.Type, from string: String) throws -> C {
-        guard let data = string.data(using: .utf8) else {
-            fatalError("String encoding failed")
-        }
-        return try C.decoder.decode(C.self, from: data)
+        try C.decoder.decode(C.self, from: string.data(using: .utf8) ?? Data())
     }
     
     static func decode<D: ApodiniMigratorDecodable>(_ type: D.Type, at path: Path) throws -> D {

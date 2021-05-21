@@ -18,7 +18,7 @@ extension FileParser {
     func save() throws {
         let reconstructed = sections
             .flatMap { $0 }
-            .withBreakingLines()
+            .lineBreaked
             .formatted(with: IndentationFormatter.self)
         
         try path.write(reconstructed)

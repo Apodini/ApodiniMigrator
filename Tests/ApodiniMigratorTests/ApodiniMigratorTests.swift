@@ -91,7 +91,7 @@ final class ApodiniMigratorTests: XCTestCase {
         }
         
         let typeInformation = try TypeInformation(type: someComplexType)
-        let instance = XCTAssertNoThrowWithResult(try ClientJSONStringBuilder.instance(typeInformation, someComplexType))
+        let instance = XCTAssertNoThrowWithResult(try JSONStringBuilder.instance(typeInformation, someComplexType))
         
         XCTAssert(instance.keys.first == 0)
         // swiftlint:disable:next force_unwrapping
@@ -142,7 +142,7 @@ final class ApodiniMigratorTests: XCTestCase {
         guard !isLinux(), desktop.exists else {
             return
         }
-        try jsonPath.write(try ClientJSONStringBuilder.string(Student.self))
+        try jsonPath.write(try JSONStringBuilder.string(Student.self))
     }
     
     func testJSONRead() throws {
@@ -150,7 +150,7 @@ final class ApodiniMigratorTests: XCTestCase {
         guard !isLinux(), desktop.exists else {
             return
         }
-        _ = XCTAssertNoThrowWithResult(try ClientJSONStringBuilder.decode(Student.self, at: jsonPath))
+        _ = XCTAssertNoThrowWithResult(try JSONStringBuilder.decode(Student.self, at: jsonPath))
     }
     
     

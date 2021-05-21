@@ -29,7 +29,8 @@ let package = Package(
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
                 .product(name: "Runtime", package: "Runtime"),
-                .product(name: "PathKit", package: "PathKit")
+                .product(name: "PathKit", package: "PathKit"),
+                .target(name: "ApodiniMigratorShared")
             ]),
         .target(
             name: "ApodiniMigratorClientSupport",
@@ -58,7 +59,12 @@ let package = Package(
                 .process("Templates/Tests/XCTestManifests.md"),
                 .process("Templates/Tests/LinuxMain.md")
             ]),
-        .target(name: "ApodiniMigratorShared"),
+        .target(
+            name: "ApodiniMigratorShared",
+            dependencies: [
+                .product(name: "PathKit", package: "PathKit")
+            ]
+        ),
         .testTarget(
             name: "ApodiniMigratorTests",
             dependencies: ["ApodiniMigrator", "ApodiniMigratorGenerator", "ApodiniMigratorClientSupport"])

@@ -36,7 +36,7 @@ public struct WebServiceFileTemplate: Renderable {
     
     public func render() -> String {
         """
-        \(FileHeaderComment(fileName: "\(Self.fileName).swift").render())
+        \(FileHeaderComment(fileName: "\(Self.fileName)" + .swift).render())
 
         \(Import(.foundation).render())
 

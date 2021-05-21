@@ -9,6 +9,7 @@ import Foundation
 
 
 public struct EndpointFileTemplate: SwiftFileTemplate {
+    public static let fileSuffix = "+Endpoint" + .swift
     var typeInformation: TypeInformation
     var kind: Kind
     public var endpoints: [Endpoint]
@@ -18,7 +19,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
     }
     
     var endpointFileComment: FileHeaderComment {
-        .init(fileName: stringTypeName + "+Endpoint.swift")
+        .init(fileName: stringTypeName + Self.fileSuffix)
     }
     
     init(_ typeInformation: TypeInformation, kind: Kind) throws {
@@ -50,7 +51,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
             let string =
             """
             var parameters: Parameters = [:]
-            \(endpoint.queryParameters.map { "parameters.set(\($0.parameterName.value), forKey: \($0.parameterName.value.asString))" }.withBreakingLines())
+            \(endpoint.queryParameters.map { "parameters.set(\($0.parameterName.value), forKey: \($0.parameterName.value.asString))" }.lineBreaked)
             """
             return string + .doubleLineBreak
         }()
@@ -63,7 +64,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
-        \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.asString))" }.withBreakingLines())
+        \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.asString))" }.lineBreaked)
 
         let handler = Handler<\(stringTypeName)>(
         path: \(path.asString),
