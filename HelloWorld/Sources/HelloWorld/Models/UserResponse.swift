@@ -19,6 +19,15 @@ struct UserResponse: Codable {
     let _links: [String: String]
     let data: User
     
+    // MARK: - Initializer
+    init(
+        _links: [String: String],
+        data: User
+    ) {
+        self._links = _links
+        self.data = data
+    }
+    
     // MARK: - Encodable
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

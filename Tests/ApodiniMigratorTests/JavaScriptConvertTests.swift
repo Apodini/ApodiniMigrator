@@ -107,13 +107,11 @@ final class JavaScriptConvertTests: XCTestCase {
     }
     
     func testPackageGenerator() throws {
-        let writeToProjectFolder = true
-        
-        let projectRoot: Path = writeToProjectFolder ? .projectRoot : .desktop
+        let packagePath: Path = .projectRoot
         
         let document = Path.desktop + "document.json"
         
-        let gen = try ApodiniMigratorGenerator(packageName: "HelloWorld", packagePath: projectRoot.string, documentPath: document.string)
+        let gen = try ApodiniMigratorGenerator(packageName: "HelloWorld", packagePath: packagePath.string, documentPath: document.string)
         XCTAssertNoThrow(try gen.build())
     }
 }

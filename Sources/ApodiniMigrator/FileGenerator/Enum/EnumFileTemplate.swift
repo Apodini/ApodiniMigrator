@@ -46,7 +46,7 @@ struct EnumFileTemplate: SwiftFileTemplate {
         
         self.typeInformation = typeInformation
         self.kind = kind
-        self.enumCases = typeInformation.enumCases
+        self.enumCases = typeInformation.enumCases.sorted(by: \.name)
     }
     
     /// Renders and formats the `typeInformation` in an enum swift file compliant way

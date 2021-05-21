@@ -23,6 +23,11 @@ struct ObjectFileTemplate: SwiftFileTemplate {
         .init(properties)
     }
     
+    /// Initializer of an object
+    var objectInitializer: ObjectInitializer {
+        .init(properties)
+    }
+    
     /// Encoding method of the object
     var encodingMethod: EncodingMethod {
         .init(properties)
@@ -44,7 +49,7 @@ struct ObjectFileTemplate: SwiftFileTemplate {
         }
         self.typeInformation = typeInformation
         self.kind = kind
-        self.properties = typeInformation.objectProperties
+        self.properties = typeInformation.objectProperties.sorted(by: \.name)
     }
     
     /// Renders and formats the `typeInformation` in a swift file compliant way
@@ -61,6 +66,9 @@ struct ObjectFileTemplate: SwiftFileTemplate {
         
         \(MARKComment(.properties))
         \(properties.map { $0.propertyLine }.withBreakingLines())
+
+        \(MARKComment(.initializer))
+        \(objectInitializer.render())
         
         \(MARKComment(.encodable))
         \(encodingMethod.render())

@@ -19,6 +19,15 @@ struct User: Codable {
     let id: Int
     let writtenId: UUID
     
+    // MARK: - Initializer
+    init(
+        id: Int,
+        writtenId: UUID
+    ) {
+        self.id = id
+        self.writtenId = writtenId
+    }
+    
     // MARK: - Encodable
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

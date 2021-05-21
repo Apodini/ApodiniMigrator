@@ -19,6 +19,15 @@ struct Post: Codable {
     let id: UUID
     let title: String
     
+    // MARK: - Initializer
+    init(
+        id: UUID,
+        title: String
+    ) {
+        self.id = id
+        self.title = title
+    }
+    
     // MARK: - Encodable
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

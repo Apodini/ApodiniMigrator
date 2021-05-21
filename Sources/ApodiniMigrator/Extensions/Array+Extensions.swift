@@ -13,6 +13,13 @@ public extension Array where Element: Hashable {
     }
 }
 
+public extension Sequence {
+    func sorted<C: Comparable>(by keyPath: KeyPath<Element, C>, increasingOrder: Bool = true) -> [Element] {
+        let sorted = self.sorted { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
+        return increasingOrder ? sorted : sorted.reversed()
+    }
+}
+
 extension Array where Element: Equatable {
     func equalsIgnoringOrder(to other: Self) -> Bool {
         guard count == other.count else {

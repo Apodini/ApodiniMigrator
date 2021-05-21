@@ -46,6 +46,7 @@ enum MARKCommentType: String {
     case deprecated
     case codingKeys
     case properties
+    case initializer
     case encodable
     case decodable
     case utils

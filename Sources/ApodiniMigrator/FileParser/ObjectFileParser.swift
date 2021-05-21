@@ -17,13 +17,15 @@ struct ObjectFileParser: FileParser {
     var codingKeys: [String]
     /// Properties section
     var properties: [String]
+    /// Initializer section
+    var initializer: [String]
     /// The section containing the `encode(to:)` method
     let encodable: [String]
     /// The section containing the `init(from decoder: Decoder)` initializer
     let decodable: [String]
     /// The sections of the file
     var sections: Sections {
-        [header, codingKeys, properties, encodable, decodable]
+        [header, codingKeys, properties, initializer, encodable, decodable]
     }
     
     /// Parsed enum cases of `CodingKeys`
@@ -41,7 +43,8 @@ struct ObjectFileParser: FileParser {
         let lines = content.sanitizedLines()
         header = Self.sublines(in: lines, to: .model)
         codingKeys = Self.sublines(in: lines, from: .model, to: .properties)
-        properties = Self.sublines(in: lines, from: .properties, to: .encodable)
+        properties = Self.sublines(in: lines, from: .properties, to: .initializer)
+        initializer = Self.sublines(in: lines, from: .initializer, to: .encodable)
         encodable = Self.sublines(in: lines, from: .encodable, to: .decodable)
         decodable = Self.sublines(in: lines, from: .decodable)
         parsedProperties = properties.compactMap { ParsedProperty(from: $0) }
