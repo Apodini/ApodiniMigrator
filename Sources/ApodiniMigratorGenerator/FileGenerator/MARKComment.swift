@@ -51,3 +51,9 @@ struct MARKComment: Annotation {
         self.init(markCommentType.comment)
     }
 }
+
+extension MARKComment: Comparable {
+    static func < (lhs: MARKComment, rhs: MARKComment) -> Bool {
+        lhs.comment < rhs.comment
+    }
+}

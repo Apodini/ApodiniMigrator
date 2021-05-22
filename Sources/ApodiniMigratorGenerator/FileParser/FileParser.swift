@@ -24,18 +24,32 @@ extension FileParser {
         try path.write(reconstructed)
     }
     
-    static func sublines(in lines: [String], from: MARKCommentType? = nil, to: MARKCommentType? = nil) -> [String] {
+    static func sublines(in lines: [String], from: MARKComment? = nil, to: MARKComment? = nil) -> [String] {
         var fromIndex = lines.startIndex
         var toIndex = lines.endIndex
         
-        if let from = from, let fromCommentIndex = lines.firstIndex(of: MARKComment(from).description) {
+        if let from = from, let fromCommentIndex = lines.firstIndex(of: from.description) {
             fromIndex = fromCommentIndex
         }
         
-        if let to = to, let toCommentIndex = lines.firstIndex(of: MARKComment(to).description) {
+        if let to = to, let toCommentIndex = lines.firstIndex(of: to.description) {
             toIndex = toCommentIndex
         }
         
         return Array(lines[min(fromIndex, toIndex) ..< max(fromIndex, toIndex)])
+    }
+    
+    static func sublines(in lines: [String], from: MARKCommentType? = nil, to: MARKCommentType? = nil) -> [String] {
+        var fromMarkComment: MARKComment?
+        var toMarkComment: MARKComment?
+        if let from = from {
+            fromMarkComment = .init(from)
+        }
+        
+        if let to = to {
+            toMarkComment = .init(to)
+        }
+        
+        return sublines(in: lines, from: fromMarkComment, to: toMarkComment)
     }
 }
