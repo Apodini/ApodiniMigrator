@@ -43,4 +43,12 @@ public extension Path {
     func `is`(_ fileExtension: FileExtension) -> Bool {
         `extension` == fileExtension.description
     }
+    
+    /// Returns all swift files in `self` and in subdirectories of `self`
+    func recursiveSwiftFiles() -> [Path] {
+        guard isDirectory else {
+            return []
+        }
+        return (try? recursiveChildren().filter { $0.is(.swift)}) ?? []
+    }
 }

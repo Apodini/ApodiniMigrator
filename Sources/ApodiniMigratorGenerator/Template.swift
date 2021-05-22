@@ -39,7 +39,7 @@ enum Template: String, Resource {
     }
     
     var projectFileName: String {
-        rawValue.upperFirst + "." + projectFileExtension.description
+        rawValue.upperFirst + projectFileExtension
     }
 }
 

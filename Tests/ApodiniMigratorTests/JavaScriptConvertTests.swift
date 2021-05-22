@@ -114,4 +114,16 @@ final class JavaScriptConvertTests: XCTestCase {
         let gen = try ApodiniMigratorGenerator(packageName: "HelloWorld", packagePath: packagePath.string, documentPath: document.string)
         XCTAssertNoThrow(try gen.build())
     }
+    
+    func testPackageFilesCollector() throws {
+        
+        let packageFilesCollector = PackageFilesCollector(packageName: "HelloWorld", packagePath: .desktop)
+        
+        let user = packageFilesCollector.model(name: "User")
+        
+        var objectFileParser = try ObjectFileParser(path: user)
+        
+        objectFileParser.addCodingKeyCase(name: "someTest")
+        try objectFileParser.save()
+    }
 }
