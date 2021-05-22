@@ -19,7 +19,6 @@ public struct ApodiniMigratorGenerator {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
         self.packagePath = Path(packagePath)
         document = try JSONDecoder().decode(Document.self, from: try Path(documentPath).read())
-        document.dereference()
         self.directories = ProjectDirectories(packageName: packageName, packagePath: self.packagePath)
         endpoints = document.endpoints
         metaData = document.metaData

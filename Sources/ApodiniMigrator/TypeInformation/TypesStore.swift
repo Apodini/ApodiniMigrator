@@ -3,7 +3,8 @@ import Foundation
 /// `TypesStore` provides logic to reference and store `typeInformation` instances, while e.g. an endpoint keeps only the reference of the response type
 /// Provided with a reference from `TypeStore`, the instance of `typeInformation`
 /// can be constructed without information-loss via `construct(from reference:)`
-struct TypesStore: Codable {
+/// The lifecycle of a Typestore is limited only during encoding and decoding of `Document`
+struct TypesStore {
     /// Stored references of enums and objects
     /// Properties of objects are recursively stored
     public var storage: [String: TypeInformation]

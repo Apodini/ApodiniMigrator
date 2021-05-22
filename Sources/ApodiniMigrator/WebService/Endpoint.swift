@@ -58,6 +58,15 @@ public struct Endpoint {
             return param
         }
     }
+    
+    mutating func reference(in typeStore: inout TypesStore) {
+        response = typeStore.store(response)
+        self.parameters = parameters.map {
+            var param = $0
+            param.reference(in: &typeStore)
+            return param
+        }
+    }
 }
 
 // MARK: - ComparableObject

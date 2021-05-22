@@ -23,27 +23,17 @@ public struct Document: Codable { // TODO handle referencing in encode and init 
     
     public var metaData: MetaData
     public var endpoints: [Endpoint]
-    private var typesStore: TypesStore
     
     /// Initializes an empty document
     public init() {
         metaData = .init()
         endpoints = []
-        typesStore = TypesStore()
     }
     
     public mutating func add(endpoint: Endpoint) {
         endpoints.append(endpoint)
     }
-    
-    public mutating func dereference() {
-        endpoints = endpoints.map {
-            var endpoint = $0
-            endpoint.dereference(in: &typesStore)
-            return endpoint
-        }
-    }
-    
+
     public mutating func setServerPath(_ path: String) {
         metaData.serverPath = path
     }
@@ -60,23 +50,34 @@ public struct Document: Codable { // TODO handle referencing in encode and init 
         metaData.decoderConfiguration = decoderConfiguration
     }
     
-    public mutating func reference(_ typeInformation: TypeInformation) -> TypeInformation {
-        typesStore.store(typeInformation)
-    }
-    
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(metaData, forKey: .metaData)
-        try container.encode(endpoints, forKey: .endpoints)
+        var typesStore = TypesStore()
+        
+        let referencedEndpoints: [Endpoint] = endpoints.map {
+            var endpoint = $0
+            endpoint.reference(in: &typesStore)
+            return endpoint
+        }
+        
+        try container.encode(referencedEndpoints, forKey: .endpoints)
         try container.encode(typesStore.storage, forKey: .components)
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         metaData = try container.decode(MetaData.self, forKey: .metaData)
-        endpoints = try container.decode([Endpoint].self, forKey: .endpoints)
-        typesStore = TypesStore()
+        
+        var typesStore = TypesStore()
         typesStore.storage = try container.decode([String: TypeInformation].self, forKey: .components)
+        
+        let endpoints = try container.decode([Endpoint].self, forKey: .endpoints)
+        self.endpoints = endpoints.map {
+            var endpoint = $0
+            endpoint.dereference(in: &typesStore)
+            return endpoint
+        }
     }
     
     public func export(at path: Path) throws {

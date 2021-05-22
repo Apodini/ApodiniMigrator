@@ -81,6 +81,10 @@ public struct Parameter {
     mutating func dereference(in typeStore: inout TypesStore) {
         typeInformation = typeStore.construct(from: typeInformation)
     }
+    
+    mutating func reference(in typeStore: inout TypesStore) {
+        typeInformation = typeStore.store(typeInformation)
+    }
 }
 
 // MARK: - ComparableObject
