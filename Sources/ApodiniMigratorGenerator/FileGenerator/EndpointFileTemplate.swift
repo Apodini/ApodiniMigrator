@@ -48,6 +48,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         let methodName = endpoint.deltaIdentifier
         let body =
         """
+        \(MARKComment(endpoint.deltaIdentifier.rawValue))
         \(EndpointComment(endpoint))
         static func \(methodName)(\(endpoint.methodInputString())) -> ApodiniPublisher<\(stringTypeName)> {
         \(queryParametersString)var headers: HTTPHeaders = [:]
