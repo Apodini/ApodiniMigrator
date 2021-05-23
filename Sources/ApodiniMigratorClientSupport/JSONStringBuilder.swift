@@ -4,7 +4,7 @@ import ApodiniMigrator
 
 /// Builds a valid JSON string with values empty strings, 0 for numbers, empty Data, date of today, and random UUID
 /// by means of a `typeInformation` object
-struct JSONStringBuilder {
+public struct JSONStringBuilder {
    /// `TypeInformation` of the type that is used as template for JSONString
     private let typeInformation: TypeInformation
     /// `JSONEncoder` used to encode the value of the type
@@ -21,7 +21,7 @@ struct JSONStringBuilder {
     }
     
     /// Private initializer for `json` string builder of an empty instance
-    private init(_ typeInformation: TypeInformation, encoder: JSONEncoder) {
+    private init(_ typeInformation: TypeInformation, encoder: JSONEncoder = .init()) {
         self.typeInformation = typeInformation
         self.encoder = encoder
     }
@@ -69,6 +69,10 @@ struct JSONStringBuilder {
     
     static func jsonString(_ type: Any.Type) throws -> String {
         try Self(type).build()
+    }
+    
+    public static func jsonString(_ typeInformation: TypeInformation) -> String {
+        Self(typeInformation).build()
     }
     
     static func string<C: ApodiniMigratorCodable>(_ type: C.Type) throws -> String {

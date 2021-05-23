@@ -38,7 +38,7 @@ extension Int: PropertyProtocol {}
 ///     let surname: UserSurname
 /// }
 /// ```
-public class PropertyValueWrapper<P: PropertyProtocol>: ComparableProperty {
+open class PropertyValueWrapper<P: PropertyProtocol>: Value {
     public let value: P
 
     public init(_ value: P) {

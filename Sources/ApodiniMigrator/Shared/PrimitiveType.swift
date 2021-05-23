@@ -1,6 +1,6 @@
 import Foundation
 
-public enum PrimitiveType: String, RawRepresentable, CaseIterable, ComparableProperty, CustomStringConvertible {
+public enum PrimitiveType: String, RawRepresentable, CaseIterable, CustomStringConvertible, Value {
     case bool = "Bool"
     case int = "Int"
     case int8 = "Int8"

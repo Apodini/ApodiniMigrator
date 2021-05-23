@@ -8,7 +8,7 @@
 import Foundation
 
 /// A protocol, that requires conforming objects to introduce a `DeltaIdentifier` property
-protocol DeltaIdentifiable {
+public protocol DeltaIdentifiable {
     var deltaIdentifier: DeltaIdentifier { get }
 }
 

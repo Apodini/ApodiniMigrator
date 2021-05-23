@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TypeName: ComparableProperty {
+public struct TypeName: Value {
     // MARK: Coding Keys
     private enum CodingKeys: String, CodingKey {
         case name, definedIn = "defined-in"

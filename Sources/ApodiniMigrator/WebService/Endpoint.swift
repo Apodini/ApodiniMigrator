@@ -1,12 +1,12 @@
 import Foundation
 
-public class EndpointPath: PropertyValueWrapper<String> {}
+//public class EndpointPath: PropertyValueWrapper<String> {}
 public class HandlerName: PropertyValueWrapper<String> {}
 
 public typealias EndpointInput = [Parameter]
 
 /// Represents an endpoint
-public struct Endpoint {
+public struct Endpoint: Value {
     /// Name of the handler
     public let handlerName: HandlerName
 
@@ -69,32 +69,32 @@ public struct Endpoint {
     }
 }
 
-// MARK: - ComparableObject
-extension Endpoint: ComparableObject {
-    func evaluate(result: ChangeContextNode, embeddedInCollection: Bool) -> Change? {
-        guard let context = context(from: result, embeddedInCollection: embeddedInCollection) else {
-            return nil
-        }
-
-        let changes = [
-            handlerName.change(in: context),
-            operation.change(in: context),
-            absolutePath.change(in: context),
-            parameters.evaluate(node: context)
-        ].compactMap { $0 }
-
-        guard !changes.isEmpty else {
-            return nil
-        }
-
-        return .compositeChange(location: Self.changeLocation, changes: changes)
-    }
-
-    func compare(to other: Endpoint) -> ChangeContextNode {
-        ChangeContextNode()
-            .register(compare(\.handlerName, with: other), for: HandlerName.self)
-            .register(compare(\.operation, with: other), for: Operation.self)
-            .register(compare(\.absolutePath, with: other), for: EndpointPath.self)
-            .register(result: compare(\.parameters, with: other), for: Parameter.self)
-    }
-}
+//// MARK: - ComparableObject
+//extension Endpoint: ComparableObject {
+//    func evaluate(result: ChangeContextNode, embeddedInCollection: Bool) -> Change? {
+//        guard let context = context(from: result, embeddedInCollection: embeddedInCollection) else {
+//            return nil
+//        }
+//
+//        let changes = [
+//            handlerName.change(in: context),
+//            operation.change(in: context),
+//            absolutePath.change(in: context),
+//            parameters.evaluate(node: context)
+//        ].compactMap { $0 }
+//
+//        guard !changes.isEmpty else {
+//            return nil
+//        }
+//
+//        return .compositeChange(location: Self.changeLocation, changes: changes)
+//    }
+//
+//    func compare(to other: Endpoint) -> ChangeContextNode {
+//        ChangeContextNode()
+//            .register(compare(\.handlerName, with: other), for: HandlerName.self)
+//            .register(compare(\.operation, with: other), for: Operation.self)
+//            .register(compare(\.absolutePath, with: other), for: EndpointPath.self)
+//            .register(result: compare(\.parameters, with: other), for: Parameter.self)
+//    }
+//}

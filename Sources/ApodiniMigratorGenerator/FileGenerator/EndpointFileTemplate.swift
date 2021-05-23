@@ -43,7 +43,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
     
     
     private func endpointMethod(endpoint: Endpoint) -> String {
-        let path = endpoint.absolutePath.value.replacingOccurrences(of: "{", with: "\\(").replacingOccurrences(of: "}", with: ")")
+        let path = endpoint.absolutePath.description.replacingOccurrences(of: "{", with: "\\(").replacingOccurrences(of: "}", with: ")")
         let queryParametersString = endpoint.queryParametersString
         let methodName = endpoint.deltaIdentifier
         let body =

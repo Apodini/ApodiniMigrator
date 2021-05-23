@@ -8,7 +8,7 @@
 import Foundation
 
 /// An error object representing `@Throws` of Apodini
-public struct ErrorCode: Codable, Hashable {
+public struct ErrorCode: Value {
     /// `statusCode` of the error
     public let code: Int
     /// A descriptive message associated with the error

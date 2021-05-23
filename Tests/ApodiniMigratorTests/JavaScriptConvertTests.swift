@@ -2,6 +2,7 @@ import XCTest
 @testable import ApodiniMigrator
 @testable import ApodiniMigratorClientSupport
 @testable import ApodiniMigratorGenerator
+@testable import ApodiniMigratorCompare
 
 extension ApodiniMigratorCodable {
     static var encoder: JSONEncoder {
@@ -129,5 +130,28 @@ final class JavaScriptConvertTests: XCTestCase {
         try fileParser.save()
         objectFileParser.addCodingKeyCase(name: "someTest")
         try objectFileParser.save()
+    }
+    
+    func testCompare() throws {
+        let doc = Path.desktop + "document.json"
+        
+        let document = try JSONDecoder().decode(Document.self, from: try doc.read())
+        
+//        if let first = document.endpoints.last, let last = document.endpoints.first {
+//            var comparator = _EndpointsComparator(lhs: first, rhs: last)
+//            comparator.compare()
+//            
+//            try (Path.desktop + "changes.json").write(comparator.json)
+//        }
+        
+    }
+    
+    func testEndpointPath() throws {
+        let string = "/v1/{some}/users/{id}"
+        let string1 = "/v1/{s}/users/{idsdad}"
+        let string2 = "/v2/{s}/users/{idsdad}"
+  
+        XCTAssert(EndpointPath(string) == EndpointPath(string1))
+        XCTAssert(EndpointPath(string1) != EndpointPath(string2))
     }
 }

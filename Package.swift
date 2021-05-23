@@ -13,7 +13,8 @@ let package = Package(
         .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
         .library(name: "ApodiniMigratorGenerator", targets: ["ApodiniMigratorGenerator"]),
         .library(name: "ApodiniMigratorShared", targets: ["ApodiniMigratorShared"]),
-        .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"])
+        .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"]),
+        .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -33,8 +34,7 @@ let package = Package(
         .target(
             name: "ApodiniMigratorClientSupport",
             dependencies: [
-                .target(name: "ApodiniMigrator"),
-                .target(name: "ApodiniMigratorShared")
+                .target(name: "ApodiniMigrator")
             ]),
         .target(
             name: "ApodiniMigratorGenerator",
@@ -62,8 +62,20 @@ let package = Package(
                 .product(name: "PathKit", package: "PathKit")
             ]
         ),
+        
+        .target(
+            name: "ApodiniMigratorCompare",
+            dependencies: [
+                .target(name: "ApodiniMigratorClientSupport")
+            ]
+        ),
         .testTarget(
             name: "ApodiniMigratorTests",
-            dependencies: ["ApodiniMigrator", "ApodiniMigratorGenerator", "ApodiniMigratorClientSupport"])
+            dependencies: [
+                "ApodiniMigrator",
+                "ApodiniMigratorGenerator",
+                "ApodiniMigratorCompare",
+                "ApodiniMigratorClientSupport"
+            ])
     ]
 )

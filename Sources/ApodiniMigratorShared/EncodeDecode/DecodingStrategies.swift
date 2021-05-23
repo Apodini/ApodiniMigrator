@@ -9,7 +9,7 @@ import Foundation
 
 /// A custom `DateEncodingStrategy` of `JSONDecoder`
 /// - Note: Does not support `.formatted` and `.custom` cases of `JSONDecoder`
-public enum DateDecodingStrategy: String, Codable {
+public enum DateDecodingStrategy: String, Codable, Equatable {
     /// Defer to `Date` for decoding. This is the default strategy.
     case deferredToDate
 
@@ -36,7 +36,7 @@ public enum DateDecodingStrategy: String, Codable {
 
 /// A custom `DataDecodingStrategy` of `JSONDecoder`
 /// - Note: Does not support `.custom` case `JSONDecoder`
-public enum DataDecodingStrategy: String, Codable {
+public enum DataDecodingStrategy: String, Codable, Equatable {
     /// Defer to `Data` for decoding.
     case deferredToData
 
@@ -53,7 +53,7 @@ public enum DataDecodingStrategy: String, Codable {
 }
 
 /// A configuration object for `JSONDecoder`
-public struct DecoderConfiguration: Codable {
+public struct DecoderConfiguration: Codable, Equatable {
     /// `dateEncodingStrategy` to be set to a `JSONDecoder`
     public let dateDecodingStrategy: DateDecodingStrategy
     /// `dataEncodingStrategy` to be set to a `JSONDecoder`
