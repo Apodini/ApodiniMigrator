@@ -45,7 +45,7 @@ extension RelaxedDeltaIdentifiable {
 /// Endpoint extension to `RelaxedDeltaIdentifiable`
 extension Endpoint: RelaxedDeltaIdentifiable {
     static func ?= (lhs: Endpoint, rhs: Endpoint) -> Bool {
-        lhs.operation == rhs.operation && lhs.absolutePath == rhs.absolutePath
+        lhs.operation == rhs.operation && lhs.path == rhs.path
     }
 }
 

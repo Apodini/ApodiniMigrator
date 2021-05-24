@@ -23,8 +23,8 @@ struct EndpointComparator: Comparator {
     }
     
     func compare() {
-        if lhs.absolutePath != rhs.absolutePath {
-            changes.add(ValueChange(element: element, target: .path, from: .string(lhs.absolutePath.description), to: .string(rhs.absolutePath.description)))
+        if lhs.path != rhs.path {
+            changes.add(ValueChange(element: element, target: .path, from: .string(lhs.path.description), to: .string(rhs.path.description)))
         }
         
         if lhs.operation != rhs.operation {

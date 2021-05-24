@@ -16,8 +16,8 @@ public struct Endpoint: Value, DeltaIdentifiable {
     /// The operation of the endpoint
     public let operation: Operation
 
-    /// The absolute path string of the endpoint
-    public let absolutePath: EndpointPath
+    /// The path string of the endpoint
+    public let path: EndpointPath
 
     /// Parameters of the endpoint
     public var parameters: EndpointInput
@@ -44,7 +44,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.handlerName = .init(handlerName)
         self.deltaIdentifier = .init(deltaIdentifier)
         self.operation = operation
-        self.absolutePath = .init(absolutePath)
+        self.path = .init(absolutePath)
         self.parameters = parameters
         self.response = response
         self.errors = errors
