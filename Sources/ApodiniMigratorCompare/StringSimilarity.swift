@@ -1,7 +1,6 @@
 import Foundation
 
 extension String {
-
     /// Implemented in https://github.com/autozimu/StringMetric.swift
     /// Get Jaro-Winkler distance.
     ///

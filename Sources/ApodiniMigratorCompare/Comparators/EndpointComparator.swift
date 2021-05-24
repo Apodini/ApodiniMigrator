@@ -36,6 +36,5 @@ struct EndpointComparator: Comparator {
         
         let responseComparator = TypeInformationComparator(lhs: lhs.response, rhs: rhs.response, changes: changes)
         responseComparator.compare()
-        
     }
 }

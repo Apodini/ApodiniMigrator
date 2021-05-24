@@ -22,5 +22,4 @@ struct AddChange: Change, Value {
         self.defaultValue = defaultValue
         type = .addition
     }
-    
 }

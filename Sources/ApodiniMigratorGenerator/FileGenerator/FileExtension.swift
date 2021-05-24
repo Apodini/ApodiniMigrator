@@ -49,6 +49,6 @@ public extension Path {
         guard isDirectory else {
             return []
         }
-        return (try? recursiveChildren().filter { $0.is(.swift)}) ?? []
+        return (try? recursiveChildren().filter { $0.is(.swift) }) ?? []
     }
 }

@@ -95,25 +95,14 @@ extension Parameter: DeltaIdentifiable {
     public var deltaIdentifier: DeltaIdentifier { .init(parameterName.value) }
 }
 
-//// MARK: - ComparableObject
-//extension Parameter: ComparableObject {
-//    var deltaIdentifier: DeltaIdentifier {
-//        .init(parameterName.value)
-//    }
-//
-//    func compare(to other: Parameter) -> ChangeContextNode {
-//        ChangeContextNode()
-//    }
-//
-//    func evaluate(result: ChangeContextNode, embeddedInCollection: Bool) -> Change? {
-//        nil
-//    }
-//}
-//
 extension Parameter {
     // MARK: Private Inner Types
-    private enum CodingKeys: String, CodingKey {
+    private enum CodingKeys2: String, CodingKey {
         case parameterName, typeInformation, hasDefaultValue, parameterType//, nilIsValid, necessity
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case parameterName, typeInformation = "type", hasDefaultValue, parameterType = "kind"//, nilIsValid, necessity
     }
     
     public func encode(to encoder: Encoder) throws {

@@ -22,5 +22,4 @@ struct DeleteChange: Change, Value {
         self.fallbackValue = fallbackValue
         type = .deletion
     }
-    
 }

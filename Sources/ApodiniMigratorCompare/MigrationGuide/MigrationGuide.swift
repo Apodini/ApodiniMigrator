@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MigrationGuide: Value {
+struct MigrationGuide: Codable {
     static let defaultSummary = "Here would be a nice summary what changed between versions"
     
     // MARK: Private Inner Types
@@ -55,28 +55,5 @@ struct MigrationGuide: Value {
             to: rhs.metaData.version,
             changes: changeContainer
         )
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(summary, forKey: .summary)
-        try container.encode(serviceType, forKey: .serviceType)
-        try container.encode(specificationType, forKey: .specificationType)
-        try container.encode(from, forKey: .from)
-        try container.encode(to, forKey: .to)
-        try container.encode(changes, forKey: .changes)
-        
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        summary = try container.decode(String.self, forKey: .summary)
-        serviceType = try container.decode(ServiceType.self, forKey: .serviceType)
-        specificationType = try container.decode(SpecificationType.self, forKey: .specificationType)
-        from = try container.decode(Version.self, forKey: .from)
-        to = try container.decode(Version.self, forKey: .to)
-        changes = try container.decode(ChangeContainer.self, forKey: .changes)
     }
 }

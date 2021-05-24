@@ -16,7 +16,7 @@ enum ChangeType: String, Value {
     case typeChange
 }
 
-protocol Change {
+protocol Change: Codable {
     var element: ChangeElement { get }
     var target: ChangeTarget { get }
     var type: ChangeType { get }
@@ -24,9 +24,9 @@ protocol Change {
 
 extension Change {
     func typed<C: Change>(_ type: C.Type) -> C {
-        guard let typed = self as? C else {
+        guard let self = self as? C else {
             fatalError("Failed to cast change to \(C.self)")
         }
-        return typed
+        return self
     }
 }

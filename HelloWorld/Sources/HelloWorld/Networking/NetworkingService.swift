@@ -66,4 +66,3 @@ public enum NetworkingService {
         try? encoder.encode(value)
     }
 }
-

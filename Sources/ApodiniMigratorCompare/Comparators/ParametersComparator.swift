@@ -33,7 +33,7 @@ struct ParametersComparator: Comparator {
         let additionCandidates = rhsParameters.filter { !matchedIds.contains($0.deltaIdentifier) }
         
         for matched in matchedIds {
-            if let lhs = lhsParameters.first(where: { $0.deltaIdentifier == matched }), let rhs = rhsParameters.first(where: {$0.deltaIdentifier == matched }) {
+            if let lhs = lhsParameters.first(where: { $0.deltaIdentifier == matched }), let rhs = rhsParameters.first(where: { $0.deltaIdentifier == matched }) {
                 compare(lhs: lhs, rhs: rhs)
             }
         }
@@ -52,7 +52,6 @@ struct ParametersComparator: Comparator {
         }
         
         if lhs.sameType(with: rhs) {
-            
         }
         
         // Here we are dealing with parameters that are not of type content -> typeInformation is always .scalar or .optional(.scalar)
@@ -136,7 +135,6 @@ struct ParametersComparator: Comparator {
         case .header: return .headerParameter
         }
     }
-    
 }
 
 extension Parameter {
@@ -144,28 +142,3 @@ extension Parameter {
         parameterType == other.parameterType
     }
 }
-
-//extension Endpoint {
-//    var queryParameters: EndpointInput {
-//        parameters.filter(.lightweight)
-//    }
-//
-//    var headerParameters: EndpointInput {
-//        parameters.filter(.header)
-//    }
-//
-//    var pathParameters: EndpointInput {
-//        parameters.filter(.path)
-//    }
-//
-//    var contentParameter: Parameter? {
-//        parameters.filter(.content).first
-//    }
-//}
-
-//
-//extension EndpointInput {
-//    func filter(_ parameterType: ParameterType) -> Self {
-//        filter { $0.parameterType == parameterType }
-//    }
-//}

@@ -11,7 +11,7 @@ import Foundation
 enum ParameterChangeTarget: String, Value {
     case necessity
     case kind
-    case typeInformation
+    case typeInformation = "type"
 }
 
 struct ParameterChange: Change, Value {

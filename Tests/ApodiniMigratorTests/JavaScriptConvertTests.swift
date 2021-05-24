@@ -117,7 +117,6 @@ final class JavaScriptConvertTests: XCTestCase {
     }
     
     func testPackageFilesCollector() throws {
-        
         let packageFilesCollector = PackageFilesCollector(packageName: "HelloWorld", packagePath: .desktop)
         
         let user = packageFilesCollector.model(name: "User")
@@ -141,7 +140,6 @@ final class JavaScriptConvertTests: XCTestCase {
         
         let migrationGuide = MigrationGuide(for: document1, rhs: document2)
         try! (Path.desktop + "migration_guide.json").write(migrationGuide.prettyPrinted)
-        
     }
     
     func testEndpointPath() throws {

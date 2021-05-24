@@ -59,7 +59,7 @@ struct EndpointsComparator: Comparator {
         }
         
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
-            changes.add(AddChange(element: .endpoint(addition.deltaIdentifier), target: .`self`, added: .json(addition.json), defaultValue: .none))
+            changes.add(AddChange(element: .endpoint(addition.deltaIdentifier), target: .`self`, added: .jsonString(addition), defaultValue: .none))
         }
     }
 }

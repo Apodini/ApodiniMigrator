@@ -9,7 +9,6 @@ import Foundation
 
 /// Represents `encode(to:)` method of an Enum object
 struct EnumEncodingMethod: Renderable {
-    
     /// Renders the content of the method in a non-formatted way
     func render() -> String {
         """

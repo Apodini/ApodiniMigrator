@@ -19,6 +19,5 @@ struct TypeInformationComparator: Comparator {
     }
     
     func compare() {
-        
     }
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 /// A typealias for a Dictionary with keys `DictionaryName` and values `[Path]`
-fileprivate typealias DirectoryFiles = [DirectoryName: [Path]]
+private typealias DirectoryFiles = [DirectoryName: [Path]]
 
 /// An object that collects all swift files inside packages created by ApodiniMigrator
 public struct PackageFilesCollector {
@@ -68,7 +68,7 @@ public struct PackageFilesCollector {
     /// - Note: the passed name should correspond to the response type name of the endpoint, e.g. `UserResponse`,
     /// and the function returns the path of the file `UserResponse+Endpoint.swift`
     public func endpoint(name: String) -> Path {
-        return file(name: (name + EndpointFileTemplate.fileSuffix).dropExtension(), directory: .endpoints)
+        file(name: (name + EndpointFileTemplate.fileSuffix).dropExtension(), directory: .endpoints)
     }
     
     /// Returns the path of a model with `name` from the `Models` directory

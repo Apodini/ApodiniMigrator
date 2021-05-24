@@ -77,5 +77,4 @@ enum ChangeElement: DeltaIdentifiable, Value {
         default: fatalError("Failed to decode \(Self.self)")
         }
     }
-    
 }

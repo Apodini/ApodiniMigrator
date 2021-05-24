@@ -33,6 +33,6 @@ struct ObjectInitializer: Renderable {
 extension TypeProperty {
     /// The corresponding line of the property to be rendered inside `init(from decoder: Decoder)`
     var initLine: String {
-        return "self.\(name.value) = \(name.value)"
+        "self.\(name.value) = \(name.value)"
     }
 }
