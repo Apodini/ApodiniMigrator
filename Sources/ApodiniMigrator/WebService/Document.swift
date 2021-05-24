@@ -1,7 +1,7 @@
 import Foundation
 import ApodiniMigratorShared
 
-public struct MetaData: Codable {
+public struct MetaData: Value {
     public var serverPath: String
     public var version: Version
     public var encoderConfiguration: EncoderConfiguration
@@ -15,7 +15,7 @@ public struct MetaData: Codable {
     }
 }
 
-public struct Document: Codable { // TODO handle referencing in encode and init from decoder
+public struct Document: Value { // TODO handle referencing in encode and init from decoder
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case metaData = "info", endpoints, components

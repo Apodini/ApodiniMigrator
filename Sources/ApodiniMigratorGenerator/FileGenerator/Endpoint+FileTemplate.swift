@@ -22,7 +22,7 @@ extension Endpoint {
     
     func methodInputString() -> String {
         signatureParameters
-            .map { "\($0.parameterName.value): \($0.typeInformation.propertyTypeString)" }
+            .map { "\($0.name): \($0.typeInformation.propertyTypeString)" }
             .joined(separator: ", ")
     }
     
@@ -34,14 +34,14 @@ extension Endpoint {
         let string =
         """
         var parameters: Parameters = [:]
-        \(queryParameters.map { "parameters.set(\($0.parameterName.value), forKey: \($0.parameterName.value.asString))" }.lineBreaked)
+        \(queryParameters.map { "parameters.set(\($0.name), forKey: \($0.name.asString))" }.lineBreaked)
         """
         return string + .doubleLineBreak
     }
     
     var contentParameterString: String {
         if let contentParameter = parameters.first(where: { $0.parameterType == .content }) {
-            return "NetworkingService.encode(\(contentParameter.parameterName.value)"
+            return "NetworkingService.encode(\(contentParameter.name)"
         }
         return "nil"
     }

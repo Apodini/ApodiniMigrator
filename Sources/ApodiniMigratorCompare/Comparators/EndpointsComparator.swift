@@ -7,18 +7,20 @@
 
 import Foundation
 
+extension Array: Value where Element: Value {}
+
 struct EndpointsComparator: Comparator {
     let lhs: [Endpoint]
     let rhs: [Endpoint]
     var changes: ChangeContainer
     
-    init(lhs: [Endpoint], rhs: [Endpoint], changes: inout ChangeContainer) {
+    init(lhs: [Endpoint], rhs: [Endpoint], changes: ChangeContainer) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes
     }
     
-    mutating func compare() {
+    func compare() {
         let matchedIds = lhs.matchedIds(with: rhs)
         
         let removalCanditates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
@@ -26,24 +28,28 @@ struct EndpointsComparator: Comparator {
         
         for matched in matchedIds {
             if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }), let rhs = rhs.first(where: { $0.deltaIdentifier == matched }) {
-                var endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: &changes)
+                let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: changes)
                 endpointComparator.compare()
             }
         }
         
-        handle(removalCandidates: removalCanditates, additionCanditates: additionCanditates)
+        handle(removalCandidates: removalCanditates, additionCandidates: additionCanditates)
     }
     
-    mutating func handle(removalCandidates: [Endpoint], additionCanditates: [Endpoint]) {
-        var relaxedMatchings: [DeltaIdentifier] = []
+    func handle(removalCandidates: [Endpoint], additionCandidates: [Endpoint]) {
+        var relaxedMatchings: Set<DeltaIdentifier> = []
         
-        let all = removalCandidates.identifiers() + additionCanditates.identifiers()
-        assert(all.count == removalCandidates.count + additionCanditates.count, "Encoutered removal and addition candidates with same id")
+        /// TODO remove assert
+        assert(Set(removalCandidates.identifiers()).intersection(additionCandidates.identifiers()).isEmpty, "Encoutered removal and addition candidates with same id")
         
         for candidate in removalCandidates {
-            if let relaxedMatching = additionCanditates.first(where: { $0 ?= candidate }) {
-                relaxedMatchings.append(relaxedMatching.deltaIdentifier)
-                var endpointComparator = EndpointComparator(lhs: candidate, rhs: relaxedMatching, changes: &changes)
+            if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates, useRawValueDistance: false) {
+                relaxedMatchings += relaxedMatching.deltaIdentifier
+                relaxedMatchings += candidate.deltaIdentifier
+                
+                changes.add(RenameChange(element: .endpoint(candidate.deltaIdentifier), target: .`self`, from: candidate.deltaIdentifier.rawValue, to: relaxedMatching.deltaIdentifier.rawValue))
+                
+                let endpointComparator = EndpointComparator(lhs: candidate, rhs: relaxedMatching, changes: changes)
                 endpointComparator.compare()
             }
         }
@@ -52,14 +58,8 @@ struct EndpointsComparator: Comparator {
             changes.add(DeleteChange(element: .endpoint(removal.deltaIdentifier), target: .`self`, deleted: .none, fallbackValue: .none))
         }
         
-        for addition in additionCanditates where !relaxedMatchings.contains(addition.deltaIdentifier) {
+        for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
             changes.add(AddChange(element: .endpoint(addition.deltaIdentifier), target: .`self`, added: .json(addition.json), defaultValue: .none))
         }
-    }
-}
-
-extension Array where Element == Endpoint {
-    func identifiers() -> [DeltaIdentifier] {
-        map { $0.deltaIdentifier }
     }
 }

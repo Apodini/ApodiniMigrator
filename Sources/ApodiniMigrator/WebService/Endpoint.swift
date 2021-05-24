@@ -6,7 +6,7 @@ public class HandlerName: PropertyValueWrapper<String> {}
 public typealias EndpointInput = [Parameter]
 
 /// Represents an endpoint
-public struct Endpoint: Value {
+public struct Endpoint: Value, DeltaIdentifiable {
     /// Name of the handler
     public let handlerName: HandlerName
 

@@ -12,13 +12,13 @@ struct MetaDataComparator: Comparator {
     let rhs: MetaData
     var changes: ChangeContainer
     
-    init(lhs: MetaData, rhs: MetaData, changes: inout ChangeContainer) {
+    init(lhs: MetaData, rhs: MetaData, changes: ChangeContainer) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes
     }
     
-    mutating func compare() {
+    func compare() {
         let element = ChangeElement.networking
         
         if lhs.serverPath != rhs.serverPath {

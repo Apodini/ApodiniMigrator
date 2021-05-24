@@ -12,16 +12,16 @@ struct DocumentComparator: Comparator {
     let rhs: Document
     var changes: ChangeContainer
     
-    init(lhs: Document, rhs: Document, changes: inout ChangeContainer) {
+    init(lhs: Document, rhs: Document, changes: ChangeContainer) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes
     }
     
-    mutating func compare() {
-        var metaDataComparator = MetaDataComparator(lhs: lhs.metaData, rhs: rhs.metaData, changes: &changes)
+    func compare() {
+        let metaDataComparator = MetaDataComparator(lhs: lhs.metaData, rhs: rhs.metaData, changes: changes)
         metaDataComparator.compare()
-        var endpointsComparator = EndpointsComparator(lhs: lhs.endpoints, rhs: rhs.endpoints, changes: &changes)
+        let endpointsComparator = EndpointsComparator(lhs: lhs.endpoints, rhs: rhs.endpoints, changes: changes)
         endpointsComparator.compare()
     }
 }

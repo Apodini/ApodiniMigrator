@@ -12,13 +12,13 @@ struct TypeInformationComparator: Comparator {
     let rhs: TypeInformation
     var changes: ChangeContainer
     
-    init(lhs: TypeInformation, rhs: TypeInformation, changes: inout ChangeContainer) {
+    init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContainer) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes
     }
     
-    mutating func compare() {
+    func compare() {
         
     }
 }

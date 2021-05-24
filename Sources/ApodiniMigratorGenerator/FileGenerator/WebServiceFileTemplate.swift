@@ -24,7 +24,7 @@ public struct WebServiceFileTemplate: Renderable {
     private func method(for endpoint: Endpoint) -> String {
         let responseName = endpoint.restResponse.typeName.name
         let methodParameters = endpoint.signatureParameters
-            .map { "\($0.parameterName.value): \($0.parameterName.value)" }
+            .map { "\($0.name): \($0.name)" }
             .joined(separator: ", ")
         let methodInputString = endpoint.methodInputString()
         let methodName = endpoint.deltaIdentifier

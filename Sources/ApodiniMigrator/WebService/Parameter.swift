@@ -66,6 +66,10 @@ public struct Parameter: Value {
         nilIsValidValue.value ? .optional : .init(hasDefaultValue)
     }
     
+    public var name: String {
+        parameterName.value
+    }
+    
     public init(
         parameterName: String,
         typeInformation: TypeInformation,

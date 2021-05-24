@@ -134,15 +134,13 @@ final class JavaScriptConvertTests: XCTestCase {
     
     func testCompare() throws {
         let doc = Path.desktop + "document.json"
+        let doc2 = Path.desktop + "document 2.json"
         
-        let document = try JSONDecoder().decode(Document.self, from: try doc.read())
+        let document1 = try JSONDecoder().decode(Document.self, from: try doc.read())
+        let document2 = try JSONDecoder().decode(Document.self, from: try doc2.read())
         
-//        if let first = document.endpoints.last, let last = document.endpoints.first {
-//            var comparator = _EndpointsComparator(lhs: first, rhs: last)
-//            comparator.compare()
-//            
-//            try (Path.desktop + "changes.json").write(comparator.json)
-//        }
+        let migrationGuide = MigrationGuide(for: document1, rhs: document2)
+        try! (Path.desktop + "migration_guide.json").write(migrationGuide.prettyPrinted)
         
     }
     

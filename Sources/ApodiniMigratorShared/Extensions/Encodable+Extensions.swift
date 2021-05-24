@@ -9,4 +9,11 @@ public extension Encodable {
         let data = (try? encoder.encode(self)) ?? Data()
         return String(decoding: data, as: UTF8.self)
     }
+    
+    var prettyPrinted: String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
+        let data = (try? encoder.encode(self)) ?? Data()
+        return String(decoding: data, as: UTF8.self)
+    }
 }

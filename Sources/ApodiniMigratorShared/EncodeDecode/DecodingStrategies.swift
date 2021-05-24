@@ -53,7 +53,7 @@ public enum DataDecodingStrategy: String, Codable, Equatable {
 }
 
 /// A configuration object for `JSONDecoder`
-public struct DecoderConfiguration: Codable, Equatable {
+public struct DecoderConfiguration: Codable, Hashable {
     /// `dateEncodingStrategy` to be set to a `JSONDecoder`
     public let dateDecodingStrategy: DateDecodingStrategy
     /// `dataEncodingStrategy` to be set to a `JSONDecoder`
