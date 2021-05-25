@@ -45,3 +45,9 @@ public struct TypeName: Value {
         }
     }
 }
+
+extension TypeName: Comparable {
+    public static func < (lhs: TypeName, rhs: TypeName) -> Bool {
+        lhs.name < rhs.name
+    }
+}

@@ -28,7 +28,7 @@ public struct ApodiniMigratorGenerator {
             current.parameters.forEach { parameter in
                 result.insert(parameter.typeInformation)
             }
-        }.asArray.fileRenderableTypes()
+        }.asArray.fileRenderableTypes().sorted(by: \.typeName)
     }
     
     public func build() throws {
