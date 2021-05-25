@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-/// service type stated in migration guide - currently REST only
 enum ServiceType: String, Value {
     case rest = "REST"
     case graphQL = "GraphQL"

@@ -24,7 +24,7 @@ public struct RecursiveFileGenerator: Persistable {
     /// From `typeInformation` the generator retrieves all distinct `enum` and `object` types recursively
     public init(_ typeInformation: [TypeInformation]) throws {
         files = try typeInformation
-            .fileRenderableTypes()
+            .fileRenderableTypes() // TODO pass already in the initializer
             .map { typeInformation in
                 if typeInformation.isEnum {
                     return try EnumFileTemplate(typeInformation)
@@ -36,12 +36,12 @@ public struct RecursiveFileGenerator: Persistable {
     
     /// Initializes `self` from `anyTypes`
     init(_ anyTypes: Any.Type...) throws {
-        try self.init(anyTypes.map { try TypeInformation(type: $0) })
+        try self.init(anyTypes.map { try TypeInformation(type: $0) }.fileRenderableTypes())
     }
     
     /// Initializes `self` from `anyTypes`
     init(_ anyTypes: [Any.Type]) throws {
-        try self.init(anyTypes.map { try TypeInformation(type: $0) })
+        try self.init(anyTypes.map { try TypeInformation(type: $0) }.fileRenderableTypes())
     }
     
     /// Persists `files` at the specified directory. Additionally it creates the directory if it does not exist

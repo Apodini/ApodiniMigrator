@@ -14,6 +14,7 @@ public struct ApodiniMigratorGenerator {
     public let directories: ProjectDirectories
     public let endpoints: [Endpoint]
     public let metaData: MetaData
+    private let allModels: [TypeInformation]
     
     public init(packageName: String, packagePath: String, documentPath: String) throws {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
@@ -22,6 +23,12 @@ public struct ApodiniMigratorGenerator {
         self.directories = ProjectDirectories(packageName: packageName, packagePath: self.packagePath)
         endpoints = document.endpoints
         metaData = document.metaData
+        allModels = endpoints.reduce(into: Set<TypeInformation>()) { result, current in
+            result.insert(current.restResponse)
+            current.parameters.forEach { parameter in
+                result.insert(parameter.typeInformation)
+            }
+        }.asArray.fileRenderableTypes()
     }
     
     public func build() throws {
@@ -61,14 +68,7 @@ public struct ApodiniMigratorGenerator {
     }
     
     private func writeModels() throws {
-        let models = endpoints.reduce(into: Set<TypeInformation>()) { result, current in
-            result.insert(current.restResponse)
-            current.parameters.forEach { parameter in
-                result.insert(parameter.typeInformation)
-            }
-        }
-        
-        let recursiveFileGenerator = try RecursiveFileGenerator(Array(models))
+        let recursiveFileGenerator = try RecursiveFileGenerator(allModels)
         try recursiveFileGenerator.persist(at: directories.models)
     }
     
@@ -114,6 +114,25 @@ public struct ApodiniMigratorGenerator {
     }
     
     private func writeTests() throws {
+        let tests = directories.tests
+        let testsTarget = directories.testsTarget
+        let testFileName = packageName + "Tests" + .swift
+        let testFile = TestFileTemplate(allModels, fileName: testFileName, packageName: packageName).render().formatted(with: IndentationFormatter.self)
+        
+        // empty test file
+//        let testFile = templateContentWithFileComment(.testFile, alternativeFileName: testFileName)
+//            .with(packageName: packageName)
+        
+        try (testsTarget + testFileName).write(testFile)
+        
+        let manifests = templateContentWithFileComment(.xCTestManifests).with(packageName: packageName)
+        try (testsTarget + .xCTestManifests).write(manifests)
+        let linuxMain = readTemplate(.linuxMain)
+        
+        try (tests + .linuxMain).write(linuxMain.formatted(with: IndentationFormatter.self))
+    }
+    
+    private func writeTests2() throws {
         let tests = directories.tests
         let testsTarget = directories.testsTarget
         let testFileName = packageName + "Tests" + .swift

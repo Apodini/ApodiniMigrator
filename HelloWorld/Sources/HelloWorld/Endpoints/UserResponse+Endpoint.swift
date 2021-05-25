@@ -1,7 +1,7 @@
 //
 //  UserResponse+Endpoint.swift
 //
-//  Created by ApodiniMigrator on 21.05.2021
+//  Created by ApodiniMigrator on 25.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -9,6 +9,7 @@ import Foundation
 
 // MARK: - Endpoints
 extension UserResponse {
+    // MARK: - getAuthenticatedUser
     /// API call for AuthenticatedUserHandler at: /v1/authenticated
     static func getAuthenticatedUser() -> ApodiniPublisher<UserResponse> {
         var headers: HTTPHeaders = [:]
@@ -33,6 +34,7 @@ extension UserResponse {
         return NetworkingService.trigger(handler)
     }
     
+    // MARK: - getUserById
     /// API call for UserHandler at: /v1/user/{userId}
     static func getUserById(userId: Int) -> ApodiniPublisher<UserResponse> {
         var headers: HTTPHeaders = [:]

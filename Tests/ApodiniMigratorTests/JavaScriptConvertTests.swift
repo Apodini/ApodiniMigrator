@@ -108,7 +108,7 @@ final class JavaScriptConvertTests: XCTestCase {
     }
     
     func testPackageGenerator() throws {
-        let packagePath: Path = .desktop
+        let packagePath: Path = .projectRoot
         
         let document = Path.desktop + "document.json"
         
@@ -131,12 +131,12 @@ final class JavaScriptConvertTests: XCTestCase {
         try objectFileParser.save()
     }
     
-    func testCompare() throws {
+    func testMigraionGuideGeneration() throws {
         let doc = Path.desktop + "document.json"
-        let doc2 = Path.desktop + "document 2.json"
+        let doc2 = Path.desktop + "document_updated.json"
         
-        let document1 = try JSONDecoder().decode(Document.self, from: try doc.read())
-        let document2 = try JSONDecoder().decode(Document.self, from: try doc2.read())
+        let document1 = try Document.decode(from: doc)
+        let document2 = try Document.decode(from: doc2)
         
         let migrationGuide = MigrationGuide(for: document1, rhs: document2)
         try! (Path.desktop + "migration_guide.json").write(migrationGuide.prettyPrinted)

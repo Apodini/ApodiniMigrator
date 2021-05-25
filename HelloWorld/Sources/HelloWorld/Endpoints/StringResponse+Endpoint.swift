@@ -1,7 +1,7 @@
 //
 //  StringResponse+Endpoint.swift
 //
-//  Created by ApodiniMigrator on 21.05.2021
+//  Created by ApodiniMigrator on 25.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -9,6 +9,7 @@ import Foundation
 
 // MARK: - Endpoints
 extension StringResponse {
+    // MARK: - greetMe
     /// API call for TraditionalGreeter at: /v1/greet
     static func greetMe(age: Int, name: String?, surname: String) -> ApodiniPublisher<StringResponse> {
         var parameters: Parameters = [:]
@@ -38,6 +39,7 @@ extension StringResponse {
         return NetworkingService.trigger(handler)
     }
     
+    // MARK: - helloSwiftFiveDotThree
     /// API call for Text at: /v1/swift/5/3
     static func helloSwiftFiveDotThree() -> ApodiniPublisher<StringResponse> {
         var headers: HTTPHeaders = [:]
@@ -62,6 +64,7 @@ extension StringResponse {
         return NetworkingService.trigger(handler)
     }
     
+    // MARK: - placeBid
     /// API call for Auction at: /v1/auction
     static func placeBid(bid: UInt) -> ApodiniPublisher<StringResponse> {
         var parameters: Parameters = [:]
@@ -89,6 +92,7 @@ extension StringResponse {
         return NetworkingService.trigger(handler)
     }
     
+    // MARK: - sayHelloToSwift
     /// API call for Text at: /v1/swift
     static func sayHelloToSwift() -> ApodiniPublisher<StringResponse> {
         var headers: HTTPHeaders = [:]
@@ -113,6 +117,7 @@ extension StringResponse {
         return NetworkingService.trigger(handler)
     }
     
+    // MARK: - sayHelloWorld
     /// API call for Text at: /v1
     static func sayHelloWorld() -> ApodiniPublisher<StringResponse> {
         var headers: HTTPHeaders = [:]

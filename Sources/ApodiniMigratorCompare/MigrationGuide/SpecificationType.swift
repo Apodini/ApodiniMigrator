@@ -7,9 +7,7 @@
 
 import Foundation
 
-
-/// represents specification type as stated in migration guide, currently only `OpenAPI` supported
 enum SpecificationType: String, Value {
-    case apodini = "Apodini"
+    case apodini = "Apodini DSL"
     case openapi = "OpenAPI"
 }
