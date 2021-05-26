@@ -24,7 +24,7 @@ public struct ApodiniMigratorGenerator {
         endpoints = document.endpoints
         metaData = document.metaData
         allModels = endpoints.reduce(into: Set<TypeInformation>()) { result, current in
-            result.insert(current.restResponse)
+            result.insert(current.response)
             current.parameters.forEach { parameter in
                 result.insert(parameter.typeInformation)
             }
@@ -74,11 +74,11 @@ public struct ApodiniMigratorGenerator {
     
     private func writeEndpoints() throws {
         let endpointGroups = endpoints.reduce(into: [TypeInformation: Set<Endpoint>]()) { result, current in
-            let restResponse = current.restResponse
-            if result[restResponse] == nil {
-                result[restResponse] = []
+            let nestedResponseType = current.response.nestedType
+            if result[nestedResponseType] == nil {
+                result[nestedResponseType] = []
             }
-            result[restResponse]?.insert(current)
+            result[nestedResponseType]?.insert(current)
         }
         let endpointsDirectory = directories.endpoints
         for group in endpointGroups {

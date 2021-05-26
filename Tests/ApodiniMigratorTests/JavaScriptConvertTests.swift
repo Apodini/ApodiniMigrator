@@ -145,9 +145,9 @@ final class JavaScriptConvertTests: XCTestCase {
     func testEndpointPath() throws {
         let string = "/v1/{some}/users/{id}"
         let string1 = "/v1/{s}/users/{idsdad}"
-        let string2 = "/v2/{s}/users/{idsdad}"
+        let string2 = "/v2/{s}/users/{idsdad}" // still considered equal, change is delegated to networking due to version change
   
         XCTAssert(EndpointPath(string) == EndpointPath(string1))
-        XCTAssert(EndpointPath(string1) != EndpointPath(string2))
+        XCTAssert(EndpointPath(string1) == EndpointPath(string2))
     }
 }

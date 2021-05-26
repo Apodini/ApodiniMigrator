@@ -21,7 +21,7 @@ struct ObjectInitializer: Renderable {
     func render() -> String {
         """
         init(
-        \(properties.map { "\($0.name.value): \($0.type.propertyTypeString)" }.joined(separator: ",\(String.lineBreak)"))
+        \(properties.map { "\($0.name.value): \($0.type.typeString)" }.joined(separator: ",\(String.lineBreak)"))
         ) {
         \(properties.map { "\($0.initLine)" }.lineBreaked)
         }

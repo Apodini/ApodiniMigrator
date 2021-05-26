@@ -22,7 +22,7 @@ extension Endpoint {
     
     func methodInputString() -> String {
         signatureParameters
-            .map { "\($0.name): \($0.typeInformation.propertyTypeString)" }
+            .map { "\($0.name): \($0.typeInformation.typeString)" }
             .joined(separator: ", ")
     }
     

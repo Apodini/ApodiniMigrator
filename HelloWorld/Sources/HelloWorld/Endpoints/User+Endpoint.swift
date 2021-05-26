@@ -1,17 +1,17 @@
 //
-//  UserResponse+Endpoint.swift
+//  User+Endpoint.swift
 //
-//  Created by ApodiniMigrator on 25.05.2021
+//  Created by ApodiniMigrator on 26.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation
 
 // MARK: - Endpoints
-extension UserResponse {
+extension User {
     // MARK: - getAuthenticatedUser
     /// API call for AuthenticatedUserHandler at: /v1/authenticated
-    static func getAuthenticatedUser() -> ApodiniPublisher<UserResponse> {
+    static func getAuthenticatedUser() -> ApodiniPublisher<User> {
         var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -21,7 +21,7 @@ extension UserResponse {
         errors.addError(404, message: "Not found")
         errors.addError(500, message: "Internal server error")
         
-        let handler = Handler<UserResponse>(
+        let handler = Handler<User>(
             path: "/v1/authenticated",
             httpMethod: .get,
             parameters: [:],
@@ -36,7 +36,7 @@ extension UserResponse {
     
     // MARK: - getUserById
     /// API call for UserHandler at: /v1/user/{userId}
-    static func getUserById(userId: Int) -> ApodiniPublisher<UserResponse> {
+    static func getUserById(userId: Int) -> ApodiniPublisher<User> {
         var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -46,7 +46,7 @@ extension UserResponse {
         errors.addError(404, message: "Not found")
         errors.addError(500, message: "Internal server error")
         
-        let handler = Handler<UserResponse>(
+        let handler = Handler<User>(
             path: "/v1/user/\(userId)",
             httpMethod: .get,
             parameters: [:],

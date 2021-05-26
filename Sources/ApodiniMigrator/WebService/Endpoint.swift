@@ -25,10 +25,6 @@ public struct Endpoint: Value, DeltaIdentifiable {
     /// The reference of the `typeInformation` of the response
     public var response: TypeInformation
     
-    public var restResponse: TypeInformation {
-        response.asRESTResponse
-    }
-    
     /// Errors
     public let errors: [ErrorCode]
     

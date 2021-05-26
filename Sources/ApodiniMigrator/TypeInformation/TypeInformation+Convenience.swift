@@ -137,6 +137,30 @@ public extension TypeInformation {
         }
     }
     
+    /// String representation of the type in a `Swift` compliant way
+    var typeString: String {
+        switch self {
+        case let .scalar(primitiveType): return primitiveType.description
+        case let .repeated(element): return "[\(element.typeString)]"
+        case let .dictionary(key, value): return "[\(key.description): \(value.typeString)]"
+        case let .optional(wrappedValue): return wrappedValue.typeString + "?"
+        case let .enum(name, _): return name.name
+        case let .object(name, _): return name.name
+        case .reference: fatalError("Attempted to request property type string from a reference")
+        }
+    }
+    
+    /// Nested type of this type information
+    var nestedType: TypeInformation {
+        switch self {
+        case .scalar, .enum, .object: return self
+        case let .repeated(element): return element.nestedType
+        case let .dictionary(_, value): return value.nestedType
+        case let .optional(wrappedValue): return wrappedValue.unwrapped.nestedType
+        case .reference: fatalError("Attempted to nestedType from a reference")
+        }
+    }
+    
     /// Returns the `objectProperties` by keypath
     func filterProperties(_ keyPath: KeyPath<TypeInformation, Bool>) -> [TypeProperty] {
         objectProperties.filter { $0.type[keyPath: keyPath] }
@@ -292,29 +316,6 @@ public extension TypeInformation {
     /// the corresponding object properties and enum cases.
     func fileRenderableTypes() -> [TypeInformation] {
         filter(\.isEnumOrObject)
-    }
-}
-
-// MARK: - TypeInformation + ApodiniREST
-public extension TypeInformation {
-    var responseName: String {
-        let response = "Response"
-        switch self {
-        case .scalar, .enum, .object: return unwrapped.typeName.name + response
-        case let .repeated(element): return element.unwrapped.typeName.name + "s" + response
-        case let .dictionary(_, value): return value.unwrapped.typeName.name + "sDictionary" + response
-        case let .optional(wrappedValue): return "Optional" + wrappedValue.unwrapped.typeName.name + response
-        case .reference: fatalError("Attempted to request response name of a reference")
-        }
-    }
-    
-    var asRESTResponse: TypeInformation {
-        .object(
-            name: TypeName(name: responseName),
-            properties: [
-                TypeProperty(name: .init("_links"), type: .dictionary(key: .string, value: .scalar(.string))),
-                TypeProperty(name: .init("data"), type: self)
-            ])
     }
 }
 

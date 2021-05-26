@@ -25,6 +25,10 @@ struct MetaDataComparator: Comparator {
             changes.add(ValueChange(element: element, target: .serverPath, from: .string(lhs.serverPath), to: .string(rhs.serverPath)))
         }
         
+        if lhs.version.differentDescription(from: rhs.version) {
+            changes.add(ValueChange(element: element, target: .version, from: .jsonString(lhs.version), to: .jsonString(rhs.version)))
+        }
+        
         let lhsEncoderConfig = lhs.encoderConfiguration
         let rhsEncoderConfig = rhs.encoderConfiguration
         

@@ -1,7 +1,7 @@
 //
 //  NetworkingService.swift
 //
-//  Created by ApodiniMigrator on 25.05.2021
+//  Created by ApodiniMigrator on 26.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -57,13 +57,30 @@ public enum NetworkingService {
             
             throw URLError(.init(rawValue: statusCode))
         }
-        .decode(type: D.self, decoder: decoder)
+        .decode(type: DataWrapper<D>.self, decoder: decoder)
+        .map(\.data)
+        .receive(on: DispatchQueue.main)
         .eraseToAnyPublisher()
     }
     
     /// Encodes an instance of the indicated type with `NetworkingService.encoder`
     static func encode<E: Encodable>(_ value: E?) -> Data? {
         try? encoder.encode(value)
+    }
+}
+
+/// NetworkingService extension
+fileprivate extension NetworkingService {
+    /// A util object to decode a Restful response of an Apodini web service
+    struct DataWrapper<D: Decodable>: Decodable {
+        // MARK: Private Inner Types
+        private enum CodingKeys: String, CodingKey {
+            case links = "_links"
+            case data
+        }
+        
+        let links: [String: String]
+        let data: D
     }
 }
 

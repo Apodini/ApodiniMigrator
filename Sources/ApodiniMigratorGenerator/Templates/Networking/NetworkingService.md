@@ -31,29 +31,46 @@ public enum NetworkingService {
     ///    - path: base path of the web service, where the handler is located, default value `NetworkingService.path`
     static func trigger<D: Decodable>(_ handler: Handler<D>, at path: String = basePath) -> ApodiniPublisher<D> {
         URLSession.shared.dataTaskPublisher(for: URLRequest(for: handler, with: path))
-            .tryMap { data, response in
-                guard let response = response as? HTTPURLResponse else {
-                   return data
-                }
-                
-                let statusCode = response.statusCode
-                
-                if 200 ... 299 ~= statusCode {
-                    return data
-                }
-                
-                if let handlerError = handler.error(with: statusCode) {
-                    throw handlerError
-                }
-                
-                throw URLError(.init(rawValue: statusCode))
+        .tryMap { data, response in
+            guard let response = response as? HTTPURLResponse else {
+                return data
             }
-            .decode(type: D.self, decoder: decoder)
-            .eraseToAnyPublisher()
+            
+            let statusCode = response.statusCode
+            
+            if 200 ... 299 ~= statusCode {
+                return data
+            }
+            
+            if let handlerError = handler.error(with: statusCode) {
+                throw handlerError
+            }
+            
+            throw URLError(.init(rawValue: statusCode))
+        }
+        .decode(type: DataWrapper<D>.self, decoder: decoder)
+        .map(\.data)
+        .receive(on: DispatchQueue.main)
+        .eraseToAnyPublisher()
     }
     
     /// Encodes an instance of the indicated type with `NetworkingService.encoder`
     static func encode<E: Encodable>(_ value: E?) -> Data? {
         try? encoder.encode(value)
+    }
+}
+
+/// NetworkingService extension
+fileprivate extension NetworkingService {
+    /// A util object to decode a Restful response of an Apodini web service
+    struct DataWrapper<D: Decodable>: Decodable {
+        // MARK: Private Inner Types
+        private enum CodingKeys: String, CodingKey {
+            case links = "_links"
+            case data
+        }
+        
+        let links: [String: String]
+        let data: D
     }
 }

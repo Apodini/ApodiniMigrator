@@ -1,17 +1,17 @@
 //
-//  StringResponse+Endpoint.swift
+//  String+Endpoint.swift
 //
-//  Created by ApodiniMigrator on 25.05.2021
+//  Created by ApodiniMigrator on 26.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation
 
 // MARK: - Endpoints
-extension StringResponse {
+extension String {
     // MARK: - greetMe
     /// API call for TraditionalGreeter at: /v1/greet
-    static func greetMe(age: Int, name: String?, surname: String) -> ApodiniPublisher<StringResponse> {
+    static func greetMe(age: Int, name: String?, surname: String) -> ApodiniPublisher<String> {
         var parameters: Parameters = [:]
         parameters.set(surname, forKey: "surname")
         parameters.set(age, forKey: "age")
@@ -26,7 +26,7 @@ extension StringResponse {
         errors.addError(404, message: "Not found")
         errors.addError(500, message: "Internal server error")
         
-        let handler = Handler<StringResponse>(
+        let handler = Handler<String>(
             path: "/v1/greet",
             httpMethod: .get,
             parameters: parameters,
@@ -41,7 +41,7 @@ extension StringResponse {
     
     // MARK: - helloSwiftFiveDotThree
     /// API call for Text at: /v1/swift/5/3
-    static func helloSwiftFiveDotThree() -> ApodiniPublisher<StringResponse> {
+    static func helloSwiftFiveDotThree() -> ApodiniPublisher<String> {
         var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -51,7 +51,7 @@ extension StringResponse {
         errors.addError(404, message: "Not found")
         errors.addError(500, message: "Internal server error")
         
-        let handler = Handler<StringResponse>(
+        let handler = Handler<String>(
             path: "/v1/swift/5/3",
             httpMethod: .get,
             parameters: [:],
@@ -66,7 +66,7 @@ extension StringResponse {
     
     // MARK: - placeBid
     /// API call for Auction at: /v1/auction
-    static func placeBid(bid: UInt) -> ApodiniPublisher<StringResponse> {
+    static func placeBid(bid: UInt) -> ApodiniPublisher<String> {
         var parameters: Parameters = [:]
         parameters.set(bid, forKey: "bid")
         
@@ -79,7 +79,7 @@ extension StringResponse {
         errors.addError(404, message: "Not found")
         errors.addError(500, message: "Internal server error")
         
-        let handler = Handler<StringResponse>(
+        let handler = Handler<String>(
             path: "/v1/auction",
             httpMethod: .get,
             parameters: parameters,
@@ -94,7 +94,7 @@ extension StringResponse {
     
     // MARK: - sayHelloToSwift
     /// API call for Text at: /v1/swift
-    static func sayHelloToSwift() -> ApodiniPublisher<StringResponse> {
+    static func sayHelloToSwift() -> ApodiniPublisher<String> {
         var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -104,7 +104,7 @@ extension StringResponse {
         errors.addError(404, message: "Not found")
         errors.addError(500, message: "Internal server error")
         
-        let handler = Handler<StringResponse>(
+        let handler = Handler<String>(
             path: "/v1/swift",
             httpMethod: .get,
             parameters: [:],
@@ -119,7 +119,7 @@ extension StringResponse {
     
     // MARK: - sayHelloWorld
     /// API call for Text at: /v1
-    static func sayHelloWorld() -> ApodiniPublisher<StringResponse> {
+    static func sayHelloWorld() -> ApodiniPublisher<String> {
         var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
@@ -129,7 +129,7 @@ extension StringResponse {
         errors.addError(404, message: "Not found")
         errors.addError(500, message: "Internal server error")
         
-        let handler = Handler<StringResponse>(
+        let handler = Handler<String>(
             path: "/v1",
             httpMethod: .get,
             parameters: [:],

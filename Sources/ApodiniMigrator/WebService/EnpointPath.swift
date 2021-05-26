@@ -59,12 +59,14 @@ public struct EndpointPath: Value, CustomStringConvertible {
     
     /// Only indexed string components of the path
     var stringComponents: Components {
-        components.filter { $0.value.isString }
+        components.filter { $0.value.isString }.filter { $0.key != 0 }
     }
     
     /// String representation of the path
     public var description: String {
-        Self.separator + components.sorted(by: \.key).map { "\($0.value)" }.joined(separator: Self.separator)
+        Self.separator + components.sorted(by: \.key)
+            .map { "\($0.value)" }
+            .joined(separator: Self.separator)
     }
 
     /// Initializes an instance out of string representation of the path e.g. `/v1/users/{id}`

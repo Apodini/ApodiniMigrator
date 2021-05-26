@@ -1,7 +1,7 @@
 //
 //  Utils.swift
 //
-//  Created by ApodiniMigrator on 25.05.2021
+//  Created by ApodiniMigrator on 26.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -19,13 +19,16 @@ public typealias Encodable = ApodiniMigratorEncodable
 /// An override typealias of `Foundation.Codable` for `ApodiniMigratorCodable`
 public typealias Codable = ApodiniMigratorCodable
 
-/// `ApodiniMigratorCodable` default implementation
-public extension ApodiniMigratorCodable {
+/// `ApodiniMigratorEncodable` default implementation
+public extension Encodable {
     /// `JSONEncoder` used to encode `self`
     static var encoder: JSONEncoder {
         NetworkingService.encoder
     }
-    
+}
+
+/// `ApodiniMigratorDecodable` default implementation
+public extension Decodable {
     /// `JSONDecoder` used to decode `Self.self`
     static var decoder: JSONDecoder {
         NetworkingService.decoder

@@ -34,6 +34,6 @@ extension TypeProperty {
     /// The corresponding line of the property to be rendered inside `init(from decoder: Decoder)`
     var decoderInitLine: String {
         let decodeMethodString = "decode\(type.isOptional ? "IfPresent" : "")"
-        return "\(name.value) = try container.\(decodeMethodString)(\(type.propertyTypeString.dropQuestionMark).self, forKey: .\(name.value))"
+        return "\(name.value) = try container.\(decodeMethodString)(\(type.typeString.dropQuestionMark).self, forKey: .\(name.value))"
     }
 }

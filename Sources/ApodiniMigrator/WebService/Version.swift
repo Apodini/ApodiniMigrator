@@ -80,3 +80,9 @@ extension Version: CustomStringConvertible {
         "\(prefix)\(major)"
     }
 }
+
+public extension Version {
+    func differentDescription(from: Version) ->  Bool {
+        description != from.description
+    }
+}

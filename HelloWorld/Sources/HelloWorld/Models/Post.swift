@@ -1,7 +1,7 @@
 //
 //  Post.swift
 //
-//  Created by ApodiniMigrator on 25.05.2021
+//  Created by ApodiniMigrator on 26.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 

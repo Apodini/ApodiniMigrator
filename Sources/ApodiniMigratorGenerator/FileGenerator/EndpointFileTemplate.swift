@@ -14,12 +14,8 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
     var kind: Kind
     public var endpoints: [Endpoint]
     
-    var stringTypeName: String {
-        typeInformation.typeName.name
-    }
-    
     var endpointFileComment: FileHeaderComment {
-        .init(fileName: stringTypeName + Self.fileSuffix)
+        .init(fileName: typeInformation.typeName.name + Self.fileSuffix)
     }
     
     init(_ typeInformation: TypeInformation, kind: Kind) throws {
@@ -29,7 +25,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
     }
     
     public init(with response: TypeInformation, endpoints: [Endpoint]) throws {
-        let responses = endpoints.map { $0.restResponse }.unique()
+        let responses = endpoints.map { $0.response.nestedType }.unique()
         guard responses.count == 1, responses.first == response else {
             fatalError("""
                 Endpoints have different responses and can't be rendered in the same extension:
@@ -44,20 +40,21 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
     
     private func endpointMethod(endpoint: Endpoint) -> String {
         let path = endpoint.path.description.replacingOccurrences(of: "{", with: "\\(").replacingOccurrences(of: "}", with: ")")
+        let responseString = endpoint.response.typeString
         let queryParametersString = endpoint.queryParametersString
         let methodName = endpoint.deltaIdentifier
         let body =
         """
         \(MARKComment(endpoint.deltaIdentifier.rawValue))
         \(EndpointComment(endpoint))
-        static func \(methodName)(\(endpoint.methodInputString())) -> ApodiniPublisher<\(stringTypeName)> {
+        static func \(methodName)(\(endpoint.methodInputString())) -> ApodiniPublisher<\(responseString)> {
         \(queryParametersString)var headers: HTTPHeaders = [:]
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
         \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.asString))" }.lineBreaked)
 
-        let handler = Handler<\(stringTypeName)>(
+        let handler = Handler<\(responseString)>(
         path: \(path.asString),
         httpMethod: .\(endpoint.operation.asHTTPMethodString),
         parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),

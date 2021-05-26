@@ -31,10 +31,10 @@ protocol RelaxedDeltaIdentifiable: DeltaIdentifiable {
 }
 
 extension RelaxedDeltaIdentifiable {
-    func mostSimilarWithSelf(in array: [Self], useRawValueDistance: Bool = true) -> Self? {
-        let mostSimilarId = array.map { deltaIdentifiable -> (id: DeltaIdentifier, similarity: Double) in
+    func mostSimilarWithSelf(in array: [Self], useRawValueDistance: Bool = true, similarityLimit: Double = 0.6) -> Self? {
+        let mostSimilarId = array.compactMap { deltaIdentifiable -> (id: DeltaIdentifier, similarity: Double)? in
             let similarity = deltaIdentifier.rawValue.distance(between: deltaIdentifiable.deltaIdentifier.rawValue)
-            return (id: deltaIdentifiable.deltaIdentifier, similarity: similarity)
+            return similarity <= similarityLimit ? nil : (id: deltaIdentifiable.deltaIdentifier, similarity: similarity)
         }.sorted { $0.similarity > $1.similarity }
         .first?.id
         

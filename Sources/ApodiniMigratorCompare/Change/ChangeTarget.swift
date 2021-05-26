@@ -19,6 +19,7 @@ public enum ChangeTarget: String, Value {
     case operation
     case errors
     case serverPath
+    case version
     case encoderConfiguration
     case decoderConfiguration
     
@@ -35,6 +36,6 @@ public enum ChangeTarget: String, Value {
     }
     
     static var networkingTargets: [ChangeTarget] {
-        [.serverPath, .encoderConfiguration, .decoderConfiguration]
+        [.serverPath, .version, .encoderConfiguration, .decoderConfiguration]
     }
 }

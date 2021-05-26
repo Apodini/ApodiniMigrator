@@ -13,16 +13,16 @@ public struct WebServiceFileTemplate: Renderable {
     
     public init(_ endpoints: [Endpoint]) {
         self.endpoints = endpoints.sorted { lhs, rhs in
-            if lhs.restResponse == rhs.restResponse {
+            if lhs.response == rhs.response {
                 return lhs.deltaIdentifier < rhs.deltaIdentifier
             }
-            return lhs.restResponse.typeName.name < rhs.restResponse.typeName.name
+            return lhs.response.typeName.name < rhs.response.typeName.name
         }
     }
     
     
     private func method(for endpoint: Endpoint) -> String {
-        let responseName = endpoint.restResponse.typeName.name
+        let responseName = endpoint.response.typeName.name
         let methodParameters = endpoint.signatureParameters
             .map { "\($0.name): \($0.name)" }
             .joined(separator: ", ")
