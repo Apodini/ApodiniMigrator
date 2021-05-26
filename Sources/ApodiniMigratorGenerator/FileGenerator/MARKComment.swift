@@ -25,7 +25,7 @@ struct EndpointComment: Annotation {
     let comment: String
     
     init(_ endpoint: Endpoint) {
-        comment = "/// API call for \(endpoint.handlerName.value) at: \(endpoint.path.description)"
+        comment = "/// API call for \(endpoint.handlerName.value) at: \(endpoint.path.resourcePath)"
     }
 }
 

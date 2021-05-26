@@ -14,7 +14,7 @@ final class HelloWorldTests: XCTestCase {
     private static let decoder = NetworkingService.decoder
     
     func testPost() throws {
-        let jsonString = "{\"id\" : \"B809756B-7CAF-47A4-85B5-BDD471170278\", \"title\" : \"\"}"
+        let jsonString = "{\"id\" : \"4C31DD01-D374-43B2-B164-F07404FC2FAE\", \"title\" : \"\"}"
         let data = jsonString.data(using: .utf8) ?? Data()
         
         let instance = XCTAssertNoThrowWithResult(try Self.decoder.decode(Post.self, from: data))
@@ -22,7 +22,7 @@ final class HelloWorldTests: XCTestCase {
     }
     
     func testUser() throws {
-        let jsonString = "{\"id\" : 0, \"writtenId\" : \"9FE22762-2721-4D17-A311-AB11BDD48C8B\"}"
+        let jsonString = "{\"id\" : 0, \"writtenId\" : \"B1BC9AC0-5BA9-4FBC-BB30-11367FE5BB56\"}"
         let data = jsonString.data(using: .utf8) ?? Data()
         
         let instance = XCTAssertNoThrowWithResult(try Self.decoder.decode(User.self, from: data))

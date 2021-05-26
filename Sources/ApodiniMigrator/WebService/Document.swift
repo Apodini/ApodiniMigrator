@@ -7,6 +7,10 @@ public struct MetaData: Value {
     public var encoderConfiguration: EncoderConfiguration
     public var decoderConfiguration: DecoderConfiguration
     
+    public var versionedServerPath: String {
+        serverPath + "/" + version.description
+    }
+    
     init() {
         serverPath = ""
         version = .default

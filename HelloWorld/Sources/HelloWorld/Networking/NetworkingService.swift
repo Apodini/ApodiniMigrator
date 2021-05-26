@@ -32,7 +32,7 @@ public enum NetworkingService {
     static let encoder = JSONEncoder().configured(with: encoderConfiguration)
     
     /// String path of the web service
-    static let basePath = "http://0.0.0.0:8080"
+    static let basePath = "http://0.0.0.0:8080/v1"
     
     /// Triggers a request via a client `Handler` to a handler of an `Apodini` web service
     /// - Parameters:

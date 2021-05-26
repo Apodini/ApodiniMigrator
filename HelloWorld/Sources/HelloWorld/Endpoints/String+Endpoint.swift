@@ -10,14 +10,14 @@ import Foundation
 // MARK: - Endpoints
 extension String {
     // MARK: - greetMe
-    /// API call for TraditionalGreeter at: /v1/greet
+    /// API call for TraditionalGreeter at: greet
     static func greetMe(age: Int, name: String?, surname: String) -> ApodiniPublisher<String> {
-        var parameters: Parameters = [:]
+        var parameters = Parameters()
         parameters.set(surname, forKey: "surname")
         parameters.set(age, forKey: "age")
         parameters.set(name, forKey: "name")
         
-        var headers: HTTPHeaders = [:]
+        var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
@@ -27,7 +27,7 @@ extension String {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<String>(
-            path: "/v1/greet",
+            path: "greet",
             httpMethod: .get,
             parameters: parameters,
             headers: headers,
@@ -40,9 +40,9 @@ extension String {
     }
     
     // MARK: - helloSwiftFiveDotThree
-    /// API call for Text at: /v1/swift/5/3
+    /// API call for Text at: swift/5/3
     static func helloSwiftFiveDotThree() -> ApodiniPublisher<String> {
-        var headers: HTTPHeaders = [:]
+        var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
@@ -52,7 +52,7 @@ extension String {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<String>(
-            path: "/v1/swift/5/3",
+            path: "swift/5/3",
             httpMethod: .get,
             parameters: [:],
             headers: headers,
@@ -65,12 +65,12 @@ extension String {
     }
     
     // MARK: - placeBid
-    /// API call for Auction at: /v1/auction
+    /// API call for Auction at: auction
     static func placeBid(bid: UInt) -> ApodiniPublisher<String> {
-        var parameters: Parameters = [:]
+        var parameters = Parameters()
         parameters.set(bid, forKey: "bid")
         
-        var headers: HTTPHeaders = [:]
+        var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
@@ -80,7 +80,7 @@ extension String {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<String>(
-            path: "/v1/auction",
+            path: "auction",
             httpMethod: .get,
             parameters: parameters,
             headers: headers,
@@ -93,9 +93,9 @@ extension String {
     }
     
     // MARK: - sayHelloToSwift
-    /// API call for Text at: /v1/swift
+    /// API call for Text at: swift
     static func sayHelloToSwift() -> ApodiniPublisher<String> {
-        var headers: HTTPHeaders = [:]
+        var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
@@ -105,7 +105,7 @@ extension String {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<String>(
-            path: "/v1/swift",
+            path: "swift",
             httpMethod: .get,
             parameters: [:],
             headers: headers,
@@ -118,9 +118,9 @@ extension String {
     }
     
     // MARK: - sayHelloWorld
-    /// API call for Text at: /v1
+    /// API call for Text at:
     static func sayHelloWorld() -> ApodiniPublisher<String> {
-        var headers: HTTPHeaders = [:]
+        var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
@@ -130,7 +130,7 @@ extension String {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<String>(
-            path: "/v1",
+            path: "",
             httpMethod: .get,
             parameters: [:],
             headers: headers,

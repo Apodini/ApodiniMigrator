@@ -10,9 +10,9 @@ import Foundation
 // MARK: - Endpoints
 extension Post {
     // MARK: - getPost
-    /// API call for PostHandler at: /v1/user/{userId}/post/{postId}
+    /// API call for PostHandler at: user/{userId}/post/{postId}
     static func getPost(postId: UUID, userId: Int) -> ApodiniPublisher<Post> {
-        var headers: HTTPHeaders = [:]
+        var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
@@ -22,7 +22,7 @@ extension Post {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<Post>(
-            path: "/v1/user/\(userId)/post/\(postId)",
+            path: "user/\(userId)/post/\(postId)",
             httpMethod: .get,
             parameters: [:],
             headers: headers,

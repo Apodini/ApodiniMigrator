@@ -90,7 +90,7 @@ public struct ApodiniMigratorGenerator {
     
     private func writeNetworking() throws {
         let metaData = document.metaData
-        let serverPath = metaData.serverPath
+        let serverPath = metaData.versionedServerPath
         let encoderConfiguration = metaData.encoderConfiguration.networkingDescription
         let decoderConfiguration = metaData.decoderConfiguration.networkingDescription
         let handler = templateContentWithFileComment(.handler)

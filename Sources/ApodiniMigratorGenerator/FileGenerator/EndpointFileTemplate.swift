@@ -39,7 +39,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
     
     
     private func endpointMethod(endpoint: Endpoint) -> String {
-        let path = endpoint.path.description.replacingOccurrences(of: "{", with: "\\(").replacingOccurrences(of: "}", with: ")")
+        let path = endpoint.path.resourcePath.replacingOccurrences(of: "{", with: "\\(").replacingOccurrences(of: "}", with: ")")
         let responseString = endpoint.response.typeString
         let queryParametersString = endpoint.queryParametersString
         let methodName = endpoint.deltaIdentifier
@@ -48,7 +48,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         \(MARKComment(endpoint.deltaIdentifier.rawValue))
         \(EndpointComment(endpoint))
         static func \(methodName)(\(endpoint.methodInputString())) -> ApodiniPublisher<\(responseString)> {
-        \(queryParametersString)var headers: HTTPHeaders = [:]
+        \(queryParametersString)var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []

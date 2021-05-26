@@ -33,7 +33,7 @@ extension Endpoint {
         }
         let string =
         """
-        var parameters: Parameters = [:]
+        var parameters = Parameters()
         \(queryParameters.map { "parameters.set(\($0.name), forKey: \($0.name.asString))" }.lineBreaked)
         """
         return string + .doubleLineBreak

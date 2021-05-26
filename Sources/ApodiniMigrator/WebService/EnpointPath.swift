@@ -50,7 +50,7 @@ public enum PathComponent: CustomStringConvertible, Value {
 
 public typealias Components = [Int: PathComponent]
 
-public struct EndpointPath: Value, CustomStringConvertible {
+public struct EndpointPath: Value {
     /// Separator of components
     private static let separator = "/"
     
@@ -63,8 +63,16 @@ public struct EndpointPath: Value, CustomStringConvertible {
     }
     
     /// String representation of the path
-    public var description: String {
+    private var description: String {
         Self.separator + components.sorted(by: \.key)
+            .map { "\($0.value)" }
+            .joined(separator: Self.separator)
+    }
+    
+    public var resourcePath: String {
+        components
+            .filter { $0.key != 0}
+            .sorted(by: \.key)
             .map { "\($0.value)" }
             .joined(separator: Self.separator)
     }
@@ -84,7 +92,7 @@ public struct EndpointPath: Value, CustomStringConvertible {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         
-        try container.encode(description)
+        try container.encode("description")
     }
     
     public init(from decoder: Decoder) throws {

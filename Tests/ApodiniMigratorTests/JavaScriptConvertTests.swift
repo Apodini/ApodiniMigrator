@@ -123,7 +123,7 @@ final class JavaScriptConvertTests: XCTestCase {
         
         var objectFileParser = try ObjectFileParser(path: user)
         
-        let endpoint = packageFilesCollector.endpoint(name: "StringResponse")
+        let endpoint = packageFilesCollector.endpoint(name: "String")
         
         let fileParser = try EndpointFileParser(path: endpoint)
         try fileParser.save()

@@ -10,12 +10,12 @@ import Foundation
 // MARK: - Endpoints
 extension Int {
     // MARK: - getRandomInt
-    /// API call for Random at: /v1/rand
+    /// API call for Random at: rand
     static func getRandomInt(number: Int) -> ApodiniPublisher<Int> {
-        var parameters: Parameters = [:]
+        var parameters = Parameters()
         parameters.set(number, forKey: "number")
         
-        var headers: HTTPHeaders = [:]
+        var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
@@ -25,7 +25,7 @@ extension Int {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<Int>(
-            path: "/v1/rand",
+            path: "rand",
             httpMethod: .get,
             parameters: parameters,
             headers: headers,

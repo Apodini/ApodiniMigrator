@@ -10,9 +10,9 @@ import Foundation
 // MARK: - Endpoints
 extension User {
     // MARK: - getAuthenticatedUser
-    /// API call for AuthenticatedUserHandler at: /v1/authenticated
+    /// API call for AuthenticatedUserHandler at: authenticated
     static func getAuthenticatedUser() -> ApodiniPublisher<User> {
-        var headers: HTTPHeaders = [:]
+        var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
@@ -22,7 +22,7 @@ extension User {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<User>(
-            path: "/v1/authenticated",
+            path: "authenticated",
             httpMethod: .get,
             parameters: [:],
             headers: headers,
@@ -35,9 +35,9 @@ extension User {
     }
     
     // MARK: - getUserById
-    /// API call for UserHandler at: /v1/user/{userId}
+    /// API call for UserHandler at: user/{userId}
     static func getUserById(userId: Int) -> ApodiniPublisher<User> {
-        var headers: HTTPHeaders = [:]
+        var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
@@ -47,7 +47,7 @@ extension User {
         errors.addError(500, message: "Internal server error")
         
         let handler = Handler<User>(
-            path: "/v1/user/\(userId)",
+            path: "user/\(userId)",
             httpMethod: .get,
             parameters: [:],
             headers: headers,
