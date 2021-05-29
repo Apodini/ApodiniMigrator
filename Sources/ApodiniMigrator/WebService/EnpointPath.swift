@@ -92,7 +92,7 @@ public struct EndpointPath: Value {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         
-        try container.encode("description")
+        try container.encode(description)
     }
     
     public init(from decoder: Decoder) throws {

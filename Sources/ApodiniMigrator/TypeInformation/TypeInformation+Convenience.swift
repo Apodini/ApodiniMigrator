@@ -10,6 +10,7 @@ public extension TypeInformation {
         case `enum`
         case object
         case reference
+        case circularReference
         
         public var description: String { rawValue.upperFirst }
     }
@@ -24,6 +25,7 @@ public extension TypeInformation {
         case .enum: return .enum
         case .object: return .object
         case .reference: return .reference
+        case .circularReference: return .circularReference
         }
     }
     
@@ -65,6 +67,11 @@ public extension TypeInformation {
     /// Indicates whether the root type is a reference
     var isReference: Bool {
         rootType == .reference
+    }
+    
+    /// Indicates whether the root type is a circular reference
+    var isCircularReference: Bool {
+        rootType == .circularReference
     }
     
     /// If the root type is enum, returns `self`, otherwise the nested types are searched recursively
@@ -133,6 +140,7 @@ public extension TypeInformation {
         case let .optional(wrappedValue): return wrappedValue.unwrapped.typeName
         case let .enum(name, _): return name
         case let .object(name, _): return name
+        case let .circularReference(name): return name
         case .reference: fatalError("Attempted to request type name from a reference")
         }
     }
@@ -146,6 +154,7 @@ public extension TypeInformation {
         case let .optional(wrappedValue): return wrappedValue.typeString + "?"
         case let .enum(name, _): return name.name
         case let .object(name, _): return name.name
+        case let .circularReference(name): return name.name
         case .reference: fatalError("Attempted to request property type string from a reference")
         }
     }
@@ -157,7 +166,7 @@ public extension TypeInformation {
         case let .repeated(element): return element.nestedType
         case let .dictionary(_, value): return value.nestedType
         case let .optional(wrappedValue): return wrappedValue.unwrapped.nestedType
-        case .reference: fatalError("Attempted to nestedType from a reference")
+        default: fatalError("Attempted to nestedType from a reference")
         }
     }
     

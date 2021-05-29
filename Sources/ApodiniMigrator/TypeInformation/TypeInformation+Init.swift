@@ -16,7 +16,7 @@ public extension TypeInformation {
     // TODO review circular reference
     private init(recursively type: Any.Type, processed: inout Set<ObjectIdentifier>) throws {
         if processed.contains(ObjectIdentifier(type)) {
-            self = .reference(.init(String(describing: type)))
+            self = .circularReference(name: .init(type))
         } else {
             if let primitiveType = PrimitiveType(type) {
                 self = .scalar(primitiveType)
@@ -43,7 +43,7 @@ public extension TypeInformation {
                         .compactMap {
                             do {
                                 let propertyType = $0.type
-                                let propertyTypeInformation: TypeInformation = processed.contains(ObjectIdentifier(propertyType)) ? .reference(.init(String(describing: propertyType))) : try .init(recursively: $0.type, processed: &processed)
+                                let propertyTypeInformation: TypeInformation = processed.contains(ObjectIdentifier(propertyType)) ? .circularReference(name: .init(propertyType)) : try .init(recursively: $0.type, processed: &processed)
                                 return .init(name: .init($0.name), type: propertyTypeInformation)
                             } catch {
                                 let errorDescription = String(describing: error)
