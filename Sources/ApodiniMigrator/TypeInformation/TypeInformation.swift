@@ -116,7 +116,7 @@ extension TypeInformation {
             )
         case .reference: self = .reference(try container.decode(ReferenceKey.self, forKey: .reference))
         case .circularReference: self = .circularReference(name: try container.decode(TypeName.self, forKey: .circularReference))
-        default: fatalError("Failed to decode type container")
+        default: fatalError("Failed to decode type information")
         }
     }
 }
