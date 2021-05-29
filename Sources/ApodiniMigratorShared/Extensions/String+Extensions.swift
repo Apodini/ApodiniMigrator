@@ -31,6 +31,13 @@ public extension String {
         return self
     }
     
+    var lowerFirst: String {
+        if let first = first {
+            return first.lowercased() + dropFirst()
+        }
+        return self
+    }
+    
     var asPath: Path {
         Path(self)
     }

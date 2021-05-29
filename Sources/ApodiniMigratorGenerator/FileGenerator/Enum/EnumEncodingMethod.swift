@@ -12,7 +12,7 @@ struct EnumEncodingMethod: Renderable {
     /// Renders the content of the method in a non-formatted way
     func render() -> String {
         """
-        func encode(to encoder: Encoder) throws {
+        public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
                 
         try container.encode(encodableValue().rawValue)

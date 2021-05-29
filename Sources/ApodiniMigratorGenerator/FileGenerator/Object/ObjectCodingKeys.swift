@@ -29,7 +29,7 @@ struct ObjectCodingKeys: Renderable {
     /// Renders the content of the enum, in a non-formatted way
     func render() -> String {
         """
-        private \(Kind.enum.signature) \(codingKeysEnum.typeName.name): String, CodingKey {
+        private \(Kind.enum.signature.without("public ")) \(codingKeysEnum.typeName.name): String, CodingKey {
         \(enumCases.map { "case \($0.name.value) = \($0.name.value.asString)" }.lineBreaked)
         }
         """

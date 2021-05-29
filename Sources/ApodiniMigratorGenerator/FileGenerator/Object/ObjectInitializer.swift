@@ -20,7 +20,7 @@ struct ObjectInitializer: Renderable {
     /// Renders the content of the initializer in a non-formatted way
     func render() -> String {
         """
-        init(
+        public init(
         \(properties.map { "\($0.name.value): \($0.type.typeString)" }.joined(separator: ",\(String.lineBreak)"))
         ) {
         \(properties.map { "\($0.initLine)" }.lineBreaked)

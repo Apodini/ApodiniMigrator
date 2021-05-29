@@ -150,4 +150,11 @@ final class JavaScriptConvertTests: XCTestCase {
         XCTAssert(EndpointPath(string) == EndpointPath(string1))
         XCTAssert(EndpointPath(string1) == EndpointPath(string2))
     }
+    
+    func testFluent() throws {
+        let contact = try TypeInformation(type: Contact.self)
+        let residence = try TypeInformation(type: Residence.self)
+        contact.write(at: .desktop, fileName: "Contact")
+        residence.write(at: .desktop, fileName: "Residence")
+    }
 }

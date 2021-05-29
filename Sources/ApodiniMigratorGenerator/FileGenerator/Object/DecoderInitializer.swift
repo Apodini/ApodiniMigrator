@@ -20,7 +20,7 @@ struct DecoderInitializer: Renderable {
     /// Renders the content of the initializer in a non-formatted way
     func render() -> String {
         """
-        init(from decoder: Decoder) throws {
+        public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         \(properties.map { "\($0.decoderInitLine)" }.lineBreaked)

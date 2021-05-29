@@ -84,6 +84,6 @@ struct ObjectFileTemplate: SwiftFileTemplate {
 extension TypeProperty {
     /// The corresponding line of the property to be rendered under the list of properties of the object
     var propertyLine: String {
-        "let \(name.value): \(type.typeString)"
+        "public let \(name.value): \(type.typeString)"
     }
 }

@@ -10,7 +10,7 @@ public extension TypeInformation {
         case `enum`
         case object
         case reference
-        case circularReference
+        case relationship
         
         public var description: String { rawValue.upperFirst }
     }
@@ -25,7 +25,7 @@ public extension TypeInformation {
         case .enum: return .enum
         case .object: return .object
         case .reference: return .reference
-        case .circularReference: return .circularReference
+        case .relationship: return .relationship
         }
     }
     
@@ -69,9 +69,9 @@ public extension TypeInformation {
         rootType == .reference
     }
     
-    /// Indicates whether the root type is a circular reference
-    var isCircularReference: Bool {
-        rootType == .circularReference
+    /// Indicates whether the root type is a relationship
+    var isRelationship: Bool {
+        rootType == .relationship
     }
     
     /// If the root type is enum, returns `self`, otherwise the nested types are searched recursively
@@ -140,7 +140,7 @@ public extension TypeInformation {
         case let .optional(wrappedValue): return wrappedValue.unwrapped.typeName
         case let .enum(name, _): return name
         case let .object(name, _): return name
-        case let .circularReference(name): return name
+        case let .relationship(name): return name
         case .reference: fatalError("Attempted to request type name from a reference")
         }
     }
@@ -154,7 +154,7 @@ public extension TypeInformation {
         case let .optional(wrappedValue): return wrappedValue.typeString + "?"
         case let .enum(name, _): return name.name
         case let .object(name, _): return name.name
-        case let .circularReference(name): return name.name
+        case let .relationship(name): return name.name
         case .reference: fatalError("Attempted to request property type string from a reference")
         }
     }
@@ -299,6 +299,11 @@ public extension TypeInformation {
     func objectTypes() -> [TypeInformation] {
         filter(\.isObject)
     }
+    
+    func hasRelationships() -> Bool {
+        !filter(\.isRelationship).isEmpty
+    }
+    
     
     /// Returns unique enum and object types defined in `self`
     /// ```swift

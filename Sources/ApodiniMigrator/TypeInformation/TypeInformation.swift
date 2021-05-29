@@ -15,8 +15,8 @@ public enum TypeInformation: Value {
     case object(name: TypeName, properties: [TypeProperty])
     /// A reference created at `TypesStore` that uniquely identifies the type inside the store
     case reference(ReferenceKey)
-    /// A case to model  child / parent relationships of Fluent models
-    case circularReference(name: TypeName)
+    /// A case to model circular relationships of Fluent models (https://docs.vapor.codes/4.0/fluent/relations/)
+    case relationship(name: TypeName)
 }
 
 // MARK: - TypeInformation + Equatable
@@ -41,7 +41,7 @@ public extension TypeInformation {
             return lhsName == rhsName && lhsProperties.equalsIgnoringOrder(to: rhsProperties)
         case let (.reference(lhsKey), .reference(rhsKey)):
             return lhsKey == rhsKey
-        case let (.circularReference(lhsTypeName), .circularReference(rhsTypeName)):
+        case let (.relationship(lhsTypeName), .relationship(rhsTypeName)):
             return lhsTypeName == rhsTypeName
         default: return false
         }
@@ -52,7 +52,7 @@ public extension TypeInformation {
 extension TypeInformation {
     // MARK: CodingKeys
     private enum CodingKeys: String, CodingKey {
-        case scalar, repeated, dictionary, optional, `enum`, object, reference, circularReference
+        case scalar, repeated, dictionary, optional, `enum`, object, reference, relationship
     }
     
     private enum DictionaryKeys: String, CodingKey {
@@ -86,7 +86,7 @@ extension TypeInformation {
             try objectContainer.encode(name, forKey: .typeName)
             try objectContainer.encode(properties, forKey: .properties)
         case let .reference(key): try container.encode(key, forKey: .reference)
-        case let .circularReference(typeName): try container.encode(typeName, forKey: .circularReference)
+        case let .relationship(typeName): try container.encode(typeName, forKey: .relationship)
         }
     }
     
@@ -115,7 +115,7 @@ extension TypeInformation {
                 properties: try objectContainer.decode([TypeProperty].self, forKey: .properties)
             )
         case .reference: self = .reference(try container.decode(ReferenceKey.self, forKey: .reference))
-        case .circularReference: self = .circularReference(name: try container.decode(TypeName.self, forKey: .circularReference))
+        case .relationship: self = .relationship(name: try container.decode(TypeName.self, forKey: .relationship))
         default: fatalError("Failed to decode type information")
         }
     }

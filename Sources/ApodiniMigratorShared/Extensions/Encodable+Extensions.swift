@@ -11,7 +11,7 @@ public extension Encodable {
         return String(decoding: data, as: UTF8.self)
     }
     
-    func write(at path: Path = .desktop) {
-        try? (path + "\(String(describing: type(of: self))).json").write(json)
+    func write(at path: Path, fileName: String? = nil) {
+        try? (path + "\(fileName ?? String(describing: type(of: self))).json").write(json)
     }
 }

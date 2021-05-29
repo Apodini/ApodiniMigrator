@@ -32,7 +32,7 @@ public struct WebServiceFileTemplate: Renderable {
         let body =
         """
         \(EndpointComment(endpoint))
-        static func \(methodName)(\(methodInputString)) -> ApodiniPublisher<\(typeString)> {
+        public static func \(methodName)(\(methodInputString)) -> ApodiniPublisher<\(typeString)> {
         \(nestedType).\(methodName)(\(methodParameters))
         }
         """

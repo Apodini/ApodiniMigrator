@@ -16,7 +16,7 @@ enum Kind: String {
     
     /// Signature of `self`, classes are marked with `final` keyword
     var signature: String {
-        "\(self == .class ? "final " : "")\(rawValue)"
+        "public \(self == .class ? "final " : "")\(rawValue)"
     }
 }
 
