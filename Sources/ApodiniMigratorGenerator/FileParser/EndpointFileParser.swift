@@ -43,7 +43,7 @@ struct EndpointFileParser: FileParser {
             .sorted()
             .filter { $0 != .init(.endpoints) }
         
-        assert(!markComments.isEmpty, "Encountered a malformed endpoints file")
+        precondition(!markComments.isEmpty, "Encountered a malformed endpoints file")
         
         let firstMARKComment = markComments[0]
         

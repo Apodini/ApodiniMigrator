@@ -18,9 +18,9 @@ public struct ApodiniMigratorGenerator {
     
     public init(packageName: String, packagePath: String, documentPath: String) throws {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
-        self.packagePath = Path(packagePath)
-        document = try JSONDecoder().decode(Document.self, from: try Path(documentPath).read())
-        self.directories = ProjectDirectories(packageName: packageName, packagePath: self.packagePath)
+        self.packagePath = packagePath.asPath
+        document = try Document.decode(from: documentPath.asPath)
+        self.directories = ProjectDirectories(packageName: packageName, packagePath: packagePath)
         endpoints = document.endpoints
         metaData = document.metaData
         allModels = endpoints.reduce(into: Set<TypeInformation>()) { result, current in

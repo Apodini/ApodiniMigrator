@@ -63,10 +63,8 @@ struct ParametersComparator: Comparator {
     
     /// Captures changes of necessity if changed to required, or changes in typeinformation of the parameters
     func compareLightweightParameters(lhs: Parameter, rhs: Parameter) {
-        if lhs.typeInformation.unwrapped == rhs.typeInformation.unwrapped, lhs.nilIsValidValue != rhs.nilIsValidValue { // change of optionality of type
-            if lhs.necessity != rhs.necessity, rhs.necessity == .required { // necessity changed to required
-                return changes.add(ParameterChange(element: element, target: .queryParameter, identifier: lhs.deltaIdentifier, parameterTarget: .necessity, from: .string(lhs.necessity.rawValue), to: .string(rhs.necessity.rawValue)))
-            }
+        if lhs.necessity != rhs.necessity, rhs.necessity == .required { // necessity changed to required
+            return changes.add(ParameterChange(element: element, target: .queryParameter, identifier: lhs.deltaIdentifier, parameterTarget: .necessity, from: .string(lhs.necessity.rawValue), to: .string(rhs.necessity.rawValue)))
         }
         
         if lhs.typeInformation != rhs.typeInformation { // change, e.g. from Int to String

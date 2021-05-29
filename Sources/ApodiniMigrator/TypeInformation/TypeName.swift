@@ -26,23 +26,12 @@ public struct TypeName: Value {
     }
 
     public init(name: String, definedIn: String) {
-        self.name = name
+        self.name = name.without("<").without(">").replacingOccurrences(of: ", ", with: "and")
         self.definedIn = definedIn
     }
     
     public init(name: String) {
-        self.name = name
-        self.definedIn = name
-    }
-
-    public init(definedIn: String) {
-        self.definedIn = definedIn
-        
-        if let name = definedIn.split(separator: ".").last {
-            self.name = String(name)
-        } else {
-            name = definedIn
-        }
+        self.init(name: name, definedIn: name)
     }
 }
 

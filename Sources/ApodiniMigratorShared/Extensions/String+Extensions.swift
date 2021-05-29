@@ -1,4 +1,5 @@
 import Foundation
+import PathKit
 
 public extension String {
     /// Line break
@@ -28,6 +29,10 @@ public extension String {
             return first.uppercased() + dropFirst()
         }
         return self
+    }
+    
+    var asPath: Path {
+        Path(self)
     }
     
     /// Splits the string by a character and returns the result as a String array

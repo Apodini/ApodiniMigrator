@@ -17,7 +17,7 @@ public struct ProjectDirectories {
     
     /// Root directory of the package
     public var root: Path {
-        packagePath + Path(packageName)
+        packagePath + packageName
     }
     
     /// Sources directory of the package
@@ -27,7 +27,7 @@ public struct ProjectDirectories {
     
     /// Target directory of the package
     public var target: Path {
-        sources + Path(packageName)
+        sources + packageName
     }
     
     /// `HTTP` directory of the package
@@ -69,6 +69,11 @@ public struct ProjectDirectories {
     public init(packageName: String, packagePath: Path) {
         self.packageName = packageName
         self.packagePath = packagePath
+    }
+    
+    public init(packageName: String, packagePath: String) {
+        self.packageName = packageName
+        self.packagePath = packagePath.asPath
     }
     
     /// All directories of the package that contain files

@@ -19,8 +19,7 @@ public enum DateDecodingStrategy: String, Codable, Equatable {
     /// Decode the `Date` as UNIX millisecond timestamp from a JSON number.
     case millisecondsSince1970
 
-    /// Decode the `Date` as an ISO-8601-formatted string (in RFC 3339 format).
-    /// - Note: Libraries of `ApodiniMigrator` are built for macOS 10.15, therefore this decoding strategy can be used without restriction
+    /// Encode the `Date` as an ISO-8601-formatted string (in RFC 3339 format) on available platforms. If not available, `.deferredToDate` is used
     case iso8601
 
     /// Corresponding strategy of `JSONDecoder`
@@ -29,7 +28,12 @@ public enum DateDecodingStrategy: String, Codable, Equatable {
         case .deferredToDate: return .deferredToDate
         case .secondsSince1970: return .secondsSince1970
         case .millisecondsSince1970: return .millisecondsSince1970
-        case .iso8601: return .iso8601
+        case .iso8601:
+            if #available(iOS 10, *) {
+                return .iso8601
+            } else {
+                return .deferredToDate
+            }
         }
     }
 }

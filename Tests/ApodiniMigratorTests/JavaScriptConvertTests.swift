@@ -108,7 +108,7 @@ final class JavaScriptConvertTests: XCTestCase {
     }
     
     func testPackageGenerator() throws {
-        let packagePath: Path = .projectRoot
+        let packagePath: Path = .desktop
         
         let document = Path.desktop + "document.json"
         
@@ -139,7 +139,7 @@ final class JavaScriptConvertTests: XCTestCase {
         let document2 = try Document.decode(from: doc2)
         
         let migrationGuide = MigrationGuide(for: document1, rhs: document2)
-        try! (Path.desktop + "migration_guide.json").write(migrationGuide.prettyPrinted)
+        try! (Path.desktop + "migration_guide.json").write(migrationGuide.json)
     }
     
     func testEndpointPath() throws {

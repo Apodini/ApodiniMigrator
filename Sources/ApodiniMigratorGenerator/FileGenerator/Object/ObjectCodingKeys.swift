@@ -19,7 +19,11 @@ struct ObjectCodingKeys: Renderable {
     
     /// Initializer of the coding keys from the properties of the object
     init(_ properties: [TypeProperty]) {
-        codingKeysEnum = .enum(name: .init(name: "CodingKeys"), cases: properties.map { EnumCase($0.name.value) })
+        var cases = properties.map { EnumCase($0.name.value) }
+        if cases.isEmpty {
+            cases = [.init("empty")]
+        }
+        codingKeysEnum = .enum(name: .init(name: "CodingKeys"), cases: cases)
     }
     
     /// Renders the content of the enum, in a non-formatted way

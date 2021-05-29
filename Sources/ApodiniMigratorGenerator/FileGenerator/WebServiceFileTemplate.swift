@@ -22,7 +22,8 @@ public struct WebServiceFileTemplate: Renderable {
     
     
     private func method(for endpoint: Endpoint) -> String {
-        let responseName = endpoint.response.typeName.name
+        let nestedType = endpoint.response.nestedType.typeName.name
+        let typeString = endpoint.response.typeString
         let methodParameters = endpoint.signatureParameters
             .map { "\($0.name): \($0.name)" }
             .joined(separator: ", ")
@@ -31,8 +32,8 @@ public struct WebServiceFileTemplate: Renderable {
         let body =
         """
         \(EndpointComment(endpoint))
-        static func \(methodName)(\(methodInputString)) -> ApodiniPublisher<\(responseName)> {
-        \(responseName).\(methodName)(\(methodParameters))
+        static func \(methodName)(\(methodInputString)) -> ApodiniPublisher<\(typeString)> {
+        \(nestedType).\(methodName)(\(methodParameters))
         }
         """
         return body
