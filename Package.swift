@@ -15,14 +15,16 @@ let package = Package(
         .library(name: "ApodiniMigratorGenerator", targets: ["ApodiniMigratorGenerator"]),
         .library(name: "ApodiniMigratorShared", targets: ["ApodiniMigratorShared"]),
         .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"]),
-        .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"])
+        .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"]),
+        .executable(name: "Generator", targets: ["Generator"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/wickwirew/Runtime.git", from: "2.2.2"),
         .package(url: "https://github.com/kylef/PathKit.git", .exact("0.9.2")),
-        .package(url: "https://github.com/vapor/fluent-kit.git", from: "1.12.0")
+        .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMinor(from: "0.3.2"))
+//        .package(url: "https://github.com/vapor/fluent-kit.git", from: "1.12.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -32,7 +34,13 @@ let package = Package(
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
                 .product(name: "Runtime", package: "Runtime"),
-                .product(name: "FluentKit", package: "fluent-kit")
+//                .product(name: "FluentKit", package: "fluent-kit")
+            ]),
+        .target(
+            name: "Generator",
+            dependencies: [
+                .target(name: "ApodiniMigratorGenerator"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]),
         .target(
             name: "ApodiniMigratorClientSupport",
@@ -42,7 +50,7 @@ let package = Package(
         .target(
             name: "ApodiniMigratorGenerator",
             dependencies: [
-                .target(name: "ApodiniMigrator")
+                .target(name: "ApodiniMigratorClientSupport")
             ],
             resources: [
                 .process("Templates/Package.md"),
