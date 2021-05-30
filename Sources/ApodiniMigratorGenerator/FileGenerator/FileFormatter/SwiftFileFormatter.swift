@@ -28,6 +28,10 @@ public extension String {
         var formatter = formatterType.init()
         return formatter.format(self)
     }
+    
+    func indentationFormatted() -> String {
+        formatted(with: IndentationFormatter.self)
+    }
 }
 
 public extension Path {

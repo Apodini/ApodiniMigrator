@@ -83,7 +83,7 @@ extension SwiftFileTemplate {
     @discardableResult
     func write(at directory: Path) throws -> Path {
         let absolutePath = directory + fileName
-        try absolutePath.write(render().formatted(with: IndentationFormatter.self))
+        try absolutePath.write(render().indentationFormatted())
         return absolutePath
     }
 }

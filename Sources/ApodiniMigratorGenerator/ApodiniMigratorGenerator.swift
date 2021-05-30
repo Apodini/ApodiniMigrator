@@ -53,7 +53,7 @@ public struct ApodiniMigratorGenerator {
         
         let package = readTemplate(.package)
             .with(packageName: packageName)
-            .formatted(with: IndentationFormatter.self)
+            .indentationFormatted()
         
         try (directories.root + .package).write(package)
     }
@@ -84,7 +84,7 @@ public struct ApodiniMigratorGenerator {
         for group in endpointGroups {
             let filePath = group.key.typeName.name + EndpointFileTemplate.fileSuffix
             let endpointFileTemplate = try EndpointFileTemplate(with: group.key, endpoints: Array(group.value))
-            try (endpointsDirectory + filePath).write(endpointFileTemplate.render().formatted(with: IndentationFormatter.self))
+            try (endpointsDirectory + filePath).write(endpointFileTemplate.render().indentationFormatted())
         }
     }
     
@@ -98,8 +98,8 @@ public struct ApodiniMigratorGenerator {
             .replacingOccurrences(of: Template.serverPath, with: serverPath)
             .replacingOccurrences(of: Template.encoderConfiguration, with: encoderConfiguration)
             .replacingOccurrences(of: Template.decoderConfiguration, with: decoderConfiguration)
-            .formatted(with: IndentationFormatter.self)
-        let webServiceFile = WebServiceFileTemplate(endpoints).render().formatted(with: IndentationFormatter.self)
+            .indentationFormatted()
+        let webServiceFile = WebServiceFileTemplate(endpoints).render().indentationFormatted()
         let networkingDirectory = directories.networking
         
         try (networkingDirectory + .handler).write(handler)
@@ -120,7 +120,7 @@ public struct ApodiniMigratorGenerator {
         let modelsWithoutRelationships = allModels.filter { !$0.hasRelationships() }
         let testFile = modelsWithoutRelationships.isEmpty
             ? templateContentWithFileComment(.testFile, alternativeFileName: testFileName).with(packageName: packageName)
-            : TestFileTemplate(modelsWithoutRelationships, fileName: testFileName, packageName: packageName).render().formatted(with: IndentationFormatter.self)
+            : TestFileTemplate(modelsWithoutRelationships, fileName: testFileName, packageName: packageName).render().indentationFormatted()
         
         try (testsTarget + testFileName).write(testFile)
         
@@ -128,28 +128,13 @@ public struct ApodiniMigratorGenerator {
         try (testsTarget + .xCTestManifests).write(manifests)
         let linuxMain = readTemplate(.linuxMain)
         
-        try (tests + .linuxMain).write(linuxMain.formatted(with: IndentationFormatter.self))
-    }
-    
-    private func writeTests2() throws {
-        let tests = directories.tests
-        let testsTarget = directories.testsTarget
-        let testFileName = packageName + "Tests" + .swift
-        let testFile = templateContentWithFileComment(.testFile, alternativeFileName: testFileName)
-            .with(packageName: packageName)
-        try (testsTarget + testFileName).write(testFile)
-        
-        let manifests = templateContentWithFileComment(.xCTestManifests).with(packageName: packageName)
-        try (testsTarget + .xCTestManifests).write(manifests)
-        let linuxMain = readTemplate(.linuxMain)
-        
-        try (tests + .linuxMain).write(linuxMain.formatted(with: IndentationFormatter.self))
+        try (tests + .linuxMain).write(linuxMain.indentationFormatted())
     }
     
     private func templateContentWithFileComment(_ template: Template, alternativeFileName: String? = nil) -> String {
         let fileHeader = FileHeaderComment(fileName: alternativeFileName ?? template.projectFileName).render() + .doubleLineBreak
         
-        return (fileHeader + readTemplate(template)).formatted(with: IndentationFormatter.self)
+        return (fileHeader + readTemplate(template)).indentationFormatted()
     }
 }
 
