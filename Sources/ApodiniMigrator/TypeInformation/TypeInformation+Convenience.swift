@@ -162,15 +162,15 @@ public extension TypeInformation {
     /// Nested type of this type information
     var nestedType: TypeInformation {
         switch self {
-        case .scalar, .enum, .object: return self
+        case .scalar, .enum, .object, .relationship: return self
         case let .repeated(element): return element.nestedType
         case let .dictionary(_, value): return value.nestedType
         case let .optional(wrappedValue): return wrappedValue.unwrapped.nestedType
-        default: fatalError("Attempted to nestedType from a reference")
+        default: fatalError("Attempted to request nestedType from a reference")
         }
     }
     
-    /// Returns the `objectProperties` by keypath
+    /// Returns the `objectProperties` by a boolean keypath
     func filterProperties(_ keyPath: KeyPath<TypeInformation, Bool>) -> [TypeProperty] {
         objectProperties.filter { $0.type[keyPath: keyPath] }
     }
@@ -259,7 +259,6 @@ public extension TypeInformation {
         return allTypes().contains(typeInformation)
     }
     
-    
     /// Returns whether the `self` is contained in `allTypes()` of `typeInformation`
     func isContained(in typeInformation: TypeInformation) -> Bool {
         typeInformation.contains(self)
@@ -300,6 +299,7 @@ public extension TypeInformation {
         filter(\.isObject)
     }
     
+    /// Indicates whether at least one of the properties of an `.object` type information, is of type `.relationship`
     func hasRelationships() -> Bool {
         !filter(\.isRelationship).isEmpty
     }

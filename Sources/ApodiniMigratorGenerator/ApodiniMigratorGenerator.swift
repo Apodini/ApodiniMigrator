@@ -117,11 +117,10 @@ public struct ApodiniMigratorGenerator {
         let tests = directories.tests
         let testsTarget = directories.testsTarget
         let testFileName = packageName + "Tests" + .swift
-        let testFile = TestFileTemplate(allModels, fileName: testFileName, packageName: packageName).render().formatted(with: IndentationFormatter.self)
-        
-        // empty test file
-//        let testFile = templateContentWithFileComment(.testFile, alternativeFileName: testFileName)
-//            .with(packageName: packageName)
+        let modelsWithoutRelationships = allModels.filter { !$0.hasRelationships() }
+        let testFile = modelsWithoutRelationships.isEmpty
+            ? templateContentWithFileComment(.testFile, alternativeFileName: testFileName).with(packageName: packageName)
+            : TestFileTemplate(modelsWithoutRelationships, fileName: testFileName, packageName: packageName).render().formatted(with: IndentationFormatter.self)
         
         try (testsTarget + testFileName).write(testFile)
         
