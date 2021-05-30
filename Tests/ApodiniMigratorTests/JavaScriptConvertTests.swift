@@ -109,6 +109,9 @@ final class JavaScriptConvertTests: XCTestCase {
     
     func testPackageGenerator() throws {
         let packagePath: Path = .desktop
+        guard packagePath.exists else {
+            return
+        }
         
         let document = Path.desktop + "document.json"
         
@@ -117,6 +120,10 @@ final class JavaScriptConvertTests: XCTestCase {
     }
     
     func testPackageFilesCollector() throws {
+        guard Path.desktop.exists else {
+            return
+        }
+        
         let packageFilesCollector = PackageFilesCollector(packageName: "HelloWorld", packagePath: .desktop)
         
         let user = packageFilesCollector.model(name: "Contact")
@@ -132,6 +139,10 @@ final class JavaScriptConvertTests: XCTestCase {
     }
     
     func testMigraionGuideGeneration() throws {
+        guard Path.desktop.exists else {
+            return
+        }
+        
         let doc = Path.desktop + "document.json"
         let doc2 = Path.desktop + "document_updated.json"
         
