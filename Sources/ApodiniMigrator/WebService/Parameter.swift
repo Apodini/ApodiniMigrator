@@ -56,7 +56,7 @@ public struct Parameter: Value {
     /// Parameter type
     public let parameterType: ParameterType
     
-    /// Indicates whether `nil` is a valid value, equavalent of `typeInformation` beeing optional
+    /// Indicates whether `nil` is a valid value, equavalent of `typeInformation` being optional
     public var nilIsValidValue: NilIsValidValue {
         .init(typeInformation.isOptional)
     }

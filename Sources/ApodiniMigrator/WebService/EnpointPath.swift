@@ -57,7 +57,7 @@ public struct EndpointPath: Value {
     /// Components of the path
     let components: Components
     
-    /// Only indexed string components of the path
+    /// Only indexed string components of the path (ignoring version path component of first position)
     var stringComponents: Components {
         components.filter { $0.value.isString }.filter { $0.key != 0 }
     }
@@ -110,7 +110,7 @@ public struct EndpointPath: Value {
     }
 }
 
-extension String {
+private extension String {
     var isPathParameterComponent: Bool {
         first == "{" && last == "}"
     }

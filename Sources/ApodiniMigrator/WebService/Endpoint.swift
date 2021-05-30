@@ -1,6 +1,5 @@
 import Foundation
 
-//public class EndpointPath: PropertyValueWrapper<String> {}
 public class HandlerName: PropertyValueWrapper<String> {}
 
 public typealias EndpointInput = [Parameter]
@@ -42,7 +41,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.operation = operation
         self.path = .init(absolutePath)
         self.parameters = parameters
-        self.response = response
+        self.response = response.replaceEmptyIfNeeded()
         self.errors = errors
     }
     
@@ -62,5 +61,15 @@ public struct Endpoint: Value, DeltaIdentifiable {
             param.reference(in: &typeStore)
             return param
         }
+    }
+}
+
+// MARK: - TypeInformation: Apodini.Empty
+fileprivate extension TypeInformation {
+    static let apodiniEmpty: TypeInformation = .object(name: .init(name: "Empty", definedIn: "Apodini"), properties: [])
+    static let statusEnum: TypeInformation = .enum(name: .init(name: "Status", definedIn: "Apodini"), cases: [.init("ok"), .init("created"), .init("noContent")])
+    
+    func replaceEmptyIfNeeded() -> TypeInformation {
+        self == Self.apodiniEmpty ? Self.statusEnum : self
     }
 }
