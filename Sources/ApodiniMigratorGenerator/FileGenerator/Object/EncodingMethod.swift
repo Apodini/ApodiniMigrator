@@ -33,6 +33,6 @@ struct EncodingMethod: Renderable {
 extension TypeProperty {
     /// The corresponding line of the property to be rendered inside `encode(to:)` method
     var encodingMethodLine: String {
-        "try container.encode(\(name.value), forKey: .\(name.value))"
+        "try container.encode(\(name), forKey: .\(name))"
     }
 }

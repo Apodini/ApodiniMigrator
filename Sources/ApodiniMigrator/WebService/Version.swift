@@ -82,7 +82,7 @@ extension Version: CustomStringConvertible {
 }
 
 public extension Version {
-    func differentDescription(from: Version) ->  Bool {
+    func differentDescription(from: Version) -> Bool {
         description != from.description
     }
 }

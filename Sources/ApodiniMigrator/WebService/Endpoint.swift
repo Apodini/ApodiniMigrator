@@ -1,13 +1,13 @@
 import Foundation
 
-public class HandlerName: PropertyValueWrapper<String> {}
+//public class HandlerName: PropertyValueWrapper<String> {}
 
 public typealias EndpointInput = [Parameter]
 
 /// Represents an endpoint
 public struct Endpoint: Value, DeltaIdentifiable {
     /// Name of the handler
-    public let handlerName: HandlerName
+    public let handlerName: String
 
     /// Identifier of the handler
     public let deltaIdentifier: DeltaIdentifier
@@ -36,7 +36,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         response: TypeInformation,
         errors: [ErrorCode]
     ) {
-        self.handlerName = .init(handlerName)
+        self.handlerName = handlerName
         self.deltaIdentifier = .init(deltaIdentifier)
         self.operation = operation
         self.path = .init(absolutePath)

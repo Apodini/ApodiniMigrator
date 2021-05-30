@@ -33,41 +33,29 @@ public enum Necessity: String, Value {
     /// `.optional` necessity describes parameters which do not necessarily require a value.
     /// This does not necessarily translate to `nil` being a valid value.
     case optional
-    
-    public init(_ hasDefaultValue: HasDefaultValue) {
-        self = hasDefaultValue.value ? .optional : .required
-    }
 }
-
-public class ParameterName: PropertyValueWrapper<String> {}
-public class NilIsValidValue: PropertyValueWrapper<Bool> {}
-public class HasDefaultValue: PropertyValueWrapper<Bool> {}
 
 /// Represents a parameter of an endpoint
 public struct Parameter: Value {
     /// Name of the parameter
-    public let parameterName: ParameterName
+    public let name: String
     /// The reference of the `typeInformation` of the parameter
     public var typeInformation: TypeInformation
     
     /// Indicates whether the parameter has a default value
-    public let hasDefaultValue: HasDefaultValue
+    public let hasDefaultValue: Bool
 
     /// Parameter type
     public let parameterType: ParameterType
     
     /// Indicates whether `nil` is a valid value, equavalent of `typeInformation` being optional
-    public var nilIsValidValue: NilIsValidValue {
-        .init(typeInformation.isOptional)
+    public var nilIsValidValue: Bool {
+        typeInformation.isOptional
     }
     
     /// The necessity of the parameter
     public var necessity: Necessity {
-        nilIsValidValue.value ? .optional : .init(hasDefaultValue)
-    }
-    
-    public var name: String {
-        parameterName.value
+        nilIsValidValue ? .optional : hasDefaultValue ? .optional : .required
     }
     
     public init(
@@ -76,9 +64,9 @@ public struct Parameter: Value {
         hasDefaultValue: Bool,
         parameterType: ParameterType
     ) {
-        self.parameterName = .init(parameterName)
+        self.name = parameterName
         self.typeInformation = typeInformation
-        self.hasDefaultValue = .init(hasDefaultValue)
+        self.hasDefaultValue = hasDefaultValue
         self.parameterType = parameterType
     }
     
@@ -97,29 +85,23 @@ extension Parameter: DeltaIdentifiable {
 
 extension Parameter {
     // MARK: Private Inner Types
-    private enum CodingKeys2: String, CodingKey {
-        case parameterName, typeInformation, hasDefaultValue, parameterType//, nilIsValid, necessity
-    }
-    
     private enum CodingKeys: String, CodingKey {
-        case parameterName, typeInformation = "type", hasDefaultValue, parameterType = "kind"//, nilIsValid, necessity
+        case parameterName, typeInformation = "type", hasDefaultValue, parameterType = "kind"
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(parameterName, forKey: .parameterName)
+        try container.encode(name, forKey: .parameterName)
         try container.encode(typeInformation, forKey: .typeInformation)
         try container.encode(hasDefaultValue, forKey: .hasDefaultValue)
         try container.encode(parameterType, forKey: .parameterType)
-//        try container.encode(nilIsValidValue, forKey: .nilIsValid)
-//        try container.encode(necessity, forKey: .necessity)
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        parameterName = try container.decode(ParameterName.self, forKey: .parameterName)
+        name = try container.decode(String.self, forKey: .parameterName)
         typeInformation = try container.decode(TypeInformation.self, forKey: .typeInformation)
-        hasDefaultValue = try container.decode(HasDefaultValue.self, forKey: .hasDefaultValue)
+        hasDefaultValue = try container.decode(Bool.self, forKey: .hasDefaultValue)
         parameterType = try container.decode(ParameterType.self, forKey: .parameterType)
     }
 }

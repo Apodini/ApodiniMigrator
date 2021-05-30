@@ -14,30 +14,6 @@ extension String: PropertyProtocol {}
 extension Bool: PropertyProtocol {}
 extension Int: PropertyProtocol {}
 
-/// An abstract class that already conforms to ComparableProperty that wrapps values of a certain `PropertyProtocol` type.
-///
-/// The logic of registering changes to a `ChangeContextNode`, requires unique types for properties of a `ComparableObject`
-///
-/// Not accepted example by the `ChangeContextNode`:
-/// ```swift
-/// struct User: ComparableObject {
-///     let name: String
-///     let surname: String
-/// }
-/// ```
-/// Registering the comparison result of two user instances, the change of `name` property, would be overwritten by the change
-/// of `surname` property of the same type `String`
-///
-/// By means of `PropertyValueWrapper<P: PropertyProtocol>` we guarantee unique types as follows:
-/// ```swift
-/// class UserName: PropertyValueWrapper<String> {}
-/// class UserSurname: PropertyValueWrapper<String> {}
-///
-/// struct User: ComparableObject {
-///     let name: UserName
-///     let surname: UserSurname
-/// }
-/// ```
 open class PropertyValueWrapper<P: PropertyProtocol>: Value {
     public let value: P
 

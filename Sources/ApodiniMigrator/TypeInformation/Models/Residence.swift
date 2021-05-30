@@ -24,6 +24,8 @@ public final class Residence: Model {
     @Parent(key: "contact_id")
     public var contact: Contact
     
+    @OptionalParent(key: "contact_id")
+    public var cont: Contact?
     
     public init() { }
     
@@ -57,4 +59,3 @@ extension Residence: Hashable {
         hasher.combine(id)
     }
 }
-

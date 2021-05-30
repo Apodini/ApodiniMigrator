@@ -23,7 +23,7 @@ struct EnumDecoderInitializer: Renderable {
     func render() -> String {
         """
         public init(from decoder: Decoder) throws {
-        self = Self(rawValue: try decoder.singleValueContainer().decode(RawValue.self)) ?? .\(defaultCase.name.value)
+        self = Self(rawValue: try decoder.singleValueContainer().decode(RawValue.self)) ?? .\(defaultCase.name)
         }
         """
     }

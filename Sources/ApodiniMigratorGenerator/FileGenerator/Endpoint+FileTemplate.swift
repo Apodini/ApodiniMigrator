@@ -17,7 +17,7 @@ extension Endpoint {
     var signatureParameters: [Parameter] {
         parameters
             .filter { $0.parameterType != .header }
-            .sorted(by: \.parameterName)
+            .sorted(by: \.name)
     }
     
     func methodInputString() -> String {

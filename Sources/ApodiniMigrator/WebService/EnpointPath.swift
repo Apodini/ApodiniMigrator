@@ -71,7 +71,7 @@ public struct EndpointPath: Value {
     
     public var resourcePath: String {
         components
-            .filter { $0.key != 0}
+            .filter { $0.key != 0 }
             .sorted(by: \.key)
             .map { "\($0.value)" }
             .joined(separator: Self.separator)

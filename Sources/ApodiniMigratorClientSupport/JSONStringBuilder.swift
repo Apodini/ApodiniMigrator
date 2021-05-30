@@ -59,10 +59,10 @@ public struct JSONStringBuilder {
         case let .optional(wrappedValue):
             return "\(Self(wrappedValue.unwrapped, encoder: encoder).build())"
         case let .enum(_, cases):
-            return cases.first?.name.value.asString ?? "{}"
+            return cases.first?.name.asString ?? "{}"
         case let .object(_, properties):
             let sorted = properties.sorted(by: \.name)
-            return "{\(sorted.map { $0.name.value.asString + " : \(Self($0.type, encoder: encoder).build())" }.joined(separator: ", "))}"
+            return "{\(sorted.map { $0.name.asString + " : \(Self($0.type, encoder: encoder).build())" }.joined(separator: ", "))}"
         default: return "{}"
         }
     }

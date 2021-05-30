@@ -30,6 +30,8 @@ public final class Contact: Model {
     @Children(for: \.$contact)
     public var residencies: [Residence]
     
+    @OptionalChild(for: \.$cont)
+    public var ch: Residence?
     
     let contact: Contact = .init()
     
@@ -61,4 +63,47 @@ extension Contact: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+}
+
+final class PlanetTag: Model {
+    static let schema = "planet+tag"
+
+    @ID(key: .id)
+    var id: UUID?
+
+    @Parent(key: "planet_id")
+    var planet: Planet
+
+    @Parent(key: "tag_id")
+    var tag: Tag
+
+    init() { }
+
+    init(id: UUID? = nil, planet: Planet, tag: Tag) throws {
+        self.id = id
+        self.$planet.id = try planet.requireID()
+        self.$tag.id = try tag.requireID()
+    }
+}
+
+final class Planet: Model {
+    static let schema = "planet"
+    @ID(key: .id)
+    var id: UUID?
+    
+    init() { }
+    
+    // Example of a siblings relation.
+    @Siblings(through: PlanetTag.self, from: \.$planet, to: \.$tag)
+    public var tags: [Tag]
+}
+
+final class Tag: Model {
+    static let schema = "tag"
+    @ID(key: .id)
+    var id: UUID?
+    
+    init() { }
+    @Siblings(through: PlanetTag.self, from: \.$tag, to: \.$planet)
+    public var planets: [Planet]
 }

@@ -83,4 +83,3 @@ fileprivate extension NetworkingService {
         let data: D
     }
 }
-

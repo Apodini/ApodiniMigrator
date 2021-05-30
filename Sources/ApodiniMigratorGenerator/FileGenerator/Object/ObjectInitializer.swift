@@ -21,7 +21,7 @@ struct ObjectInitializer: Renderable {
     func render() -> String {
         """
         public init(
-        \(properties.map { "\($0.name.value): \($0.type.typeString)" }.joined(separator: ",\(String.lineBreak)"))
+        \(properties.map { "\($0.name): \($0.type.typeString)" }.joined(separator: ",\(String.lineBreak)"))
         ) {
         \(properties.map { "\($0.initLine)" }.lineBreaked)
         }
@@ -33,6 +33,6 @@ struct ObjectInitializer: Renderable {
 extension TypeProperty {
     /// The corresponding line of the property to be rendered inside `init(from decoder: Decoder)`
     var initLine: String {
-        "self.\(name.value) = \(name.value)"
+        "self.\(name) = \(name)"
     }
 }

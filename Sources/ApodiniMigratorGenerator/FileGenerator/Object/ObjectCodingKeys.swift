@@ -19,7 +19,7 @@ struct ObjectCodingKeys: Renderable {
     
     /// Initializer of the coding keys from the properties of the object
     init(_ properties: [TypeProperty]) {
-        var cases = properties.map { EnumCase($0.name.value) }
+        var cases = properties.map { EnumCase($0.name) }
         if cases.isEmpty {
             cases = [.init("empty")]
         }
@@ -30,7 +30,7 @@ struct ObjectCodingKeys: Renderable {
     func render() -> String {
         """
         private \(Kind.enum.signature.without("public ")) \(codingKeysEnum.typeName.name): String, CodingKey {
-        \(enumCases.map { "case \($0.name.value) = \($0.name.value.asString)" }.lineBreaked)
+        \(enumCases.map { "case \($0.name) = \($0.name.asString)" }.lineBreaked)
         }
         """
     }

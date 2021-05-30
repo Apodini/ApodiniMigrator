@@ -119,11 +119,11 @@ final class JavaScriptConvertTests: XCTestCase {
     func testPackageFilesCollector() throws {
         let packageFilesCollector = PackageFilesCollector(packageName: "HelloWorld", packagePath: .desktop)
         
-        let user = packageFilesCollector.model(name: "User")
+        let user = packageFilesCollector.model(name: "Contact")
         
         var objectFileParser = try ObjectFileParser(path: user)
         
-        let endpoint = packageFilesCollector.endpoint(name: "String")
+        let endpoint = packageFilesCollector.endpoint(name: "Contact")
         
         let fileParser = try EndpointFileParser(path: endpoint)
         try fileParser.save()
@@ -154,7 +154,9 @@ final class JavaScriptConvertTests: XCTestCase {
     func testFluent() throws {
         let contact = try TypeInformation(type: Contact.self)
         let residence = try TypeInformation(type: Residence.self)
+//        let planetTag = try TypeInformation(type: PlanetTag.self)
         contact.write(at: .desktop, fileName: "Contact")
         residence.write(at: .desktop, fileName: "Residence")
+//        planetTag.write(at: .desktop, fileName: "PlanetTag")
     }
 }
