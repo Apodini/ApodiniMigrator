@@ -84,7 +84,7 @@ public struct Document: Value { // TODO handle referencing in encode and init fr
         }
     }
     
-    public func export(at path: Path) throws {
-        try path.write(json)
+    public func export(at path: String) throws {
+        try Path(path).write(json)
     }
 }
