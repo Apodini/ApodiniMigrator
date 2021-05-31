@@ -7,10 +7,14 @@
 
 import Foundation
 
+/// Represents distinct cases of a path component
 public enum PathComponent: CustomStringConvertible, Value {
+    /// A string path component
     case string(String)
+    /// A path parameter path component
     case parameter(String)
     
+    /// String representation of self
     public var description: String {
         switch self {
         case let .string(value): return value
@@ -33,14 +37,17 @@ public enum PathComponent: CustomStringConvertible, Value {
         self = stringValue.isPathParameterComponent ? .parameter(stringValue.dropCurlyBrackets) : .string(stringValue)
     }
     
+    /// :nodoc:
     public func hash(into hasher: inout Hasher) {
         hasher.combine(description)
     }
     
+    /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         self = Self(stringValue: try decoder.singleValueContainer().decode(String.self))
     }
     
+    /// Encodes this value into the given encoder.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         
@@ -48,8 +55,10 @@ public enum PathComponent: CustomStringConvertible, Value {
     }
 }
 
+/// A typealias for a dictionary with Int keys and PathComponent values
 public typealias Components = [Int: PathComponent]
 
+/// Represents an endpoint path
 public struct EndpointPath: Value {
     /// Separator of components
     private static let separator = "/"
@@ -69,6 +78,7 @@ public struct EndpointPath: Value {
             .joined(separator: Self.separator)
     }
     
+    /// Path excluding the first component which corresponds to the version of the web service
     public var resourcePath: String {
         components
             .filter { $0.key != 0 }
@@ -89,22 +99,26 @@ public struct EndpointPath: Value {
         self.components = components
     }
     
+    /// Encodes self into the given encoder.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         
         try container.encode(description)
     }
     
+    /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         
         self = Self(try container.decode(String.self))
     }
     
+    /// :nodoc:
     public static func == (lhs: EndpointPath, rhs: EndpointPath) -> Bool {
         lhs.stringComponents == rhs.stringComponents
     }
     
+    /// :nodoc:
     public func hash(into hasher: inout Hasher) {
         hasher.combine(stringComponents)
     }

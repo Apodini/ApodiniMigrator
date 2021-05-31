@@ -13,7 +13,7 @@ struct EndpointComparator: Comparator {
     var changes: ChangeContainer
     
     var element: ChangeElement {
-        .endpoint(lhs.deltaIdentifier)
+        .for(endpoint: lhs)
     }
     
     init(lhs: Endpoint, rhs: Endpoint, changes: ChangeContainer) {

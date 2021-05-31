@@ -24,7 +24,7 @@ public struct RecursiveFileGenerator: Persistable {
     /// From `typeInformation` the generator retrieves all distinct `enum` and `object` types recursively
     public init(_ typeInformation: [TypeInformation]) throws {
         files = try typeInformation
-            .fileRenderableTypes() // TODO pass already in the initializer
+            .fileRenderableTypes()
             .map { typeInformation in
                 if typeInformation.isEnum {
                     return try EnumFileTemplate(typeInformation)

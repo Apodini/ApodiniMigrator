@@ -1,22 +1,14 @@
 import Foundation
 
 public enum CustomDateFormat: String {
+    /// Date format, e.g. 01.02.2021
     case date = "dd.MM.yyyy"
+    /// Year of the date, e.g 2021
     case year = "yyyy"
 }
 
-public extension DateFormatter {
-    static var iSO8601DateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        let enUSPosixLocale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.locale = enUSPosixLocale
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-        dateFormatter.calendar = Calendar(identifier: .gregorian)
-        return dateFormatter
-    }()
-}
-
 public extension Date {
+    /// String representation of self as defined by `format`
     func string(_ format: CustomDateFormat) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = format.rawValue

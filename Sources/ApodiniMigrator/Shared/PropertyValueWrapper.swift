@@ -14,34 +14,41 @@ extension String: PropertyProtocol {}
 extension Bool: PropertyProtocol {}
 extension Int: PropertyProtocol {}
 
-open class PropertyValueWrapper<P: PropertyProtocol>: Value {
+public class PropertyValueWrapper<P: PropertyProtocol>: Value {
+    /// Value
     public let value: P
 
+    /// Initializes self from a value
     public init(_ value: P) {
         self.value = value
     }
     
+    /// Encodes self into the given encoder.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(value)
     }
     
+    /// Creates a new instance by decoding from the given decoder.
     public required init(from decoder: Decoder) throws {
         value = try decoder.singleValueContainer().decode(P.self)
     }
 }
 
 extension PropertyValueWrapper: Comparable where P: Comparable {
+    /// :nodoc:
     public static func < (lhs: PropertyValueWrapper, rhs: PropertyValueWrapper) -> Bool {
         lhs.value < rhs.value
     }
 }
 
 public extension PropertyValueWrapper {
+    /// :nodoc:
     static func == (lhs: PropertyValueWrapper<P>, rhs: PropertyValueWrapper<P>) -> Bool {
         lhs.value == rhs.value
     }
 
+    /// :nodoc:
     func hash(into hasher: inout Hasher) {
         hasher.combine(value)
     }

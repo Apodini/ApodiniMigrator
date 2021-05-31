@@ -32,6 +32,7 @@ fileprivate extension TypeInformation {
     ///     - type: the type for which this instance is being created
     ///     - relationshipTypes: potential Fluent relationship types, that can be encountered starting from the root call of the initializer in `typeInformation(for:) throws`
     ///     - skipRelationshipCheck: a flag with default value `false`. Used to return a `.relationship` type information instance in case that `type` is already contained in `relationshipTypes`
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     init(_ type: Any.Type, relationshipTypes: inout Set<ObjectIdentifier>, skipRelationshipCheck: Bool = false) throws {
         if !skipRelationshipCheck && relationshipTypes.contains(type: type) { // encountered a circular reference
             self = .relationship(name: .init(type))
@@ -56,8 +57,10 @@ fileprivate extension TypeInformation {
                 } else if typeInfo.kind == .enum {
                     self = .enum(name: typeInfo.typeName, cases: typeInfo.cases.map { EnumCase($0.name) })
                 } else if [.struct, .class].contains(typeInfo.kind) {
-                    let propertiesTypeInfos = try typeInfo.properties.map { TypeInfoProperty(typeInfo: try Runtime.typeInfo(of: $0.type), propertyName: $0.name) }
-                    let hasRelationshipFluentProperties = propertiesTypeInfos.first(where: { $0.fluentPropertyType?.isRelationshipProperty == true }) != nil
+                    let propertiesTypeInfos: [TypeInfoProperty] = try typeInfo.properties
+                        .map { .init(typeInfo: try Runtime.typeInfo(of: $0.type), propertyName: $0.name) }
+                    let hasRelationshipFluentProperties = propertiesTypeInfos
+                        .contains(where: { $0.fluentPropertyType?.isRelationshipProperty == true })
                     
                     // if the type has relationship properties, appending it already to relationshipTypes, so that potential occurrencies of it,
                     // can be initialized as .relationship
@@ -73,7 +76,12 @@ fileprivate extension TypeInformation {
                                 if let fluentPropertyType = $0.fluentPropertyType {
                                     name = String(name.dropFirst())
                                     let genericTypes = $0.typeInfo.genericTypes
-                                    return .init(name: name, type: try .init(for: fluentPropertyType, with: genericTypes, relationshipTypes: &relationshipTypes))
+                                    let propertyTypeInformation: TypeInformation = try .init(
+                                        for: fluentPropertyType,
+                                        with: genericTypes,
+                                        relationshipTypes: &relationshipTypes
+                                    )
+                                    return .init(name: name, type: propertyTypeInformation)
                                 }
  
                                 return .init(name: name, type: try .init($0.type, relationshipTypes: &relationshipTypes))

@@ -21,6 +21,7 @@ public enum TypeInformation: Value {
 
 // MARK: - TypeInformation + Equatable
 public extension TypeInformation {
+    /// Returns with lhs is equal to rhs
     static func == (lhs: TypeInformation, rhs: TypeInformation) -> Bool {
         if !lhs.sameType(with: rhs) {
             return false
@@ -67,6 +68,7 @@ extension TypeInformation {
         case typeName, properties
     }
     
+    /// Encodes self into the given encoder.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
@@ -90,6 +92,7 @@ extension TypeInformation {
         }
     }
     
+    /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let key = container.allKeys.first
@@ -123,10 +126,12 @@ extension TypeInformation {
 
 // MARK: - TypeInformation + CustomStringConvertible + CustomDebugStringConvertible
 extension TypeInformation: CustomStringConvertible, CustomDebugStringConvertible {
+    /// String representation of self
     public var description: String {
         json
     }
     
+    /// String representation of self
     public var debugDescription: String {
         json
     }

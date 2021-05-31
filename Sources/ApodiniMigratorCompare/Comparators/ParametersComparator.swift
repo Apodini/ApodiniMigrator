@@ -15,7 +15,7 @@ struct ParametersComparator: Comparator {
     let rhsParameters: [Parameter]
     
     var element: ChangeElement {
-        .endpoint(lhs.deltaIdentifier)
+        .for(endpoint: lhs)
     }
     
     init(lhs: Endpoint, rhs: Endpoint, changes: ChangeContainer) {
@@ -99,8 +99,8 @@ struct ParametersComparator: Comparator {
     func handle(removalCandidates: [Parameter], additionCandidates: [Parameter]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
-        /// TODO remove assert
-        assert(Set(removalCandidates.identifiers()).intersection(additionCandidates.identifiers()).isEmpty, "Encoutered removal and addition candidates with same id")
+        let noCommontElements = Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers())
+        assert(noCommontElements, "Encoutered removal and addition candidates with same id")
         
         for candidate in removalCandidates {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates) {

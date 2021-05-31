@@ -53,15 +53,15 @@ extension String {
         var previousPosition = -1
 
         // Count matching characters and transpositions.
-        for (i, stringOneChar) in stringOne.enumerated() {
-            for (j, stringTwoChar) in stringTwo.enumerated() {
-                if max(0, i - matchingDistance)..<min(stringTwoCount, i + matchingDistance) ~= j {
+        for (charOneIndex, stringOneChar) in stringOne.enumerated() {
+            for (charTwoIndex, stringTwoChar) in stringTwo.enumerated() {
+                if max(0, charOneIndex - matchingDistance)..<min(stringTwoCount, charOneIndex + matchingDistance) ~= charTwoIndex {
                     if stringOneChar == stringTwoChar {
                         matchingCharactersCount += 1
-                        if previousPosition != -1 && j < previousPosition {
+                        if previousPosition != -1 && charTwoIndex < previousPosition {
                             transpositionsCount += 1
                         }
-                        previousPosition = j
+                        previousPosition = charTwoIndex
                         break
                     }
                 }
@@ -75,6 +75,7 @@ extension String {
         // Count common prefix (up to a maximum of 4 characters)
         let commonPrefixCount = min(max(Double(self.commonPrefix(with: target).count), 0), 4)
 
+        // swiftlint:disable:next line_length
         let jaroSimilarity = (matchingCharactersCount / Double(stringOneCount) + matchingCharactersCount / Double(stringTwoCount) + (matchingCharactersCount - transpositionsCount) / matchingCharactersCount) / 3
 
         // Default is 0.1, should never exceed 0.25 (otherwise similarity score could exceed 1.0)

@@ -7,15 +7,24 @@
 
 import Foundation
 
+/// A generator for a swift package
 public struct ApodiniMigratorGenerator {
+    /// Name of the package to be generated
     public let packageName: String
+    /// Path of the package
     public let packagePath: Path
+    /// Document used to generate the package
     public var document: Document
+    /// Directories of the package
     public let directories: ProjectDirectories
+    /// Endpoints
     public let endpoints: [Endpoint]
+    /// Metadata retrieved from the document
     public let metaData: MetaData
+    /// all models of the document
     private let allModels: [TypeInformation]
     
+    /// Initializes a new instance with a `packageName`, string `packagePath` and the string `documentPath`
     public init(packageName: String, packagePath: String, documentPath: String) throws {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
         self.packagePath = packagePath.asPath
@@ -28,9 +37,13 @@ public struct ApodiniMigratorGenerator {
             current.parameters.forEach { parameter in
                 result.insert(parameter.typeInformation)
             }
-        }.asArray.fileRenderableTypes().sorted(by: \.typeName)
+        }
+        .asArray
+        .fileRenderableTypes()
+        .sorted(by: \.typeName)
     }
     
+    /// Builds and persists the content of the package at the specified path
     public func build() throws {
         try directories.build()
         try writeRootFiles()

@@ -20,6 +20,7 @@ public enum ParameterType: String, Value {
 }
 
 extension ParameterType: CustomStringConvertible {
+    /// A string representation of self
     public var description: String {
         rawValue
     }
@@ -58,6 +59,7 @@ public struct Parameter: Value {
         nilIsValidValue ? .optional : hasDefaultValue ? .optional : .required
     }
     
+    /// Initializes a new parameter instance
     public init(
         parameterName: String,
         typeInformation: TypeInformation,
@@ -80,6 +82,7 @@ public struct Parameter: Value {
 }
 
 extension Parameter: DeltaIdentifiable {
+    /// Delta identifier of the parameter instance
     public var deltaIdentifier: DeltaIdentifier { .init(name) }
 }
 
@@ -89,6 +92,7 @@ extension Parameter {
         case parameterName, typeInformation = "type", hasDefaultValue, parameterType = "kind"
     }
     
+    /// Encodes self into the given encoder.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .parameterName)
@@ -97,6 +101,7 @@ extension Parameter {
         try container.encode(parameterType, forKey: .parameterType)
     }
     
+    /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         name = try container.decode(String.self, forKey: .parameterName)

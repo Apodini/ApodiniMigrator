@@ -1,7 +1,6 @@
 import Foundation
 
-//public class HandlerName: PropertyValueWrapper<String> {}
-
+/// A typealias of an array of `Parameter`
 public typealias EndpointInput = [Parameter]
 
 /// Represents an endpoint
@@ -27,6 +26,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
     /// Errors
     public let errors: [ErrorCode]
     
+    /// Initializes a new endpoint instance
     public init(
         handlerName: String,
         deltaIdentifier: String,
@@ -67,7 +67,10 @@ public struct Endpoint: Value, DeltaIdentifiable {
 // MARK: - TypeInformation: Apodini.Empty
 fileprivate extension TypeInformation {
     static let apodiniEmpty: TypeInformation = .object(name: .init(name: "Empty", definedIn: "Apodini"), properties: [])
-    static let statusEnum: TypeInformation = .enum(name: .init(name: "Status", definedIn: "Apodini"), cases: [.init("ok"), .init("created"), .init("noContent")])
+    static let statusEnum: TypeInformation = .enum(
+        name: .init(name: "Status", definedIn: "Apodini"),
+        cases: [.init("ok"), .init("created"), .init("noContent")]
+    )
     
     func replaceEmptyIfNeeded() -> TypeInformation {
         self == Self.apodiniEmpty ? Self.statusEnum : self

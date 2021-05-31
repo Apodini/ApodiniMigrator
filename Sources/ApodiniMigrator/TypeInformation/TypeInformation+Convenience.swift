@@ -335,22 +335,26 @@ public extension TypeInformation {
 
 // MARK: - Array extensions
 public extension Array where Element == TypeInformation {
+    /// Appends rhs to lhs
     static func + (lhs: Self, rhs: Element) -> Self {
         var mutableLhs = lhs
         mutableLhs.append(rhs)
         return mutableLhs
     }
     
+    /// Appends lhs to rhs
     static func + (lhs: Element, rhs: Self) -> Self {
         rhs + lhs
     }
     
+    /// Appends contents of rhs to lhs
     static func + (lhs: Self, rhs: Self) -> Self {
         var mutableLhs = lhs
         mutableLhs.append(contentsOf: rhs)
         return mutableLhs.unique()
     }
     
+    /// Unique file renderable types contained in self
     func fileRenderableTypes() -> Self {
         flatMap { $0.fileRenderableTypes() }.unique()
     }

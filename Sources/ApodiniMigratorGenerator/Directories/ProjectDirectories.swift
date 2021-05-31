@@ -65,20 +65,21 @@ public struct ProjectDirectories {
         tests + Path(packageName + "Tests")
     }
     
+    /// All directories of the package that contain files
+    var allDirectories: [Path] {
+        [http, models, endpoints, networking, utils, testsTarget]
+    }
+    
     /// Initializes `self` out of a `packageName` and a `packagePath`
     public init(packageName: String, packagePath: Path) {
         self.packageName = packageName
         self.packagePath = packagePath
     }
     
+    /// Initializes `self` out of a `packageName` and a string `packagePath`
     public init(packageName: String, packagePath: String) {
         self.packageName = packageName
         self.packagePath = packagePath.asPath
-    }
-    
-    /// All directories of the package that contain files
-    var allDirectories: [Path] {
-        [http, models, endpoints, networking, utils, testsTarget]
     }
     
     /// Creates empty directories of the package

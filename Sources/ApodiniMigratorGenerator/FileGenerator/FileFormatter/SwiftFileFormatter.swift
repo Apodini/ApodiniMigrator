@@ -24,17 +24,20 @@ public protocol SwiftFileFormatter {
 }
 
 public extension String {
+    /// Returns a formatted version of `self` by a formatterType
     func formatted(with formatterType: SwiftFileFormatter.Type) -> String {
         var formatter = formatterType.init()
         return formatter.format(self)
     }
     
+    /// Returns an indentation formatted version of `self`
     func indentationFormatted() -> String {
         formatted(with: IndentationFormatter.self)
     }
 }
 
 public extension Path {
+    /// Returns a formatted version of the string content of the path by a formatterType
     func formatted(with formatterType: SwiftFileFormatter.Type) throws {
         var formatter = formatterType.init()
         return try formatter.format(self)

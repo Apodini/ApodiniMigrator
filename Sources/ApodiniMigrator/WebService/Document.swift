@@ -2,11 +2,16 @@ import Foundation
 import ApodiniMigratorShared
 
 public struct MetaData: Value {
+    /// Server path
     public var serverPath: String
+    /// Version
     public var version: Version
+    /// Encoder configuration
     public var encoderConfiguration: EncoderConfiguration
+    /// Decoder configuration
     public var decoderConfiguration: DecoderConfiguration
     
+    /// Server path appending the description of the version
     public var versionedServerPath: String {
         serverPath + "/" + version.description
     }
@@ -19,13 +24,15 @@ public struct MetaData: Value {
     }
 }
 
-public struct Document: Value { // TODO handle referencing in encode and init from decoder
+public struct Document: Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case metaData = "info", endpoints, components
     }
     
+    /// Metadata
     public var metaData: MetaData
+    /// Endpoints
     public var endpoints: [Endpoint]
     
     /// Initializes an empty document
@@ -34,18 +41,22 @@ public struct Document: Value { // TODO handle referencing in encode and init fr
         endpoints = []
     }
     
+    /// Adds a new enpoint
     public mutating func add(endpoint: Endpoint) {
         endpoints.append(endpoint)
     }
 
+    /// Sets the server path to metadata
     public mutating func setServerPath(_ path: String) {
         metaData.serverPath = path
     }
     
+    /// Sets the version to metadata
     public mutating func setVersion(_ version: Version) {
         metaData.version = version
     }
     
+    /// Sets coder configurations to metada
     public mutating func setCoderConfigurations(
         _ encoderConfiguration: EncoderConfiguration,
         _ decoderConfiguration: DecoderConfiguration
@@ -54,6 +65,7 @@ public struct Document: Value { // TODO handle referencing in encode and init fr
         metaData.decoderConfiguration = decoderConfiguration
     }
     
+    /// Encodes self into the given encoder.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(metaData, forKey: .metaData)
@@ -69,6 +81,7 @@ public struct Document: Value { // TODO handle referencing in encode and init fr
         try container.encode(typesStore.storage, forKey: .components)
     }
     
+    /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         metaData = try container.decode(MetaData.self, forKey: .metaData)
@@ -84,6 +97,7 @@ public struct Document: Value { // TODO handle referencing in encode and init fr
         }
     }
     
+    /// Exports json representation of self at the specified path
     public func export(at path: String) throws {
         try Path(path).write(json)
     }

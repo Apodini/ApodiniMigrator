@@ -7,10 +7,10 @@ import Foundation
 struct TypesStore {
     /// Stored references of enums and objects
     /// Properties of objects are recursively stored
-    public var storage: [String: TypeInformation]
+    var storage: [String: TypeInformation]
     
     /// Initializes a store with an empty storage
-    public init() {
+    init() {
         storage = [:]
     }
     
@@ -21,11 +21,6 @@ struct TypesStore {
             return type
         }
         
-        #warning(
-            """
-            unique key must be `absoluteName` of typeName which includes the module,
-            e.g. `ApodiniMigrator/User`, currently only using type name `User`
-            """)
         let key = ReferenceKey(type.typeName.name)
         
         if let enumType = type.enumType { // retrieving the nested enum

@@ -7,6 +7,7 @@ public extension String {
         "\n"
     }
     
+    /// Double line break
     static var doubleLineBreak: String {
         .lineBreak + .lineBreak
     }
@@ -16,6 +17,7 @@ public extension String {
         "\"\(self)\""
     }
     
+    /// Returns a version of self without the last question mark if present
     var dropQuestionMark: String {
         if last == "?" {
             return String(dropLast())
@@ -23,7 +25,7 @@ public extension String {
         return self
     }
     
-    /// Return the string with a uppercased first character
+    /// Return the string with an uppercased first character
     var upperFirst: String {
         if let first = first {
             return first.uppercased() + dropFirst()
@@ -31,6 +33,7 @@ public extension String {
         return self
     }
     
+    /// Return the string with a lowercased first character
     var lowerFirst: String {
         if let first = first {
             return first.lowercased() + dropFirst()
@@ -38,6 +41,7 @@ public extension String {
         return self
     }
     
+    /// Path out of `self`
     var asPath: Path {
         Path(self)
     }
@@ -56,6 +60,7 @@ public extension String {
         components(separatedBy: string).filter { ignoreEmptyComponents ? !$0.isEmpty : true }
     }
     
+    /// Returns lines of self separated by `\n`, and trimming whitespace characters
     func sanitizedLines() -> [String] {
         // splitting the string, empty lines are mapped into empty string array elements
         split(string: .lineBreak).reduce(into: [String]()) { result, current in
@@ -66,12 +71,14 @@ public extension String {
         }
     }
     
+    /// Replaces occurrencies of `string` with an empty string
     func without(_ string: String) -> String {
         replacingOccurrences(of: string, with: "")
     }
 }
 
 public extension Collection where Element == String {
+    /// Joins elements with a `\n`
     var lineBreaked: String {
         joined(separator: .lineBreak)
     }

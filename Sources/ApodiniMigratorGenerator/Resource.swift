@@ -29,10 +29,12 @@ public protocol Resource {
 
 /// Default internal implementations
 public extension Resource {
+    /// name of the file
     var fileName: String {
         "\(name).\(fileExtension.description)"
     }
     
+    /// url of the file
     var fileURL: URL {
         guard let fileURL = bundle.url(forResource: name, withExtension: fileExtension.description) else {
             fatalError("Resource \(name) not found")
@@ -41,6 +43,7 @@ public extension Resource {
         return fileURL
     }
     
+    /// replaces the `content()` ocurrencies of `target` with `replacement`
     func replaceOccurrencies(of target: String, with replacement: String) -> String {
         content().replacingOccurrences(of: target, with: replacement)
     }
@@ -48,8 +51,10 @@ public extension Resource {
 
 /// Default public implementations
 public extension Resource {
+    /// file extension
     var fileExtension: FileExtension { .markdown }
     
+    /// string content of the file
     func content() -> String {
         guard let content = try? String(contentsOf: fileURL, encoding: .utf8) else {
             fatalError("Failed to read the resource")
@@ -58,6 +63,7 @@ public extension Resource {
         return lines.last?.isEmpty == true ? (lines.dropLast().joined(separator: .lineBreak)) : content
     }
     
+    /// raw data content of the file
     func data() throws -> Data {
         try Data(contentsOf: fileURL)
     }

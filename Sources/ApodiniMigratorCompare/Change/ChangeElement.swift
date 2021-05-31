@@ -8,13 +8,33 @@
 import Foundation
 import ApodiniMigrator
 
+struct EndpointElement: Value {
+    // MARK: Private Inner Types
+    private enum CodingKeys: String, CodingKey {
+        case identifier
+        case definedIn = "defined-in"
+    }
+    let identifier: DeltaIdentifier
+    let definedIn: String
+    
+    init(identifier: DeltaIdentifier, definedIn: String) {
+        self.identifier = identifier
+        self.definedIn = definedIn
+    }
+    
+    init(from endpoint: Endpoint) {
+        self.identifier = endpoint.deltaIdentifier
+        self.definedIn = endpoint.response.nestedType.typeName.name
+    }
+ }
+
 enum ChangeElement: DeltaIdentifiable, Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case endpoint, `enum`, object, networking
     }
     
-    case endpoint(DeltaIdentifier)
+    case endpoint(EndpointElement)
     case `enum`(DeltaIdentifier)
     case object(DeltaIdentifier)
     case networking
@@ -49,7 +69,7 @@ enum ChangeElement: DeltaIdentifiable, Value {
     
     var deltaIdentifier: DeltaIdentifier {
         switch self {
-        case let .endpoint(deltaIdentifier): return deltaIdentifier
+        case let .endpoint(endpointElement): return endpointElement.identifier
         case let .enum(deltaIdentifier): return deltaIdentifier
         case let .object(deltaIdentifier): return deltaIdentifier
         case .networking: return .init("NetworkingService")
@@ -59,7 +79,7 @@ enum ChangeElement: DeltaIdentifiable, Value {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
-        case let .endpoint(deltaIdentifier): try container.encode(deltaIdentifier, forKey: .endpoint)
+        case let .endpoint(endpointElement): try container.encode(endpointElement, forKey: .endpoint)
         case let .enum(deltaIdentifier): try container.encode(deltaIdentifier, forKey: .enum)
         case let .object(deltaIdentifier): try container.encode(deltaIdentifier, forKey: .object)
         case .networking: try container.encode(deltaIdentifier, forKey: .networking)
@@ -70,11 +90,15 @@ enum ChangeElement: DeltaIdentifiable, Value {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let key = container.allKeys.first
         switch key {
-        case .endpoint: self = .endpoint(try container.decode(DeltaIdentifier.self, forKey: .endpoint))
+        case .endpoint: self = .endpoint(try container.decode(EndpointElement.self, forKey: .endpoint))
         case .enum: self = .enum(try container.decode(DeltaIdentifier.self, forKey: .enum))
         case .object: self = .object(try container.decode(DeltaIdentifier.self, forKey: .object))
         case .networking: self = .networking
         default: fatalError("Failed to decode \(Self.self)")
         }
+    }
+    
+    static func `for`(endpoint: Endpoint) -> ChangeElement {
+        .endpoint(.init(from: endpoint))
     }
 }

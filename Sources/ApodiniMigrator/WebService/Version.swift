@@ -44,11 +44,13 @@ public struct Version: Value {
         self.patch = patch
     }
     
+    /// Encodes self into the given encoder
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode("\(prefix)_\(major).\(minor).\(patch)")
     }
     
+    /// Initializes self from the given decoder
     public init(from decoder: Decoder) throws {
         let string = try decoder.singleValueContainer().decode(String.self)
         
@@ -70,19 +72,22 @@ public struct Version: Value {
         }
     }
     
+    /// Default version
     static var `default`: Version {
         .init()
     }
 }
 
 extension Version: CustomStringConvertible {
+    /// String representation of the version
     public var description: String {
         "\(prefix)\(major)"
     }
 }
 
 public extension Version {
-    func differentDescription(from: Version) -> Bool {
-        description != from.description
+    /// Returns whether description of self is different from `other`
+    func differentDescription(from other: Version) -> Bool {
+        description != other.description
     }
 }

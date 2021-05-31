@@ -88,7 +88,6 @@ class ChangeContainer: Value {
     
     func add(_ change: RenameChange) {
         renamings.append(change)
-        print(json)
     }
     
     func add(_ change: ValueChange) {

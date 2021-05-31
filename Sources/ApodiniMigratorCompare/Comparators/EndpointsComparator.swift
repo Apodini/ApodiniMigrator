@@ -39,15 +39,22 @@ struct EndpointsComparator: Comparator {
     func handle(removalCandidates: [Endpoint], additionCandidates: [Endpoint]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
-        /// TODO remove assert
-        assert(Set(removalCandidates.identifiers()).intersection(additionCandidates.identifiers()).isEmpty, "Encoutered removal and addition candidates with same id")
+        let noCommontElements = Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers())
+        assert(noCommontElements, "Encoutered removal and addition candidates with same id")
         
         for candidate in removalCandidates {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates, useRawValueDistance: false) {
                 relaxedMatchings += relaxedMatching.deltaIdentifier
                 relaxedMatchings += candidate.deltaIdentifier
                 
-                changes.add(RenameChange(element: .endpoint(candidate.deltaIdentifier), target: .`self`, from: candidate.deltaIdentifier.rawValue, to: relaxedMatching.deltaIdentifier.rawValue))
+                changes.add(
+                    RenameChange(
+                        element: .for(endpoint: candidate),
+                        target: .`self`,
+                        from: candidate.deltaIdentifier.rawValue,
+                        to: relaxedMatching.deltaIdentifier.rawValue
+                    )
+                )
                 
                 let endpointComparator = EndpointComparator(lhs: candidate, rhs: relaxedMatching, changes: changes)
                 endpointComparator.compare()
@@ -55,11 +62,11 @@ struct EndpointsComparator: Comparator {
         }
         
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
-            changes.add(DeleteChange(element: .endpoint(removal.deltaIdentifier), target: .`self`, deleted: .none, fallbackValue: .none))
+            changes.add(DeleteChange(element: .for(endpoint: removal), target: .`self`, deleted: .none, fallbackValue: .none))
         }
         
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
-            changes.add(AddChange(element: .endpoint(addition.deltaIdentifier), target: .`self`, added: .jsonString(addition), defaultValue: .none))
+            changes.add(AddChange(element: .for(endpoint: addition), target: .`self`, added: .jsonString(addition), defaultValue: .none))
         }
     }
 }

@@ -33,6 +33,7 @@ public enum FileExtension: CustomStringConvertible {
 }
 
 public extension String {
+    /// Returns lhs after appending `.` and `description` of `rhs`
     static func + (lhs: Self, rhs: FileExtension) -> Self {
         lhs + "." + rhs.description
     }
