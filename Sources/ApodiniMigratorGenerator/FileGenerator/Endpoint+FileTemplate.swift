@@ -40,7 +40,7 @@ extension Endpoint {
     }
     
     var contentParameterString: String {
-        if let contentParameter = parameters.first(where: { $0.parameterType == .content }) {
+        if let contentParameter = parameters.firstMatch(on: \.parameterType, with: .content) {
             return "NetworkingService.encode(\(contentParameter.name))"
         }
         return "nil"

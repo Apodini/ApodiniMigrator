@@ -68,7 +68,7 @@ struct ObjectFileParser: FileParser {
     }
     
     mutating func changedType(of property: String) {
-        if let caseName = parsedCodingKeysCases.first(where: { $0.rawValue == property })?.caseName {
+        if let caseName = parsedCodingKeysCases.firstMatch(on: \.rawValue, with: property)?.caseName {
             if let line = encodable.first(where: { $0.contains("forKey: .\(caseName)") }) {
                 encodable.replacingOccurrences(of: line, with: "try container.encode(\("hello world".asString), forKey: .\(caseName))")
             }

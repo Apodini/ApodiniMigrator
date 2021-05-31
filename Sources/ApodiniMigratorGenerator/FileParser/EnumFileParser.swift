@@ -66,7 +66,7 @@ struct EnumFileParser: FileParser {
     
     /// Handles the delete of a `case`
     mutating func deleted(case: String) {
-        if let affectedCase = parsedCases.first(where: { $0.rawValue == `case` }) {
+        if let affectedCase = parsedCases.firstMatch(on: \.rawValue, with: `case`) {
             var updated = deletedCases.map { $0.caseName }
             updated.append(affectedCase.caseName)
             deprecated.replacingOccurrences(
@@ -78,7 +78,7 @@ struct EnumFileParser: FileParser {
     
     /// Handles adding of a new `case`
     mutating func added(case: String) {
-        guard let recovered = deletedCases.first(where: { $0.caseName == `case` }) else {
+        guard let recovered = deletedCases.firstMatch(on: \.caseName, with: `case`) else {
             return
         }
         

@@ -11,7 +11,7 @@ public enum TypeInformation: Value {
     indirect case optional(wrappedValue: TypeInformation)
     /// An enum type with `String` cases
     case `enum`(name: TypeName, cases: [EnumCase])
-    /// An object type with properties of containing `TypeInformation` and a name
+    /// An object type with properties containing a `TypeInformation` and a name
     case object(name: TypeName, properties: [TypeProperty])
     /// A reference created at `TypesStore` that uniquely identifies the type inside the store
     case reference(ReferenceKey)

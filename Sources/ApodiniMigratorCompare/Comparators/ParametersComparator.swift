@@ -33,9 +33,8 @@ struct ParametersComparator: Comparator {
         let additionCandidates = rhsParameters.filter { !matchedIds.contains($0.deltaIdentifier) }
         
         for matched in matchedIds {
-            if
-                let lhs = lhsParameters.first(where: { $0.deltaIdentifier == matched }),
-                let rhs = rhsParameters.first(where: { $0.deltaIdentifier == matched }) {
+            if let lhs = lhsParameters.firstMatch(on: \.deltaIdentifier, with: matched),
+                let rhs = rhsParameters.firstMatch(on: \.deltaIdentifier, with: matched) {
                 compare(lhs: lhs, rhs: rhs)
             }
         }
@@ -156,8 +155,8 @@ struct ParametersComparator: Comparator {
     func handle(removalCandidates: [Parameter], additionCandidates: [Parameter]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
-        let noCommontElements = Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers())
-        assert(noCommontElements, "Encoutered removal and addition candidates with same id")
+        let noCommonElements = Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers())
+        assert(noCommonElements, "Encoutered removal and addition candidates with same id")
         
         for candidate in removalCandidates {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates) {

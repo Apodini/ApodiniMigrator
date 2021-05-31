@@ -58,7 +58,7 @@ public struct PackageFilesCollector {
     /// Returns that path of a file with `name` at a specified `directory`
     private func file(name: String, directory: DirectoryName) -> Path {
         let fileName = name.upperFirst + .swift
-        if let filePath = directoryFiles[directory]?.first(where: { $0.lastComponent == fileName }) {
+        if let filePath = directoryFiles[directory]?.firstMatch(on: \.lastComponent, with: fileName) {
             return filePath
         }
         fatalError("\(fileName) couldn't be found in \(directory.rawValue)")

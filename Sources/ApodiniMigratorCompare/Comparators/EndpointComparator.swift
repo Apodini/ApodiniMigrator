@@ -24,11 +24,25 @@ struct EndpointComparator: Comparator {
     
     func compare() {
         if lhs.path != rhs.path {
-            changes.add(ValueChange(element: element, target: .path, from: .string(lhs.path.resourcePath), to: .string(rhs.path.resourcePath)))
+            changes.add(
+                ValueChange(
+                    element: element,
+                    target: .path,
+                    from: .string(lhs.path.resourcePath),
+                    to: .string(rhs.path.resourcePath)
+                )
+            )
         }
         
         if lhs.operation != rhs.operation {
-            changes.add(ValueChange(element: element, target: .operation, from: .string(lhs.operation.rawValue), to: .string(lhs.operation.rawValue)))
+            changes.add(
+                ValueChange(
+                    element: element,
+                    target: .operation,
+                    from: .string(lhs.operation.rawValue),
+                    to: .string(lhs.operation.rawValue)
+                )
+            )
         }
         
         let parametersComparator = ParametersComparator(lhs: lhs, rhs: rhs, changes: changes)

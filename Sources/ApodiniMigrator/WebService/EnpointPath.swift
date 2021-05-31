@@ -113,7 +113,7 @@ public struct EndpointPath: Value {
         self = Self(try container.decode(String.self))
     }
     
-    /// :nodoc:
+    /// Checks equality between lhs and rhs based on respective string components
     public static func == (lhs: EndpointPath, rhs: EndpointPath) -> Bool {
         lhs.stringComponents == rhs.stringComponents
     }

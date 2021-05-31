@@ -20,6 +20,7 @@ protocol Change: Codable {
     var element: ChangeElement { get }
     var target: ChangeTarget { get }
     var type: ChangeType { get }
+    // TODO add breaking bool variable
 }
 
 extension Change {
