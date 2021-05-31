@@ -20,4 +20,9 @@ enum FluentPropertyType: String {
     case parentProperty
     case siblingsProperty
     case timestampProperty
+    
+    /// Indicates whether the type of the property might introduce some kind of relationship
+    var isRelationshipProperty: Bool {
+        [.childrenProperty, .optionalChildProperty, .optionalParentProperty, .parentProperty, .siblingsProperty].contains(self)
+    }
 }

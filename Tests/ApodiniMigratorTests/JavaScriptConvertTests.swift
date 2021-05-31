@@ -114,9 +114,9 @@ final class JavaScriptConvertTests: XCTestCase {
             return
         }
         
-        let document = Path.desktop + "document.json"
+        let document = Path.desktop + "delta_document.json"
         
-        let gen = try ApodiniMigratorGenerator(packageName: "HelloWorld", packagePath: packagePath.string, documentPath: document.string)
+        let gen = try ApodiniMigratorGenerator(packageName: "ExampleACD", packagePath: packagePath.string, documentPath: document.string)
         XCTAssertNoThrow(try gen.build())
     }
     
@@ -125,7 +125,7 @@ final class JavaScriptConvertTests: XCTestCase {
             return
         }
         
-        let packageFilesCollector = PackageFilesCollector(packageName: "HelloWorld", packagePath: .desktop)
+        let packageFilesCollector = PackageFilesCollector(packageName: "ExampleACD", packagePath: .desktop)
         
         let user = packageFilesCollector.model(name: "Contact")
         

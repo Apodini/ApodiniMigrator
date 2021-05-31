@@ -24,6 +24,9 @@ public struct ApodiniMigratorGenerator {
     /// all models of the document
     private let allModels: [TypeInformation]
     
+    /// TODO remove
+    private var useTemplateTestFile = false
+    
     /// Initializes a new instance with a `packageName`, string `packagePath` and the string `documentPath`
     public init(packageName: String, packagePath: String, documentPath: String) throws {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
@@ -130,10 +133,9 @@ public struct ApodiniMigratorGenerator {
         let tests = directories.tests
         let testsTarget = directories.testsTarget
         let testFileName = packageName + "Tests" + .swift
-        let modelsWithoutRelationships = allModels.filter { !$0.hasRelationships() }
-        let testFile = modelsWithoutRelationships.isEmpty
+        let testFile = useTemplateTestFile
             ? templateContentWithFileComment(.testFile, alternativeFileName: testFileName).with(packageName: packageName)
-            : TestFileTemplate(modelsWithoutRelationships, fileName: testFileName, packageName: packageName).render().indentationFormatted()
+            : TestFileTemplate(allModels, fileName: testFileName, packageName: packageName).render().indentationFormatted()
         
         try (testsTarget + testFileName).write(testFile)
         

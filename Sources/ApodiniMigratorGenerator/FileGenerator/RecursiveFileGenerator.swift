@@ -29,7 +29,7 @@ public struct RecursiveFileGenerator: Persistable {
                 if typeInformation.isEnum {
                     return try EnumFileTemplate(typeInformation)
                 } else {
-                    return try ObjectFileTemplate(typeInformation, kind: typeInformation.hasRelationships() ? .class : .struct)
+                    return try ObjectFileTemplate(typeInformation)
                 }
             }
     }
