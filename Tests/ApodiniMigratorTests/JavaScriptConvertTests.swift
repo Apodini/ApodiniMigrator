@@ -109,7 +109,7 @@ final class JavaScriptConvertTests: XCTestCase {
     }
     
     func testPackageGenerator() throws {
-        let packagePath: Path = .desktop
+        let packagePath: Path = .projectRoot
         guard packagePath.exists else {
             return
         }

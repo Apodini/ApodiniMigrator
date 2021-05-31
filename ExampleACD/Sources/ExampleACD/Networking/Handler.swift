@@ -1,7 +1,7 @@
 //
 //  Handler.swift
 //
-//  Created by ApodiniMigrator on 30.05.2021
+//  Created by ApodiniMigrator on 31.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -74,7 +74,7 @@ extension URLRequest {
     ///    - handler: handler instance, for which the request should be created
     ///    - basePath: string of the base path (server url)
     init<D: Decodable>(for handler: Handler<D>, with basePath: String) {
-        let urlString = "\(NSString(string: basePath).appendingPathComponent(handler.fullPath))"
+        let urlString = basePath + "/" + handler.fullPath
         guard let url = URL(string: urlString) else {
             fatalError("Encountered an invalid path for the handler of \(D.self): \(urlString)")
         }

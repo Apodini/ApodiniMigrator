@@ -1,7 +1,7 @@
 //
 //  NetworkingService.swift
 //
-//  Created by ApodiniMigrator on 30.05.2021
+//  Created by ApodiniMigrator on 31.05.2021
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -83,3 +83,4 @@ fileprivate extension NetworkingService {
         let data: D
     }
 }
+
