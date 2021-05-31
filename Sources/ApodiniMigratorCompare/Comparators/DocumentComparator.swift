@@ -12,6 +12,10 @@ struct DocumentComparator: Comparator {
     let rhs: Document
     var changes: ChangeContainer
     
+    var currentEncoderConfiguration: EncoderConfiguration {
+        rhs.metaData.encoderConfiguration
+    }
+    
     init(lhs: Document, rhs: Document, changes: ChangeContainer) {
         self.lhs = lhs
         self.rhs = rhs
@@ -21,7 +25,8 @@ struct DocumentComparator: Comparator {
     func compare() {
         let metaDataComparator = MetaDataComparator(lhs: lhs.metaData, rhs: rhs.metaData, changes: changes)
         metaDataComparator.compare()
-        let endpointsComparator = EndpointsComparator(lhs: lhs.endpoints, rhs: rhs.endpoints, changes: changes)
+        var endpointsComparator = EndpointsComparator(lhs: lhs.endpoints, rhs: rhs.endpoints, changes: changes)
+        endpointsComparator.encoderConfiguration = currentEncoderConfiguration
         endpointsComparator.compare()
     }
 }

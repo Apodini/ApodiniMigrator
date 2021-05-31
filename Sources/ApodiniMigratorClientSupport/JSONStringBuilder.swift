@@ -28,8 +28,7 @@ public struct JSONStringBuilder {
     
     /// Initializes `self` with a `typeInformation` property and an `EncoderConfiguration` object
     init(_ typeInformation: TypeInformation, with configuration: EncoderConfiguration) {
-        self.typeInformation = typeInformation
-        self.encoder = JSONEncoder().configured(with: configuration)
+        self.init(typeInformation, encoder: JSONEncoder().configured(with: configuration))
     }
     
     /// Dictionaries are encoded either with curly brackes `{ "key" : value }` if the key is String or Int,
@@ -72,8 +71,8 @@ public struct JSONStringBuilder {
     }
     
     /// Returns a json string representation of an instance out of the typeinformation
-    public static func jsonString(_ typeInformation: TypeInformation) -> String {
-        Self(typeInformation).build()
+    public static func jsonString(_ typeInformation: TypeInformation, with encoderConfiguration: EncoderConfiguration) -> String {
+        Self(typeInformation, with: encoderConfiguration).build()
     }
     
     static func string<C: ApodiniMigratorCodable>(_ type: C.Type) throws -> String {

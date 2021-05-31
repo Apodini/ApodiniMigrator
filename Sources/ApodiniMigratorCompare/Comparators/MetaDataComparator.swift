@@ -40,8 +40,8 @@ struct MetaDataComparator: Comparator {
                 ValueChange(
                     element: element,
                     target: .encoderConfiguration,
-                    from: .jsonString(lhsEncoderConfig),
-                    to: .jsonString(rhsEncoderConfig)
+                    from: .json(of: lhsEncoderConfig),
+                    to: .json(of: rhsEncoderConfig)
                 )
             )
         }
@@ -54,8 +54,8 @@ struct MetaDataComparator: Comparator {
                 ValueChange(
                     element: element,
                     target: .decoderConfiguration,
-                    from: .jsonString(lhsDecoderConfig),
-                    to: .jsonString(rhsDecoderConfig)
+                    from: .json(of: lhsDecoderConfig),
+                    to: .json(of: rhsDecoderConfig)
                 )
             )
         }

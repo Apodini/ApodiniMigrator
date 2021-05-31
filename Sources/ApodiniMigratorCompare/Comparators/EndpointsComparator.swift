@@ -13,6 +13,13 @@ struct EndpointsComparator: Comparator {
     let lhs: [Endpoint]
     let rhs: [Endpoint]
     var changes: ChangeContainer
+    var encoderConfiguration: EncoderConfiguration?
+    private var configuration: EncoderConfiguration {
+        guard let configuration = encoderConfiguration else {
+            fatalError("Encoder configuration not set")
+        }
+        return configuration
+    }
     
     init(lhs: [Endpoint], rhs: [Endpoint], changes: ChangeContainer) {
         self.lhs = lhs
@@ -29,7 +36,8 @@ struct EndpointsComparator: Comparator {
         for matched in matchedIds {
             if let lhs = lhs.firstMatch(on: \.deltaIdentifier, with: matched),
                let rhs = rhs.firstMatch(on: \.deltaIdentifier, with: matched) {
-                let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: changes)
+                var endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: changes)
+                endpointComparator.encoderConfiguration = encoderConfiguration
                 endpointComparator.compare()
             }
         }
@@ -57,7 +65,8 @@ struct EndpointsComparator: Comparator {
                     )
                 )
                 
-                let endpointComparator = EndpointComparator(lhs: candidate, rhs: relaxedMatching, changes: changes)
+                var endpointComparator = EndpointComparator(lhs: candidate, rhs: relaxedMatching, changes: changes)
+                endpointComparator.encoderConfiguration = encoderConfiguration
                 endpointComparator.compare()
             }
         }
@@ -78,7 +87,7 @@ struct EndpointsComparator: Comparator {
                 AddChange(
                     element: .for(endpoint: addition),
                     target: .`self`,
-                    added: .jsonString(addition),
+                    added: .json(of: addition),
                     defaultValue: .none
                 )
             )

@@ -14,6 +14,15 @@ struct ParametersComparator: Comparator {
     let lhsParameters: [Parameter]
     let rhsParameters: [Parameter]
     
+    var encoderConfiguration: EncoderConfiguration?
+    
+    private var configuration: EncoderConfiguration {
+        guard let configuration = encoderConfiguration else {
+            fatalError("Encoder configuration not set")
+        }
+        return configuration
+    }
+    
     var element: ChangeElement {
         .for(endpoint: lhs)
     }
@@ -75,7 +84,7 @@ struct ParametersComparator: Comparator {
     func compareLightweightParameters(lhs: Parameter, rhs: Parameter) {
         if lhs.necessity != rhs.necessity, rhs.necessity == .required { // necessity changed to required
             return changes.add(
-                ParameterChange(
+                ParameterChange( /// TODO provide default value?
                     element: element,
                     target: .queryParameter,
                     identifier: lhs.deltaIdentifier,
@@ -94,8 +103,8 @@ struct ParametersComparator: Comparator {
                     target: .queryParameter,
                     identifier: lhs.deltaIdentifier,
                     parameterTarget: .typeInformation,
-                    from: .jsonString(lhs.typeInformation),
-                    to: .jsonString(rhs.typeInformation)
+                    from: .json(of: lhs.typeInformation),
+                    to: .json(of: rhs.typeInformation)
                 )
             )
         }
@@ -112,22 +121,18 @@ struct ParametersComparator: Comparator {
                 DeleteChange(
                     element: element,
                     target: .contentParameter,
-                    deleted: .jsonString(lhs),
-                    fallbackValue: .json(lhs.typeInformation)
+                    deleted: .json(of: lhs),
+                    fallbackValue: .value(from: lhs.typeInformation, with: configuration)
                 )
             )
             
-            var defaultValue: ChangeValue?
-            if rhs.necessity == .required {
-                defaultValue = .json(rhs.typeInformation)
-            }
-            
+            let defaultValue = rhs.necessity == .required ? ChangeValue.value(from: rhs.typeInformation, with: configuration) : .none
             changes.add(
                 AddChange(
                     element: element,
                     target: target(for: rhs.parameterType),
-                    added: .jsonString(rhs),
-                    defaultValue: defaultValue ?? .none
+                    added: .json(of: rhs),
+                    defaultValue: defaultValue
                 )
             )
         }
@@ -137,15 +142,15 @@ struct ParametersComparator: Comparator {
                 AddChange(
                     element: element,
                     target: .contentParameter,
-                    added: .jsonString(rhs),
-                    defaultValue: .json(JSONStringBuilder.jsonString(rhs.typeInformation))
+                    added: .json(of: rhs),
+                    defaultValue: .value(from: rhs.typeInformation, with: configuration)
                 )
             )
             changes.add(
                 DeleteChange(
                     element: element,
                     target: target(for: lhs.parameterType),
-                    deleted: .jsonString(lhs),
+                    deleted: .json(of: lhs),
                     fallbackValue: .none
                 )
             )
@@ -180,7 +185,7 @@ struct ParametersComparator: Comparator {
                 DeleteChange(
                     element: element,
                     target: target(for: removal.parameterType),
-                    deleted: .jsonString(removal),
+                    deleted: .json(of: removal),
                     fallbackValue: .none
                 )
             )
@@ -189,13 +194,13 @@ struct ParametersComparator: Comparator {
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
             var defaultValue: ChangeValue?
             if addition.necessity == .required {
-                defaultValue = .json(addition.typeInformation)
+                defaultValue = .value(from: addition.typeInformation, with: configuration)
             }
             changes.add(
                 AddChange(
                     element: element,
                     target: target(for: addition.parameterType),
-                    added: .jsonString(addition),
+                    added: .json(of: addition),
                     defaultValue: defaultValue ?? .none
                 )
             )

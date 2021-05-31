@@ -24,16 +24,6 @@ public enum ChangeValue: Value {
         }
     }
     
-    /// Returns .json representation of an encodable value
-    static func jsonString<E: Encodable>(_ encodable: E) -> ChangeValue {
-        .json(encodable.json)
-    }
-    
-    /// Returns a valid json string out of the type information with empty values
-    static func json(_ typeInformation: TypeInformation) -> ChangeValue {
-        .json(JSONStringBuilder.jsonString(typeInformation))
-    }
-    
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
@@ -56,5 +46,19 @@ public enum ChangeValue: Value {
         case .string: self = .string(try container.decode(String.self, forKey: .string))
         case .json: self = .json(try container.decode(String.self, forKey: .json))
         }
+    }
+}
+
+extension ChangeValue {
+    /// Returns .json representation of an encodable value
+    /// Used for passing added or deleted instances of web service
+    static func json<E: Encodable>(of encodable: E) -> ChangeValue {
+        .json(encodable.json)
+    }
+    
+    /// Returns a valid json string out of the type information with empty values
+    /// Used for providing default or fallbackValues for elements that require it
+    static func value(from typeInformation: TypeInformation, with configuration: EncoderConfiguration) -> ChangeValue {
+        .json(JSONStringBuilder.jsonString(typeInformation, with: configuration))
     }
 }

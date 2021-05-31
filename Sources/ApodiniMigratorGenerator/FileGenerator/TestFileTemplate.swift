@@ -23,7 +23,7 @@ public struct TestFileTemplate: Renderable {
     private func method(for model: TypeInformation) -> String {
         """
         func test\(model.typeName.name)() throws {
-        let jsonString = \"\(JSONStringBuilder.jsonString(model).replacingOccurrences(of: "\"", with: "\\\""))\"
+        let jsonString = \"\(JSONStringBuilder.jsonString(model, with: .default).replacingOccurrences(of: "\"", with: "\\\""))\"
         let data = jsonString.data(using: .utf8) ?? Data()
 
         let instance = XCTAssertNoThrowWithResult(try Self.decoder.decode(\(model.typeName.name).self, from: data))

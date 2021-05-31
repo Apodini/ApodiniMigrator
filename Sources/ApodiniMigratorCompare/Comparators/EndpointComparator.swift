@@ -12,6 +12,8 @@ struct EndpointComparator: Comparator {
     let rhs: Endpoint
     var changes: ChangeContainer
     
+    var encoderConfiguration: EncoderConfiguration?
+    
     var element: ChangeElement {
         .for(endpoint: lhs)
     }
@@ -45,7 +47,8 @@ struct EndpointComparator: Comparator {
             )
         }
         
-        let parametersComparator = ParametersComparator(lhs: lhs, rhs: rhs, changes: changes)
+        var parametersComparator = ParametersComparator(lhs: lhs, rhs: rhs, changes: changes)
+        parametersComparator.encoderConfiguration = encoderConfiguration
         parametersComparator.compare()
         
         let responseComparator = TypeInformationComparator(lhs: lhs.response, rhs: rhs.response, changes: changes)
