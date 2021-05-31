@@ -34,6 +34,6 @@ public extension URLRequest {
     /// - Parameters:
     ///    - headers: `Headers` to be added to `self`
     mutating func set(_ headers: HTTPHeaders) {
-        headers.forEach { addValue($0.key, forHTTPHeaderField: $0.value) }
+        headers.forEach { addValue($0.value, forHTTPHeaderField: $0.key) }
     }
 }

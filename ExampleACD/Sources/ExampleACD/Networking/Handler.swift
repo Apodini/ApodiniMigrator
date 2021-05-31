@@ -72,14 +72,9 @@ extension URLRequest {
     /// Initializes a new `URLRequest`
     /// - Parameters:
     ///    - handler: handler instance, for which the request should be created
-    ///    - basePath: string of the base path (server url)
-    init<D: Decodable>(for handler: Handler<D>, with basePath: String) {
-        let urlString = basePath + "/" + handler.fullPath
-        guard let url = URL(string: urlString) else {
-            fatalError("Encountered an invalid path for the handler of \(D.self): \(urlString)")
-        }
-        
-        self.init(url: url)
+    ///    - baseURL: base url of the web service
+    init<D: Decodable>(for handler: Handler<D>, with baseURL: URL) {
+        self.init(url: baseURL.appendingPathComponent(handler.fullPath))
         
         httpMethod = handler.httpMethod.string
         var headers = handler.headers
@@ -89,8 +84,8 @@ extension URLRequest {
                 case .cookie, .header:
                 authorization.inject(into: &headers)
                 case .query:
-                let query = "\(url.query != nil ? "&" : "?")\(authorization.query)"
-                self.url?.appendPathComponent(query)
+                let query = "\(url?.query != nil ? "&" : "?")\(authorization.query)"
+                url?.appendPathComponent(query)
             }
         }
         

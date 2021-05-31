@@ -12,14 +12,6 @@
             }
           },
           {
-            "name" : "createdAt",
-            "type" : {
-              "optional" : {
-                "scalar" : "Date"
-              }
-            }
-          },
-          {
             "name" : "name",
             "type" : {
               "scalar" : "String"
@@ -104,14 +96,6 @@
             }
           },
           {
-            "name" : "createdAt",
-            "type" : {
-              "optional" : {
-                "scalar" : "Date"
-              }
-            }
-          },
-          {
             "name" : "address",
             "type" : {
               "scalar" : "String"
@@ -150,194 +134,6 @@
     "serverPath" : "http:\/\/0.0.0.0:8080"
   },
   "endpoints" : [
-    {
-      "errors" : [
-        {
-          "message" : "Unauthorized",
-          "code" : 401
-        },
-        {
-          "message" : "Forbidden",
-          "code" : 403
-        },
-        {
-          "message" : "Not found",
-          "code" : 404
-        },
-        {
-          "message" : "Internal server error",
-          "code" : 500
-        }
-      ],
-      "handlerName" : "GetContacts",
-      "operation" : "read",
-      "path" : "\/v1\/contacts",
-      "deltaIdentifier" : "getContacts",
-      "response" : {
-        "repeated" : {
-          "reference" : "Contact"
-        }
-      },
-      "parameters" : [
-
-      ]
-    },
-    {
-      "errors" : [
-        {
-          "message" : "Unauthorized",
-          "code" : 401
-        },
-        {
-          "message" : "Forbidden",
-          "code" : 403
-        },
-        {
-          "message" : "Not found",
-          "code" : 404
-        },
-        {
-          "message" : "Internal server error",
-          "code" : 500
-        }
-      ],
-      "handlerName" : "CreateContact",
-      "operation" : "create",
-      "path" : "\/v1\/contacts",
-      "deltaIdentifier" : "createContact",
-      "response" : {
-        "reference" : "Contact"
-      },
-      "parameters" : [
-        {
-          "parameterName" : "contact",
-          "hasDefaultValue" : false,
-          "kind" : "content",
-          "type" : {
-            "reference" : "Contact"
-          }
-        }
-      ]
-    },
-    {
-      "errors" : [
-        {
-          "message" : "Unauthorized",
-          "code" : 401
-        },
-        {
-          "message" : "Forbidden",
-          "code" : 403
-        },
-        {
-          "message" : "Not found",
-          "code" : 404
-        },
-        {
-          "message" : "Internal server error",
-          "code" : 500
-        }
-      ],
-      "handlerName" : "GetContact",
-      "operation" : "read",
-      "path" : "\/v1\/contacts\/{contactId}",
-      "deltaIdentifier" : "getContact",
-      "response" : {
-        "reference" : "Contact"
-      },
-      "parameters" : [
-        {
-          "parameterName" : "contactId",
-          "hasDefaultValue" : false,
-          "kind" : "path",
-          "type" : {
-            "scalar" : "UUID"
-          }
-        }
-      ]
-    },
-    {
-      "errors" : [
-        {
-          "message" : "Unauthorized",
-          "code" : 401
-        },
-        {
-          "message" : "Forbidden",
-          "code" : 403
-        },
-        {
-          "message" : "Not found",
-          "code" : 404
-        },
-        {
-          "message" : "Internal server error",
-          "code" : 500
-        }
-      ],
-      "handlerName" : "DeleteContact",
-      "operation" : "delete",
-      "path" : "\/v1\/contacts\/{contactId}",
-      "deltaIdentifier" : "deleteContact",
-      "response" : {
-        "reference" : "Status"
-      },
-      "parameters" : [
-        {
-          "parameterName" : "contactId",
-          "hasDefaultValue" : false,
-          "kind" : "path",
-          "type" : {
-            "scalar" : "UUID"
-          }
-        }
-      ]
-    },
-    {
-      "errors" : [
-        {
-          "message" : "Unauthorized",
-          "code" : 401
-        },
-        {
-          "message" : "Forbidden",
-          "code" : 403
-        },
-        {
-          "message" : "Not found",
-          "code" : 404
-        },
-        {
-          "message" : "Internal server error",
-          "code" : 500
-        }
-      ],
-      "handlerName" : "UpdateContact",
-      "operation" : "update",
-      "path" : "\/v1\/contacts\/{contactId}",
-      "deltaIdentifier" : "updateContact",
-      "response" : {
-        "reference" : "Contact"
-      },
-      "parameters" : [
-        {
-          "parameterName" : "contactId",
-          "hasDefaultValue" : false,
-          "kind" : "path",
-          "type" : {
-            "scalar" : "UUID"
-          }
-        },
-        {
-          "parameterName" : "mediator",
-          "hasDefaultValue" : false,
-          "kind" : "content",
-          "type" : {
-            "reference" : "ContactMediator"
-          }
-        }
-      ]
-    },
     {
       "errors" : [
         {
@@ -477,6 +273,194 @@
           "kind" : "path",
           "type" : {
             "scalar" : "UUID"
+          }
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "CreateContact",
+      "operation" : "create",
+      "path" : "\/v1\/contacts",
+      "deltaIdentifier" : "createContact",
+      "response" : {
+        "reference" : "Contact"
+      },
+      "parameters" : [
+        {
+          "parameterName" : "contact",
+          "hasDefaultValue" : false,
+          "kind" : "content",
+          "type" : {
+            "reference" : "Contact"
+          }
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "GetContacts",
+      "operation" : "read",
+      "path" : "\/v1\/contacts",
+      "deltaIdentifier" : "getContacts",
+      "response" : {
+        "repeated" : {
+          "reference" : "Contact"
+        }
+      },
+      "parameters" : [
+
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "DeleteContact",
+      "operation" : "delete",
+      "path" : "\/v1\/contacts\/{contactId}",
+      "deltaIdentifier" : "deleteContact",
+      "response" : {
+        "reference" : "Status"
+      },
+      "parameters" : [
+        {
+          "parameterName" : "contactId",
+          "hasDefaultValue" : false,
+          "kind" : "path",
+          "type" : {
+            "scalar" : "UUID"
+          }
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "GetContact",
+      "operation" : "read",
+      "path" : "\/v1\/contacts\/{contactId}",
+      "deltaIdentifier" : "getContact",
+      "response" : {
+        "reference" : "Contact"
+      },
+      "parameters" : [
+        {
+          "parameterName" : "contactId",
+          "hasDefaultValue" : false,
+          "kind" : "path",
+          "type" : {
+            "scalar" : "UUID"
+          }
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "UpdateContact",
+      "operation" : "update",
+      "path" : "\/v1\/contacts\/{contactId}",
+      "deltaIdentifier" : "updateContact",
+      "response" : {
+        "reference" : "Contact"
+      },
+      "parameters" : [
+        {
+          "parameterName" : "contactId",
+          "hasDefaultValue" : false,
+          "kind" : "path",
+          "type" : {
+            "scalar" : "UUID"
+          }
+        },
+        {
+          "parameterName" : "mediator",
+          "hasDefaultValue" : false,
+          "kind" : "content",
+          "type" : {
+            "reference" : "ContactMediator"
           }
         }
       ]

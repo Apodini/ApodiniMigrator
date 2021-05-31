@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "ExampleACD",
     platforms: [
-        .macOS(.v11), .iOS(.v14)
+        .macOS(.v10_15), .iOS(.v14)
     ],
     products: [
         .library(name: "ExampleACD", targets: ["ExampleACD"])

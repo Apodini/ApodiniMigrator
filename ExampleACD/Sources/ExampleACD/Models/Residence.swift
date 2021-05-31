@@ -13,7 +13,6 @@ public struct Residence: Codable {
     private enum CodingKeys: String, CodingKey {
         case address = "address"
         case country = "country"
-        case createdAt = "createdAt"
         case id = "id"
         case postalCode = "postalCode"
     }
@@ -21,7 +20,6 @@ public struct Residence: Codable {
     // MARK: - Properties
     public let address: String
     public let country: String
-    public let createdAt: Date?
     public let id: UUID?
     public let postalCode: String
     
@@ -29,13 +27,11 @@ public struct Residence: Codable {
     public init(
         address: String,
         country: String,
-        createdAt: Date?,
         id: UUID?,
         postalCode: String
     ) {
         self.address = address
         self.country = country
-        self.createdAt = createdAt
         self.id = id
         self.postalCode = postalCode
     }
@@ -46,7 +42,6 @@ public struct Residence: Codable {
         
         try container.encode(address, forKey: .address)
         try container.encode(country, forKey: .country)
-        try container.encode(createdAt, forKey: .createdAt)
         try container.encode(id, forKey: .id)
         try container.encode(postalCode, forKey: .postalCode)
     }
@@ -57,7 +52,6 @@ public struct Residence: Codable {
         
         address = try container.decode(String.self, forKey: .address)
         country = try container.decode(String.self, forKey: .country)
-        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)
         id = try container.decodeIfPresent(UUID.self, forKey: .id)
         postalCode = try container.decode(String.self, forKey: .postalCode)
     }

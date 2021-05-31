@@ -14,7 +14,7 @@ final class ExampleACDTests: XCTestCase {
     private static let decoder = NetworkingService.decoder
     
     func testContact() throws {
-        let jsonString = "{\"birthday\" : 644181157.12905395, \"createdAt\" : 644181157.12934804, \"id\" : \"B72952F5-B4A5-4D7A-AC94-0A45DFA09F0B\", \"name\" : \"\"}"
+        let jsonString = "{\"birthday\" : 644186972.83688903, \"id\" : \"B00BEB9D-8AFD-43BA-9C2E-4A7BB401AB7F\", \"name\" : \"\"}"
         let data = jsonString.data(using: .utf8) ?? Data()
         
         let instance = XCTAssertNoThrowWithResult(try Self.decoder.decode(Contact.self, from: data))
@@ -22,7 +22,7 @@ final class ExampleACDTests: XCTestCase {
     }
     
     func testContactMediator() throws {
-        let jsonString = "{\"birthday\" : 644181157.12955296, \"name\" : \"\"}"
+        let jsonString = "{\"birthday\" : 644186972.83745205, \"name\" : \"\"}"
         let data = jsonString.data(using: .utf8) ?? Data()
         
         let instance = XCTAssertNoThrowWithResult(try Self.decoder.decode(ContactMediator.self, from: data))
@@ -30,7 +30,7 @@ final class ExampleACDTests: XCTestCase {
     }
     
     func testResidence() throws {
-        let jsonString = "{\"address\" : \"\", \"country\" : \"\", \"createdAt\" : 644181157.12970102, \"id\" : \"6822BFE6-CA5E-4F0F-BE02-CDF26BE1ABE5\", \"postalCode\" : \"\"}"
+        let jsonString = "{\"address\" : \"\", \"country\" : \"\", \"id\" : \"7C78DCC1-1BB5-48B4-9152-360E706A5055\", \"postalCode\" : \"\"}"
         let data = jsonString.data(using: .utf8) ?? Data()
         
         let instance = XCTAssertNoThrowWithResult(try Self.decoder.decode(Residence.self, from: data))

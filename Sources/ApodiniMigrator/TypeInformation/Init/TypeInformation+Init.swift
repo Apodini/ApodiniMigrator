@@ -49,7 +49,7 @@ public extension TypeInformation {
                             /// if the property is a non-relationship fluentPropertyType, the initialization is passed to `init(for:with:) throws`,
                             /// which initializes the type information of the property
                             if let fluentPropertyType = $0.fluentPropertyType {
-                                return !fluentPropertyType.isRelationshipProperty
+                                return !(fluentPropertyType.isRelationshipProperty || fluentPropertyType == .timestampProperty)
                                     ? .init(name: String(name.dropFirst()), type: try Self(for: fluentPropertyType, with: $0.typeInfo.genericTypes))
                                     : nil
                             }
@@ -97,7 +97,6 @@ fileprivate extension TypeInformation {
         switch fluentPropertyType {
         case .enumProperty, .fieldProperty: self = try .init(type: nestedPropertyType)
         case .optionalEnumProperty, .optionalFieldProperty, .iDProperty: self = .optional(wrappedValue: try .init(type: nestedPropertyType))
-        case .timestampProperty: self = .optional(wrappedValue: .scalar(.date))
         default: throw TypeInformationError.initFailure(message: "Attempted to initialize a `TypeInformation` instance for a relationship Fluent Property: \(propertyMangledName)")
         }
     }

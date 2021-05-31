@@ -9,14 +9,14 @@ import Foundation
 
 // MARK: - Endpoints
 public enum WebService {
-    /// API call for GetContacts at: contacts
-    public static func getContacts() -> ApodiniPublisher<[Contact]> {
-        Contact.getContacts()
-    }
-    
     /// API call for CreateContact at: contacts
     public static func createContact(contact: Contact) -> ApodiniPublisher<Contact> {
         Contact.createContact(contact: contact)
+    }
+    
+    /// API call for GetContacts at: contacts
+    public static func getContacts() -> ApodiniPublisher<[Contact]> {
+        Contact.getContacts()
     }
     
     /// API call for GetContact at: contacts/{contactId}

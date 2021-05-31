@@ -25,12 +25,20 @@ public enum NetworkingService {
     /// String path of the web service
     static let basePath = "___serverpath___"
     
+    /// BaseURL of the web service
+    static var baseURL: URL = {
+        guard let baseURL = URL(string: "___serverpath___") else {
+            fatalError("Could not create the base URL for the Web Service")
+        }
+        return baseURL
+    }()
+    
     /// Triggers a request via a client `Handler` to a handler of an `Apodini` web service
     /// - Parameters:
     ///    - handler: client-side handler representation for which the request will be triggered
-    ///    - path: base path of the web service, where the handler is located, default value `NetworkingService.path`
-    static func trigger<D: Decodable>(_ handler: Handler<D>, at path: String = basePath) -> ApodiniPublisher<D> {
-        URLSession.shared.dataTaskPublisher(for: URLRequest(for: handler, with: path))
+    ///    - baseURL: baseURL of the web service, where the handler is located, default value `NetworkingService.baseURL`
+    static func trigger<D: Decodable>(_ handler: Handler<D>, at baseURL: URL = baseURL) -> ApodiniPublisher<D> {
+        URLSession.shared.dataTaskPublisher(for: URLRequest(for: handler, with: baseURL))
         .tryMap { data, response in
             guard let response = response as? HTTPURLResponse else {
                 return data
