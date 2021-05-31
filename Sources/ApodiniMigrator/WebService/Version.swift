@@ -84,10 +84,3 @@ extension Version: CustomStringConvertible {
         "\(prefix)\(major)"
     }
 }
-
-public extension Version {
-    /// Returns whether description of self is different from `other`
-    func differentDescription(from other: Version) -> Bool {
-        description != other.description
-    }
-}

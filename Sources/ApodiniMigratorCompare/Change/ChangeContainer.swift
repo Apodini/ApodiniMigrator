@@ -27,12 +27,12 @@ class ChangeContainer: Value {
     func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         
-        try additions.forEach({ try container.encode($0) })
-        try deletions.forEach({ try container.encode($0) })
-        try renamings.forEach({ try container.encode($0) })
-        try valueChanges.forEach({ try container.encode($0) })
-        try parameterChanges.forEach({ try container.encode($0) })
-        try typeChanges.forEach({ try container.encode($0) })
+        try additions.forEach { try container.encode($0) }
+        try deletions.forEach { try container.encode($0) }
+        try renamings.forEach { try container.encode($0) }
+        try valueChanges.forEach { try container.encode($0) }
+        try parameterChanges.forEach { try container.encode($0) }
+        try typeChanges.forEach { try container.encode($0) }
     }
     
     required init(from decoder: Decoder) throws {

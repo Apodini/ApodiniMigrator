@@ -98,6 +98,7 @@ final class JavaScriptConvertTests: XCTestCase {
         }
         """
         
+        // swiftlint:disable:next discouraged_optional_collection
         let someInstance: [String???]? = []
         
         // input is wrong, and the script is invalid, the default empty instance is created

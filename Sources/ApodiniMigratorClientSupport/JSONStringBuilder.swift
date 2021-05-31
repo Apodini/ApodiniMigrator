@@ -71,6 +71,7 @@ public struct JSONStringBuilder {
         try Self(type).build()
     }
     
+    /// Returns a json string representation of an instance out of the typeinformation
     public static func jsonString(_ typeInformation: TypeInformation) -> String {
         Self(typeInformation).build()
     }

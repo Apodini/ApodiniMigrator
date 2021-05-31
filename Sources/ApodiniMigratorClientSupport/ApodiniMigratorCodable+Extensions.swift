@@ -1,6 +1,7 @@
 import Foundation
 import JavaScriptCore
-
+// swiftlint:disable line_length function_parameter_count
+/// ApodiniMigratorCodable extension
 public extension ApodiniMigratorCodable {
     /// A function that creates an instance of type `Self` with empty values
     static func defaultValue() throws -> Self {
@@ -319,3 +320,4 @@ fileprivate extension String {
         return []
     }
 }
+// swiftlint:enable line_length function_parameter_count

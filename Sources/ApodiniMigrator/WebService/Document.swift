@@ -3,7 +3,7 @@ import ApodiniMigratorShared
 
 public struct MetaData: Value {
     /// Server path
-    public var serverPath: String
+    var serverPath: String
     /// Version
     public var version: Version
     /// Encoder configuration

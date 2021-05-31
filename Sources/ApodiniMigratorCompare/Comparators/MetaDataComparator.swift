@@ -21,26 +21,43 @@ struct MetaDataComparator: Comparator {
     func compare() {
         let element = ChangeElement.networking
         
-        if lhs.serverPath != rhs.serverPath {
-            changes.add(ValueChange(element: element, target: .serverPath, from: .string(lhs.serverPath), to: .string(rhs.serverPath)))
-        }
-        
-        if lhs.version.differentDescription(from: rhs.version) {
-            changes.add(ValueChange(element: element, target: .version, from: .jsonString(lhs.version), to: .jsonString(rhs.version)))
+        if lhs.versionedServerPath != rhs.versionedServerPath {
+            changes.add(
+                ValueChange(
+                    element: element,
+                    target: .serverPath,
+                    from: .string(lhs.versionedServerPath),
+                    to: .string(rhs.versionedServerPath)
+                )
+            )
         }
         
         let lhsEncoderConfig = lhs.encoderConfiguration
         let rhsEncoderConfig = rhs.encoderConfiguration
         
         if lhsEncoderConfig != rhsEncoderConfig {
-            changes.add(ValueChange(element: element, target: .encoderConfiguration, from: .jsonString(lhsEncoderConfig), to: .jsonString(rhsEncoderConfig)))
+            changes.add(
+                ValueChange(
+                    element: element,
+                    target: .encoderConfiguration,
+                    from: .jsonString(lhsEncoderConfig),
+                    to: .jsonString(rhsEncoderConfig)
+                )
+            )
         }
         
         let lhsDecoderConfig = lhs.decoderConfiguration
         let rhsDecoderConfig = rhs.decoderConfiguration
         
         if lhsDecoderConfig != rhsDecoderConfig {
-            changes.add(ValueChange(element: element, target: .decoderConfiguration, from: .jsonString(lhsDecoderConfig), to: .jsonString(rhsDecoderConfig)))
+            changes.add(
+                ValueChange(
+                    element: element,
+                    target: .decoderConfiguration,
+                    from: .jsonString(lhsDecoderConfig),
+                    to: .jsonString(rhsDecoderConfig)
+                )
+            )
         }
     }
 }

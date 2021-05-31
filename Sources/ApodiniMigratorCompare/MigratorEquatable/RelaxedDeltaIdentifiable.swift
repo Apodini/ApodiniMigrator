@@ -30,13 +30,24 @@ protocol RelaxedDeltaIdentifiable: DeltaIdentifiable {
     static func ?= (lhs: Self, rhs: Self) -> Bool
 }
 
+private struct DeltaSimilarity: Comparable {
+    let similarity: Double
+    let identifier: DeltaIdentifier
+    
+    static func < (lhs: DeltaSimilarity, rhs: DeltaSimilarity) -> Bool {
+        lhs.similarity < rhs.similarity
+    }
+}
+
 extension RelaxedDeltaIdentifiable {
     func mostSimilarWithSelf(in array: [Self], useRawValueDistance: Bool = true, similarityLimit: Double = 0.6) -> Self? {
-        let mostSimilarId = array.compactMap { deltaIdentifiable -> (id: DeltaIdentifier, similarity: Double)? in
+        let mostSimilarId = array.compactMap { deltaIdentifiable -> DeltaSimilarity? in
             let similarity = deltaIdentifier.rawValue.distance(between: deltaIdentifiable.deltaIdentifier.rawValue)
-            return similarity <= similarityLimit ? nil : (id: deltaIdentifiable.deltaIdentifier, similarity: similarity)
-        }.sorted { $0.similarity > $1.similarity }
-        .first?.id
+            return similarity <= similarityLimit
+                ? nil
+                : DeltaSimilarity(similarity: similarity, identifier: deltaIdentifiable.deltaIdentifier)
+        }
+        .max()?.identifier
         
         return array.first(where: { (self ?= $0) && $0.deltaIdentifier == (useRawValueDistance ? mostSimilarId : $0.deltaIdentifier) })
     }

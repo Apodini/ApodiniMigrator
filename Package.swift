@@ -33,7 +33,7 @@ let package = Package(
             name: "ApodiniMigrator",
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
-                .product(name: "Runtime", package: "Runtime"),
+                .product(name: "Runtime", package: "Runtime")
 //                .product(name: "FluentKit", package: "fluent-kit")
             ]),
         .target(
