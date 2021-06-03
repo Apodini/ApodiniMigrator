@@ -1,4 +1,4 @@
-/*
+///*
 import FluentKit
 import Foundation
 
@@ -31,11 +31,6 @@ public final class Contact: Model {
     @Children(for: \.$contact)
     public var residencies: [Residence]
     
-    @OptionalChild(for: \.$cont)
-    public var ch: Residence?
-    
-    let contact: Contact = .init()
-    
     public init() { }
     
     public init(id: UUID? = nil, name: String, birthday: Date) {
@@ -66,47 +61,15 @@ extension Contact: Hashable {
     }
 }
 
-final class PlanetTag: Model {
-    static let schema = "planet+tag"
-
-    @ID(key: .id)
-    var id: UUID?
-
-    @Parent(key: "planet_id")
-    var planet: Planet
-
-    @Parent(key: "tag_id")
-    var tag: Tag
+final class Pet: Fields {
+    @Field(key: "name")
+    var name: String
 
     init() { }
 
-    init(id: UUID? = nil, planet: Planet, tag: Tag) throws {
-        self.id = id
-        self.$planet.id = try planet.requireID()
-        self.$tag.id = try tag.requireID()
+    init(name: String) {
+        self.name = name
     }
-}
-
-final class Planet: Model {
-    static let schema = "planet"
-    @ID(key: .id)
-    var id: UUID?
-    
-    init() { }
-    
-    // Example of a siblings relation.
-    @Siblings(through: PlanetTag.self, from: \.$planet, to: \.$tag)
-    public var tags: [Tag]
-}
-
-final class Tag: Model {
-    static let schema = "tag"
-    @ID(key: .id)
-    var id: UUID?
-    
-    init() { }
-    @Siblings(through: PlanetTag.self, from: \.$tag, to: \.$planet)
-    public var planets: [Planet]
 }
 
 // MARK: Residence
@@ -132,8 +95,11 @@ public final class Residence: Model {
     @Parent(key: "contact_id")
     public var contact: Contact
     
-    @OptionalParent(key: "contact_id")
-    public var cont: Contact?
+    @Group(key: "")
+    var pet: Pet
+//    
+//    @OptionalParent(key: "contact_id")
+//    public var cont: Contact?
     
     public init() { }
     
@@ -143,6 +109,7 @@ public final class Residence: Model {
         self.postalCode = postalCode
         self.country = country
         self.$contact.id = contact
+        self.pet = .init(name: "")
     }
 }
 
@@ -167,4 +134,4 @@ extension Residence: Hashable {
         hasher.combine(id)
     }
 }
-*/
+//*/

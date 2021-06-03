@@ -22,9 +22,6 @@ public enum NetworkingService {
     /// `JSONEncoder` used for encoding request bodies for an Apodini web service
     static let encoder = JSONEncoder().configured(with: encoderConfiguration)
     
-    /// String path of the web service
-    static let basePath = "___serverpath___"
-    
     /// BaseURL of the web service
     static var baseURL: URL = {
         guard let baseURL = URL(string: "___serverpath___") else {

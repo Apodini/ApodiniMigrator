@@ -1,75 +1,70 @@
 import Foundation
-@_implementationOnly import Runtime
 
 public extension TypeInformation {
     enum TypeInformationError: Error {
         case notSupportedDictionaryKeyType
         case initFailure(message: String)
         case malformedFluentProperty(message: String)
+        case recursiveLoop(message: String)
     }
     
     /// Initializes a type information from Any instance
     init(value: Any) throws {
-        self = try .init(type: Swift.type(of: value))
+        self = try .init(type: type(of: value))
     }
     
+    init(type: Any.Type) throws {
+        self = try .typeInformation(from: type)
+    }
+}
+
+extension TypeInformation {
+    private static func typeInformation(from type: Any.Type) throws -> TypeInformation {
+        var storage = Storage()
+        return try .init(for: type, with: &storage)
+    }
     
-    /// Initializer that handles the logic to create a new TypeInformation instance
-    /// The initializers performes several recursive calls depending on the root type that is being processed
-    /// - Parameters:
-    ///     - type: the type for which this instance is being created
-    init(type: Any.Type) throws { // swiftlint:disable:next cyclomatic_complexity function_body_length
+    private init(for type: Any.Type, with storage: inout Storage) throws {
         if let primitiveType = PrimitiveType(type) {
             self = .scalar(primitiveType)
         } else {
-            let typeInfo = try Runtime.typeInfo(of: type)
+            let typeInfo = try info(of: type)
             let genericTypes = typeInfo.genericTypes
             let mangledName = MangledName(typeInfo.mangledName)
             
             if mangledName == .repeated, let elementType = genericTypes.first {
-                self = .repeated(element: try .init(type: elementType))
+                self = .repeated(element: try .init(for: elementType, with: &storage))
             } else if mangledName == .dictionary, let keyType = genericTypes.first, let valueType = genericTypes.last {
                 if let keyType = PrimitiveType(keyType) {
-                    self = .dictionary(key: keyType, value: try .init(type: valueType))
+                    self = .dictionary(key: keyType, value: try .init(for: valueType, with: &storage))
                 } else {
                     throw TypeInformationError.notSupportedDictionaryKeyType
                 }
             } else if mangledName == .optional, let wrappedValueType = genericTypes.first {
-                self = .optional(wrappedValue: try .init(type: wrappedValueType))
+                self = .optional(wrappedValue: try .init(for: wrappedValueType, with: &storage))
             } else if typeInfo.kind == .enum {
-                self = .enum(name: typeInfo.typeName, cases: typeInfo.cases.map { EnumCase($0.name) })
+                self = .enum(name: typeInfo.typeName, cases: typeInfo.cases.map { .case($0.name) })
             } else if [.struct, .class].contains(typeInfo.kind) {
-                let propertiesTypeInfos: [TypeInfoProperty] = try typeInfo.properties
-                    .map { .init(typeInfo: try Runtime.typeInfo(of: $0.type), propertyName: $0.name) }
-                let properties: [TypeProperty] = try propertiesTypeInfos
+                let properties: [TypeProperty] = try typeInfo.properties()
                     .compactMap {
                         do {
-                            let name = $0.propertyName
-                            
-                            /// if the property is a non-relationship fluentPropertyType, the initialization is passed to `init(for:with:) throws`,
-                            /// which initializes the type information of the property
-                            if let fluentPropertyType = $0.fluentPropertyType {
-                                return !(fluentPropertyType.isRelationshipProperty || fluentPropertyType == .timestampProperty)
-                                    ? .init(name: String(name.dropFirst()), type: try Self(for: fluentPropertyType, with: $0.typeInfo.genericTypes))
-                                    : nil
+                            if let fluentProperty = $0.fluentPropertyType {
+                                return .fluentProperty(
+                                    $0.name,
+                                    type: try .fluentProperty($0, with: &storage),
+                                    annotation: fluentProperty
+                                )
                             }
                             
                             /// TODO avoid circular references, currently running into a non-ending recursive loop
-                            return .init(name: name, type: try .init(type: $0.type))
+                            return .property($0.name, type: try .init(for: $0.type, with: &storage))
                         } catch {
-                            let errorDescription = String(describing: error)
-                            let ignoreError = [
-                                "\(Runtime.Kind.opaque)",
-                                "\(Runtime.Kind.function)",
-                                "\(Runtime.Kind.existential)",
-                                "\(Runtime.Kind.metatype)"
-                            ].contains(where: { errorDescription.contains($0) })
                             
-                            if ignoreError {
+                            if knownRuntimeError(error) {
                                 return nil
                             }
                             
-                            throw TypeInformationError.initFailure(message: errorDescription)
+                            throw TypeInformationError.initFailure(message: error.localizedDescription)
                         }
                     }
                 self = .object(name: typeInfo.typeName, properties: properties)
@@ -78,55 +73,79 @@ public extension TypeInformation {
             }
         }
     }
-}
-
-fileprivate extension TypeInformation {
-    /// This initializer serves the purpose to retrieve the type of the `wrappedValue` property of Fluent property wrappers.
-    /// The raw type is always in the second position of the generic types (except of the `TimestampProperty`), however the cardinalty might be different.
-    /// This initializer ensures the initialization of an instance with the right cardinality for Fluent properties that are not of any of relationship types
-    /// - Parameters:
-    ///     - fluentPropertyType: the type of the fluent proeperty
-    ///     - genericTypes: generic types associated with the property wrapper of Fluent
-    init(for fluentPropertyType: FluentPropertyType, with genericTypes: [Any.Type]) throws {
-        let propertyMangledName = fluentPropertyType.rawValue.upperFirst
-        guard genericTypes.count >= 2 else {
-            throw TypeInformationError.malformedFluentProperty(message: "Failed to construct TypeInformation of fluent property: \(propertyMangledName)")
+    
+    private static func fluentProperty(
+        _ property: RuntimeProperty,
+        with storage: inout Storage
+    ) throws -> TypeInformation {
+        guard let fluentProperty = property.fluentPropertyType, property.genericTypes.count >= 2 else {
+            throw TypeInformationError.malformedFluentProperty(message: "Failed to construct TypeInformation of property \(property.name) of \(property.ownerType)")
         }
         
-        let nestedPropertyType = genericTypes[1]
-        switch fluentPropertyType {
-        case .enumProperty, .fieldProperty: self = try .init(type: nestedPropertyType)
-        case .optionalEnumProperty, .optionalFieldProperty, .iDProperty: self = .optional(wrappedValue: try .init(type: nestedPropertyType))
-        default: throw TypeInformationError.initFailure(message: "Attempted to initialize a `TypeInformation` instance for a relationship Fluent Property: \(propertyMangledName)")
+        let nestedPropertyType = property.genericTypes[1]
+        switch fluentProperty {
+        case .enumProperty, .fieldProperty, .groupProperty:
+            return try .init(for: nestedPropertyType, with: &storage)
+        case .optionalEnumProperty:
+            return .optional(wrappedValue: try .init(for: nestedPropertyType, with: &storage))
+        case .childrenProperty:
+            return .repeated(element: try .init(for: nestedPropertyType, with: &storage))
+        case .iDProperty:
+            storage.insert(.init(rootType: property.ownerType, idType: nestedPropertyType))
+            return .optional(wrappedValue: try .init(for: nestedPropertyType, with: &storage))
+        case .optionalChildProperty, .optionalFieldProperty:
+            return .optional(wrappedValue: try .init(for: nestedPropertyType, with: &storage))
+        case .optionalParentProperty, .parentProperty: return try .parentProperty(of: property, with: &storage)
+        case .siblingsProperty: return try .siblingsProperty(of: property, with: &storage)
+        case .timestampProperty: return .optional(wrappedValue: .scalar(.date))
         }
     }
-}
-
-// MARK: - TypeInfo
-fileprivate extension TypeInfo {
-    /// TypeName of the type of the `Runtime.TypeInfo`
-    var typeName: TypeName {
-        .init(type)
-    }
-}
-
-/// A helper struct to initialize properties of a `TypeInfo` instance
-private struct TypeInfoProperty {
-    /// typeInfo of the property
-    let typeInfo: TypeInfo
-    /// property name
-    let propertyName: String
     
-    /// type of the property
-    var type: Any.Type {
-        typeInfo.type
-    }
-    
-    /// fluentPropertyType if the mangledName of `typeInfo` corresponds to a Fluent property wrapper type
-    var fluentPropertyType: FluentPropertyType? {
-        if case let .fluentPropertyType(fluentPropertyType) = MangledName(typeInfo.mangledName) {
-            return fluentPropertyType
+    private static func parentProperty(of property: RuntimeProperty, with storage: inout Storage) throws -> TypeInformation {
+        let nestedPropertyType = property.genericTypes[1]
+        let idType: Any.Type
+        if let stored = storage.idType(of: nestedPropertyType) {
+            idType = stored
+        } else {
+            let typeInfo = try info(of: nestedPropertyType)
+            guard
+                let idProperty = typeInfo.properties.firstMatch(on: \.name, with: "_id"),
+                let propertyTypeInfo = try? RuntimeProperty(idProperty),
+                propertyTypeInfo.isIDProperty,
+                propertyTypeInfo.genericTypes.count > 1
+            else { fatalError("Could not find the id property of \(nestedPropertyType)") }
+            idType = propertyTypeInfo.genericTypes[1]
         }
-        return nil
+        
+        let customIDObject: TypeInformation = .object(
+            name: .init(name: String(describing: nestedPropertyType) + "ID"),
+            properties: [.init(name: "id", type: .optional(wrappedValue: try .init(for: idType, with: &storage)))]
+        )
+        
+        return property.fluentPropertyType == .optionalParentProperty
+            ? .optional(wrappedValue: customIDObject)
+            : customIDObject
+    }
+    
+    private static func siblingsProperty(
+        of siblingsProperty: RuntimeProperty,
+        with storage: inout Storage
+    ) throws -> TypeInformation {
+        let nestedPropertyType = siblingsProperty.genericTypes[1]
+        let typeInfo = try info(of: nestedPropertyType)
+        let properties: [TypeProperty] = try typeInfo.properties()
+            .compactMap { nestedTypeProperty in
+                if nestedTypeProperty.isFluentProperty {
+                    if nestedTypeProperty.fluentPropertyType == .siblingsProperty,
+                       ObjectIdentifier(siblingsProperty.ownerType) == ObjectIdentifier(nestedTypeProperty.genericTypes[1]) {
+                        return nil
+                    }
+                    
+                    let propertyTypeInformation: TypeInformation = try .fluentProperty(nestedTypeProperty, with: &storage)
+                    return .init(name: nestedTypeProperty.name, type: propertyTypeInformation)
+                }
+                return .init(name: nestedTypeProperty.name, type: try .init(for: nestedTypeProperty.type, with: &storage))
+            }
+        return .repeated(element: .object(name: typeInfo.typeName, properties: properties))
     }
 }

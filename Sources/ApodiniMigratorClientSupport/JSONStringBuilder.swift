@@ -89,6 +89,16 @@ public struct JSONStringBuilder {
         try decode(C.self, from: Self(typeInformation, encoder: C.encoder).build())
     }
     
+    /// Creates an instance of type `D` out of a typeInformation object
+    static func instance<D: Decodable>(_ typeInformation: TypeInformation, _ type: D.Type) throws -> D {
+        try D.decode(from: Self(typeInformation).build())
+    }
+    
+    /// Creates an instance of type `D` out of the type
+    static func instance<D: Decodable>(_ type: D.Type, with encoder: JSONEncoder = .init()) throws -> D {
+        try D.decode(from: Self(try TypeInformation(type: type), encoder: encoder).build())
+    }
+    
     /// Decodes type from data
     static func decode<D: ApodiniMigratorDecodable>(_ type: D.Type, from data: Data) throws -> D {
         try D.decoder.decode(D.self, from: data)

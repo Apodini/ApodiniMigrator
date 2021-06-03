@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents distinct cases of FluentKit (version: 1.12.0) property wrappers
-enum FluentPropertyType: String {
+public enum FluentPropertyType: String, Codable {
     case enumProperty
     case optionalEnumProperty
     case childrenProperty
@@ -20,6 +20,24 @@ enum FluentPropertyType: String {
     case parentProperty
     case siblingsProperty
     case timestampProperty
+    case groupProperty
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        
+        try container.encode("@" + rawValue.without("Property").upperFirst)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let string = try container.decode(String.self).without("@").lowerFirst + "Property"
+        
+        guard let instance = FluentPropertyType(rawValue: string) else {
+            fatalError("Failed to decode \(Self.self)")
+        }
+        
+        self = instance
+    }
     
     /// Indicates whether the type of the property might introduce some kind of relationship
     var isRelationshipProperty: Bool {

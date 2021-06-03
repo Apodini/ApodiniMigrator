@@ -20,10 +20,10 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/wickwirew/Runtime.git", from: "2.2.2"),
+        .package(url: "https://github.com/PSchmiedmayer/Runtime.git", .branch("master")),
         .package(url: "https://github.com/kylef/PathKit.git", .exact("0.9.2")),
-        .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMinor(from: "0.3.2"))
-//        .package(url: "https://github.com/vapor/fluent-kit.git", from: "1.12.0")
+        .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMinor(from: "0.3.2")),
+        .package(url: "https://github.com/vapor/fluent-kit.git", from: "1.12.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -32,8 +32,8 @@ let package = Package(
             name: "ApodiniMigrator",
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
-                .product(name: "Runtime", package: "Runtime")
-//                .product(name: "FluentKit", package: "fluent-kit")
+                .product(name: "Runtime", package: "Runtime"),
+                .product(name: "FluentKit", package: "fluent-kit")
             ]),
         .target(
             name: "Generator",
