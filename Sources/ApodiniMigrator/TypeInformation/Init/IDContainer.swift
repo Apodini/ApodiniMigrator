@@ -7,15 +7,20 @@
 
 import Foundation
 
-/// Use new PropertyTypeInfo
-/// init(propertyTypeInfo) with assert that it is an id property
-
 struct IDContainer: Hashable {
     let rootType: Any.Type
     let idType: Any.Type
     
     var rootTypeIdentifier: ObjectIdentifier { .init(rootType) }
     var idIdentifier: ObjectIdentifier { .init(idType) }
+    
+    init(_ propertyInfo: RuntimeProperty) {
+        guard propertyInfo.isIDProperty else {
+            fatalError("Attempted to initialize an IDContainer with a non ID property")
+        }
+        self.rootType = propertyInfo.ownerType
+        self.idType = propertyInfo.genericTypes[1]
+    }
     
     static func == (lhs: IDContainer, rhs: IDContainer) -> Bool {
         lhs.rootTypeIdentifier == rhs.rootTypeIdentifier
@@ -33,6 +38,10 @@ typealias Storage = Set<IDContainer>
 extension Storage {
     func idType(of rootType: Any.Type) -> Any.Type? {
         firstMatch(on: \.rootTypeIdentifier, with: ObjectIdentifier(rootType))?.idType
+    }
+    
+    mutating func add(_ property: RuntimeProperty) {
+        insert(.init(property))
     }
 }
 

@@ -213,4 +213,8 @@ final class JavaScriptConvertTests: XCTestCase {
         runtimeInstance.name = ""
         runtimeInstance.createdAt = .init()
     }
+    
+    func testNoAssociatedValuesEnum() throws {
+        XCTAssertThrowsError(try RuntimeBuilder.typeInformation(of: TypeInformation.self))
+    }
 }

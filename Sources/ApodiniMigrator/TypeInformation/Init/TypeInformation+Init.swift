@@ -5,7 +5,7 @@ public extension TypeInformation {
         case notSupportedDictionaryKeyType
         case initFailure(message: String)
         case malformedFluentProperty(message: String)
-        case recursiveLoop(message: String)
+        case enumCaseWithAssociatedValue(message: String)
     }
     
     /// Initializes a type information from Any instance
@@ -43,6 +43,10 @@ extension TypeInformation {
             } else if mangledName == .optional, let wrappedValueType = genericTypes.first {
                 self = .optional(wrappedValue: try .init(for: wrappedValueType, with: &storage))
             } else if typeInfo.kind == .enum {
+                guard typeInfo.cases.allSatisfy({ $0.payloadType == nil }) else {
+                    throw TypeInformationError.enumCaseWithAssociatedValue(message: "Construction of enums with associated values is currently not supported")
+                }
+                
                 self = .enum(name: typeInfo.typeName, cases: typeInfo.cases.map { .case($0.name) })
             } else if [.struct, .class].contains(typeInfo.kind) {
                 let properties: [TypeProperty] = try typeInfo.properties()
@@ -91,7 +95,7 @@ extension TypeInformation {
         case .childrenProperty:
             return .repeated(element: try .init(for: nestedPropertyType, with: &storage))
         case .iDProperty:
-            storage.insert(.init(rootType: property.ownerType, idType: nestedPropertyType))
+            storage.add(property)
             return .optional(wrappedValue: try .init(for: nestedPropertyType, with: &storage))
         case .optionalChildProperty, .optionalFieldProperty:
             return .optional(wrappedValue: try .init(for: nestedPropertyType, with: &storage))

@@ -7,49 +7,20 @@
 
 import Foundation
 
+/// A result builder protocol out of an input
 public protocol Builder {
+    /// Input
     associatedtype Input
+    
+    /// Result of `build() throws`
     associatedtype Result
     
+    /// Input of the builder
     var input: Input { get }
     
+    /// Initializer of the instance
     init(_ input: Input)
     
+    /// Builds and returns the result
     func build() throws -> Result
-}
-
-public protocol TypeInformationBuilder: Builder where Input == Any.Type, Result == TypeInformation {}
-
-public struct RuntimeBuilder: TypeInformationBuilder {
-    public let input: Any.Type
-    
-    public init(_ input: Any.Type) {
-        self.input = input
-    }
-    
-    public func build() throws -> TypeInformation {
-        try TypeInformation(type: input)
-    }
-}
-
-public struct JSONEncoderBuilder: TypeInformationBuilder {
-    public let input: Any.Type
-    
-    public init(_ input: Any.Type) {
-        self.input = input
-    }
-    
-    public func build() throws -> TypeInformation {
-        try TypeInformation(type: input)
-    }
-}
-
-public extension TypeInformation {
-    
-    static func typeInformation<B: TypeInformationBuilder>(
-        of type: Any.Type,
-        with builderType: B.Type
-    ) throws -> TypeInformation {
-        try builderType.init(type).build()
-    }
 }
