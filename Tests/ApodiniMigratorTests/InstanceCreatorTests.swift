@@ -1,8 +1,7 @@
 import XCTest
 @testable import ApodiniMigrator
 @testable import ApodiniMigratorClientSupport
-@testable import ApodiniMigratorGenerator
-@testable import ApodiniMigratorCompare
+@testable import FluentKit
 @testable import Runtime
 
 func isEldisMacbook() -> Bool {
@@ -109,19 +108,29 @@ final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
         // _ = contact2.json
     }
     
-    func testSettingValueOnPropertyWrapper() throws {
-        /// `InstanceCreator` excplicitly checks for property wrappers, and sets the value
-        /// Working example
-        @propertyWrapper
-        struct IntContainer<Element: Encodable>: Encodable {
-            var wrappedValue: Element
-        }
-
-        struct SomeStruct: Encodable {
-            @IntContainer
-            var number: Int
-        }
+    
+    func testNonFluentModel() throws {
+        let student = try encodableInstance(Student.self)
         
+        let studentJSON = student.json
+        
+        let studentFromJSON = try Student.decode(from: studentJSON)
+        XCTAssert(student == studentFromJSON)
+    }
+    
+    /// `InstanceCreator` excplicitly checks for property wrappers, and sets the value
+    /// Working example
+    @propertyWrapper
+    struct EncodableContainer<Element: Encodable>: Encodable {
+        var wrappedValue: Element
+    }
+
+    struct SomeStruct: Encodable {
+        @EncodableContainer
+        var number: Int
+    }
+    
+    func testSettingValueOnPropertyWrapper() throws {
         let testValue = 42
         
         InstanceCreator.testValue = testValue
@@ -131,12 +140,14 @@ final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
         InstanceCreator.testValue = nil
     }
     
-    func testNonFluentModel() throws {
-        let student = try encodableInstance(Student.self)
+    func testNonDetectionWrappedValue() throws {
+        let idPropertyTypeInfo = try info(of: IDProperty<Contact, UUID>.self) // @ID of fluent
+    
+        /// wrapped value not found in fluent property wrappers
+        XCTAssertThrowsError(try idPropertyTypeInfo.property(named: "wrappedValue"))
         
-        let studentJSON = student.json
-        
-        let studentFromJSON = try Student.decode(from: studentJSON)
-        XCTAssert(student == studentFromJSON)
+        /// wrapped value found in custom `EncodableContainer` property wrapper
+        let intContainerTypeInfo = try info(of: EncodableContainer<Int>.self)
+        XCTAssertNoThrow(try intContainerTypeInfo.property(named: "wrappedValue"))
     }
 }

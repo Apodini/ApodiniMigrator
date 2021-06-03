@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FluentKit
 
 enum InstanceCreatorError: Swift.Error {
     case nonSupportedDictionaryKey(Any.Type)

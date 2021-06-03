@@ -85,7 +85,8 @@ let package = Package(
                 "ApodiniMigrator",
                 "ApodiniMigratorGenerator",
                 "ApodiniMigratorCompare",
-                "ApodiniMigratorClientSupport"
+                "ApodiniMigratorClientSupport",
+                .product(name: "FluentKit", package: "fluent-kit")
             ])
     ]
 )
