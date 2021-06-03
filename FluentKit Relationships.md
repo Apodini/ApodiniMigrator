@@ -66,8 +66,7 @@ Apodini response:
     }
 }
 ```
-`data` has been encoded from fluent, and it does not encode the `residences` (better said there is some inconsistency for such relationships when fluent
-encodes and does not encode these fields.
+`data` has been encoded from fluent, and it does not encode the `residences` because not specified in the handle function.
 
 Now let's add a new residence to the `Postman` contact, through the `content` parameter `Residence` in the corresponding handler. Parameter retrieval in Apodini
 expects to decode all fields in `Residence` object, otherwise the decoding fails. So we need a `POST` on `/residencies` with the following body:
@@ -100,7 +99,7 @@ The required `contact` field is missing, instead the resident id, and Apodini se
     "reason": "ApodiniError(type: Apodini.ErrorType.badInput, reason: Optional(\"Parameter retrieval returned explicit nil, though explicit nil is not valid for the \\'@Parameter var residence: Residence\\'.\"), description: nil, options: Apodini.PropertyOptionSet<Apodini.ErrorOptionNameSpace>(options: [:]))"
 }
 ```
-Now regarding the inconsistency that I mentioned above. If I send a `GET` on `contacts`, Apodini (better said Fluent) responds with:
+Now depending on how it is specified in the handle function residences are returned on get all contacts:
 ```json
 {
     "data": [
@@ -129,7 +128,7 @@ Now regarding the inconsistency that I mentioned above. If I send a `GET` on `co
     }
 }
 ```
-and for a `GET` on `/contacts/0E8C7F4D-B8F5-4DF9-832C-1B3C71FF3897`:
+and not returned for a `GET` on `/contacts/0E8C7F4D-B8F5-4DF9-832C-1B3C71FF3897`. I will deal with this by decoding arrays if present (see init from decoder below)
 ```json
 {
     "data": {
@@ -143,6 +142,7 @@ and for a `GET` on `/contacts/0E8C7F4D-B8F5-4DF9-832C-1B3C71FF3897`:
     }
 }
 ```
+
 Now to the issue that I am currently facing. The right way to model these relationships in the client is the following (attention long swift file ahead :)),
 (a.k.a when when trying to create the type information for `Contact.self` to produce the following three objects):
 
