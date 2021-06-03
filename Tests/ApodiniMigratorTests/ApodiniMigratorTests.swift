@@ -11,7 +11,7 @@ func isLinux() -> Bool {
     #endif
 }
 
-final class ApodiniMigratorTests: XCTestCase {
+final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
     enum Direction: String, Codable {
         case left
         case right
@@ -101,24 +101,12 @@ final class ApodiniMigratorTests: XCTestCase {
         XCTAssert(userInstance.url == .defaultURL)
     }
     
-    
-    func XCTAssertNoThrowWithResult<T>(_ expression: @autoclosure () throws -> T) -> T {
-        XCTAssertNoThrow(try expression())
-        
-        do {
-            return try expression()
-        } catch {
-            XCTFail(error.localizedDescription)
-        }
-        preconditionFailure("Expression threw an error")
-    }
-    
     func testFileGenerator() throws {
-        let desktop = Path.desktop
-        guard !isLinux(), desktop.exists else {
+        guard !isLinux(), isEldisMacbook() else {
             return
         }
         
+        let desktop = Path.desktop
         let student = XCTAssertNoThrowWithResult(try TypeInformation(type: Student.self))
         let absolutePath = XCTAssertNoThrowWithResult(try ObjectFileTemplate(student).write(at: desktop))
         XCTAssertTrue(absolutePath.exists)
@@ -139,16 +127,14 @@ final class ApodiniMigratorTests: XCTestCase {
     let jsonPath: Path = .desktop + "\(Student.self).json"
     
     func testJSONCreation() throws {
-        let desktop = Path.desktop
-        guard !isLinux(), desktop.exists else {
+        guard !isLinux(), isEldisMacbook() else {
             return
         }
         try jsonPath.write(try JSONStringBuilder.string(Student.self))
     }
     
     func testJSONRead() throws {
-        let desktop = Path.desktop
-        guard !isLinux(), desktop.exists else {
+        guard !isLinux(), isEldisMacbook() else {
             return
         }
         _ = XCTAssertNoThrowWithResult(try JSONStringBuilder.decode(Student.self, at: jsonPath))
@@ -169,11 +155,8 @@ final class ApodiniMigratorTests: XCTestCase {
         try RecursiveFileGenerator(types).persist(at: testModels)
     }
     
-    
     func testEnumFileUpdate() throws {
-        #if Xcode
-        let desktop = Path.desktop
-        guard desktop.exists else {
+        guard isEldisMacbook() else {
             return
         }
         try generateTestModels()
@@ -183,13 +166,10 @@ final class ApodiniMigratorTests: XCTestCase {
         enumFileParser.rename(case: "left", to: "links")
         enumFileParser.deleted(case: "right")
         try enumFileParser.save()
-        #endif
     }
     
     func testObjectFileUpdate() throws {
-        #if Xcode
-        let desktop = Path.desktop
-        guard desktop.exists else {
+        guard isEldisMacbook() else {
             return
         }
         try generateTestModels()
@@ -201,6 +181,5 @@ final class ApodiniMigratorTests: XCTestCase {
         objectFileParser.changedType(of: "name")
         
         try objectFileParser.save()
-        #endif
     }
 }

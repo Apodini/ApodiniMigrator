@@ -15,6 +15,16 @@ public struct RuntimeBuilder: TypeInformationBuilder {
     }
     
     public func build() throws -> TypeInformation {
-        try TypeInformation(type: input)
+        if let primitiveType = PrimitiveType(input) {
+            return .scalar(primitiveType)
+        }
+        
+        let typeInfo = try info(of: input)
+        
+        if let primitive = try typeInfo.cardinality.primitive() {
+            return primitive
+        }
+        
+        return try TypeInformation(type: input) // uses the current approach
     }
 }

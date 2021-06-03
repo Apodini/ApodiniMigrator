@@ -1,15 +1,16 @@
-//
-//  File.swift
-//  
-//
-//  Created by Eldi Cano on 02.06.21.
-//
-
 import Foundation
 @_implementationOnly import Runtime
 
 func info(of type: Any.Type) throws -> TypeInfo {
     try Runtime.typeInfo(of: type)
+}
+
+func createInstance(of type: Any.Type) throws -> Any {
+    try Runtime.createInstance(of: type)
+}
+
+func cardinality(of type: Any.Type) throws -> Cardinality {
+    try info(of: type).cardinality
 }
 
 func knownRuntimeError(_ error: Error) -> Bool {
@@ -29,13 +30,28 @@ extension TypeInfo {
     func properties() throws -> [RuntimeProperty] {
         try properties.map { try .init($0) }
     }
+    
+    var cardinality: Cardinality {
+        let mangledName = MangledName(self.mangledName)
+        if mangledName == .repeated, let elementType = genericTypes.first {
+            return .repeated(elementType)
+        } else if mangledName == .optional, let wrappedValueType = genericTypes.first {
+            return .optional(wrappedValueType)
+        } else if mangledName == .dictionary, let keyType = genericTypes.first, let valueType = genericTypes.last {
+            return .dictionary(key: keyType, value: valueType)
+        } else { return .exactlyOne(type) }
+    }
 }
 
 struct RuntimeProperty {
-    private let propertyInfo: PropertyInfo
+    let propertyInfo: PropertyInfo
     let typeInfo: TypeInfo
     var mangledName: MangledName {
         MangledName(typeInfo.mangledName)
+    }
+    
+    var caridinality: Cardinality {
+        typeInfo.cardinality
     }
     
     var name: String {

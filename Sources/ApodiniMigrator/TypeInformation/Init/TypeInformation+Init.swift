@@ -43,10 +43,9 @@ extension TypeInformation {
             } else if mangledName == .optional, let wrappedValueType = genericTypes.first {
                 self = .optional(wrappedValue: try .init(for: wrappedValueType, with: &storage))
             } else if typeInfo.kind == .enum {
-                guard typeInfo.cases.allSatisfy({ $0.payloadType == nil }) else {
+                guard typeInfo.numberOfPayloadEnumCases == 0 else {
                     throw TypeInformationError.enumCaseWithAssociatedValue(message: "Construction of enums with associated values is currently not supported")
                 }
-                
                 self = .enum(name: typeInfo.typeName, cases: typeInfo.cases.map { .case($0.name) })
             } else if [.struct, .class].contains(typeInfo.kind) {
                 let properties: [TypeProperty] = try typeInfo.properties()
@@ -60,7 +59,6 @@ extension TypeInformation {
                                 )
                             }
                             
-                            /// TODO avoid circular references, currently running into a non-ending recursive loop
                             return .property($0.name, type: try .init(for: $0.type, with: &storage))
                         } catch {
                             

@@ -39,8 +39,8 @@ public enum FluentPropertyType: String, Codable {
         self = instance
     }
     
-    /// Indicates whether the type of the property might introduce some kind of relationship
-    var isRelationshipProperty: Bool {
+    /// Indicates whether the type of the property is get-only. Such fluent properties represent some kind of relationship amoung db tables
+    var isGetOnly: Bool {
         [.childrenProperty, .optionalChildProperty, .optionalParentProperty, .parentProperty, .siblingsProperty].contains(self)
     }
 }

@@ -19,7 +19,7 @@ public final class Contact: Model {
     @Timestamp(key: "createdAt", on: .create)
     public var createdAt: Date?
     
-    @Field(key: "name2")
+    @Field(key: "name")
     public var name: String
     
     @OptionalEnum(key: "key")
@@ -76,7 +76,6 @@ final class Pet: Fields {
 public final class Residence: Model {
     public static let schema = "residencies"
     
-    
     @ID
     public var id: UUID?
     
@@ -97,9 +96,6 @@ public final class Residence: Model {
     
     @Group(key: "")
     var pet: Pet
-//    
-//    @OptionalParent(key: "contact_id")
-//    public var cont: Contact?
     
     public init() { }
     

@@ -16,7 +16,7 @@ extension ApodiniMigratorCodable {
 
 typealias Codable = ApodiniMigratorCodable
 
-final class JavaScriptConvertTests: XCTestCase {
+final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     func testDecodableExample() throws {
         struct Student: Codable, Equatable {
             let name: String
@@ -165,56 +165,5 @@ final class JavaScriptConvertTests: XCTestCase {
   
         XCTAssert(EndpointPath(string) == EndpointPath(string1))
         XCTAssert(EndpointPath(string1) == EndpointPath(string2))
-    }
-    
-    func testFluent() throws {
-        let contact = try TypeInformation(type: Contact.self)
-        let residence = try TypeInformation(type: Residence.self)
-
-        contact.write(at: .desktop, fileName: "Contact")
-        residence.write(at: .desktop, fileName: "Residence")
-
-        let planetTag = try TypeInformation(type: Planet.self)
-        planetTag.write(at: .desktop, fileName: "PlanetTag")
-    }
-    
-    
-    func testRead() throws {
-        let path = Path.desktop + "Contact.json"
-        
-        XCTAssertNoThrow(try TypeInformation.decode(from: path))
-    }
-    
-    func testInstanceCreate() throws {
-        enum Direction: Equatable {
-            case left(some: String)
-        }
-        
-        struct Student {
-            let name: String
-            let matrNr: UUID
-            let dog: Direction
-        }
-        
-        struct Dog: Codable, Equatable {
-            let name: String
-        }
-        
-        let contact = try JSONStringBuilder.instance(Contact.self)
-        
-        let typeInfo = try TypeInformation(type: Contact.self)
-        
-        typeInfo.write(at: .desktop, fileName: "ContactTypeInfo")
-        contact.write(at: .desktop, fileName: "Contact")
-        
-        let runtimeInstance = try Runtime.createInstance(of: Contact.self) as! Contact
-        runtimeInstance.direction = .left
-        runtimeInstance.id = .init()
-        runtimeInstance.name = ""
-        runtimeInstance.createdAt = .init()
-    }
-    
-    func testNoAssociatedValuesEnum() throws {
-        XCTAssertThrowsError(try RuntimeBuilder.typeInformation(of: TypeInformation.self))
     }
 }
