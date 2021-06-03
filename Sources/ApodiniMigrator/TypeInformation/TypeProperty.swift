@@ -1,24 +1,11 @@
 import Foundation
 
-//public class PropertyName: PropertyValueWrapper<String> {}
-
 public struct TypeProperty: Value {
-    // MARK: Private Inner Types
-    private enum CodingKeys: String, CodingKey {
-        case name, type, annotation
-    }
-    
     public let name: String
     public let type: TypeInformation
     public let annotation: FluentPropertyType?
     
-    init(name: String, type: TypeInformation) {
-        self.name = name
-        self.type = type
-        self.annotation = nil
-    }
-    
-    init(name: String, type: TypeInformation, annotation: FluentPropertyType) {
+    init(name: String, type: TypeInformation, annotation: FluentPropertyType? = nil) {
         self.name = name
         self.type = type
         self.annotation = annotation
