@@ -7,6 +7,31 @@
 
 import Foundation
 
+protocol PropertyWrapperAnnotatable {
+    var annotation: String { get }
+}
+
+extension PropertyWrapperAnnotatable {
+    var fluentPropertyType: FluentPropertyType? {
+        if let fluentProperty = FluentPropertyType(rawValue: annotation.without("@").lowerFirst + "Property") {
+            return fluentProperty
+        }
+        return nil
+    }
+}
+
+extension FluentPropertyType: PropertyWrapperAnnotatable {
+    var annotation: String {
+        "@" + rawValue.without("Property").upperFirst
+    }
+}
+
+extension TypeName: PropertyWrapperAnnotatable {
+    var annotation: String {
+        "@" + name
+    }
+}
+
 /// Represents distinct cases of FluentKit (version: 1.12.0) property wrappers
 public enum FluentPropertyType: String, Codable {
     case enumProperty

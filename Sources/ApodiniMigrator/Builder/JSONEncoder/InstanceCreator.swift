@@ -83,7 +83,7 @@ struct InstanceCreator {
     static var testValue: Any?
     
     private mutating func handlePropertyWrapper(on property: RuntimeProperty) throws {
-        if property.propertyInfo.name.starts(with: "_"), let wrappedValueProperty = try? property.typeInfo.properties().firstMatch(on: \.name, with: "wrappedValue") {
+        if let wrappedValueProperty = property.wrappedValueProperty {
             let wrappedValueInstance = try Self(for: wrappedValueProperty.type).instance
             try wrappedValueProperty.propertyInfo.set(value: Self.testValue ?? wrappedValueInstance, on: &instance)
         }

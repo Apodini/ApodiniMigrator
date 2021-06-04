@@ -1,23 +1,21 @@
 import Foundation
 
 public struct TypeProperty: Value {
+    // MARK: Private Inner Types
+    private enum CodingKeys: String, CodingKey {
+        case name, type, annotation
+    }
     public let name: String
     public let type: TypeInformation
-    public let annotation: FluentPropertyType?
-    
-    init(name: String, type: TypeInformation, annotation: FluentPropertyType? = nil) {
-        self.name = name
-        self.type = type
-        self.annotation = annotation
-    }
+    public let annotation: String?
 }
 
 extension TypeProperty {
     static func property(_ name: String, type: TypeInformation) -> TypeProperty {
-        .init(name: name, type: type)
+        .init(name: name, type: type, annotation: nil)
     }
     
-    static func fluentProperty(_ name: String, type: TypeInformation, annotation: FluentPropertyType) -> TypeProperty {
+    static func fluentProperty(_ name: String, type: TypeInformation, annotation: String) -> TypeProperty {
         .init(name: name, type: type, annotation: annotation)
     }
 }

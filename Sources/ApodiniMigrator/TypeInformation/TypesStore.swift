@@ -29,7 +29,7 @@ struct TypesStore {
         
         if let objectType = type.objectType { // retrieving the nested object
             let referencedProperties = objectType.objectProperties.map { property -> TypeProperty in
-                .init(name: property.name, type: store(property.type)) // storing potentially referencable properties
+                .init(name: property.name, type: store(property.type), annotation: property.annotation) // storing potentially referencable properties
             }
             storage[key.rawValue] = .object(name: objectType.typeName, properties: referencedProperties)
         }
@@ -47,7 +47,7 @@ struct TypesStore {
         if case let .object(name, properties) = stored {
             let newProperties = properties.map { property -> TypeProperty in
                 if let propertyReference = property.type.reference {
-                    return .init(name: property.name, type: property.type.construct(from: propertyReference, in: &self))
+                    return .init(name: property.name, type: property.type.construct(from: propertyReference, in: &self), annotation: property.annotation)
                 }
                 return property
             }

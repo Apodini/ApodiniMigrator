@@ -140,6 +140,12 @@ final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
         InstanceCreator.testValue = nil
     }
     
+    func testTypeInformationWithPropertyWrapper() throws {
+        let typeInformation = try TypeInformation(type: SomeStruct.self)
+        
+        XCTAssertTrue(typeInformation.objectProperties.first?.annotation == "@EncodableContainer")
+    }
+    
     func testNonDetectionWrappedValue() throws {
         let idPropertyTypeInfo = try info(of: IDProperty<Contact, UUID>.self) // @ID of fluent
     

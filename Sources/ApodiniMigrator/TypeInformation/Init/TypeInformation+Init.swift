@@ -55,7 +55,15 @@ extension TypeInformation {
                                 return .fluentProperty(
                                     $0.name,
                                     type: try .fluentProperty($0, with: &storage),
-                                    annotation: fluentProperty
+                                    annotation: fluentProperty.annotation
+                                )
+                            }
+                            
+                            if let wrappedValueType = $0.propertyWrapperWrappedValueType {
+                                return .init(
+                                    name: String($0.name.dropFirst()),
+                                    type: try .init(for: wrappedValueType, with: &storage),
+                                    annotation: TypeName(name: $0.typeInfo.mangledName).annotation
                                 )
                             }
                             
@@ -121,7 +129,7 @@ extension TypeInformation {
         
         let customIDObject: TypeInformation = .object(
             name: .init(name: String(describing: nestedPropertyType) + "ID"),
-            properties: [.init(name: "id", type: .optional(wrappedValue: try .init(for: idType, with: &storage)))]
+            properties: [.init(name: "id", type: .optional(wrappedValue: try .init(for: idType, with: &storage)), annotation: nil)]
         )
         
         return property.fluentPropertyType == .optionalParentProperty
@@ -144,9 +152,17 @@ extension TypeInformation {
                     }
                     
                     let propertyTypeInformation: TypeInformation = try .fluentProperty(nestedTypeProperty, with: &storage)
-                    return .init(name: nestedTypeProperty.name, type: propertyTypeInformation)
+                    return .init(
+                        name: nestedTypeProperty.name,
+                        type: propertyTypeInformation,
+                        annotation: nestedTypeProperty.fluentPropertyType?.annotation
+                    )
                 }
-                return .init(name: nestedTypeProperty.name, type: try .init(for: nestedTypeProperty.type, with: &storage))
+                return .init(
+                    name: nestedTypeProperty.name,
+                    type: try .init(for: nestedTypeProperty.type, with: &storage),
+                    annotation: nestedTypeProperty.fluentPropertyType?.annotation
+                )
             }
         return .repeated(element: .object(name: typeInfo.typeName, properties: properties))
     }

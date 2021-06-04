@@ -44,6 +44,8 @@ extension TypeInfo {
 }
 
 struct RuntimeProperty {
+    static let wrappedValuePropertyName = "wrappedValue"
+    
     let propertyInfo: PropertyInfo
     let typeInfo: TypeInfo
     var mangledName: MangledName {
@@ -66,6 +68,17 @@ struct RuntimeProperty {
     
     var ownerType: Any.Type {
         propertyInfo.ownerType
+    }
+    
+    var wrappedValueProperty: RuntimeProperty? {
+        if propertyInfo.name.starts(with: "_") {
+           return try? typeInfo.properties().firstMatch(on: \.name, with: Self.wrappedValuePropertyName)
+        }
+        return nil
+    }
+    
+    var propertyWrapperWrappedValueType: Any.Type? {
+        wrappedValueProperty?.type
     }
     
     var fluentPropertyType: FluentPropertyType? {

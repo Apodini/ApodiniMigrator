@@ -26,7 +26,7 @@ public struct TypeName: Value {
     }
 
     public init(name: String, definedIn: String) {
-        self.name = name.without("<").without(">").replacingOccurrences(of: ", ", with: "and")
+        self.name = name.replacingOccurrences(of: "<", with: "Of").without(">").replacingOccurrences(of: ", ", with: "and")
         self.definedIn = definedIn
     }
     
