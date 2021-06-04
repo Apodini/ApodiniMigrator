@@ -138,5 +138,5 @@ func encodableInstance<T: Encodable>(_ type: T.Type) throws -> T {
 
 /// Creates an instance out of any type
 func instance(_ type: Any.Type) throws -> Any {
-    try InstanceCreator(for: type)
+    try InstanceCreator(for: type).instance
 }
