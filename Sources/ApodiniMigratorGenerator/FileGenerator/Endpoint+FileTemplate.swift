@@ -21,9 +21,30 @@ extension Endpoint {
     }
     
     func methodInputString() -> String {
-        signatureParameters
+        var signatureParameters = self.signatureParameters.sorted(by: \.name)
+        if let authorization = authorization {
+            signatureParameters.append(authorization)
+        }
+        
+        return signatureParameters
             .map { "\($0.name): \($0.typeInformation.typeString)" }
             .joined(separator: ", ")
+    }
+    
+    var authorization: Parameter? {
+        if let authorization =  parameters.first(where: { $0.parameterType == .header && $0.name == "Authorization" }) {
+            return .init(
+                parameterName: authorization.name.lowerFirst,
+                typeInformation: authorization.typeInformation,
+                hasDefaultValue: authorization.hasDefaultValue,
+                parameterType: authorization.parameterType
+            )
+        }
+        return nil
+    }
+    
+    var hasAuthorization: Bool {
+        authorization != nil
     }
     
     var queryParametersString: String {

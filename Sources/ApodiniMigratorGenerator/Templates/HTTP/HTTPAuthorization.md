@@ -48,4 +48,20 @@ extension HTTPAuthorization {
         let base64EncodedString = string.data(using: .utf8)?.base64EncodedString() ?? ""
         return .init(location: .header, value: "Basic \(base64EncodedString)")
     }
+    
+    /// A Bearer `HTTPAuthorization`
+    /// - Parameters:
+    ///     - token: token
+    /// - Note: `Bearer ` already included in the value
+    static func bearer(_ token: String) -> HTTPAuthorization {
+        return .init(location: .header, value: "Bearer \(token)")
+    }
+    
+    /// A custom `HTTPAuthorization`
+    static func custom(_ value: String?) -> HTTPAuthorization? {
+        if let value = value {
+            return .init(location: .header, value: value)
+        }
+        return nil
+    }
 }

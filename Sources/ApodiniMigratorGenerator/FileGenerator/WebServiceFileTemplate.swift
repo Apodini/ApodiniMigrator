@@ -24,16 +24,20 @@ public struct WebServiceFileTemplate: Renderable {
     private func method(for endpoint: Endpoint) -> String {
         let nestedType = endpoint.response.nestedType.typeName.name
         let typeString = endpoint.response.typeString
-        let methodParameters = endpoint.signatureParameters
+        var methodParameters = endpoint.signatureParameters
             .map { "\($0.name): \($0.name)" }
-            .joined(separator: ", ")
+            
+        if let authorization = endpoint.authorization {
+            methodParameters.append("\(authorization.name): \(authorization.name)")
+        }
+        
         let methodInputString = endpoint.methodInputString()
         let methodName = endpoint.deltaIdentifier
         let body =
         """
         \(EndpointComment(endpoint))
         public static func \(methodName)(\(methodInputString)) -> ApodiniPublisher<\(typeString)> {
-        \(nestedType).\(methodName)(\(methodParameters))
+        \(nestedType).\(methodName)(\(methodParameters.joined(separator: ", ")))
         }
         """
         return body

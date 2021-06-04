@@ -60,7 +60,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),
         headers: headers,
         content: \(endpoint.contentParameterString),
-        authorization: nil,
+        authorization: \(endpoint.hasAuthorization ? ".custom(authorization)" : "nil"),
         errors: errors
         )
 
