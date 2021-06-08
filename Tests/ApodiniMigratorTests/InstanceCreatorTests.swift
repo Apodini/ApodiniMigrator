@@ -60,9 +60,8 @@ final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testNoAssociatedValuesforEnumAllowed() throws {
-        XCTAssertThrowsError(try RuntimeBuilder.typeInformation(of: TypeInformation.self))
+        XCTAssertThrowsError(try TypeInformation.of(TypeInformation.self, with: RuntimeBuilder.self))
     }
-    
     
     struct Student: Codable, Equatable {
         let name: String
@@ -103,14 +102,14 @@ final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
         XCTAssert(contact1InstanceFromJSON == contact1)
         
         /// Creating instance with `InstanceCreator`, none of the properties set
-        let contact2 = XCTAssertNoThrowWithResult(try encodableInstance(Contact.self))
+        let contact2 = XCTAssertNoThrowWithResult(try typedInstance(Contact.self))
         // uncommenting the next line, starts encoding the instance -> bad access
         // _ = contact2.json
     }
     
     
     func testNonFluentModel() throws {
-        let student = try encodableInstance(Student.self)
+        let student = try typedInstance(Student.self)
         
         let studentJSON = student.json
         
@@ -134,7 +133,7 @@ final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
         let testValue = 42
         
         InstanceCreator.testValue = testValue
-        let someStructInstance = try encodableInstance(SomeStruct.self)
+        let someStructInstance = try typedInstance(SomeStruct.self)
         XCTAssert(someStructInstance.number == testValue)
         
         InstanceCreator.testValue = nil

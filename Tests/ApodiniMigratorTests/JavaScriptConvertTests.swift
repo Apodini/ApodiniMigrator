@@ -14,6 +14,8 @@ extension ApodiniMigratorCodable {
     }
 }
 
+let skipFileReadingTests = true
+
 typealias Codable = ApodiniMigratorCodable
 
 final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
@@ -107,14 +109,14 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         // input is wrong, and the script is invalid, the default empty instance is created
         let student = try Student.from(someInstance, script: constructScript)
         
-        XCTAssert(student.name == .defaultValue)
-        XCTAssert(student.github == .defaultValue)
+        XCTAssert(student.name == .default)
+        XCTAssert(student.github == .default)
         
     }
     
     func testPackageGenerator() throws {
         let packagePath: Path = .desktop
-        guard packagePath.exists else {
+        guard packagePath.exists, !skipFileReadingTests else {
             return
         }
         
@@ -125,7 +127,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testPackageFilesCollector() throws {
-        guard Path.desktop.exists else {
+        guard Path.desktop.exists, !skipFileReadingTests else {
             return
         }
         
@@ -144,7 +146,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testMigraionGuideGeneration() throws {
-        guard Path.desktop.exists else {
+        guard Path.desktop.exists, !skipFileReadingTests else {
             return
         }
         

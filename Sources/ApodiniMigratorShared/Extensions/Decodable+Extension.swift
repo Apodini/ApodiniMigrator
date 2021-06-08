@@ -24,3 +24,12 @@ public extension Decodable {
         try decode(from: try path.read() as Data)
     }
 }
+
+// MARK: - KeyedDecodingContainerProtocol
+extension KeyedDecodingContainerProtocol {
+    /// Decodes a value of the given collection type for the given key, if present, otherwise initalizes it as empty collection
+    public func decodeIfPresentOrInitEmpty<T: Decodable>(_ type: T.Type, forKey key: Key) throws -> T where T: Collection, T.Element: Decodable {
+        // swiftlint:disable:next force_cast
+        (try decodeIfPresent(T.self, forKey: key)) ?? [] as! T
+    }
+}

@@ -1,56 +1,151 @@
 import Foundation
 
-/// A protocol that forces the presence of an empty initializer
+/// `Default` is an empty struct that can either be initalized with `.init()` or
+/// `.default` static variable. It is used as a parameter in `DefaultInitializable` initializer
+/// to disambiguate it from the overload of default `.init()` initializers of most primitive values. The variable
+/// `default` is however not used within the initializer at all. The present of `Default` additionally
+/// serves the purpose to avoid `Self` in `DefaultInitializable`, and also for conforming Arrays,
+/// Dictionaries and Optionals to `DefaultInitializable` where the respective element, keys, values or wrapped
+/// conform to `DefaultInitializable` by ensuring to initializing them with one element.
+///  Check for conformance to `DefaultInitializable` is done on instance creation
+/// operations of empty properties of arrays, dictionaries and optionals, before passing to `createInstance` of Runtime
+public struct Default {
+    /// Default static variable of `Self`
+    public static let `default`: Default = .init()
+    
+    /// Empty initializer
+    public init() {}
+    
+    /// A convenience static func to retrieve the typed default value of a `DefaultInitializable` type.
+    /// e.g. `let date = Default.value(of: Date.self)` would return the date of today noon.
+    public static func value<D: DefaultInitializable>(of type: D.Type) -> D {
+        D.default
+    }
+}
+
+/// A protocol that forces the presence of an `init(_ default: Default)` initializer,
+/// where `Default` is an empty struct that can either be initalized with `.init()` or
+/// `.default` static variable.
 public protocol DefaultInitializable: Encodable {
-    init()
-    static var jsonString: String { get }
+    init(_ default: Default)
 }
 
 // MARK: - Default
 public extension DefaultInitializable {
-    /// Default value
-    static var defaultValue: Self { .init() }
-    /// Json string of the defaul value
-    static var jsonString: String { defaultValue.json }
+    /// Default value as returned by `init(_:)`
+    static var `default`: Self { .init(.default) }
+    /// Json string of the default value
+    static var jsonString: String { `default`.json }
 }
 
 // MARK: - DefaultInitializable conformance
-extension Int: DefaultInitializable {}
-extension Int8: DefaultInitializable {}
-extension Int16: DefaultInitializable {}
-extension Int32: DefaultInitializable {}
-extension Int64: DefaultInitializable {}
-extension UInt: DefaultInitializable {}
-extension UInt8: DefaultInitializable {}
-extension UInt16: DefaultInitializable {}
-extension UInt32: DefaultInitializable {}
-extension UInt64: DefaultInitializable {}
-extension Bool: DefaultInitializable {}
-extension Double: DefaultInitializable {}
-extension Float: DefaultInitializable {}
-extension Data: DefaultInitializable {}
-extension String: DefaultInitializable {}
+extension Null: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension Int: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension Int8: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension Int16: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension Int32: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension Int64: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension UInt: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension UInt8: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension UInt16: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension UInt32: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension UInt64: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension Bool: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension Double: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension Float: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension Data: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
+
+extension String: DefaultInitializable {
+    public init(_ default: Default) {
+        self.init()
+    }
+}
 
 extension URL: DefaultInitializable {
-    /// Default url
-    public static var defaultURL: URL {
+    public init(_ default: Default) {
         // swiftlint:disable:next force_unwrapping
-        URL(string: "https://github.com/Apodini/ApodiniMigrator.git")!
-    }
-    
-    /// Initalizes an instance with defaultURL
-    public init() {
-        self = .defaultURL
+        self = URL(string: "https://github.com/Apodini/ApodiniMigrator.git")!
     }
 }
 
 extension UUID: DefaultInitializable {
-    /// Default value
-    public static var defaultValue: UUID { defaultUUID }
-    
-    /// Default UUID
-    public static var defaultUUID: UUID {
-        UUID(uuidString: "3070B293-C664-412B-A43E-21FF445608B7") ?? UUID()
+    public init(_ default: Default) {
+        // swiftlint:disable:next force_unwrapping
+        self = UUID(uuidString: "3070B293-C664-412B-A43E-21FF445608B7")!
     }
 }
 
@@ -59,9 +154,31 @@ extension Date: DefaultInitializable {
         Calendar(identifier: .gregorian).date(bySettingHour: 12, minute: 0, second: 0, of: self) ?? self
     }
     
-    /// Date of today noon
-    public static var today: Date { Date().noon }
-    
-    /// Default value from today
-    public static var defaultValue: Self { today }
+    public init(_ default: Default) {
+        self = Date().noon
+    }
+}
+
+extension Array: DefaultInitializable where Element: DefaultInitializable {
+    public init(_ default: Default) {
+        self = [.init(.default)]
+    }
+}
+
+extension Set: DefaultInitializable where Element: DefaultInitializable {
+    public init(_ default: Default) {
+        self = [.init(.default)]
+    }
+}
+
+extension Dictionary: DefaultInitializable where Key: DefaultInitializable, Value: DefaultInitializable {
+    public init(_ default: Default) {
+        self = [.init(.default): .init(.default)]
+    }
+}
+
+extension Optional: DefaultInitializable where Wrapped: DefaultInitializable {
+    public init(_ default: Default) {
+        self = .some(.init(.default))
+    }
 }

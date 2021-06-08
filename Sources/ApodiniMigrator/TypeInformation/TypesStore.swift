@@ -2,21 +2,21 @@ import Foundation
 
 /// `TypesStore` provides logic to reference and store `typeInformation` instances, while e.g. an endpoint keeps only the reference of the response type
 /// Provided with a reference from `TypeStore`, the instance of `typeInformation`
-/// can be constructed without information-loss via `construct(from reference:)`
+/// can be constructed without information-loss via `construct(from:)`
 /// The lifecycle of a Typestore is limited only during encoding and decoding of `Document`
-struct TypesStore {
+public struct TypesStore {
     /// Stored references of enums and objects
     /// Properties of objects are recursively stored
-    var storage: [String: TypeInformation]
+    public var storage: [String: TypeInformation]
     
     /// Initializes a store with an empty storage
-    init() {
+    public init() {
         storage = [:]
     }
     
     /// Stores an enum or object type by its type name, and returns the reference
     /// If attempting to store a non referencable type, the operation is ignored and the input type is returned directly
-    mutating func store(_ type: TypeInformation) -> TypeInformation {
+    public mutating func store(_ type: TypeInformation) -> TypeInformation {
         guard type.isReferencable else {
             return type
         }
@@ -38,7 +38,7 @@ struct TypesStore {
     }
     
     /// Constructs a type from a reference
-    mutating func construct(from reference: TypeInformation) -> TypeInformation {
+    public mutating func construct(from reference: TypeInformation) -> TypeInformation {
         guard let referenceKey = reference.referenceKey, var stored = storage[referenceKey.rawValue] else {
             return reference
         }
@@ -47,7 +47,11 @@ struct TypesStore {
         if case let .object(name, properties) = stored {
             let newProperties = properties.map { property -> TypeProperty in
                 if let propertyReference = property.type.reference {
-                    return .init(name: property.name, type: property.type.construct(from: propertyReference, in: &self), annotation: property.annotation)
+                    return .init(
+                        name: property.name,
+                        type: property.type.construct(from: propertyReference, in: &self),
+                        annotation: property.annotation
+                    )
                 }
                 return property
             }
@@ -66,6 +70,7 @@ struct TypesStore {
     }
 }
 
+// MARK: - TypeInformation + TypesStore support
 fileprivate extension TypeInformation {
     /// Wraps the element into a reference, e.g. .repeated(User) -> .repeated(.reference(User)) after all properties of user have been stored
     func asReference(with key: ReferenceKey) -> TypeInformation {

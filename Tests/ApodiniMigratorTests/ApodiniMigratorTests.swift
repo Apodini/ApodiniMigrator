@@ -97,8 +97,8 @@ final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
         XCTAssert(instance.keys.first == 0)
         // swiftlint:disable:next force_unwrapping
         let userInstance = instance.values.first!.values.first!!!!!!
-        XCTAssert(userInstance.birthday.first?.noon == .today)
-        XCTAssert(userInstance.url == .defaultURL)
+        XCTAssert(userInstance.birthday.first?.noon == .default)
+        XCTAssert(userInstance.url == .default)
     }
     
     func testFileGenerator() throws {

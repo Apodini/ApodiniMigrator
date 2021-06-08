@@ -131,7 +131,7 @@ public extension TypeInformation {
         case let .repeated(element): return element.unwrapped.typeName
         case let .dictionary(_, value): return value.unwrapped.typeName
         case let .optional(wrappedValue): return wrappedValue.unwrapped.typeName
-        case let .enum(name, _): return name
+        case let .enum(name, _, _): return name
         case let .object(name, _): return name
         case .reference: fatalError("Attempted to request type name from a reference")
         }
@@ -144,7 +144,7 @@ public extension TypeInformation {
         case let .repeated(element): return "[\(element.typeString)]"
         case let .dictionary(key, value): return "[\(key.description): \(value.typeString)]"
         case let .optional(wrappedValue): return wrappedValue.typeString + "?"
-        case let .enum(name, _): return name.name
+        case let .enum(name, _, _): return name.name
         case let .object(name, _): return name.name
         case .reference: fatalError("Attempted to request property type string from a reference")
         }
@@ -198,7 +198,7 @@ public extension TypeInformation {
     /// Returns the dictionary value type if `self` is `.dictionary`
     var dictionaryValue: TypeInformation? {
         if case let .dictionary(_, value) = self {
-            return value.dictionaryValue
+            return value
         }
         return nil
     }
@@ -213,7 +213,7 @@ public extension TypeInformation {
     
     /// Returns enum cases if `self` is `.enum`, otherwise an empty array
     var enumCases: [EnumCase] {
-        if case let .enum(_, cases) = self {
+        if case let .enum(_, _, cases) = self {
             return cases
         }
         return []
@@ -258,6 +258,17 @@ public extension TypeInformation {
     /// Filters `allTypes()` by a boolean property of `TypeInformation`
     func filter(_ keyPath: KeyPath<TypeInformation, Bool>) -> [TypeInformation] {
         allTypes().filter { $0[keyPath: keyPath] }
+    }
+    
+    /// If `nestedType` is an object, replaces existing properties with `properties`, otherwise returns self
+    func withProperties(_ properties: [TypeProperty]) -> TypeInformation {
+        switch self {
+        case let .repeated(element): return .repeated(element: element.withProperties(properties))
+        case let .dictionary(key, value): return .dictionary(key: key, value: value.withProperties(properties))
+        case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue.withProperties(properties))
+        case let .object(name, _): return .object(name: name, properties: properties)
+        default: return self
+        }
     }
     
     /// Returns all distinct scalars in `allTypes()`
@@ -315,6 +326,14 @@ public extension TypeInformation {
     /// the corresponding object properties and enum cases.
     func fileRenderableTypes() -> [TypeInformation] {
         filter(\.isEnumOrObject)
+    }
+    
+    static func `enum`(name: TypeName, cases: [EnumCase]) -> TypeInformation {
+        .enum(name: name, rawValueType: .string, cases: cases)
+    }
+    
+    static func `enum`<R: RawRepresentable>(model: R.Type, cases: [EnumCase]) -> TypeInformation {
+        .enum(name: .init(R.self), rawValueType: .init(R.self), cases: cases)
     }
 }
 

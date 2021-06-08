@@ -8,14 +8,22 @@
 import Foundation
 
 enum Cardinality {
-    case `nil`
     case exactlyOne(Any.Type)
     case repeated(Any.Type)
     case optional(Any.Type)
     case dictionary(key: Any.Type, value: Any.Type)
     
-    var isNil: Bool {
-        self == .nil
+    var nestedType: Any.Type {
+        switch self {
+        case let .exactlyOne(type):
+            return type
+        case let .optional(type):
+            return type
+        case let .repeated(type):
+            return type
+        case let .dictionary(_, value):
+            return value
+        }
     }
     
     var isExactlyOne: Bool {
@@ -48,7 +56,6 @@ enum Cardinality {
     
     func primitive() throws -> TypeInformation? {
         switch self {
-        case .nil: return nil
         case let .exactlyOne(type):
             if let primitiveType = PrimitiveType(type) {
                 return .scalar(primitiveType)
@@ -78,8 +85,6 @@ enum Cardinality {
 extension Cardinality: CustomStringConvertible, CustomDebugStringConvertible {
     public var debugDescription: String {
         switch self {
-        case .nil:
-            return "nil"
         case .exactlyOne(let type):
             return String(describing: type)
         case .optional(let type):
@@ -100,7 +105,6 @@ extension Cardinality: CustomStringConvertible, CustomDebugStringConvertible {
 extension Cardinality: Equatable {
     static func == (lhs: Cardinality, rhs: Cardinality) -> Bool {
         switch (lhs, rhs) {
-        case (.nil, .nil): return true
         case let (.exactlyOne(lhsType), .exactlyOne(rhsType)):
             return lhsType == rhsType
         case let (.repeated(lhsType), .repeated(rhsType)):

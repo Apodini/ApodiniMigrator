@@ -57,7 +57,7 @@ public struct JSONStringBuilder {
             return "[\(dictionaryKey(key)), \(Self(value, encoder: encoder).build())]"
         case let .optional(wrappedValue):
             return "\(Self(wrappedValue.unwrapped, encoder: encoder).build())"
-        case let .enum(_, cases):
+        case let .enum(_, _, cases):
             return cases.first?.name.asString ?? "{}"
         case let .object(_, properties):
             let sorted = properties.sorted(by: \.name)
@@ -130,6 +130,6 @@ fileprivate extension PrimitiveType {
 
 fileprivate extension DefaultInitializable {
     static func jsonString(with encoder: JSONEncoder) -> String {
-        defaultValue.jsonString(with: encoder)
+        `default`.jsonString(with: encoder)
     }
 }

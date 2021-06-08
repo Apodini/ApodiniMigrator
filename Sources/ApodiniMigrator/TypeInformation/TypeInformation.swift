@@ -10,10 +10,10 @@ public enum TypeInformation: Value {
     /// An optional type with `TypeInformation` wrapped values
     indirect case optional(wrappedValue: TypeInformation)
     /// An enum type with `String` cases
-    case `enum`(name: TypeName, cases: [EnumCase])
+    case `enum`(name: TypeName, rawValueType: RawValueType, cases: [EnumCase])
     /// An object type with properties containing a `TypeInformation` and a name
     case object(name: TypeName, properties: [TypeProperty])
-    /// A reference created at `TypesStore` that uniquely identifies the type inside the store
+    /// A reference to a type information instance
     case reference(ReferenceKey)
 }
 
@@ -34,8 +34,8 @@ public extension TypeInformation {
             return lhsKey == rhsKey && lhsValue == rhsValue
         case let (.optional(lhsWrappedValue), .optional(rhsWrappedValue)):
             return lhsWrappedValue == rhsWrappedValue
-        case let (.enum(lhsName, lhsCases), .enum(rhsName, rhsCases)):
-            return lhsName == rhsName && lhsCases.equalsIgnoringOrder(to: rhsCases)
+        case let (.enum(lhsName, lhsRawValue, lhsCases), .enum(rhsName, rhsRawValue, rhsCases)):
+            return lhsName == rhsName && lhsRawValue == rhsRawValue && lhsCases.equalsIgnoringOrder(to: rhsCases)
         case let (.object(lhsName, lhsProperties), .object(rhsName, rhsProperties)):
             return lhsName == rhsName && lhsProperties.equalsIgnoringOrder(to: rhsProperties)
         case let (.reference(lhsKey), .reference(rhsKey)):
@@ -57,7 +57,7 @@ extension TypeInformation {
     }
     
     private enum EnumKeys: String, CodingKey {
-        case typeName, cases
+        case typeName, rawValueType, cases
     }
     
     private enum ObjectKeys: String, CodingKey {
@@ -75,14 +75,15 @@ extension TypeInformation {
             try dictionaryContainer.encode(key, forKey: .key)
             try dictionaryContainer.encode(value, forKey: .value)
         case let .optional(wrappedValue): try container.encode(wrappedValue, forKey: .optional)
-        case let .enum(name, cases):
+        case let .enum(name, rawValue ,cases):
             var enumContainer = container.nestedContainer(keyedBy: EnumKeys.self, forKey: .enum)
             try enumContainer.encode(name, forKey: .typeName)
+            try enumContainer.encode(rawValue, forKey: .rawValueType)
             try enumContainer.encode(cases, forKey: .cases)
         case let .object(name, properties):
             var objectContainer = container.nestedContainer(keyedBy: ObjectKeys.self, forKey: .object)
             try objectContainer.encode(name, forKey: .typeName)
-            try objectContainer.encode(properties, forKey: .properties)
+            try objectContainer.encodeIfNotEmpty(properties, forKey: .properties)
         case let .reference(key): try container.encode(key, forKey: .reference)
         }
     }
@@ -104,13 +105,14 @@ extension TypeInformation {
         case .enum:
             let enumContainer = try container.nestedContainer(keyedBy: EnumKeys.self, forKey: .enum)
             let name = try enumContainer.decode(TypeName.self, forKey: .typeName)
+            let rawValueType = try enumContainer.decode(RawValueType.self, forKey: .rawValueType)
             let cases = try enumContainer.decode([EnumCase].self, forKey: .cases)
-            self = .enum(name: name, cases: cases)
+            self = .enum(name: name, rawValueType: rawValueType, cases: cases)
         case .object:
             let objectContainer = try container.nestedContainer(keyedBy: ObjectKeys.self, forKey: .object)
             self = .object(
                 name: try objectContainer.decode(TypeName.self, forKey: .typeName),
-                properties: try objectContainer.decode([TypeProperty].self, forKey: .properties)
+                properties: try objectContainer.decodeIfPresentOrInitEmpty([TypeProperty].self, forKey: .properties)
             )
         case .reference: self = .reference(try container.decode(ReferenceKey.self, forKey: .reference))
         default: fatalError("Failed to decode type information")

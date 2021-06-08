@@ -32,11 +32,15 @@ public struct ReferenceKey: Value, RawRepresentable {
     }
 }
 
-extension ReferenceKey: CustomStringConvertible {
+// MARK: - CustomStringConvertible + CustomDebugStringConvertible
+extension ReferenceKey: CustomStringConvertible, CustomDebugStringConvertible {
     /// String description of self
     public var description: String { rawValue }
+    /// String description of self
+    public var debugDescription: String { rawValue}
 }
 
+// MARK: - Hashable
 public extension ReferenceKey {
     /// :nodoc:
     func hash(into hasher: inout Hasher) {
@@ -44,6 +48,7 @@ public extension ReferenceKey {
     }
 }
 
+// MARK: - Equatable
 public extension ReferenceKey {
     /// :nodoc:
     static func == (lhs: ReferenceKey, rhs: ReferenceKey) -> Bool {

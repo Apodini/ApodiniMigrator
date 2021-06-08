@@ -1,71 +1,65 @@
-//
-//  File.swift
-//  
-//
-//  Created by Eldi Cano on 29.05.21.
-//
-
 import Foundation
 
-protocol PropertyWrapperAnnotatable {
-    var annotation: String { get }
-}
-
-extension PropertyWrapperAnnotatable {
-    var fluentPropertyType: FluentPropertyType? {
-        if let fluentProperty = FluentPropertyType(rawValue: annotation.without("@").lowerFirst + "Property") {
-            return fluentProperty
-        }
-        return nil
-    }
-}
-
-extension FluentPropertyType: PropertyWrapperAnnotatable {
-    var annotation: String {
-        "@" + rawValue.without("Property").upperFirst
-    }
-}
-
-extension TypeName: PropertyWrapperAnnotatable {
-    var annotation: String {
-        "@" + name
-    }
-}
-
 /// Represents distinct cases of FluentKit (version: 1.12.0) property wrappers
-public enum FluentPropertyType: String, Codable {
+public enum FluentPropertyType: String, Value {
+    /// @Enum
     case enumProperty
+    /// @OptionalEnum
     case optionalEnumProperty
+    /// @Children
     case childrenProperty
+    /// @Field
     case fieldProperty
+    /// @ID
     case iDProperty
+    /// @OptionalChild
     case optionalChildProperty
+    /// @OptionalField
     case optionalFieldProperty
+    /// @OptionalParent
     case optionalParentProperty
+    /// @Parent
     case parentProperty
+    /// @Siblings
     case siblingsProperty
+    /// @Timestamp
     case timestampProperty
+    /// @Group
     case groupProperty
     
+    // MARK: - Encodable
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         
-        try container.encode("@" + rawValue.without("Property").upperFirst)
+        try container.encode(description)
     }
     
+    // MARK: - Decodable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self).without("@").lowerFirst + "Property"
         
         guard let instance = FluentPropertyType(rawValue: string) else {
-            fatalError("Failed to decode \(Self.self)")
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode \(Self.self)")
         }
         
         self = instance
     }
     
     /// Indicates whether the type of the property is get-only. Such fluent properties represent some kind of relationship amoung db tables
-    var isGetOnly: Bool {
+    public var isGetOnly: Bool {
         [.childrenProperty, .optionalChildProperty, .optionalParentProperty, .parentProperty, .siblingsProperty].contains(self)
+    }
+}
+
+// MARK: - CustomStringConvertible + CustomDebugStringConvertible
+extension FluentPropertyType: CustomStringConvertible, CustomDebugStringConvertible {
+    /// String representation, e.g. `@ID`
+    public var description: String {
+        "@" + rawValue.upperFirst.without("Property")
+    }
+    
+    public var debugDescription: String {
+        description
     }
 }

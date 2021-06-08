@@ -16,3 +16,13 @@ public extension Encodable {
         try? (path + "\(fileName ?? String(describing: type(of: self))).json").write(json)
     }
 }
+
+// MARK: - KeyedEncodingContainerProtocol
+extension KeyedEncodingContainerProtocol {
+    /// Only encodes the value if the collection is not empty
+    public mutating func encodeIfNotEmpty<T: Encodable>(_ value: T, forKey key: Key) throws where T: Collection, T.Element: Encodable {
+        if !value.isEmpty {
+            try encode(value, forKey: key)
+        }
+    }
+}
