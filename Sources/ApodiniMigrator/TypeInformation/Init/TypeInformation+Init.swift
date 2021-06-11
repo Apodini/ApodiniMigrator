@@ -30,23 +30,14 @@ extension TypeInformation {
     
     /// Initializes a typeinformation instance from `type`. `includeObjectProperties` flag that indicates whether to include object properties or not
     private init(for type: Any.Type, includeObjectProperties: Bool = true) throws {
-        if let primitiveType = PrimitiveType(type) {
-            self = .scalar(primitiveType)
+        if let type = type as? TypeInformationPrimitiveConstructor.Type {
+            self = type.construct()
+        } else if let type = type as? TypeInformationComplexConstructor.Type {
+            self = try type.construct(with: RuntimeBuilder.self)
         } else {
             let typeInfo = try info(of: type)
-            let cardinality = typeInfo.cardinality
-            
-            if case let .repeated(elementType) = cardinality {
-                self = .repeated(element: try .init(for: elementType))
-            } else if case let .dictionary(keyType, valueType) = cardinality {
-                if let keyType = PrimitiveType(keyType) {
-                    self = .dictionary(key: keyType, value: try .init(for: valueType))
-                } else {
-                    throw TypeInformationError.notSupportedDictionaryKeyType
-                }
-            } else if case let .optional(wrappedValueType) = cardinality {
-                self = .optional(wrappedValue: try .init(for: wrappedValueType))
-            } else if typeInfo.kind == .enum {
+        
+            if typeInfo.kind == .enum {
                 guard typeInfo.numberOfPayloadEnumCases == 0 else {
                     throw TypeInformationError.enumCaseWithAssociatedValue(message: "Construction of enums with associated values is currently not supported")
                 }

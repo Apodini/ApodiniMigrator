@@ -73,7 +73,12 @@ public extension String {
     
     /// Replaces occurrencies of `string` with an empty string
     func without(_ string: String) -> String {
-        replacingOccurrences(of: string, with: "")
+        with("", insteadOf: string)
+    }
+    
+    /// Replaces occurrencies of `target` with `replacement`
+    func with(_ replacement: String, insteadOf target: String) -> String {
+        replacingOccurrences(of: target, with: replacement)
     }
 }
 

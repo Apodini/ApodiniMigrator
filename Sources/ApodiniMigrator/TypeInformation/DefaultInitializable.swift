@@ -23,10 +23,15 @@ public struct Default {
     }
 }
 
+
+public protocol TypeInformationPrimitiveConstructor {
+    static func construct() -> TypeInformation
+}
+
 /// A protocol that forces the presence of an `init(_ default: Default)` initializer,
 /// where `Default` is an empty struct that can either be initalized with `.init()` or
 /// `.default` static variable.
-public protocol DefaultInitializable: Encodable {
+public protocol DefaultInitializable: Encodable, TypeInformationPrimitiveConstructor {
     init(_ default: Default)
 }
 
@@ -43,11 +48,19 @@ extension Null: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.null)
+    }
 }
 
 extension Int: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
+    }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.int)
     }
 }
 
@@ -55,11 +68,19 @@ extension Int8: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.int8)
+    }
 }
 
 extension Int16: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
+    }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.int16)
     }
 }
 
@@ -67,11 +88,19 @@ extension Int32: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.int32)
+    }
 }
 
 extension Int64: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
+    }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.int64)
     }
 }
 
@@ -79,11 +108,19 @@ extension UInt: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.uint)
+    }
 }
 
 extension UInt8: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
+    }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.uint8)
     }
 }
 
@@ -91,11 +128,19 @@ extension UInt16: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.uint16)
+    }
 }
 
 extension UInt32: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
+    }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.uint32)
     }
 }
 
@@ -103,11 +148,19 @@ extension UInt64: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.uint64)
+    }
 }
 
 extension Bool: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
+    }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.bool)
     }
 }
 
@@ -115,11 +168,19 @@ extension Double: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.double)
+    }
 }
 
 extension Float: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
+    }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.float)
     }
 }
 
@@ -127,11 +188,19 @@ extension Data: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.data)
+    }
 }
 
 extension String: DefaultInitializable {
     public init(_ default: Default) {
         self.init()
+    }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.string)
     }
 }
 
@@ -140,12 +209,20 @@ extension URL: DefaultInitializable {
         // swiftlint:disable:next force_unwrapping
         self = URL(string: "https://github.com/Apodini/ApodiniMigrator.git")!
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.url)
+    }
 }
 
 extension UUID: DefaultInitializable {
     public init(_ default: Default) {
         // swiftlint:disable:next force_unwrapping
         self = UUID(uuidString: "3070B293-C664-412B-A43E-21FF445608B7")!
+    }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.uuid)
     }
 }
 
@@ -157,11 +234,21 @@ extension Date: DefaultInitializable {
     public init(_ default: Default) {
         self = Date().noon
     }
+    
+    public static func construct() -> TypeInformation {
+        .scalar(.date)
+    }
 }
 
 extension Array: DefaultInitializable where Element: DefaultInitializable {
     public init(_ default: Default) {
         self = [.init(.default)]
+    }
+}
+
+extension Array: TypeInformationPrimitiveConstructor where Element: DefaultInitializable {
+    public static func construct() -> TypeInformation {
+        .repeated(element: Element.construct())
     }
 }
 
@@ -171,14 +258,35 @@ extension Set: DefaultInitializable where Element: DefaultInitializable {
     }
 }
 
+extension Set: TypeInformationPrimitiveConstructor where Element: DefaultInitializable {
+    public static func construct() -> TypeInformation {
+        .repeated(element: Element.construct())
+    }
+}
+
 extension Dictionary: DefaultInitializable where Key: DefaultInitializable, Value: DefaultInitializable {
     public init(_ default: Default) {
         self = [.init(.default): .init(.default)]
     }
 }
 
+extension Dictionary: TypeInformationPrimitiveConstructor where Key: DefaultInitializable, Value: DefaultInitializable {
+    public static func construct() -> TypeInformation {
+        guard let primitiveType = PrimitiveType(Key.self) else {
+            fatalError("Encountered a non primtive `DefaultInializable` type: \(Key.self)")
+        }
+        return .dictionary(key: primitiveType, value: Value.construct())
+    }
+}
+
 extension Optional: DefaultInitializable where Wrapped: DefaultInitializable {
     public init(_ default: Default) {
         self = .some(.init(.default))
+    }
+}
+
+extension Optional: TypeInformationPrimitiveConstructor where Wrapped: DefaultInitializable {
+    public static func construct() -> TypeInformation {
+        .optional(wrappedValue: Wrapped.construct())
     }
 }

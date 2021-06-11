@@ -154,32 +154,4 @@ final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
         
         try RecursiveFileGenerator(types).persist(at: testModels)
     }
-    
-    func testEnumFileUpdate() throws {
-        guard isEldisMacbook() else {
-            return
-        }
-        try generateTestModels()
-        
-        var enumFileParser = try EnumFileParser(path: testModels + "Direction.swift")
-        
-        enumFileParser.rename(case: "left", to: "links")
-        enumFileParser.deleted(case: "right")
-        try enumFileParser.save()
-    }
-    
-    func testObjectFileUpdate() throws {
-        guard isEldisMacbook() else {
-            return
-        }
-        try generateTestModels()
-        
-        var objectFileParser = try ObjectFileParser(path: testModels + "Student.swift")
-        
-        objectFileParser.renamed(property: "id", to: "identifier")
-        objectFileParser.addCodingKeyCase(name: "githubProfile")
-        objectFileParser.changedType(of: "name")
-        
-        try objectFileParser.save()
-    }
 }
