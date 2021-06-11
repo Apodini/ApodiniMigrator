@@ -81,7 +81,7 @@ public struct JSONStringBuilder {
     
     /// Initializes an instance out of a `ApodiniMigratorCodable` type.
     static func instance<C: ApodiniMigratorCodable>(_ type: C.Type) throws -> C {
-        try decode(C.self, from: try Self(C.self).build())
+        try decode(C.self, from: try Self(C.self, encoder: C.encoder).build())
     }
     
     /// Initializes an `ApodiniMigratorCodable` instance out of a `typeInformation`

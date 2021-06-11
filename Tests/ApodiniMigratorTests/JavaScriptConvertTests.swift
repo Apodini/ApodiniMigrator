@@ -59,6 +59,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         let name: String
         let matrNr: UUID
         let dog: Dog
+        let number: Int
     }
     
     struct Dog: Codable, Equatable {
@@ -74,15 +75,16 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
             let parsedName = JSON.parse(name)
             let parsedMatrNr = JSON.parse(matrNr)
             let parsedDog = JSON.parse(dog)
-            return JSON.stringify({ 'name' : parsedName.value, 'matrNr' : parsedMatrNr.value, 'dog' : parsedDog.value })
+            return JSON.stringify({ 'name' : parsedName, 'matrNr' : parsedMatrNr, 'dog' : parsedDog, 'number': 42 })
         }
         """
         
-        let student = try Student.fromValues(.init("John"), .init(UUID()), .init(Dog(name: "Dog")), script: constructScript)
+        let student = try Student.fromValues("John", UUID(), Dog(name: "Dog"), script: constructScript)
         
         
         XCTAssert(student.dog.name == "Dog")
         XCTAssert(student.name == "John")
+        XCTAssert(student.number == 42)
     }
     
     func testMalformedInputAndScript() throws {

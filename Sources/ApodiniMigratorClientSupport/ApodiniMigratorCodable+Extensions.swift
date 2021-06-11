@@ -52,19 +52,8 @@ public extension ApodiniMigratorCodable {
     /// 6. In case that the script is invalid, the instance is created with default empty values, e.g `Developer(name: "", id: UUID())`
     ///
     /// - Throws: if decoding fails
-    static func from(_ value: ApodiniMigratorEncodable, script: String) throws -> Self {
-        try initialize(from: [value.jsonString], script: script)
-    }
-}
-
-/// ApodiniMigratorEncodable fileprivate extension
-public extension ApodiniMigratorEncodable {
-    /// `jsonString` representation of `self` encoded with `Self.encoder`
-    var jsonString: String {
-        let encoder = Self.encoder
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-        let data = (try? encoder.encode(self)) ?? Data()
-        return String(decoding: data, as: UTF8.self)
+    static func from<E: ApodiniMigratorEncodable>(_ value: E, script: String) throws -> Self {
+        try fromValue(value, script: script)
     }
 }
 
@@ -85,12 +74,12 @@ fileprivate extension ApodiniMigratorCodable {
         
         let result = context?.objectForKeyedSubscript(functionName)?.call(withArguments: jsonArgs)?.toString()
         
-        guard let jsonString = result, let data = jsonString.data(using: .utf8) else {
+        guard let data = result?.data(using: .utf8) else {
             return try defaultValue()
         }
         
         do {
-            return try JSONStringBuilder.decode(Self.self, from: data)
+            return try Self.decode(from: data)
         } catch {
             return try defaultValue()
         }
@@ -98,7 +87,7 @@ fileprivate extension ApodiniMigratorCodable {
 }
 
 public extension ApodiniMigratorCodable {
-    /// Creates an instance of type `Self`, by means of the `value` of `EncodableContainer`
+    /// Creates an instance of type `Self`, by means of an `ApodiniMigratorEncodable`
     ///
     /// ```swift
     /// // MARK: - Code example
@@ -115,181 +104,126 @@ public extension ApodiniMigratorCodable {
     /// In order to create a `Student` instance the function would expect
     /// an `arg` and a `script` that are compatible, while javaScript code handles the convertion
     /// ```swift
-    /// let developer = Developer(id: UUID(), name: "Swift Developer")
-    /// let arg = EncodableContainer(developer)
+    /// let arg = Developer(id: UUID(), name: "Swift Developer")
     /// ```
-    /// - Note: the `arg` must be parsed inside the function, and the value is contained in `value` field of the json string
+    /// - Note: the `arg` must be first parsed inside the function
     /// ```javascript
     /// function convert(input) {
-    ///     let parsed = JSON.parse(input)
-    ///     return JSON.stringify({ 'name' : "John", 'friend' : parsed.value })
+    ///     let parsedInput = JSON.parse(input)
+    ///     return JSON.stringify({ 'name' : "John", 'friend' : parsedInput })
     /// }
     /// ```
     /// Called with `arg` and the javascript string, the function creates a `Student`:
     /// ```swift
-    /// let student = Student(name: "John", friend: developer)
+    /// let student = Student(name: "John", friend: arg)
     /// ```
     /// - Parameters:
     ///     - arg: `EncodableContainer` that hold the encodable value to be passed as argument in the script
     ///     - script: a valid js script that handles the convertion
     /// - Throws: The function throws if decoding fails
-    static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self {
-        try initialize(from: [arg.jsonString], script: script)
+    static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self {
+        try initialize(from: [arg.js()], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
     /// - Note: See documentation for the single argument function
     /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
+    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self
     /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, script: String) throws -> Self {
-        try initialize(from: [arg1.jsonString, arg2.jsonString], script: script)
+    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, script: String) throws -> Self {
+        try initialize(from: [arg1.js(), arg2.js()], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
     /// - Note: See documentation for the single argument function:
     /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
+    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self
     /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, script: String) throws -> Self {
-        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString], script: script)
+    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, script: String) throws -> Self {
+        try initialize(from: [arg1.js(), arg2.js(), arg3.js()], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
     /// - Note: See documentation for the single argument function:
     /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
+    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self
     /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, script: String) throws -> Self {
-        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString], script: script)
+    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, script: String) throws -> Self {
+        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js()], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
     /// - Note: See documentation for the single argument function:
     /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
+    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self
     /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, script: String) throws -> Self {
-        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString], script: script)
+    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, script: String) throws -> Self {
+        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js()], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
     /// - Note: See documentation for the single argument function:
     /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
+    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self
     /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, script: String) throws -> Self {
-        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString], script: script)
+    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, script: String) throws -> Self {
+        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js()], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
     /// - Note: See documentation for the single argument function:
     /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
+    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self
     /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, arg7: EncodableContainer<E7>, script: String) throws -> Self {
-        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString], script: script)
+    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, arg7: E7, script: String) throws -> Self {
+        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js(), arg7.js()], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
     /// - Note: See documentation for the single argument function:
     /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
+    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self
     /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, arg7: EncodableContainer<E7>, arg8: EncodableContainer<E8>, script: String) throws -> Self {
-        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString, arg8.jsonString], script: script)
+    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, arg7: E7, arg8: E8, script: String) throws -> Self {
+        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js(), arg7.js(), arg8.js()], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
     /// - Note: See documentation for the single argument function:
     /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
+    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self
     /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable, E9: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, arg7: EncodableContainer<E7>, arg8: EncodableContainer<E8>, arg9: EncodableContainer<E9>, script: String) throws -> Self {
-        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString, arg8.jsonString, arg9.jsonString], script: script)
+    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable, E9: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, arg7: E7, arg8: E8, arg9: E9, script: String) throws -> Self {
+        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js(), arg7.js(), arg8.js(), arg9.js()], script: script)
     }
     
     /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
     /// - Note: See documentation for the single argument function:
     /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: EncodableContainer<E>, script: String) throws -> Self
+    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: String) throws -> Self
     /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable, E9: ApodiniMigratorEncodable, E10: ApodiniMigratorEncodable>(_ arg1: EncodableContainer<E1>, _ arg2: EncodableContainer<E2>, _ arg3: EncodableContainer<E3>, arg4: EncodableContainer<E4>, arg5: EncodableContainer<E5>, arg6: EncodableContainer<E6>, arg7: EncodableContainer<E7>, arg8: EncodableContainer<E8>, arg9: EncodableContainer<E9>, arg10: EncodableContainer<E10>, script: String) throws -> Self {
-        try initialize(from: [arg1.jsonString, arg2.jsonString, arg3.jsonString, arg4.jsonString, arg5.jsonString, arg6.jsonString, arg7.jsonString, arg8.jsonString, arg9.jsonString, arg10.jsonString], script: script)
+    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable, E9: ApodiniMigratorEncodable, E10: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, arg7: E7, arg8: E8, arg9: E9, arg10: E10, script: String) throws -> Self {
+        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js(), arg7.js(), arg8.js(), arg9.js(), arg10.js()], script: script)
     }
 }
 
-
-/// A util object used for creating an object by means of its encodable properties and a valid js script
-/// Let's consider the following example
-///```swift
-/// // MARK: - Code example
-/// struct Student: Codable {
-///     let name: String
-///     let id: Int
-/// }
-/// ```
-/// In order to create an instance of type `Student`, we would simply need a `String` object for the name, and an `Int` object for the `id`
-/// We could then make use of the following js script:
-/// ```javascript
-/// function convert(name, id) {
-///     return JSON.stringify({ 'name' : JSON.parse(name), 'id' : JSON.parse(id)})
-/// }
-/// ```
-/// We would need a function like this to create the instance:
-/// ```
-/// let student = try Student.instance("John", 42, script: script)
-/// ```
-///
-/// `JSON.stringify` results the following output, e.g. for "John" and 42:
-/// ```json
-/// {
-///     "name" : "John",
-///     "id" : "42"
-/// }
-/// ```
-/// While the produced `json` is valid, it can't be used to decode the `Student` type, since the `Int`, and in general
-/// all primitve types are converted into strings from the `JSON.stringify`.
-/// We overcome the issue by means of an `EncodableContainer` object
-/// ```
-/// let student = try Student.instance(EncodableContainer("John"), EncodableContainer(42), script: script)
-/// ```
-/// and an updated script:
-/// ```javascript
-/// function convert(name, id) {
-///     let parsedName = JSON.parse(name)
-///     let parsedId = JSON.parse(id)
-///     return JSON.stringify({ 'name' : parsedName.value, 'id' : parsedId.value})
-/// }
-/// ```
-/// Doing so, we obtain a valid json that can be used to decode the `Student` accordingly
-/// - Note: Uses a `KeyedEncodingContainer` to encode the value under the key `value`
-public struct EncodableContainer<E: ApodiniMigratorEncodable>: Encodable {
-    /// Fileprivate property that encodes `self` with `E.encoder`
-    /// Property used in `fromValues` methods
-    var jsonString: String {
-        let data = (try? E.encoder.encode(self)) ?? Data()
+/// TODO Review, might not be needed
+fileprivate struct EncodableContainer<E: ApodiniMigratorEncodable> {
+    /// The encodable value of the container
+    let value: E
+    
+    /// JSON String of value
+    var json: String {
+        let data = (try? E.encoder.encode(value)) ?? Data()
         return String(decoding: data, as: UTF8.self)
     }
     
-    // MARK: Private Inner Types
-    private enum CodingKeys: String, CodingKey {
-        case value
-    }
-    
-    /// The encodable value of the container
-    public let value: E
-    
-    /// Initializer for `EncodableContainer`
-    public init(_ value: E) {
-        self.value = value
-    }
-    
-    /// Encode method
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(value, forKey: .value)
+}
+
+extension ApodiniMigratorEncodable {
+    func js() -> String {
+        let data = (try? Self.encoder.encode(self)) ?? Data()
+        return String(decoding: data, as: UTF8.self)
     }
 }
 
