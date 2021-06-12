@@ -40,7 +40,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.deltaIdentifier = .init(deltaIdentifier)
         self.operation = operation
         self.path = .init(absolutePath)
-        self.parameters = parameters
+        self.parameters = Self.wrappContentParameters(from: parameters, with: handlerName)
         self.response = response.replaceEmptyIfNeeded()
         self.errors = errors
     }
@@ -61,6 +61,47 @@ public struct Endpoint: Value, DeltaIdentifiable {
             param.reference(in: &typeStore)
             return param
         }
+    }
+}
+
+private extension Endpoint {
+    
+    static func wrappContentParameters(from parameters: EndpointInput, with handlerName: String) -> EndpointInput {
+        let contentParameters = parameters.filter { $0.parameterType == .content }
+        guard !contentParameters.isEmpty else {
+            return parameters
+        }
+        
+        var contentParameter: Parameter?
+        
+        switch contentParameters.count {
+        case 1:
+            contentParameter = contentParameters.first
+        default:
+            var typeInformation = TypeInformation.object(
+                name: Parameter.wrappedContentParameterTypeName(from: handlerName),
+                properties: contentParameters.map { TypeProperty(name: $0.name, type: $0.typeInformation) }
+            )
+            
+            if contentParameters.allSatisfy({ $0.typeInformation.isOptional }) {
+                typeInformation = typeInformation.asOptional
+            }
+            
+            contentParameter = .init(
+                parameterName: Parameter.wrappedContentParameter,
+                typeInformation: typeInformation,
+                hasDefaultValue: contentParameters.allSatisfy { $0.hasDefaultValue },
+                parameterType: .content
+            )
+        }
+        
+        var result = parameters.filter { $0.parameterType != .content }
+        
+        contentParameter.map {
+            result.append($0)
+        }
+        
+        return result
     }
 }
 

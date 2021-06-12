@@ -38,6 +38,8 @@ public enum Necessity: String, Value {
 
 /// Represents a parameter of an endpoint
 public struct Parameter: Value {
+    /// Adjusted name for multiple content parameter types wrapped into one object
+    static let wrappedContentParameter = "wrappedContentParameter"
     /// Name of the parameter
     public let name: String
     /// The reference of the `typeInformation` of the parameter
@@ -59,6 +61,18 @@ public struct Parameter: Value {
         nilIsValidValue ? .optional : hasDefaultValue ? .optional : .required
     }
     
+    /// Multiple content type parameters are wrapped into one single object, where each of its properties
+    /// has the name and the typeInformation of the corresponding parameter. The wrapped content parameter in that
+    /// case is considered to have a default value if all content parameters have one default value. The wrapped content
+    /// parameter is considered to accept `nil` as valid value if all content parameters accept it.
+    /// This property indicates of `self` name is `wrappedContentParameter`, name of typeInformation has `WrappedContent` as suffix,
+    /// and the parameter type is `.content`
+    public var isWrapped: Bool {
+        name == Self.wrappedContentParameter
+            && typeInformation.typeName.name.hasSuffix("WrappedContent")
+            && parameterType == .content
+    }
+    
     /// Initializes a new parameter instance
     public init(
         parameterName: String,
@@ -78,6 +92,10 @@ public struct Parameter: Value {
     
     mutating func reference(in typeStore: inout TypesStore) {
         typeInformation = typeStore.store(typeInformation)
+    }
+    
+    static func wrappedContentParameterTypeName(from handlerName: String) -> TypeName {
+        .init(name: handlerName.without("Handler") + "WrappedContent")
     }
 }
 
