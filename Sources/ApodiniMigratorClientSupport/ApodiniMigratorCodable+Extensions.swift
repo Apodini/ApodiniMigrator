@@ -208,7 +208,7 @@ public extension ApodiniMigratorCodable {
 }
 
 /// TODO Review, might not be needed
-fileprivate struct EncodableContainer<E: ApodiniMigratorEncodable> {
+private struct EncodableContainer<E: ApodiniMigratorEncodable> {
     /// The encodable value of the container
     let value: E
     
@@ -217,7 +217,6 @@ fileprivate struct EncodableContainer<E: ApodiniMigratorEncodable> {
         let data = (try? E.encoder.encode(value)) ?? Data()
         return String(decoding: data, as: UTF8.self)
     }
-    
 }
 
 extension ApodiniMigratorEncodable {

@@ -50,7 +50,7 @@ struct InstanceCreator {
     
     /// Handles empty array property by initializing it with one element
     private mutating func handleRepeated(on property: RuntimeProperty) throws {
-        if case let .repeated(elementType) = property.cardinality  {
+        if case let .repeated(elementType) = property.cardinality {
             let propertyInstance = try Self(for: elementType).instance
             try property.propertyInfo.set(value: [propertyInstance], on: &instance)
         }

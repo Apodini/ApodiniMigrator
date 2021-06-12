@@ -44,4 +44,3 @@ extension Storage {
         insert(.init(property))
     }
 }
-

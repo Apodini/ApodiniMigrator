@@ -65,7 +65,6 @@ public struct Endpoint: Value, DeltaIdentifiable {
 }
 
 private extension Endpoint {
-    
     static func wrappContentParameters(from parameters: EndpointInput, with handlerName: String) -> EndpointInput {
         let contentParameters = parameters.filter { $0.parameterType == .content }
         guard !contentParameters.isEmpty else {

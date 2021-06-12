@@ -54,11 +54,11 @@ extension HTTPAuthorization {
     ///     - token: token
     /// - Note: `Bearer ` already included in the value
     static func bearer(_ token: String) -> HTTPAuthorization {
-        return .init(location: .header, value: "Bearer \(token)")
+        .init(location: .header, value: "Bearer \(token)")
     }
     
     /// A custom `HTTPAuthorization`
-    static func custom(_ value: String?) -> HTTPAuthorization? {
+    static func authorization(_ value: String?) -> HTTPAuthorization? {
         if let value = value {
             return .init(location: .header, value: value)
         }

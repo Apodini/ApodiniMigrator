@@ -75,7 +75,7 @@ extension TypeInformation {
             try dictionaryContainer.encode(key, forKey: .key)
             try dictionaryContainer.encode(value, forKey: .value)
         case let .optional(wrappedValue): try container.encode(wrappedValue, forKey: .optional)
-        case let .enum(name, rawValue ,cases):
+        case let .enum(name, rawValue, cases):
             var enumContainer = container.nestedContainer(keyedBy: EnumKeys.self, forKey: .enum)
             try enumContainer.encode(name, forKey: .typeName)
             try enumContainer.encode(rawValue, forKey: .rawValueType)

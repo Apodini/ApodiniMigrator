@@ -68,7 +68,6 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     
     
     func testMultipleArguments() throws {
-       
         let constructScript =
         """
         function convert(name, matrNr, dog) {
@@ -113,7 +112,6 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         
         XCTAssert(student.name == .default)
         XCTAssert(student.github == .default)
-        
     }
     
     func testPackageGenerator() throws {

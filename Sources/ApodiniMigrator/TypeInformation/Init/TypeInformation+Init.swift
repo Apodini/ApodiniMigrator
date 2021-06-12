@@ -64,7 +64,6 @@ extension TypeInformation {
                             
                             return .property($0.name, type: try .init(for: $0.type))
                         } catch {
-                            
                             if knownRuntimeError(error) {
                                 return nil
                             }

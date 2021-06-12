@@ -32,7 +32,7 @@ extension Endpoint {
     }
     
     var authorization: Parameter? {
-        if let authorization =  parameters.first(where: { $0.parameterType == .header && $0.name == "Authorization" }) {
+        if let authorization = parameters.first(where: { $0.parameterType == .header && $0.name == "Authorization" }) {
             return .init(
                 parameterName: authorization.name.lowerFirst,
                 typeInformation: authorization.typeInformation,

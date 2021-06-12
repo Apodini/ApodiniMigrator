@@ -37,7 +37,7 @@ extension ReferenceKey: CustomStringConvertible, CustomDebugStringConvertible {
     /// String description of self
     public var description: String { rawValue }
     /// String description of self
-    public var debugDescription: String { rawValue}
+    public var debugDescription: String { rawValue }
 }
 
 // MARK: - Hashable
