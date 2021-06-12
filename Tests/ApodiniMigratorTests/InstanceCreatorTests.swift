@@ -1,7 +1,7 @@
 import XCTest
 @testable import ApodiniMigrator
 @testable import ApodiniMigratorClientSupport
-@testable import FluentKit
+//@testable import FluentKit
 @testable import Runtime
 
 func isEldisMacbook() -> Bool {
@@ -9,7 +9,87 @@ func isEldisMacbook() -> Bool {
 }
 
 final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
+    func testNoAssociatedValuesforEnumAllowed() throws {
+        XCTAssertThrowsError(try TypeInformation.of(TypeInformation.self, with: RuntimeBuilder.self))
+    }
     
+    struct Student: Codable, Equatable {
+        let name: String
+        let matrNr: UUID
+        let dog: Dog
+    }
+    
+    struct Dog: Codable, Equatable {
+        let name: String
+    }
+    
+    func testCardinality() {
+        let dictionaryCardinality = Cardinality.dictionary(key: String.self, value: Student.self)
+        
+        XCTAssertEqual(dictionaryCardinality, .dictionary(key: String.self, value: Student.self))
+        
+        XCTAssertNotEqual(dictionaryCardinality, .exactlyOne(Student.self))
+        
+        XCTAssertNotEqual(Cardinality.optional(Student.self), .exactlyOne(Student.self))
+        
+        
+        XCTAssertEqual(try cardinality(of: Student.self), .exactlyOne(Student.self))
+        XCTAssertEqual(try cardinality(of: Optional<Student>.self), .optional(Student.self))
+        XCTAssertEqual(try cardinality(of: Array<Array<Student>>.self), .repeated(Array<Student>.self))
+        XCTAssertEqual(try cardinality(of: Dictionary<Int, Student>.self), .dictionary(key: Int.self, value: Student.self))
+    }
+    
+    func testNonFluentModel() throws {
+        let student = try typedInstance(Student.self)
+        
+        let studentJSON = student.json
+        
+        let studentFromJSON = try Student.decode(from: studentJSON)
+        XCTAssert(student == studentFromJSON)
+    }
+    
+    /// `InstanceCreator` excplicitly checks for property wrappers, and sets the value
+    /// Working example
+    @propertyWrapper
+    struct EncodableContainer<Element: Encodable>: Encodable {
+        var wrappedValue: Element
+    }
+
+    struct SomeStruct: Encodable {
+        @EncodableContainer
+        var number: Int
+    }
+    
+    func testSettingValueOnPropertyWrapper() throws {
+        let testValue = 42
+        
+        InstanceCreator.testValue = testValue
+        let someStructInstance = try typedInstance(SomeStruct.self)
+        XCTAssert(someStructInstance.number == testValue)
+        
+        InstanceCreator.testValue = nil
+    }
+    
+    func testTypeInformationWithPropertyWrapper() throws {
+        let typeInformation = try TypeInformation(type: SomeStruct.self)
+        
+        XCTAssertTrue(typeInformation.objectProperties.first?.annotation == "@EncodableContainer")
+    }
+    
+    // MARK: - Fluent
+    /*
+     
+     func testNonDetectionWrappedValue() throws {
+         let idPropertyTypeInfo = try info(of: IDProperty<Contact, UUID>.self) // @ID of fluent
+     
+         /// wrapped value not found in fluent property wrappers
+         XCTAssertThrowsError(try idPropertyTypeInfo.property(named: "wrappedValue"))
+         
+         /// wrapped value found in custom `EncodableContainer` property wrapper
+         let intContainerTypeInfo = try info(of: EncodableContainer<Int>.self)
+         XCTAssertNoThrow(try intContainerTypeInfo.property(named: "wrappedValue"))
+     }
+     
     func testFluent() throws {
         guard isEldisMacbook() else {
             return
@@ -59,36 +139,6 @@ final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
         runtimeInstance.createdAt = .init()
     }
     
-    func testNoAssociatedValuesforEnumAllowed() throws {
-        XCTAssertThrowsError(try TypeInformation.of(TypeInformation.self, with: RuntimeBuilder.self))
-    }
-    
-    struct Student: Codable, Equatable {
-        let name: String
-        let matrNr: UUID
-        let dog: Dog
-    }
-    
-    struct Dog: Codable, Equatable {
-        let name: String
-    }
-    
-    func testCardinality() {
-        let dictionaryCardinality = Cardinality.dictionary(key: String.self, value: Student.self)
-        
-        XCTAssertEqual(dictionaryCardinality, .dictionary(key: String.self, value: Student.self))
-        
-        XCTAssertNotEqual(dictionaryCardinality, .exactlyOne(Student.self))
-        
-        XCTAssertNotEqual(Cardinality.optional(Student.self), .exactlyOne(Student.self))
-        
-        
-        XCTAssertEqual(try cardinality(of: Student.self), .exactlyOne(Student.self))
-        XCTAssertEqual(try cardinality(of: Optional<Student>.self), .optional(Student.self))
-        XCTAssertEqual(try cardinality(of: Array<Array<Student>>.self), .repeated(Array<Student>.self))
-        XCTAssertEqual(try cardinality(of: Dictionary<Int, Student>.self), .dictionary(key: Int.self, value: Student.self))
-    }
-    
     func testInstanceCreateFluentModels() throws {
         /// creating instance out the json string, all properties set
         let contact1 = XCTAssertNoThrowWithResult(try JSONStringBuilder.instance(Contact.self))
@@ -107,52 +157,5 @@ final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
         // _ = contact2.json
     }
     
-    
-    func testNonFluentModel() throws {
-        let student = try typedInstance(Student.self)
-        
-        let studentJSON = student.json
-        
-        let studentFromJSON = try Student.decode(from: studentJSON)
-        XCTAssert(student == studentFromJSON)
-    }
-    
-    /// `InstanceCreator` excplicitly checks for property wrappers, and sets the value
-    /// Working example
-    @propertyWrapper
-    struct EncodableContainer<Element: Encodable>: Encodable {
-        var wrappedValue: Element
-    }
-
-    struct SomeStruct: Encodable {
-        @EncodableContainer
-        var number: Int
-    }
-    
-    func testSettingValueOnPropertyWrapper() throws {
-        let testValue = 42
-        
-        InstanceCreator.testValue = testValue
-        let someStructInstance = try typedInstance(SomeStruct.self)
-        XCTAssert(someStructInstance.number == testValue)
-        
-        InstanceCreator.testValue = nil
-    }
-    
-    func testTypeInformationWithPropertyWrapper() throws {
-        let typeInformation = try TypeInformation(type: SomeStruct.self)
-        
-        XCTAssertTrue(typeInformation.objectProperties.first?.annotation == "@EncodableContainer")
-    }
-    
-    func testNonDetectionWrappedValue() throws {
-        let idPropertyTypeInfo = try info(of: IDProperty<Contact, UUID>.self) // @ID of fluent
-    
-        /// wrapped value not found in fluent property wrappers
-        XCTAssertThrowsError(try idPropertyTypeInfo.property(named: "wrappedValue"))
-        
-        /// wrapped value found in custom `EncodableContainer` property wrapper
-        let intContainerTypeInfo = try info(of: EncodableContainer<Int>.self)
-        XCTAssertNoThrow(try intContainerTypeInfo.property(named: "wrappedValue"))
-    }
+    */
 }
