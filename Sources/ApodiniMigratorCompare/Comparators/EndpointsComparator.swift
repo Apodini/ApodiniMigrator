@@ -61,7 +61,9 @@ struct EndpointsComparator: Comparator {
                         element: .for(endpoint: candidate),
                         target: .`self`,
                         from: candidate.deltaIdentifier.rawValue,
-                        to: relaxedMatching.deltaIdentifier.rawValue
+                        to: relaxedMatching.deltaIdentifier.rawValue,
+                        breaking: false,
+                        solvable: true
                     )
                 )
                 
@@ -77,7 +79,9 @@ struct EndpointsComparator: Comparator {
                     element: .for(endpoint: removal),
                     target: .`self`,
                     deleted: .none,
-                    fallbackValue: .none
+                    fallbackValue: .none,
+                    breaking: true,
+                    solvable: false
                 )
             )
         }
@@ -88,7 +92,9 @@ struct EndpointsComparator: Comparator {
                     element: .for(endpoint: addition),
                     target: .`self`,
                     added: .json(of: addition),
-                    defaultValue: .none
+                    defaultValue: .none,
+                    breaking: false,
+                    solvable: true
                 )
             )
         }

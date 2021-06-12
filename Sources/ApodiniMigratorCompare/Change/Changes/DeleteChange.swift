@@ -8,18 +8,30 @@
 import Foundation
 
 struct DeleteChange: Change, Value {
-    var element: ChangeElement
-    var target: ChangeTarget
+    let element: ChangeElement
+    let target: ChangeTarget
     let type: ChangeType
     
-    var deleted: ChangeValue
-    var fallbackValue: ChangeValue
+    let deleted: ChangeValue
+    let fallbackValue: ChangeValue
     
-    init(element: ChangeElement, target: ChangeTarget, deleted: ChangeValue, fallbackValue: ChangeValue) {
+    let breaking: Bool
+    let solvable: Bool
+    
+    init(
+        element: ChangeElement,
+        target: ChangeTarget,
+        deleted: ChangeValue,
+        fallbackValue: ChangeValue,
+        breaking: Bool,
+        solvable: Bool
+    ) {
         self.element = element
         self.target = target
         self.deleted = deleted
         self.fallbackValue = fallbackValue
+        self.breaking = breaking
+        self.solvable = solvable
         type = .deletion
     }
 }

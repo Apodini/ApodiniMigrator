@@ -15,16 +15,19 @@ enum ParameterChangeTarget: String, Value {
 }
 
 struct ParameterChange: Change, Value {
-    var element: ChangeElement
-    var target: ChangeTarget
+    let element: ChangeElement
+    let target: ChangeTarget
     let type: ChangeType
     
-    var identifier: DeltaIdentifier
+    let identifier: DeltaIdentifier
     
-    var parameterTarget: ParameterChangeTarget
+    let parameterTarget: ParameterChangeTarget
     
-    var from: ChangeValue
-    var to: ChangeValue
+    let from: ChangeValue
+    let to: ChangeValue
+    
+    let breaking: Bool
+    let solvable: Bool
     
     init(
         element: ChangeElement,
@@ -32,7 +35,9 @@ struct ParameterChange: Change, Value {
         identifier: DeltaIdentifier,
         parameterTarget: ParameterChangeTarget,
         from: ChangeValue,
-        to: ChangeValue
+        to: ChangeValue,
+        breaking: Bool,
+        solvable: Bool
     ) {
         self.element = element
         self.target = target
@@ -40,6 +45,8 @@ struct ParameterChange: Change, Value {
         self.parameterTarget = parameterTarget
         self.from = from
         self.to = to
+        self.breaking = breaking
+        self.solvable = solvable
         type = .parameterChange
     }
 }

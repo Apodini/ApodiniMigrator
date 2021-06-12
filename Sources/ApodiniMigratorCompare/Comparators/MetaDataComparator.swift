@@ -27,7 +27,9 @@ struct MetaDataComparator: Comparator {
                     element: element,
                     target: .serverPath,
                     from: .string(lhs.versionedServerPath),
-                    to: .string(rhs.versionedServerPath)
+                    to: .string(rhs.versionedServerPath),
+                    breaking: true,
+                    solvable: true
                 )
             )
         }
@@ -41,7 +43,9 @@ struct MetaDataComparator: Comparator {
                     element: element,
                     target: .encoderConfiguration,
                     from: .json(of: lhsEncoderConfig),
-                    to: .json(of: rhsEncoderConfig)
+                    to: .json(of: rhsEncoderConfig),
+                    breaking: true,
+                    solvable: true
                 )
             )
         }
@@ -55,7 +59,9 @@ struct MetaDataComparator: Comparator {
                     element: element,
                     target: .decoderConfiguration,
                     from: .json(of: lhsDecoderConfig),
-                    to: .json(of: rhsDecoderConfig)
+                    to: .json(of: rhsDecoderConfig),
+                    breaking: true,
+                    solvable: true
                 )
             )
         }

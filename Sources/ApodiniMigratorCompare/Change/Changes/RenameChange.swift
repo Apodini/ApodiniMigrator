@@ -8,18 +8,30 @@
 import Foundation
 
 struct RenameChange: Change, Value {
-    var element: ChangeElement
-    var target: ChangeTarget
+    let element: ChangeElement
+    let target: ChangeTarget
     let type: ChangeType
     
-    var from: String
-    var to: String
+    let from: String
+    let to: String
     
-    init(element: ChangeElement, target: ChangeTarget, from: String, to: String) {
+    let breaking: Bool
+    let solvable: Bool
+    
+    init(
+        element: ChangeElement,
+        target: ChangeTarget,
+        from: String,
+        to: String,
+        breaking: Bool,
+        solvable: Bool
+    ) {
         self.element = element
         self.target = target
         self.from = from
         self.to = to
+        self.breaking = breaking
+        self.solvable = solvable
         type = .rename
     }
 }

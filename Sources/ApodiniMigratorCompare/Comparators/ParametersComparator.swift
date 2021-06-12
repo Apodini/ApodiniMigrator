@@ -74,7 +74,9 @@ struct ParametersComparator: Comparator {
                     identifier: lhs.deltaIdentifier,
                     parameterTarget: .kind,
                     from: .string(lhs.parameterType.rawValue),
-                    to: .string(lhs.parameterType.rawValue)
+                    to: .string(lhs.parameterType.rawValue),
+                    breaking: true,
+                    solvable: true // review
                 )
             )
         }
@@ -90,7 +92,9 @@ struct ParametersComparator: Comparator {
                     identifier: lhs.deltaIdentifier,
                     parameterTarget: .necessity,
                     from: .string(lhs.necessity.rawValue),
-                    to: .string(rhs.necessity.rawValue)
+                    to: .string(rhs.necessity.rawValue),
+                    breaking: true,
+                    solvable: true // todo review
                 )
             )
         }
@@ -104,7 +108,9 @@ struct ParametersComparator: Comparator {
                     identifier: lhs.deltaIdentifier,
                     parameterTarget: .typeInformation,
                     from: .json(of: lhs.typeInformation),
-                    to: .json(of: rhs.typeInformation)
+                    to: .json(of: rhs.typeInformation),
+                    breaking: true,
+                    solvable: true // todo review
                 )
             )
         }
@@ -122,7 +128,9 @@ struct ParametersComparator: Comparator {
                     element: element,
                     target: .contentParameter,
                     deleted: .json(of: lhs),
-                    fallbackValue: .value(from: lhs.typeInformation, with: configuration)
+                    fallbackValue: .value(from: lhs.typeInformation, with: configuration),
+                    breaking: true,
+                    solvable: true // todo review
                 )
             )
             
@@ -132,7 +140,9 @@ struct ParametersComparator: Comparator {
                     element: element,
                     target: target(for: rhs.parameterType),
                     added: .json(of: rhs),
-                    defaultValue: defaultValue
+                    defaultValue: defaultValue,
+                    breaking: defaultValue != .none,
+                    solvable: true
                 )
             )
         }
@@ -143,7 +153,9 @@ struct ParametersComparator: Comparator {
                     element: element,
                     target: .contentParameter,
                     added: .json(of: rhs),
-                    defaultValue: .value(from: rhs.typeInformation, with: configuration)
+                    defaultValue: .value(from: rhs.typeInformation, with: configuration),
+                    breaking: rhs.necessity == .required,
+                    solvable: true
                 )
             )
             changes.add(
@@ -151,7 +163,9 @@ struct ParametersComparator: Comparator {
                     element: element,
                     target: target(for: lhs.parameterType),
                     deleted: .json(of: lhs),
-                    fallbackValue: .none
+                    fallbackValue: .none,
+                    breaking: false,
+                    solvable: true
                 )
             )
         }
@@ -173,7 +187,9 @@ struct ParametersComparator: Comparator {
                         element: element,
                         target: target(for: candidate.parameterType),
                         from: candidate.name,
-                        to: relaxedMatching.name
+                        to: relaxedMatching.name,
+                        breaking: true,
+                        solvable: true
                     )
                 )
                 compare(lhs: candidate, rhs: relaxedMatching)
@@ -186,7 +202,9 @@ struct ParametersComparator: Comparator {
                     element: element,
                     target: target(for: removal.parameterType),
                     deleted: .json(of: removal),
-                    fallbackValue: .none
+                    fallbackValue: .none,
+                    breaking: false,
+                    solvable: true
                 )
             )
         }
@@ -201,7 +219,9 @@ struct ParametersComparator: Comparator {
                     element: element,
                     target: target(for: addition.parameterType),
                     added: .json(of: addition),
-                    defaultValue: defaultValue ?? .none
+                    defaultValue: defaultValue ?? .none,
+                    breaking: addition.necessity == .required,
+                    solvable: true
                 )
             )
         }

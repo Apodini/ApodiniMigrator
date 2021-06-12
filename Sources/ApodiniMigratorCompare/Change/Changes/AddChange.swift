@@ -8,18 +8,30 @@
 import Foundation
 
 struct AddChange: Change, Value {
-    var element: ChangeElement
-    var target: ChangeTarget
+    let element: ChangeElement
+    let target: ChangeTarget
     let type: ChangeType
     
-    var added: ChangeValue
-    var defaultValue: ChangeValue
+    let added: ChangeValue
+    let defaultValue: ChangeValue
     
-    init(element: ChangeElement, target: ChangeTarget, added: ChangeValue, defaultValue: ChangeValue) {
+    let breaking: Bool
+    let solvable: Bool
+    
+    init(
+        element: ChangeElement,
+        target: ChangeTarget,
+        added: ChangeValue,
+        defaultValue: ChangeValue,
+        breaking: Bool,
+        solvable: Bool
+    ) {
         self.element = element
         self.target = target
         self.added = added
         self.defaultValue = defaultValue
+        self.breaking = breaking
+        self.solvable = solvable
         type = .addition
     }
 }

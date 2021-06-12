@@ -31,7 +31,9 @@ struct EndpointComparator: Comparator {
                     element: element,
                     target: .path,
                     from: .string(lhs.path.resourcePath),
-                    to: .string(rhs.path.resourcePath)
+                    to: .string(rhs.path.resourcePath),
+                    breaking: true,
+                    solvable: true
                 )
             )
         }
@@ -42,7 +44,9 @@ struct EndpointComparator: Comparator {
                     element: element,
                     target: .operation,
                     from: .string(lhs.operation.rawValue),
-                    to: .string(lhs.operation.rawValue)
+                    to: .string(lhs.operation.rawValue),
+                    breaking: true,
+                    solvable: true
                 )
             )
         }

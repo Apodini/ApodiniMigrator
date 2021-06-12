@@ -9,21 +9,34 @@ import Foundation
 
 // TODO Review
 struct TypeChange: Change, Value {
-    var element: ChangeElement
-    var target: ChangeTarget
+    let element: ChangeElement
+    let target: ChangeTarget
     let type: ChangeType
     
-    var identifier: DeltaIdentifier
+    let identifier: DeltaIdentifier
     
-    var from: TypeInformation
-    var to: TypeInformation
+    let from: TypeInformation
+    let to: TypeInformation
     
-    init(element: ChangeElement, target: ChangeTarget, identifier: DeltaIdentifier, from: TypeInformation, to: TypeInformation) {
+    let breaking: Bool
+    let solvable: Bool
+    
+    init(
+        element: ChangeElement,
+        target: ChangeTarget,
+        identifier: DeltaIdentifier,
+        from: TypeInformation,
+        to: TypeInformation,
+        breaking: Bool,
+        solvable: Bool
+    ) {
         self.element = element
         self.target = target
         self.identifier = identifier
         self.from = from
         self.to = to
+        self.breaking = breaking
+        self.solvable = solvable
         type = .typeChange
     }
     
