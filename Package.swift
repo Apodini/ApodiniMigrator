@@ -3,7 +3,7 @@
 
 import PackageDescription
 
-let enumSupport = true
+let enumSupport = false
 let runtime: Package.Dependency = enumSupport
     ? .package(url: "https://github.com/PSchmiedmayer/Runtime.git", .revision("b810847a466ecd1cf65e7f39e6e715734fdc672c"))
     : .package(url: "https://github.com/wickwirew/Runtime.git", from: "2.2.2")
@@ -27,7 +27,7 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
         runtime,
         .package(url: "https://github.com/kylef/PathKit.git", .exact("0.9.2")),
-        .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMinor(from: "0.3.2")),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "0.3.0"),
         .package(url: "https://github.com/vapor/fluent-kit.git", from: "1.12.0")
     ],
     targets: [
