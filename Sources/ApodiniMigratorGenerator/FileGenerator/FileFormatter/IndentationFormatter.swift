@@ -49,15 +49,15 @@ public struct IndentationFormatter: SwiftFileFormatter {
     
     /// Updates the storage with the difference between counts of opening and closing brackets in `line`
     /// - Parameter line: the line to be processed
-    /// - Returns: If `line` contains only one closing bracket, returns a `.closing`, otherwise `nil`
+    /// - Returns: If `line` starts with one closing bracket, returns a `.closing`, otherwise `nil`
     private mutating func updateStorage(with line: String) -> Bracket? {
         // ignoring comments (not considering /***/ comments though)
         if !line.hasPrefix("//") {
             let lineBrackets = line.compactMap { Bracket($0) }
             storage += lineBrackets.reduce(0) { $0 + $1.weight }
-            // if encountered a line with a single closing bracket, return it.
+            // if encountered a line with a starting closing bracket, return it.
             // needed to decrease the indentation level for `line`
-            if lineBrackets == [.closing] || lineBrackets == [.closing, .opening] || lineBrackets == [.closing, .closing] {
+            if lineBrackets.first == .closing {
                 return .closing
             }
         }

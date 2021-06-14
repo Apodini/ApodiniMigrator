@@ -97,6 +97,18 @@ public struct Document: Value {
         }
     }
     
+    public func allModels() -> [TypeInformation] {
+        endpoints.reduce(into: Set<TypeInformation>()) { result, current in
+            result.insert(current.response)
+            current.parameters.forEach { parameter in
+                result.insert(parameter.typeInformation)
+            }
+        }
+        .asArray
+        .fileRenderableTypes()
+        .sorted(by: \.typeName)
+    }
+    
     /// Exports json representation of self at the specified path
     public func export(at path: String) throws {
         try Path(path).write(json)

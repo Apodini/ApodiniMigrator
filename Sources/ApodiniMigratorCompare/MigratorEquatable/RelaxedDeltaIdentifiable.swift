@@ -39,13 +39,18 @@ private struct DeltaSimilarity: Comparable {
     }
 }
 
+extension DeltaIdentifier {
+    func distance(between other: DeltaIdentifier) -> Double {
+        rawValue.distance(between: other.rawValue)
+    }
+}
+
 extension RelaxedDeltaIdentifiable {
-    func mostSimilarWithSelf(in array: [Self], useRawValueDistance: Bool = true, similarityLimit: Double = 0.6) -> Self? {
-        let mostSimilarId = array.compactMap { deltaIdentifiable -> DeltaSimilarity? in
-            let similarity = deltaIdentifier.rawValue.distance(between: deltaIdentifiable.deltaIdentifier.rawValue)
-            return similarity <= similarityLimit
-                ? nil
-                : DeltaSimilarity(similarity: similarity, identifier: deltaIdentifiable.deltaIdentifier)
+    func mostSimilarWithSelf(in array: [Self], useRawValueDistance: Bool = true) -> Self? {
+        let mostSimilarId = array.map { deltaIdentifiable -> DeltaSimilarity in
+            let currentId = deltaIdentifiable.deltaIdentifier
+            let similarity = deltaIdentifier.distance(between: currentId)
+            return DeltaSimilarity(similarity: similarity, identifier: currentId)
         }
         .max()?.identifier
         
@@ -63,12 +68,6 @@ extension Endpoint: RelaxedDeltaIdentifiable {
 /// Parameter extension to `RelaxedDeltaIdentifiable`
 extension Parameter: RelaxedDeltaIdentifiable {
     static func ?= (lhs: Parameter, rhs: Parameter) -> Bool {
-//        lhs.parameterType == rhs.parameterType
-//            && lhs.typeInformation == rhs.typeInformation
-//            && lhs.hasDefaultValue == rhs.hasDefaultValue
-        
-        
-        /// TODO decide what makes sense as fallback identifier
         true
     }
 }

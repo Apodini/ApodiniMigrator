@@ -45,7 +45,7 @@ struct MigrationGuide: Codable {
     
     init(for lhs: Document, rhs: Document) {
         let changeContainer = ChangeContainer()
-        let documentsComparator = DocumentComparator(lhs: lhs, rhs: rhs, changes: changeContainer)
+        let documentsComparator = DocumentComparator(lhs: lhs, rhs: rhs, changes: changeContainer, configuration: rhs.metaData.encoderConfiguration)
         documentsComparator.compare()
         self.init(
             summary: Self.defaultSummary,

@@ -11,26 +11,19 @@ struct ParametersComparator: Comparator {
     let lhs: Endpoint
     let rhs: Endpoint
     var changes: ChangeContainer
+    var configuration: EncoderConfiguration
     let lhsParameters: [Parameter]
     let rhsParameters: [Parameter]
-    
-    var encoderConfiguration: EncoderConfiguration?
-    
-    private var configuration: EncoderConfiguration {
-        guard let configuration = encoderConfiguration else {
-            fatalError("Encoder configuration not set")
-        }
-        return configuration
-    }
     
     var element: ChangeElement {
         .for(endpoint: lhs)
     }
     
-    init(lhs: Endpoint, rhs: Endpoint, changes: ChangeContainer) {
+    init(lhs: Endpoint, rhs: Endpoint, changes: ChangeContainer, configuration: EncoderConfiguration) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes
+        self.configuration = configuration
         self.lhsParameters = lhs.parameters
         self.rhsParameters = rhs.parameters
     }
@@ -52,6 +45,7 @@ struct ParametersComparator: Comparator {
     }
 
     /// Compares parameters with same `deltaIdentifier``s (a.k.a same parameter name)
+    // since the name is the simply compare other properties of the parameter, register if kind changed, if neccesity changed, if typeInformation changed
     func compare(lhs: Parameter, rhs: Parameter) {
         if lhs.sameType(with: rhs), lhs.parameterType == .lightweight {
             return compareLightweightParameters(lhs: lhs, rhs: rhs)
@@ -118,10 +112,12 @@ struct ParametersComparator: Comparator {
     
     func handleContentParameter(for lhs: Parameter, and rhs: Parameter) {
         if lhs.sameType(with: rhs) { // if both parameters are content, changes have to be handled on their type informations
-            let typeInformationComaparator = TypeInformationComparator(lhs: lhs.typeInformation, rhs: rhs.typeInformation, changes: changes)
+            let typeInformationComaparator = TypeInformationComparator(lhs: lhs.typeInformation, rhs: rhs.typeInformation, changes: changes, configuration: configuration)
             return typeInformationComaparator.compare()
         }
         
+        /// TODO do not register as one addition and one deletion!!! simply register the kind change, is handled on the client then
+        /// In general once the matching of ids is there (also considering the renamings) no addition and deletion anymore
         if lhs.parameterType == .content { // if changed from .content to some other type -> one content parameter deletion and one addition
             changes.add(
                 DeleteChange(
@@ -162,7 +158,7 @@ struct ParametersComparator: Comparator {
                 DeleteChange(
                     element: element,
                     target: target(for: lhs.parameterType),
-                    deleted: .json(of: lhs),
+                    deleted: .id(from: lhs),
                     fallbackValue: .none,
                     breaking: false,
                     solvable: true
@@ -174,8 +170,7 @@ struct ParametersComparator: Comparator {
     func handle(removalCandidates: [Parameter], additionCandidates: [Parameter]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
-        let noCommonElements = Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers())
-        assert(noCommonElements, "Encoutered removal and addition candidates with same id")
+        assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
         
         for candidate in removalCandidates {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates) {
@@ -183,7 +178,7 @@ struct ParametersComparator: Comparator {
                 relaxedMatchings += candidate.deltaIdentifier
                 
                 changes.add(
-                    RenameChange(
+                    RenameChange( // parameter change target name
                         element: element,
                         target: target(for: candidate.parameterType),
                         from: candidate.name,
@@ -201,7 +196,7 @@ struct ParametersComparator: Comparator {
                 DeleteChange(
                     element: element,
                     target: target(for: removal.parameterType),
-                    deleted: .json(of: removal),
+                    deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: false,
                     solvable: true
@@ -211,7 +206,8 @@ struct ParametersComparator: Comparator {
         
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
             var defaultValue: ChangeValue?
-            if addition.necessity == .required {
+            let isRequired = addition.necessity == .required
+            if isRequired {
                 defaultValue = .value(from: addition.typeInformation, with: configuration)
             }
             changes.add(
@@ -220,7 +216,7 @@ struct ParametersComparator: Comparator {
                     target: target(for: addition.parameterType),
                     added: .json(of: addition),
                     defaultValue: defaultValue ?? .none,
-                    breaking: addition.necessity == .required,
+                    breaking: isRequired,
                     solvable: true
                 )
             )

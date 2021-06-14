@@ -87,10 +87,10 @@ private extension Endpoint {
             }
             
             contentParameter = .init(
-                parameterName: Parameter.wrappedContentParameter,
+                name: Parameter.wrappedContentParameter,
                 typeInformation: typeInformation,
-                hasDefaultValue: contentParameters.allSatisfy { $0.hasDefaultValue },
-                parameterType: .content
+                parameterType: .content,
+                isRequired: contentParameters.allSatisfy { $0.necessity == .required }
             )
         }
         

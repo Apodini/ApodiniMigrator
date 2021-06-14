@@ -13,18 +13,13 @@ struct EndpointsComparator: Comparator {
     let lhs: [Endpoint]
     let rhs: [Endpoint]
     var changes: ChangeContainer
-    var encoderConfiguration: EncoderConfiguration?
-    private var configuration: EncoderConfiguration {
-        guard let configuration = encoderConfiguration else {
-            fatalError("Encoder configuration not set")
-        }
-        return configuration
-    }
+    var configuration: EncoderConfiguration
     
-    init(lhs: [Endpoint], rhs: [Endpoint], changes: ChangeContainer) {
+    init(lhs: [Endpoint], rhs: [Endpoint], changes: ChangeContainer, configuration: EncoderConfiguration) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes
+        self.configuration = configuration
     }
     
     func compare() {
@@ -36,8 +31,7 @@ struct EndpointsComparator: Comparator {
         for matched in matchedIds {
             if let lhs = lhs.firstMatch(on: \.deltaIdentifier, with: matched),
                let rhs = rhs.firstMatch(on: \.deltaIdentifier, with: matched) {
-                var endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: changes)
-                endpointComparator.encoderConfiguration = encoderConfiguration
+                let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
                 endpointComparator.compare()
             }
         }
@@ -48,8 +42,7 @@ struct EndpointsComparator: Comparator {
     func handle(removalCandidates: [Endpoint], additionCandidates: [Endpoint]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
-        let noCommonElements = Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers())
-        assert(noCommonElements, "Encoutered removal and addition candidates with same id")
+        assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
         
         for candidate in removalCandidates {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates, useRawValueDistance: false) {
@@ -67,8 +60,7 @@ struct EndpointsComparator: Comparator {
                     )
                 )
                 
-                var endpointComparator = EndpointComparator(lhs: candidate, rhs: relaxedMatching, changes: changes)
-                endpointComparator.encoderConfiguration = encoderConfiguration
+                let endpointComparator = EndpointComparator(lhs: candidate, rhs: relaxedMatching, changes: changes, configuration: configuration)
                 endpointComparator.compare()
             }
         }

@@ -34,7 +34,7 @@ enum ChangeElement: DeltaIdentifiable, Value {
         case endpoint, `enum`, object, networking
     }
     
-    case endpoint(EndpointElement)
+    case endpoint(EndpointElement) // TODO review, only deltaIdentifier is enough
     case `enum`(DeltaIdentifier)
     case object(DeltaIdentifier)
     case networking

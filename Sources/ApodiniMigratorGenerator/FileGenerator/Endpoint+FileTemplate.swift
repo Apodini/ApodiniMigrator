@@ -27,17 +27,17 @@ extension Endpoint {
         }
         
         return signatureParameters
-            .map { "\($0.name): \($0.typeInformation.typeString)" }
+            .map { "\($0.name): \($0.typeInformation.typeString)\($0.parameterType == .path ? "" : $0.necessity == .optional ? "?" : "")" }
             .joined(separator: ", ")
     }
     
     var authorization: Parameter? {
         if let authorization = parameters.first(where: { $0.parameterType == .header && $0.name == "Authorization" }) {
             return .init(
-                parameterName: authorization.name.lowerFirst,
+                name: authorization.name.lowerFirst,
                 typeInformation: authorization.typeInformation,
-                hasDefaultValue: authorization.hasDefaultValue,
-                parameterType: authorization.parameterType
+                parameterType: authorization.parameterType,
+                isRequired: authorization.necessity == .required
             )
         }
         return nil

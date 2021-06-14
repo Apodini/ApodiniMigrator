@@ -35,15 +35,7 @@ public struct ApodiniMigratorGenerator {
         self.directories = ProjectDirectories(packageName: packageName, packagePath: packagePath)
         endpoints = document.endpoints
         metaData = document.metaData
-        allModels = endpoints.reduce(into: Set<TypeInformation>()) { result, current in
-            result.insert(current.response)
-            current.parameters.forEach { parameter in
-                result.insert(parameter.typeInformation)
-            }
-        }
-        .asArray
-        .fileRenderableTypes()
-        .sorted(by: \.typeName)
+        allModels = document.allModels()
     }
     
     /// Builds and persists the content of the package at the specified path
@@ -91,10 +83,7 @@ public struct ApodiniMigratorGenerator {
     private func writeEndpoints() throws {
         let endpointGroups = endpoints.reduce(into: [TypeInformation: Set<Endpoint>]()) { result, current in
             let nestedResponseType = current.response.nestedType
-            if result[nestedResponseType] == nil {
-                result[nestedResponseType] = []
-            }
-            result[nestedResponseType]?.insert(current)
+            result[nestedResponseType, default: []].insert(current)
         }
         let endpointsDirectory = directories.endpoints
         for group in endpointGroups {

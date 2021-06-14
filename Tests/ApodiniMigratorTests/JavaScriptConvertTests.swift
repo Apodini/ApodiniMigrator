@@ -14,7 +14,7 @@ extension ApodiniMigratorCodable {
     }
 }
 
-let skipFileReadingTests = true
+let skipFileReadingTests = false
 
 typealias Codable = ApodiniMigratorCodable
 
@@ -38,7 +38,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
             return JSON.stringify({ 'id' : parsed.matrNr, 'name' : parsed.name })
         }
         """
-        let developer = try Developer.from(student, script: studentToDeveloperScript)
+        let developer = try Developer.from(student, script: JSScript(studentToDeveloperScript))
         
         let developerToStudentScript =
         """
@@ -48,7 +48,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         """
         
-        let initialStudent = try Student.from(developer, script: developerToStudentScript)
+        let initialStudent = try Student.from(developer, script: JSScript(developerToStudentScript))
         XCTAssert(developer.id == student.matrNr)
         XCTAssert(developer.name == student.name)
         
@@ -78,7 +78,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         """
         
-        let student = try Student.fromValues("John", UUID(), Dog(name: "Dog"), script: constructScript)
+        let student = try Student.fromValues("John", UUID(), Dog(name: "Dog"), script: JSScript(constructScript))
         
         
         XCTAssert(student.dog.name == "Dog")
@@ -108,7 +108,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         let someInstance: [String???]? = []
         
         // input is wrong, and the script is invalid, the default empty instance is created
-        let student = try Student.from(someInstance, script: constructScript)
+        let student = try Student.from(someInstance, script: JSScript(constructScript))
         
         XCTAssert(student.name == .default)
         XCTAssert(student.github == .default)
@@ -170,8 +170,8 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testMultipleContentParameters() {
-        let param1 = Parameter(parameterName: "one", typeInformation: .scalar(.string), hasDefaultValue: false, parameterType: .content)
-        let param2 = Parameter(parameterName: "two", typeInformation: .scalar(.string), hasDefaultValue: false, parameterType: .content)
+        let param1 = Parameter(name: "one", typeInformation: .scalar(.string), parameterType: .content, isRequired: false)
+        let param2 = Parameter(name: "two", typeInformation: .scalar(.string), parameterType: .content, isRequired: false)
         let endpoint = Endpoint(handlerName: "Handler", deltaIdentifier: "helloHandler", operation: .create, absolutePath: "/hello", parameters: [param1, param2], response: .scalar(.string), errors: [])
         
         
@@ -179,6 +179,6 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         let first = parameters.first
         XCTAssertTrue(parameters.count == 1)
         XCTAssertTrue(first?.name == Parameter.wrappedContentParameter)
-        XCTAssertTrue(first?.hasDefaultValue == false)
+        XCTAssertTrue(first?.necessity == .optional)
     }
 }

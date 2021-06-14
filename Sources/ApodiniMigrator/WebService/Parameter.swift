@@ -45,27 +45,17 @@ public struct Parameter: Value {
     /// The reference of the `typeInformation` of the parameter
     public var typeInformation: TypeInformation
     
-    /// Indicates whether the parameter has a default value
-    public let hasDefaultValue: Bool
-
     /// Parameter type
     public let parameterType: ParameterType
     
-    /// Indicates whether `nil` is a valid value, equavalent of `typeInformation` being optional
-    public var nilIsValidValue: Bool {
-        typeInformation.isOptional
-    }
-    
     /// The necessity of the parameter
-    public var necessity: Necessity {
-        nilIsValidValue ? .optional : hasDefaultValue ? .optional : .required
-    }
+    public let necessity: Necessity
     
     /// Multiple content type parameters are wrapped into one single object, where each of its properties
     /// has the name and the typeInformation of the corresponding parameter. The wrapped content parameter in that
     /// case is considered to have a default value if all content parameters have one default value. The wrapped content
     /// parameter is considered to accept `nil` as valid value if all content parameters accept it.
-    /// This property indicates of `self` name is `wrappedContentParameter`, name of typeInformation has `WrappedContent` as suffix,
+    /// This property indicates if `self` name is `wrappedContentParameter`, name of typeInformation has `WrappedContent` as suffix,
     /// and the parameter type is `.content`
     public var isWrapped: Bool {
         name == Self.wrappedContentParameter
@@ -75,15 +65,15 @@ public struct Parameter: Value {
     
     /// Initializes a new parameter instance
     public init(
-        parameterName: String,
+        name: String,
         typeInformation: TypeInformation,
-        hasDefaultValue: Bool,
-        parameterType: ParameterType
+        parameterType: ParameterType,
+        isRequired: Bool
     ) {
-        self.name = parameterName
+        self.name = name
         self.typeInformation = typeInformation
-        self.hasDefaultValue = hasDefaultValue
         self.parameterType = parameterType
+        self.necessity = isRequired ? .required : .optional
     }
     
     mutating func dereference(in typeStore: inout TypesStore) {
@@ -107,24 +97,24 @@ extension Parameter: DeltaIdentifiable {
 extension Parameter {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
-        case parameterName, typeInformation = "type", hasDefaultValue, parameterType = "kind"
+        case name, typeInformation = "type", parameterType = "kind", necessity
     }
     
     /// Encodes self into the given encoder.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(name, forKey: .parameterName)
+        try container.encode(name, forKey: .name)
         try container.encode(typeInformation, forKey: .typeInformation)
-        try container.encode(hasDefaultValue, forKey: .hasDefaultValue)
         try container.encode(parameterType, forKey: .parameterType)
+        try container.encode(necessity, forKey: .necessity)
     }
     
     /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        name = try container.decode(String.self, forKey: .parameterName)
+        name = try container.decode(String.self, forKey: .name)
         typeInformation = try container.decode(TypeInformation.self, forKey: .typeInformation)
-        hasDefaultValue = try container.decode(Bool.self, forKey: .hasDefaultValue)
         parameterType = try container.decode(ParameterType.self, forKey: .parameterType)
+        necessity = try container.decode(Necessity.self, forKey: .necessity)
     }
 }

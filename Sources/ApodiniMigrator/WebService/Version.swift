@@ -52,7 +52,8 @@ public struct Version: Value {
     
     /// Initializes self from the given decoder
     public init(from decoder: Decoder) throws {
-        let string = try decoder.singleValueContainer().decode(String.self)
+        let container = try decoder.singleValueContainer()
+        let string = try container.decode(String.self)
         
         let components = string.split(string: "_")
         let prefix = components.first
@@ -68,7 +69,7 @@ public struct Version: Value {
             self.minor = UInt(numbers[1]) ?? 0
             self.patch = UInt(numbers[2]) ?? 0
         } else {
-            fatalError("Failed to decode Version. The string is malformed")
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode \(Self.self)")
         }
     }
     

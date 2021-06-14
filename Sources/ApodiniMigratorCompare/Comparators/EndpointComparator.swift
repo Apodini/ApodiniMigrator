@@ -11,21 +11,21 @@ struct EndpointComparator: Comparator {
     let lhs: Endpoint
     let rhs: Endpoint
     var changes: ChangeContainer
-    
-    var encoderConfiguration: EncoderConfiguration?
+    var configuration: EncoderConfiguration
     
     var element: ChangeElement {
         .for(endpoint: lhs)
     }
     
-    init(lhs: Endpoint, rhs: Endpoint, changes: ChangeContainer) {
+    init(lhs: Endpoint, rhs: Endpoint, changes: ChangeContainer, configuration: EncoderConfiguration) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes
+        self.configuration = configuration
     }
     
     func compare() {
-        if lhs.path != rhs.path {
+        if lhs.path != rhs.path { // Comparing resourcePaths
             changes.add(
                 ValueChange(
                     element: element,
@@ -51,11 +51,10 @@ struct EndpointComparator: Comparator {
             )
         }
         
-        var parametersComparator = ParametersComparator(lhs: lhs, rhs: rhs, changes: changes)
-        parametersComparator.encoderConfiguration = encoderConfiguration
+        var parametersComparator = ParametersComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
         parametersComparator.compare()
         
-        let responseComparator = TypeInformationComparator(lhs: lhs.response, rhs: rhs.response, changes: changes)
+        let responseComparator = TypeInformationComparator(lhs: lhs.response, rhs: rhs.response, changes: changes, configuration: configuration)
         responseComparator.compare()
     }
 }

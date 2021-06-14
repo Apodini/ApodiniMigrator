@@ -16,7 +16,9 @@ protocol Comparator {
     
     var changes: ChangeContainer { get }
     
-    init(lhs: Element, rhs: Element, changes: ChangeContainer)
+    var configuration: EncoderConfiguration { get }
+    
+    init(lhs: Element, rhs: Element, changes: ChangeContainer, configuration: EncoderConfiguration)
     
     func compare()
 }

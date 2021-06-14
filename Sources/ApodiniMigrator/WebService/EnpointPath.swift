@@ -66,11 +66,6 @@ public struct EndpointPath: Value {
     /// Components of the path
     let components: Components
     
-    /// Only indexed string components of the path (ignoring version path component of first position)
-    var stringComponents: Components {
-        components.filter { $0.value.isString }.filter { $0.key != 0 }
-    }
-    
     /// String representation of the path
     private var description: String {
         Self.separator + components.sorted(by: \.key)
@@ -115,12 +110,12 @@ public struct EndpointPath: Value {
     
     /// Checks equality between lhs and rhs based on respective string components
     public static func == (lhs: EndpointPath, rhs: EndpointPath) -> Bool {
-        lhs.stringComponents == rhs.stringComponents
+        lhs.resourcePath == rhs.resourcePath
     }
     
     /// :nodoc:
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(stringComponents)
+        hasher.combine(resourcePath)
     }
 }
 
