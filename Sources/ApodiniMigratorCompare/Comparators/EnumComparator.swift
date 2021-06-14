@@ -24,7 +24,7 @@ struct EnumComparator: Comparator {
         
         if lhsRawValue != rhsRawValue {
             changes.add(
-                ValueChange(
+                UpdateChange(
                     element: element,
                     target: .rawValueType,
                     from: .string(lhsRawValue.rawValue),
@@ -81,7 +81,7 @@ fileprivate struct EnumCasesComparator: Comparator {
     private func compare(lhs: EnumCase, rhs: EnumCase) {
         if lhs.rawValue != rhs.rawValue {
             changes.add(
-                ValueChange(
+                UpdateChange(
                     element: element,
                     target: .caseRawValue,
                     from: .json(lhs.rawValue),

@@ -53,7 +53,7 @@ struct ParameterComparator: Comparator {
                     identifier: lhs.deltaIdentifier,
                     parameterTarget: .necessity,
                     from: .string(lhs.necessity.rawValue),
-                    to: .string(lhs.necessity.rawValue),
+                    to: .string(rhs.necessity.rawValue),
                     breaking: rhs.necessity == .required,
                     solvable: true
                 )
@@ -68,7 +68,7 @@ struct ParameterComparator: Comparator {
                     identifier: lhs.deltaIdentifier,
                     parameterTarget: .kind,
                     from: .string(lhs.parameterType.rawValue),
-                    to: .string(lhs.parameterType.rawValue),
+                    to: .string(rhs.parameterType.rawValue),
                     breaking: true,
                     solvable: true
                 )
@@ -82,7 +82,7 @@ struct ParameterComparator: Comparator {
                     target: target,
                     identifier: lhs.deltaIdentifier,
                     parameterTarget: .typeInformation,
-                    from: .json(of: lhs.typeInformation),
+                    from: .id(from: lhs),
                     to: .json(of: rhs.typeInformation),
                     convertFunction: "TODO Add js function",
                     breaking: true,

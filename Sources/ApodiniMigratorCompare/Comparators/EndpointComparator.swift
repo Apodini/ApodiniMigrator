@@ -20,7 +20,7 @@ struct EndpointComparator: Comparator {
     func compare() {
         if lhs.path != rhs.path { // Comparing resourcePaths
             changes.add(
-                ValueChange(
+                UpdateChange(
                     element: element,
                     target: .path,
                     from: .string(lhs.path.resourcePath),
@@ -33,7 +33,7 @@ struct EndpointComparator: Comparator {
         
         if lhs.operation != rhs.operation {
             changes.add(
-                ValueChange(
+                UpdateChange(
                     element: element,
                     target: .operation,
                     from: .string(lhs.operation.rawValue),
@@ -52,10 +52,10 @@ struct EndpointComparator: Comparator {
         
         if !(lhsResponse.sameType(with: rhsResponse) && (lhsResponse ?= rhsResponse)) {
             changes.add(
-                ValueChange(
+                UpdateChange(
                     element: element,
                     target: .response,
-                    from: .json(of: lhs.response),
+                    from: .id(from: reference(lhs.response)),
                     to: .json(of: rhs.response),
                     convertFunction: "TODO Add js function",
                     breaking: true,

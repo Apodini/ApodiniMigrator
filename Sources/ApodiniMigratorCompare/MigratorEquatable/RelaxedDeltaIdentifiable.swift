@@ -101,12 +101,17 @@ extension TypeName: RelaxedDeltaIdentifiable {
         
         // If one is primitive and the other one not, returning false, otherwise string similarity of
         // complex type names to ensure that we are dealing with a rename
-        return lhsIsPrimitive != rhsIsPrimitive ? false : lhs.deltaIdentifier.distance(between: rhs.deltaIdentifier) > 0.4
+        return lhsIsPrimitive != rhsIsPrimitive ? false : lhs.deltaIdentifier.distance(between: rhs.deltaIdentifier) > 0.75
     }
 }
 
 extension TypeInformation: DeltaIdentifiable {
-    public var deltaIdentifier: DeltaIdentifier { typeName.deltaIdentifier }
+    public var deltaIdentifier: DeltaIdentifier {
+        if case let .reference(key) = self {
+            return .init(key.rawValue)
+        }
+        return typeName.deltaIdentifier
+    }
 }
 
 extension TypeInformation: RelaxedDeltaIdentifiable {

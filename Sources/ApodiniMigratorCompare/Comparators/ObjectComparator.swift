@@ -50,11 +50,11 @@ struct ObjectComparator: Comparator {
         
         if !(lhsType.sameType(with: rhsType) && (lhsType ?= rhsType)) {
             changes.add(
-                TypePropertyChange(
+                PropertyChange(
                     element: element,
                     target: .property,
                     identifier: lhs.deltaIdentifier,
-                    from: lhsType,
+                    from: reference(lhsType),
                     to: rhsType,
                     convertTo: "TODO Add js function",
                     convertFrom: "TODO Add js function",

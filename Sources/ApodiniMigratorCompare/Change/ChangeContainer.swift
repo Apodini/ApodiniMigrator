@@ -30,7 +30,7 @@ class ChangeContainer: Value {
                 try container.encode(change)
             }
             
-            if let change = change as? ValueChange {
+            if let change = change as? UpdateChange {
                 try container.encode(change)
             }
             
@@ -38,7 +38,7 @@ class ChangeContainer: Value {
                 try container.encode(change)
             }
             
-            if let change = change as? TypePropertyChange {
+            if let change = change as? PropertyChange {
                 try container.encode(change)
             }
         }
@@ -61,7 +61,7 @@ class ChangeContainer: Value {
                 changes.append(value)
             }
             
-            if let value = try? container.decode(ValueChange.self) {
+            if let value = try? container.decode(UpdateChange.self) {
                 changes.append(value)
             }
             
@@ -69,7 +69,7 @@ class ChangeContainer: Value {
                 changes.append(value)
             }
             
-            if let value = try? container.decode(TypePropertyChange.self) {
+            if let value = try? container.decode(PropertyChange.self) {
                 changes.append(value)
             }
         }

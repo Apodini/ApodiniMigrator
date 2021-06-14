@@ -11,9 +11,9 @@ enum ChangeType: String, Value {
     case addition
     case deletion
     case rename
-    case valueChange
+    case update
     case parameterChange
-    case typeChange
+    case propertyChange
     case unsupported
 }
 

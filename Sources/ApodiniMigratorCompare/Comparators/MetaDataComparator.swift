@@ -18,7 +18,7 @@ struct MetaDataComparator: Comparator {
         
         if lhs.versionedServerPath != rhs.versionedServerPath {
             changes.add(
-                ValueChange(
+                UpdateChange(
                     element: element,
                     target: .serverPath,
                     from: .string(lhs.versionedServerPath),
@@ -34,7 +34,7 @@ struct MetaDataComparator: Comparator {
         
         if lhsEncoderConfig != rhsEncoderConfig {
             changes.add(
-                ValueChange(
+                UpdateChange(
                     element: element,
                     target: .encoderConfiguration,
                     from: .json(of: lhsEncoderConfig),
@@ -50,7 +50,7 @@ struct MetaDataComparator: Comparator {
         
         if lhsDecoderConfig != rhsDecoderConfig {
             changes.add(
-                ValueChange(
+                UpdateChange(
                     element: element,
                     target: .decoderConfiguration,
                     from: .json(of: lhsDecoderConfig),
