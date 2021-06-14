@@ -14,6 +14,7 @@ enum ChangeType: String, Value {
     case valueChange
     case parameterChange
     case typeChange
+    case unsupported
 }
 
 protocol Change: Codable {

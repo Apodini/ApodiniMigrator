@@ -2,40 +2,31 @@
 //  File.swift
 //  
 //
-//  Created by Eldi Cano on 24.05.21.
+//  Created by Eldi Cano on 14.06.21.
 //
 
 import Foundation
 
-struct ValueChange: Change, Value {
+struct UnsupportedChange: Change {
     let element: ChangeElement
     let target: ChangeTarget
     let type: ChangeType
-    
-    let from: ChangeValue
-    let to: ChangeValue
-    
     let breaking: Bool
     let solvable: Bool
-    
-    let convertFunction: String?
+    let description: String
     
     init(
         element: ChangeElement,
         target: ChangeTarget,
-        from: ChangeValue,
-        to: ChangeValue,
-        convertFunction: String? = nil,
         breaking: Bool,
-        solvable: Bool
+        solvable: Bool,
+        description: String
     ) {
         self.element = element
         self.target = target
-        self.from = from
-        self.to = to
-        self.convertFunction = convertFunction
         self.breaking = breaking
         self.solvable = solvable
-        type = .valueChange
+        self.description = description
+        type = .unsupported
     }
 }

@@ -72,6 +72,18 @@ extension Parameter: RelaxedDeltaIdentifiable {
     }
 }
 
+extension EnumCase: RelaxedDeltaIdentifiable {
+    static func ?= (lhs: EnumCase, rhs: EnumCase) -> Bool {
+        true
+    }
+}
+
+extension TypeProperty: RelaxedDeltaIdentifiable {
+    static func ?= (lhs: TypeProperty, rhs: TypeProperty) -> Bool {
+        lhs.type ?= rhs.type
+    }
+}
+
 extension TypeName: RelaxedDeltaIdentifiable {
     static func ?= (lhs: TypeName, rhs: TypeName) -> Bool {
         if lhs == rhs {
@@ -90,5 +102,15 @@ extension TypeName: RelaxedDeltaIdentifiable {
         // If one is primitive and the other one not, returning false, otherwise string similarity of
         // complex type names to ensure that we are dealing with a rename
         return lhsIsPrimitive != rhsIsPrimitive ? false : lhs.deltaIdentifier.distance(between: rhs.deltaIdentifier) > 0.4
+    }
+}
+
+extension TypeInformation: DeltaIdentifiable {
+    public var deltaIdentifier: DeltaIdentifier { typeName.deltaIdentifier }
+}
+
+extension TypeInformation: RelaxedDeltaIdentifiable {
+    static func ?= (lhs: TypeInformation, rhs: TypeInformation) -> Bool {
+        lhs.typeName ?= rhs.typeName
     }
 }

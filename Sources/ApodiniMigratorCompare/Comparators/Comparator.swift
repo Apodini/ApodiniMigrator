@@ -18,7 +18,5 @@ protocol Comparator {
     
     var configuration: EncoderConfiguration { get }
     
-    init(lhs: Element, rhs: Element, changes: ChangeContainer, configuration: EncoderConfiguration)
-    
     func compare()
 }

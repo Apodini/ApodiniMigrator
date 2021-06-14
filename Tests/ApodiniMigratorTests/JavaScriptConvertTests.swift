@@ -150,14 +150,14 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
             return
         }
         
-        let doc = Path.desktop + "document.json"
-        let doc2 = Path.desktop + "document_updated.json"
+        let doc = Path.desktop + "delta_document.json"
+        let doc2 = Path.desktop + "delta_document6.json"
         
         let document1 = try Document.decode(from: doc)
         let document2 = try Document.decode(from: doc2)
         
         let migrationGuide = MigrationGuide(for: document1, rhs: document2)
-        try (Path.desktop + "migration_guide.json").write(migrationGuide.json)
+        try (Path.desktop + "migration_guide6.json").write(migrationGuide.json)
     }
     
     func testEndpointPath() throws {

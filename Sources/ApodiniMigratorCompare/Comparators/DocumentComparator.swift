@@ -17,13 +17,6 @@ struct DocumentComparator: Comparator {
         rhs.metaData.encoderConfiguration
     }
     
-    init(lhs: Document, rhs: Document, changes: ChangeContainer, configuration: EncoderConfiguration) {
-        self.lhs = lhs
-        self.rhs = rhs
-        self.changes = changes
-        self.configuration = configuration
-    }
-    
     /// Perhaps consider comparing all models here already, olddoc.allModels, vs newDoc.allModels, Content compare can be skipped from endpoints
     func compare() {
         let metaDataComparator = MetaDataComparator(lhs: lhs.metaData, rhs: rhs.metaData, changes: changes, configuration: configuration)

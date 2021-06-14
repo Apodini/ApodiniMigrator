@@ -13,13 +13,6 @@ struct TypeInformationComparator: Comparator {
     let changes: ChangeContainer
     var configuration: EncoderConfiguration
     
-    init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContainer, configuration: EncoderConfiguration) {
-        self.lhs = lhs
-        self.rhs = rhs
-        self.changes = changes
-        self.configuration = configuration
-    }
-    
     func compare() {
     }
 }

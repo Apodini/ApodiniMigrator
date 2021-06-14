@@ -10,6 +10,8 @@ import Foundation
 public enum ChangeTarget: String, Value {
     case `self`
     case `case`
+    case caseRawValue
+    case rawValueType
     case typeName
     case property
     case queryParameter
@@ -35,7 +37,7 @@ public enum ChangeTarget: String, Value {
     }
     
     static var enumTargets: [ChangeTarget] {
-        [.`self`, .case, .typeName]
+        [.`self`, .`case`, .caseRawValue ,.rawValueType, .typeName]
     }
     
     static var networkingTargets: [ChangeTarget] {

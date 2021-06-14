@@ -7,7 +7,7 @@
 
 import Foundation
 import ApodiniMigrator
-
+/*
 struct EndpointElement: Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
@@ -27,14 +27,14 @@ struct EndpointElement: Value {
         self.definedIn = endpoint.response.nestedType.typeName.name
     }
  }
-
+*/
 enum ChangeElement: DeltaIdentifiable, Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case endpoint, `enum`, object, networking
     }
     
-    case endpoint(EndpointElement) // TODO review, only deltaIdentifier is enough
+    case endpoint(DeltaIdentifier) // TODO review, only deltaIdentifier is enough
     case `enum`(DeltaIdentifier)
     case object(DeltaIdentifier)
     case networking
@@ -69,7 +69,7 @@ enum ChangeElement: DeltaIdentifiable, Value {
     
     var deltaIdentifier: DeltaIdentifier {
         switch self {
-        case let .endpoint(endpointElement): return endpointElement.identifier
+        case let .endpoint(deltaIdentifier): return deltaIdentifier
         case let .enum(deltaIdentifier): return deltaIdentifier
         case let .object(deltaIdentifier): return deltaIdentifier
         case .networking: return .init("NetworkingService")
@@ -90,7 +90,7 @@ enum ChangeElement: DeltaIdentifiable, Value {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let key = container.allKeys.first
         switch key {
-        case .endpoint: self = .endpoint(try container.decode(EndpointElement.self, forKey: .endpoint))
+        case .endpoint: self = .endpoint(try container.decode(DeltaIdentifier.self, forKey: .endpoint))
         case .enum: self = .enum(try container.decode(DeltaIdentifier.self, forKey: .enum))
         case .object: self = .object(try container.decode(DeltaIdentifier.self, forKey: .object))
         case .networking: self = .networking
@@ -99,6 +99,16 @@ enum ChangeElement: DeltaIdentifiable, Value {
     }
     
     static func `for`(endpoint: Endpoint) -> ChangeElement {
-        .endpoint(.init(from: endpoint))
+        .endpoint(endpoint.deltaIdentifier)
+    }
+    
+    static func `for`(model: TypeInformation) -> ChangeElement {
+        if model.isObject {
+            return .object(model.deltaIdentifier)
+        } else if model.isEnum {
+            return .enum(model.deltaIdentifier)
+        } else {
+            fatalError("Attempted to request ChangeElement for a model that is not enum or object")
+        }
     }
 }

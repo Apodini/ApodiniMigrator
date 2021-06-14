@@ -30,6 +30,10 @@ public struct EnumCase: Value {
     }
 }
 
+extension EnumCase: DeltaIdentifiable {
+    public var deltaIdentifier: DeltaIdentifier { .init(name) }
+}
+
 public extension EnumCase {
     static func `case`(_ name: String) -> EnumCase {
         .init(name)

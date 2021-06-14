@@ -36,15 +36,11 @@ struct ParameterComparator: Comparator {
         !(lhs.typeInformation.sameType(with: rhs.typeInformation) && (lhs.typeInformation.typeName ?= rhs.typeInformation.typeName))
     }
     
-    init(lhs: Parameter, rhs: Parameter, changes: ChangeContainer, configuration: EncoderConfiguration) {
+    init(lhs: Parameter, rhs: Parameter, changes: ChangeContainer, configuration: EncoderConfiguration, lhsEndpoint: Endpoint) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes
         self.configuration = configuration
-    }
-    
-    init(lhs: Parameter, rhs: Parameter, changes: ChangeContainer, configuration: EncoderConfiguration, lhsEndpoint: Endpoint) {
-        self.init(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
         self.lhsEndpoint = lhsEndpoint
     }
     

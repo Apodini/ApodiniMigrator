@@ -55,7 +55,7 @@ extension String {
         // Count matching characters and transpositions.
         for (charOneIndex, stringOneChar) in stringOne.enumerated() {
             for (charTwoIndex, stringTwoChar) in stringTwo.enumerated() {
-                if max(0, charOneIndex - matchingDistance)..<min(stringTwoCount, charOneIndex + matchingDistance) ~= charTwoIndex {
+                if max(0, charOneIndex - matchingDistance)...min(stringTwoCount, charOneIndex + matchingDistance) ~= charTwoIndex {
                     if stringOneChar == stringTwoChar {
                         matchingCharactersCount += 1
                         if previousPosition != -1 && charTwoIndex < previousPosition {

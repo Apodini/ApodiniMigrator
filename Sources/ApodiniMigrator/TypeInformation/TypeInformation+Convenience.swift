@@ -219,6 +219,14 @@ public extension TypeInformation {
         return []
     }
     
+    /// Return rawValueType type if `self` is enum
+    var rawValueType: RawValueType? {
+        if case let .enum(_, rawValueType, _) = self {
+            return rawValueType
+        }
+        return nil
+    }
+    
     /// Wrapps a type descriptor as an optional type. If already an optional, returns self
     var asOptional: TypeInformation {
         isOptional ? self : .optional(wrappedValue: self)

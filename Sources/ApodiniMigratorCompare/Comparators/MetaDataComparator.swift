@@ -11,15 +11,7 @@ struct MetaDataComparator: Comparator {
     let lhs: MetaData
     let rhs: MetaData
     let changes: ChangeContainer
-    
     var configuration: EncoderConfiguration
-    
-    init(lhs: MetaData, rhs: MetaData, changes: ChangeContainer, configuration: EncoderConfiguration) {
-        self.lhs = lhs
-        self.rhs = rhs
-        self.changes = changes
-        self.configuration = configuration
-    }
     
     func compare() {
         let element: ChangeElement = .networking

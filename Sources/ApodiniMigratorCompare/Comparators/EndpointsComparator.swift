@@ -15,13 +15,6 @@ struct EndpointsComparator: Comparator {
     let changes: ChangeContainer
     var configuration: EncoderConfiguration
     
-    init(lhs: [Endpoint], rhs: [Endpoint], changes: ChangeContainer, configuration: EncoderConfiguration) {
-        self.lhs = lhs
-        self.rhs = rhs
-        self.changes = changes
-        self.configuration = configuration
-    }
-    
     func compare() {
         let matchedIds = lhs.matchedIds(with: rhs)
         

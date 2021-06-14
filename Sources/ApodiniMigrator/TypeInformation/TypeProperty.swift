@@ -16,6 +16,10 @@ public struct TypeProperty: Value {
     }
 }
 
+extension TypeProperty: DeltaIdentifiable {
+    public var deltaIdentifier: DeltaIdentifier { .init(name) }
+}
+
 extension TypeProperty {
     static func property(_ name: String, type: TypeInformation) -> TypeProperty {
         .init(name: name, type: type)

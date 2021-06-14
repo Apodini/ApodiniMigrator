@@ -8,7 +8,7 @@
 import Foundation
 
 // TODO Review
-struct TypeChange: Change, Value {
+struct TypePropertyChange: Change, Value {
     let element: ChangeElement
     let target: ChangeTarget
     let type: ChangeType
@@ -17,6 +17,9 @@ struct TypeChange: Change, Value {
     
     let from: TypeInformation
     let to: TypeInformation
+    
+    let convertTo: String
+    let convertFrom: String
     
     let breaking: Bool
     let solvable: Bool
@@ -27,6 +30,8 @@ struct TypeChange: Change, Value {
         identifier: DeltaIdentifier,
         from: TypeInformation,
         to: TypeInformation,
+        convertTo: String,
+        convertFrom: String,
         breaking: Bool,
         solvable: Bool
     ) {
@@ -35,16 +40,10 @@ struct TypeChange: Change, Value {
         self.identifier = identifier
         self.from = from
         self.to = to
+        self.convertTo = convertTo
+        self.convertFrom = convertFrom
         self.breaking = breaking
         self.solvable = solvable
         type = .typeChange
-    }
-    
-    func convertTo() -> String {
-        "" // Some js function to convert from to
-    }
-    
-    func convertFrom() -> String {
-        "" // some js function to convert to from
     }
 }
