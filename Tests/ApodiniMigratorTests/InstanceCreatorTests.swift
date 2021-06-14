@@ -1,5 +1,6 @@
 import XCTest
 @testable import ApodiniMigrator
+@testable import ApodiniMigratorCompare
 @testable import ApodiniMigratorClientSupport
 @testable import Runtime
 
@@ -33,9 +34,9 @@ final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
         
         
         XCTAssertEqual(try cardinality(of: Student.self), .exactlyOne(Student.self))
-        XCTAssertEqual(try cardinality(of: Optional<Student>.self), .optional(Student.self))
-        XCTAssertEqual(try cardinality(of: Array<Array<Student>>.self), .repeated(Array<Student>.self))
-        XCTAssertEqual(try cardinality(of: Dictionary<Int, Student>.self), .dictionary(key: Int.self, value: Student.self))
+        XCTAssertEqual(try cardinality(of: Student?.self), .optional(Student.self))
+        XCTAssertEqual(try cardinality(of: [[Student]].self), .repeated([Student].self))
+        XCTAssertEqual(try cardinality(of: [Int: Student].self), .dictionary(key: Int.self, value: Student.self))
     }
     
     func testNonFluentModel() throws {

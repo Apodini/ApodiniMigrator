@@ -68,6 +68,11 @@ public struct TypeName: Value {
     }
 }
 
+// MARK: - DeltaIdentifiable
+extension TypeName: DeltaIdentifiable {
+    public var deltaIdentifier: DeltaIdentifier { .init(name) }
+}
+
 // MARK: - Comparable
 extension TypeName: Comparable {
     /// String comparison of `name`

@@ -71,3 +71,24 @@ extension Parameter: RelaxedDeltaIdentifiable {
         true
     }
 }
+
+extension TypeName: RelaxedDeltaIdentifiable {
+    static func ?= (lhs: TypeName, rhs: TypeName) -> Bool {
+        if lhs == rhs {
+            return true
+        }
+        
+        let primitiveTypeNames = PrimitiveType.allCases.map { $0.typeName }
+        let lhsIsPrimitive = primitiveTypeNames.contains(lhs)
+        let rhsIsPrimitive = primitiveTypeNames.contains(rhs)
+        
+        // if not already equal in the first check, we are dealing with two different primitive types, e.g. Bool and Int
+        if lhsIsPrimitive && rhsIsPrimitive {
+            return false
+        }
+        
+        // If one is primitive and the other one not, returning false, otherwise string similarity of
+        // complex type names to ensure that we are dealing with a rename
+        return lhsIsPrimitive != rhsIsPrimitive ? false : lhs.deltaIdentifier.distance(between: rhs.deltaIdentifier) > 0.4
+    }
+}

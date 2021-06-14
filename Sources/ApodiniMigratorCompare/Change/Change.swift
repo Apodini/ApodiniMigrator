@@ -28,7 +28,6 @@ protocol Change: Codable {
 
 // MARK: - Array
 extension Array where Element == Change {
-    
     func of<D: DeltaIdentifiable>(_ deltaIdentifiable: D) -> [Change] {
         filter { $0.element.deltaIdentifier == deltaIdentifiable.deltaIdentifier }
     }

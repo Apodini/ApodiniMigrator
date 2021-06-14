@@ -10,7 +10,7 @@ import Foundation
 struct MetaDataComparator: Comparator {
     let lhs: MetaData
     let rhs: MetaData
-    var changes: ChangeContainer
+    let changes: ChangeContainer
     
     var configuration: EncoderConfiguration
     

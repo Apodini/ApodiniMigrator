@@ -10,7 +10,7 @@ import Foundation
 struct DocumentComparator: Comparator {
     let lhs: Document
     let rhs: Document
-    var changes: ChangeContainer
+    let changes: ChangeContainer
     let configuration: EncoderConfiguration
     
     var currentEncoderConfiguration: EncoderConfiguration {
@@ -32,8 +32,7 @@ struct DocumentComparator: Comparator {
         let modelsComparator = ModelsComparator(lhs: lhs.allModels(), rhs: rhs.allModels(), changes: changes, configuration: configuration)
         modelsComparator.compare()
         
-        var endpointsComparator = EndpointsComparator(lhs: lhs.endpoints, rhs: rhs.endpoints, changes: changes, configuration: configuration)
+        let endpointsComparator = EndpointsComparator(lhs: lhs.endpoints, rhs: rhs.endpoints, changes: changes, configuration: configuration)
         endpointsComparator.compare()
-        
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 struct ParametersComparator: Comparator {
     let lhs: Endpoint
     let rhs: Endpoint
-    var changes: ChangeContainer
+    let changes: ChangeContainer
     var configuration: EncoderConfiguration
     let lhsParameters: [Parameter]
     let rhsParameters: [Parameter]
@@ -37,135 +37,14 @@ struct ParametersComparator: Comparator {
         for matched in matchedIds {
             if let lhs = lhsParameters.firstMatch(on: \.deltaIdentifier, with: matched),
                 let rhs = rhsParameters.firstMatch(on: \.deltaIdentifier, with: matched) {
-                compare(lhs: lhs, rhs: rhs)
+                let parameterComparator = ParameterComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration, lhsEndpoint: self.lhs)
+                parameterComparator.compare()
             }
         }
         
         handle(removalCandidates: removalCandidates, additionCandidates: additionCandidates)
     }
 
-    /// Compares parameters with same `deltaIdentifier``s (a.k.a same parameter name)
-    // since the name is the simply compare other properties of the parameter, register if kind changed, if neccesity changed, if typeInformation changed
-    func compare(lhs: Parameter, rhs: Parameter) {
-        if lhs.sameType(with: rhs), lhs.parameterType == .lightweight {
-            return compareLightweightParameters(lhs: lhs, rhs: rhs)
-        }
-        
-        if [lhs.parameterType, rhs.parameterType].contains(.content) {
-            return handleContentParameter(for: lhs, and: rhs)
-        }
-        
-        if lhs.sameType(with: rhs) {
-        }
-        
-        // Here we are dealing with parameters that are not of type content -> typeInformation is always .scalar or .optional(.scalar)
-        // -> parameter types are always .lightweight, .path or .header
-        if !lhs.sameType(with: rhs) {
-            changes.add(
-                ParameterChange(
-                    element: element,
-                    target: target(for: lhs.parameterType),
-                    identifier: lhs.deltaIdentifier,
-                    parameterTarget: .kind,
-                    from: .string(lhs.parameterType.rawValue),
-                    to: .string(lhs.parameterType.rawValue),
-                    breaking: true,
-                    solvable: true // review
-                )
-            )
-        }
-    }
-    
-    /// Captures changes of necessity if changed to required, or changes in typeinformation of the parameters
-    func compareLightweightParameters(lhs: Parameter, rhs: Parameter) {
-        if lhs.necessity != rhs.necessity, rhs.necessity == .required { // necessity changed to required
-            return changes.add(
-                ParameterChange( /// TODO provide default value?
-                    element: element,
-                    target: .queryParameter,
-                    identifier: lhs.deltaIdentifier,
-                    parameterTarget: .necessity,
-                    from: .string(lhs.necessity.rawValue),
-                    to: .string(rhs.necessity.rawValue),
-                    breaking: true,
-                    solvable: true // todo review
-                )
-            )
-        }
-        
-        if lhs.typeInformation != rhs.typeInformation { // change, e.g. from Int to String
-            /// TODO add convert old to new ???
-            changes.add(
-                ParameterChange(
-                    element: element,
-                    target: .queryParameter,
-                    identifier: lhs.deltaIdentifier,
-                    parameterTarget: .typeInformation,
-                    from: .json(of: lhs.typeInformation),
-                    to: .json(of: rhs.typeInformation),
-                    breaking: true,
-                    solvable: true // todo review
-                )
-            )
-        }
-    }
-    
-    func handleContentParameter(for lhs: Parameter, and rhs: Parameter) {
-        if lhs.sameType(with: rhs) { // if both parameters are content, changes have to be handled on their type informations
-            let typeInformationComaparator = TypeInformationComparator(lhs: lhs.typeInformation, rhs: rhs.typeInformation, changes: changes, configuration: configuration)
-            return typeInformationComaparator.compare()
-        }
-        
-        /// TODO do not register as one addition and one deletion!!! simply register the kind change, is handled on the client then
-        /// In general once the matching of ids is there (also considering the renamings) no addition and deletion anymore
-        if lhs.parameterType == .content { // if changed from .content to some other type -> one content parameter deletion and one addition
-            changes.add(
-                DeleteChange(
-                    element: element,
-                    target: .contentParameter,
-                    deleted: .json(of: lhs),
-                    fallbackValue: .value(from: lhs.typeInformation, with: configuration),
-                    breaking: true,
-                    solvable: true // todo review
-                )
-            )
-            
-            let defaultValue = rhs.necessity == .required ? ChangeValue.value(from: rhs.typeInformation, with: configuration) : .none
-            changes.add(
-                AddChange(
-                    element: element,
-                    target: target(for: rhs.parameterType),
-                    added: .json(of: rhs),
-                    defaultValue: defaultValue,
-                    breaking: defaultValue != .none,
-                    solvable: true
-                )
-            )
-        }
-        
-        if rhs.parameterType == .content { // if changed from some other type to content -> one content parameter addition, and one deletion
-            changes.add(
-                AddChange(
-                    element: element,
-                    target: .contentParameter,
-                    added: .json(of: rhs),
-                    defaultValue: .value(from: rhs.typeInformation, with: configuration),
-                    breaking: rhs.necessity == .required,
-                    solvable: true
-                )
-            )
-            changes.add(
-                DeleteChange(
-                    element: element,
-                    target: target(for: lhs.parameterType),
-                    deleted: .id(from: lhs),
-                    fallbackValue: .none,
-                    breaking: false,
-                    solvable: true
-                )
-            )
-        }
-    }
     
     func handle(removalCandidates: [Parameter], additionCandidates: [Parameter]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
@@ -178,16 +57,17 @@ struct ParametersComparator: Comparator {
                 relaxedMatchings += candidate.deltaIdentifier
                 
                 changes.add(
-                    RenameChange( // parameter change target name
+                    RenameChange(
                         element: element,
-                        target: target(for: candidate.parameterType),
+                        target: .target(for: candidate.parameterType),
                         from: candidate.name,
                         to: relaxedMatching.name,
                         breaking: true,
                         solvable: true
                     )
                 )
-                compare(lhs: candidate, rhs: relaxedMatching)
+                let parameterComparator = ParameterComparator(lhs: candidate, rhs: relaxedMatching, changes: changes, configuration: configuration, lhsEndpoint: self.lhs)
+                parameterComparator.compare()
             }
         }
         
@@ -195,7 +75,7 @@ struct ParametersComparator: Comparator {
             changes.add(
                 DeleteChange(
                     element: element,
-                    target: target(for: removal.parameterType),
+                    target: .target(for: removal.parameterType),
                     deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: false,
@@ -210,10 +90,11 @@ struct ParametersComparator: Comparator {
             if isRequired {
                 defaultValue = .value(from: addition.typeInformation, with: configuration)
             }
+            
             changes.add(
                 AddChange(
                     element: element,
-                    target: target(for: addition.parameterType),
+                    target: .target(for: addition.parameterType),
                     added: .json(of: addition),
                     defaultValue: defaultValue ?? .none,
                     breaking: isRequired,
@@ -221,20 +102,5 @@ struct ParametersComparator: Comparator {
                 )
             )
         }
-    }
-    
-    private func target(for parameterType: ParameterType) -> ChangeTarget {
-        switch parameterType {
-        case .lightweight: return .queryParameter
-        case .content: return .contentParameter
-        case .path: return .pathParameter
-        case .header: return .headerParameter
-        }
-    }
-}
-
-extension Parameter {
-    func sameType(with other: Parameter) -> Bool {
-        parameterType == other.parameterType
     }
 }

@@ -41,4 +41,13 @@ public enum ChangeTarget: String, Value {
     static var networkingTargets: [ChangeTarget] {
         [.serverPath, .version, .encoderConfiguration, .decoderConfiguration]
     }
+    
+    static func target(for parameterType: ParameterType) -> ChangeTarget {
+        switch parameterType {
+        case .lightweight: return .queryParameter
+        case .content: return .contentParameter
+        case .path: return .pathParameter
+        case .header: return .headerParameter
+        }
+    }
 }

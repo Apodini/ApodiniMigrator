@@ -12,7 +12,7 @@ extension Array: Value where Element: Value {}
 struct EndpointsComparator: Comparator {
     let lhs: [Endpoint]
     let rhs: [Endpoint]
-    var changes: ChangeContainer
+    let changes: ChangeContainer
     var configuration: EncoderConfiguration
     
     init(lhs: [Endpoint], rhs: [Endpoint], changes: ChangeContainer, configuration: EncoderConfiguration) {

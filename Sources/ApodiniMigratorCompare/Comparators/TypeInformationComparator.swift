@@ -10,7 +10,7 @@ import Foundation
 struct TypeInformationComparator: Comparator {
     let lhs: TypeInformation
     let rhs: TypeInformation
-    var changes: ChangeContainer
+    let changes: ChangeContainer
     var configuration: EncoderConfiguration
     
     init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContainer, configuration: EncoderConfiguration) {

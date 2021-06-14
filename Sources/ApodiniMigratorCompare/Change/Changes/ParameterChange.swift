@@ -26,6 +26,8 @@ struct ParameterChange: Change, Value {
     let from: ChangeValue
     let to: ChangeValue
     
+    let convertFunction: String?
+    
     let breaking: Bool
     let solvable: Bool
     
@@ -36,6 +38,7 @@ struct ParameterChange: Change, Value {
         parameterTarget: ParameterChangeTarget,
         from: ChangeValue,
         to: ChangeValue,
+        convertFunction: String? = nil,
         breaking: Bool,
         solvable: Bool
     ) {
@@ -45,6 +48,7 @@ struct ParameterChange: Change, Value {
         self.parameterTarget = parameterTarget
         self.from = from
         self.to = to
+        self.convertFunction = convertFunction
         self.breaking = breaking
         self.solvable = solvable
         type = .parameterChange
