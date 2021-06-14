@@ -12,7 +12,7 @@ struct PropertyChange: Change, Value {
     let target: ChangeTarget
     let type: ChangeType
     
-    let identifier: DeltaIdentifier
+    let targetID: DeltaIdentifier?
     
     let from: TypeInformation
     let to: TypeInformation
@@ -26,7 +26,7 @@ struct PropertyChange: Change, Value {
     init(
         element: ChangeElement,
         target: ChangeTarget,
-        identifier: DeltaIdentifier,
+        targetID: DeltaIdentifier,
         from: TypeInformation,
         to: TypeInformation,
         convertTo: String,
@@ -36,7 +36,7 @@ struct PropertyChange: Change, Value {
     ) {
         self.element = element
         self.target = target
-        self.identifier = identifier
+        self.targetID = targetID
         self.from = from
         self.to = to
         self.convertTo = convertTo

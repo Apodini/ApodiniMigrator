@@ -25,6 +25,10 @@ struct ParameterComparator: Comparator {
         .target(for: lhs.parameterType)
     }
     
+    private var targetID: DeltaIdentifier {
+        lhs.deltaIdentifier
+    }
+    
     // Since when comparing type information of parameters we might encounter complex types, the comparison
     // should not be done on the type information directly since that is being handled by ModelsComparator.
     // In the context of parameter comparison, the comparison is done on the type name of the parameter.
@@ -50,7 +54,7 @@ struct ParameterComparator: Comparator {
                 ParameterChange(
                     element: element,
                     target: target,
-                    identifier: lhs.deltaIdentifier,
+                    targetID: targetID,
                     parameterTarget: .necessity,
                     from: .string(lhs.necessity.rawValue),
                     to: .string(rhs.necessity.rawValue),
@@ -65,7 +69,7 @@ struct ParameterComparator: Comparator {
                 ParameterChange(
                     element: element,
                     target: target,
-                    identifier: lhs.deltaIdentifier,
+                    targetID: targetID,
                     parameterTarget: .kind,
                     from: .string(lhs.parameterType.rawValue),
                     to: .string(rhs.parameterType.rawValue),
@@ -80,7 +84,7 @@ struct ParameterComparator: Comparator {
                 ParameterChange(
                     element: element,
                     target: target,
-                    identifier: lhs.deltaIdentifier,
+                    targetID: targetID,
                     parameterTarget: .typeInformation,
                     from: .id(from: lhs),
                     to: .json(of: rhs.typeInformation),

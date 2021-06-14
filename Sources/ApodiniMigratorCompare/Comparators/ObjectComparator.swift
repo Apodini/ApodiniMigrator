@@ -48,16 +48,32 @@ struct ObjectComparator: Comparator {
         let lhsType = lhs.type
         let rhsType = rhs.type
         
+        let targetID = lhs.deltaIdentifier
+        
         if !(lhsType.sameType(with: rhsType) && (lhsType ?= rhsType)) {
             changes.add(
                 PropertyChange(
                     element: element,
                     target: .property,
-                    identifier: lhs.deltaIdentifier,
+                    targetID: targetID,
                     from: reference(lhsType),
                     to: rhsType,
                     convertTo: "TODO Add js function",
                     convertFrom: "TODO Add js function",
+                    breaking: true,
+                    solvable: true
+                )
+            )
+        }
+        
+        if lhsType.unwrapped ?= rhsType.unwrapped, lhs.optionality != rhs.optionality {
+            changes.add(
+                UpdateChange(
+                    element: element,
+                    target: .optionality,
+                    from: .string(lhs.optionality.rawValue),
+                    to: .string(rhs.optionality.rawValue),
+                    targetID: targetID,
                     breaking: true,
                     solvable: true
                 )

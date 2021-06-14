@@ -23,7 +23,13 @@ protocol Change: Codable {
     var type: ChangeType { get }
     var breaking: Bool { get }
     var solvable: Bool { get }
-    var identifier: DeltaIdentifier { get }
+    var elementID: DeltaIdentifier { get }
+    var targetID: DeltaIdentifier? { get }
+}
+
+extension Change {
+    var elementID: DeltaIdentifier { element.deltaIdentifier }
+    var targetID: DeltaIdentifier? { nil }
 }
 
 
@@ -39,9 +45,6 @@ extension Array where Element == Change {
     }
 }
 
-extension Change {
-    var identifier: DeltaIdentifier { element.deltaIdentifier }
-}
 
 extension Change {
     func typed<C: Change>(_ type: C.Type) -> C {

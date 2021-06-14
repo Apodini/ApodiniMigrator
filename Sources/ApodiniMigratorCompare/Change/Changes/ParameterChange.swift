@@ -19,7 +19,7 @@ struct ParameterChange: Change, Value {
     let target: ChangeTarget
     let type: ChangeType
     
-    let identifier: DeltaIdentifier
+    var targetID: DeltaIdentifier?
     
     let parameterTarget: ParameterChangeTarget
     
@@ -34,7 +34,7 @@ struct ParameterChange: Change, Value {
     init(
         element: ChangeElement,
         target: ChangeTarget,
-        identifier: DeltaIdentifier,
+        targetID: DeltaIdentifier,
         parameterTarget: ParameterChangeTarget,
         from: ChangeValue,
         to: ChangeValue,
@@ -44,7 +44,7 @@ struct ParameterChange: Change, Value {
     ) {
         self.element = element
         self.target = target
-        self.identifier = identifier
+        self.targetID = targetID
         self.parameterTarget = parameterTarget
         self.from = from
         self.to = to

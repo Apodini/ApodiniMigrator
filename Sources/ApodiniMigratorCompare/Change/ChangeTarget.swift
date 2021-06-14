@@ -14,6 +14,7 @@ public enum ChangeTarget: String, Value {
     case rawValueType
     case typeName
     case property
+    case optionality
     case queryParameter
     case pathParameter
     case contentParameter
@@ -32,7 +33,7 @@ public enum ChangeTarget: String, Value {
     }
     
     static var objectTargets: [ChangeTarget] {
-        [.`self`, .property, .typeName]
+        [.`self`, .property, .optionality, .typeName]
     }
     
     static var enumTargets: [ChangeTarget] {
