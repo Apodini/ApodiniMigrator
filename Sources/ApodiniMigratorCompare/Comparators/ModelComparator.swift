@@ -17,7 +17,7 @@ struct ModelComparator: Comparator {
         guard lhs.rootType == rhs.rootType, [TypeInformation.RootType.enum, .object].contains(lhs.rootType) else {
             return changes.add(
                 UnsupportedChange(
-                    element: .for(model: lhs, target: .`self`),
+                    element: lhs.isObject ? .for(object: lhs, target: .`self`) : .for(enum: lhs, target: .`self`),
                     breaking: true,
                     solvable: false,
                     description: "ApodiniMigrator is not able to handle the migration of \(lhs.typeName.name). Change from enum to object or vice versa is currently not supported"

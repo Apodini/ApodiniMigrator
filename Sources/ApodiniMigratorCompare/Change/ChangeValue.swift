@@ -12,6 +12,7 @@ public enum ChangeValue: Value {
     private enum CodingKeys: String, CodingKey {
         case none, id, string = "value", json
     }
+    
     case none
     case id(DeltaIdentifier)
     case string(String)
@@ -53,13 +54,16 @@ public enum ChangeValue: Value {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        let key: CodingKeys
         
         switch self {
-        case .none: try container.encode(value, forKey: .none)
-        case .id: try container.encode(value, forKey: .id)
-        case .string: try container.encode(value, forKey: .string)
-        case .json: try container.encode(value, forKey: .json)
+        case .none: key = .none
+        case .id: key = .id
+        case .string: key = .string
+        case .json: key = .json
         }
+        
+        try container.encode(value, forKey: key)
     }
     
     public init(from decoder: Decoder) throws {

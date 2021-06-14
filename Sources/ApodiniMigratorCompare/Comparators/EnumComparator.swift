@@ -13,8 +13,8 @@ struct EnumComparator: Comparator {
     let changes: ChangeContainer
     let configuration: EncoderConfiguration
     
-    func element(_ target: ChangeTarget) -> ChangeElement {
-        .for(model: lhs, target: target)
+    func element(_ target: EnumTarget) -> ChangeElement {
+        .for(enum: lhs, target: target)
     }
     
     func compare() {
@@ -87,8 +87,8 @@ fileprivate struct EnumCasesComparator: Comparator {
         }
     }
     
-    private func element(_ target: ChangeTarget) -> ChangeElement {
-        .for(model: lhs, target: target)
+    private func element(_ target: EnumTarget) -> ChangeElement {
+        .for(enum: lhs, target: target)
     }
     
     

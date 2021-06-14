@@ -43,7 +43,7 @@ struct ModelsComparator: Comparator {
                 
                 changes.add(
                     RenameChange(
-                        element: .for(model: candidate, target: .typeName),
+                        element: .for(object: candidate, target: .typeName),
                         from: candidate.deltaIdentifier.rawValue,
                         to: relaxedMatching.deltaIdentifier.rawValue,
                         breaking: false,
@@ -59,7 +59,7 @@ struct ModelsComparator: Comparator {
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
             changes.add(
                 DeleteChange(
-                    element: .for(model: removal, target: .`self`),
+                    element: .for(object: removal, target: .`self`),
                     deleted: .none,
                     fallbackValue: .none,
                     breaking: false,
@@ -71,7 +71,7 @@ struct ModelsComparator: Comparator {
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
             changes.add(
                 AddChange(
-                    element: .for(model: addition, target: .`self`),
+                    element: .for(object: addition, target: .`self`),
                     added: .json(of: addition),
                     defaultValue: .none,
                     breaking: false,

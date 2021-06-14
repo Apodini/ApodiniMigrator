@@ -122,7 +122,7 @@ struct ObjectComparator: Comparator {
         }
     }
     
-    private func element(_ target: ChangeTarget) -> ChangeElement {
-        .for(model: lhs, target: target)
+    private func element(_ target: ObjectTarget) -> ChangeElement {
+        .for(object: lhs, target: target)
     }
 }

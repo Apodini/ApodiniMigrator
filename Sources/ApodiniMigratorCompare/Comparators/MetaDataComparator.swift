@@ -14,7 +14,7 @@ struct MetaDataComparator: Comparator {
     var configuration: EncoderConfiguration
     
     func compare() {
-        func element(_ target: ChangeTarget) -> ChangeElement {
+        func element(_ target: NetworkingTarget) -> ChangeElement {
             .networking(target: target)
         }
         

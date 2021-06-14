@@ -97,7 +97,7 @@ struct ParametersComparator: Comparator {
         }
     }
     
-    private func element(_ target: ChangeTarget) -> ChangeElement {
+    private func element(_ target: EndpointTarget) -> ChangeElement {
         .for(endpoint: lhs, target: target)
     }
 }

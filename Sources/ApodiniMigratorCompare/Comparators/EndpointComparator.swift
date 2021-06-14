@@ -14,7 +14,7 @@ struct EndpointComparator: Comparator {
     var configuration: EncoderConfiguration
     
     func compare() {
-        func element(_ target: ChangeTarget) -> ChangeElement {
+        func element(_ target: EndpointTarget) -> ChangeElement {
             .for(endpoint: lhs, target: target)
         }
         
