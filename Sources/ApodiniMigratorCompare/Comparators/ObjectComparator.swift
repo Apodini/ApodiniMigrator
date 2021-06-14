@@ -15,10 +15,6 @@ struct ObjectComparator: Comparator {
     let lhsProperties: [TypeProperty]
     let rhsProperties: [TypeProperty]
     
-    var element: ChangeElement {
-        .for(model: lhs)
-    }
-    
     init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContainer, configuration: EncoderConfiguration) {
         self.lhs = lhs
         self.rhs = rhs
@@ -50,11 +46,21 @@ struct ObjectComparator: Comparator {
         
         let targetID = lhs.deltaIdentifier
         
-        if !(lhsType.sameType(with: rhsType) && (lhsType ?= rhsType)) {
+        if lhsType.unwrapped ?= rhsType.unwrapped, lhs.optionality != rhs.optionality {
+            changes.add(
+                UpdateChange(
+                    element: element(.propertyOptionality),
+                    from: .string(lhs.optionality.rawValue),
+                    to: .string(rhs.optionality.rawValue),
+                    targetID: targetID,
+                    breaking: true,
+                    solvable: true
+                )
+            )
+        } else if !(lhsType.sameType(with: rhsType) && (lhsType ?= rhsType)) {
             changes.add(
                 PropertyChange(
-                    element: element,
-                    target: .property,
+                    element: element(.property),
                     targetID: targetID,
                     from: reference(lhsType),
                     to: rhsType,
@@ -65,23 +71,9 @@ struct ObjectComparator: Comparator {
                 )
             )
         }
-        
-        if lhsType.unwrapped ?= rhsType.unwrapped, lhs.optionality != rhs.optionality {
-            changes.add(
-                UpdateChange(
-                    element: element,
-                    target: .optionality,
-                    from: .string(lhs.optionality.rawValue),
-                    to: .string(rhs.optionality.rawValue),
-                    targetID: targetID,
-                    breaking: true,
-                    solvable: true
-                )
-            )
-        }
     }
     
-    func handle(removalCandidates: [TypeProperty], additionCandidates: [TypeProperty]) {
+    private func handle(removalCandidates: [TypeProperty], additionCandidates: [TypeProperty]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
         assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
@@ -93,8 +85,7 @@ struct ObjectComparator: Comparator {
                 
                 changes.add(
                     RenameChange(
-                        element: element,
-                        target: .property,
+                        element: element(.property),
                         from: candidate.deltaIdentifier.rawValue,
                         to: relaxedMatching.deltaIdentifier.rawValue,
                         breaking: true,
@@ -109,8 +100,7 @@ struct ObjectComparator: Comparator {
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
             changes.add(
                 DeleteChange(
-                    element: element,
-                    target: .property,
+                    element: element(.property),
                     deleted: .id(from: removal),
                     fallbackValue: .value(from: removal.type, with: configuration),
                     breaking: true,
@@ -122,8 +112,7 @@ struct ObjectComparator: Comparator {
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
             changes.add(
                 AddChange(
-                    element: element,
-                    target: .property,
+                    element: element(.property),
                     added: .json(of: addition),
                     defaultValue: .value(from: addition.type, with: configuration),
                     breaking: false,
@@ -131,5 +120,9 @@ struct ObjectComparator: Comparator {
                 )
             )
         }
+    }
+    
+    private func element(_ target: ChangeTarget) -> ChangeElement {
+        .for(model: lhs, target: target)
     }
 }

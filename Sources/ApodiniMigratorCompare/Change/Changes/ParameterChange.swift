@@ -16,7 +16,6 @@ enum ParameterChangeTarget: String, Value {
 
 struct ParameterChange: Change, Value {
     let element: ChangeElement
-    let target: ChangeTarget
     let type: ChangeType
     
     var targetID: DeltaIdentifier?
@@ -33,7 +32,6 @@ struct ParameterChange: Change, Value {
     
     init(
         element: ChangeElement,
-        target: ChangeTarget,
         targetID: DeltaIdentifier,
         parameterTarget: ParameterChangeTarget,
         from: ChangeValue,
@@ -43,7 +41,6 @@ struct ParameterChange: Change, Value {
         solvable: Bool
     ) {
         self.element = element
-        self.target = target
         self.targetID = targetID
         self.parameterTarget = parameterTarget
         self.from = from

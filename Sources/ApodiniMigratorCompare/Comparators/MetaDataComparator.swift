@@ -14,13 +14,14 @@ struct MetaDataComparator: Comparator {
     var configuration: EncoderConfiguration
     
     func compare() {
-        let element: ChangeElement = .networking
+        func element(_ target: ChangeTarget) -> ChangeElement {
+            .networking(target: target)
+        }
         
         if lhs.versionedServerPath != rhs.versionedServerPath {
             changes.add(
                 UpdateChange(
-                    element: element,
-                    target: .serverPath,
+                    element: element(.serverPath),
                     from: .string(lhs.versionedServerPath),
                     to: .string(rhs.versionedServerPath),
                     breaking: true,
@@ -35,8 +36,7 @@ struct MetaDataComparator: Comparator {
         if lhsEncoderConfig != rhsEncoderConfig {
             changes.add(
                 UpdateChange(
-                    element: element,
-                    target: .encoderConfiguration,
+                    element: element(.encoderConfiguration),
                     from: .json(of: lhsEncoderConfig),
                     to: .json(of: rhsEncoderConfig),
                     breaking: true,
@@ -51,8 +51,7 @@ struct MetaDataComparator: Comparator {
         if lhsDecoderConfig != rhsDecoderConfig {
             changes.add(
                 UpdateChange(
-                    element: element,
-                    target: .decoderConfiguration,
+                    element: element(.decoderConfiguration),
                     from: .json(of: lhsDecoderConfig),
                     to: .json(of: rhsDecoderConfig),
                     breaking: true,

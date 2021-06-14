@@ -9,7 +9,6 @@ import Foundation
 
 struct PropertyChange: Change, Value {
     let element: ChangeElement
-    let target: ChangeTarget
     let type: ChangeType
     
     let targetID: DeltaIdentifier?
@@ -25,7 +24,6 @@ struct PropertyChange: Change, Value {
     
     init(
         element: ChangeElement,
-        target: ChangeTarget,
         targetID: DeltaIdentifier,
         from: TypeInformation,
         to: TypeInformation,
@@ -35,7 +33,6 @@ struct PropertyChange: Change, Value {
         solvable: Bool
     ) {
         self.element = element
-        self.target = target
         self.targetID = targetID
         self.from = from
         self.to = to

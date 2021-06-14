@@ -9,7 +9,6 @@ import Foundation
 
 struct UpdateChange: Change, Value {
     let element: ChangeElement
-    let target: ChangeTarget
     let type: ChangeType
     
     let from: ChangeValue
@@ -24,7 +23,6 @@ struct UpdateChange: Change, Value {
     
     init(
         element: ChangeElement,
-        target: ChangeTarget,
         from: ChangeValue,
         to: ChangeValue,
         targetID: DeltaIdentifier? = nil,
@@ -33,7 +31,6 @@ struct UpdateChange: Change, Value {
         solvable: Bool
     ) {
         self.element = element
-        self.target = target
         self.from = from
         self.to = to
         self.targetID = targetID

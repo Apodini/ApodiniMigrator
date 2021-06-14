@@ -7,37 +7,26 @@
 
 import Foundation
 import ApodiniMigrator
-/*
-struct EndpointElement: Value {
-    // MARK: Private Inner Types
-    private enum CodingKeys: String, CodingKey {
-        case identifier
-        case definedIn = "defined-in"
-    }
-    let identifier: DeltaIdentifier
-    let definedIn: String
-    
-    init(identifier: DeltaIdentifier, definedIn: String) {
-        self.identifier = identifier
-        self.definedIn = definedIn
-    }
-    
-    init(from endpoint: Endpoint) {
-        self.identifier = endpoint.deltaIdentifier
-        self.definedIn = endpoint.response.nestedType.typeName.name
-    }
- }
-*/
+
 enum ChangeElement: DeltaIdentifiable, Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
-        case endpoint, `enum`, object, networking
+        case endpoint, `enum`, object, networking, target
     }
     
-    case endpoint(DeltaIdentifier) // TODO review, only deltaIdentifier is enough
-    case `enum`(DeltaIdentifier)
-    case object(DeltaIdentifier)
-    case networking
+    case endpoint(DeltaIdentifier, target: ChangeTarget) // TODO review, only deltaIdentifier is enough
+    case `enum`(DeltaIdentifier, target: ChangeTarget)
+    case object(DeltaIdentifier, target: ChangeTarget)
+    case networking(target: ChangeTarget)
+    
+    var target: ChangeTarget {
+        switch self {
+        case let .endpoint(_, target): return target
+        case let .enum(_, target): return target
+        case let .object(_, target): return target
+        case let .networking(target): return target
+        }
+    }
     
     var isEndpoint: Bool {
         if case .endpoint = self {
@@ -69,46 +58,52 @@ enum ChangeElement: DeltaIdentifiable, Value {
     
     var deltaIdentifier: DeltaIdentifier {
         switch self {
-        case let .endpoint(deltaIdentifier): return deltaIdentifier
-        case let .enum(deltaIdentifier): return deltaIdentifier
-        case let .object(deltaIdentifier): return deltaIdentifier
+        case let .endpoint(deltaIdentifier, _): return deltaIdentifier
+        case let .enum(deltaIdentifier, _): return deltaIdentifier
+        case let .object(deltaIdentifier, _): return deltaIdentifier
         case .networking: return .init("NetworkingService")
         }
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(target, forKey: .target)
         switch self {
-        case let .endpoint(endpointElement): try container.encode(endpointElement, forKey: .endpoint)
-        case let .enum(deltaIdentifier): try container.encode(deltaIdentifier, forKey: .enum)
-        case let .object(deltaIdentifier): try container.encode(deltaIdentifier, forKey: .object)
+        case let .endpoint(endpointElement, _):
+            try container.encode(endpointElement, forKey: .endpoint)
+        case let .enum(deltaIdentifier, _):
+            try container.encode(deltaIdentifier, forKey: .enum)
+        case let .object(deltaIdentifier, _):
+            try container.encode(deltaIdentifier, forKey: .object)
         case .networking: try container.encode(deltaIdentifier, forKey: .networking)
         }
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        let target = try container.decode(ChangeTarget.self, forKey: .target)
         let key = container.allKeys.first
         switch key {
-        case .endpoint: self = .endpoint(try container.decode(DeltaIdentifier.self, forKey: .endpoint))
-        case .enum: self = .enum(try container.decode(DeltaIdentifier.self, forKey: .enum))
-        case .object: self = .object(try container.decode(DeltaIdentifier.self, forKey: .object))
-        case .networking: self = .networking
+        case .endpoint: self = .endpoint(try container.decode(DeltaIdentifier.self, forKey: .endpoint), target: target)
+        case .enum: self = .enum(try container.decode(DeltaIdentifier.self, forKey: .enum), target: target)
+        case .object: self = .object(try container.decode(DeltaIdentifier.self, forKey: .object), target: target)
+        case .networking: self = .networking(target: target)
         default: fatalError("Failed to decode \(Self.self)")
         }
     }
     
-    static func `for`(endpoint: Endpoint) -> ChangeElement {
-        .endpoint(endpoint.deltaIdentifier)
+    static func `for`(endpoint: Endpoint, target: ChangeTarget) -> ChangeElement {
+        .endpoint(endpoint.deltaIdentifier, target: target)
     }
     
-    static func `for`(model: TypeInformation) -> ChangeElement {
+    static func `for`(model: TypeInformation, target: ChangeTarget) -> ChangeElement {
         if model.isObject {
-            return .object(model.deltaIdentifier)
+            return .object(model.deltaIdentifier, target: target)
         } else if model.isEnum {
-            return .enum(model.deltaIdentifier)
+            return .enum(model.deltaIdentifier, target: target)
         } else {
             fatalError("Attempted to request ChangeElement for a model that is not enum or object")
         }
     }
 }
+

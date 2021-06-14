@@ -9,7 +9,6 @@ import Foundation
 
 struct DeleteChange: Change, Value {
     let element: ChangeElement
-    let target: ChangeTarget
     let type: ChangeType
     
     let deleted: ChangeValue
@@ -20,14 +19,12 @@ struct DeleteChange: Change, Value {
     
     init(
         element: ChangeElement,
-        target: ChangeTarget,
         deleted: ChangeValue,
         fallbackValue: ChangeValue,
         breaking: Bool,
         solvable: Bool
     ) {
         self.element = element
-        self.target = target
         self.deleted = deleted
         self.fallbackValue = fallbackValue
         self.breaking = breaking

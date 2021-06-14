@@ -14,7 +14,7 @@ public enum ChangeTarget: String, Value {
     case rawValueType
     case typeName
     case property
-    case optionality
+    case propertyOptionality
     case queryParameter
     case pathParameter
     case contentParameter
@@ -28,12 +28,12 @@ public enum ChangeTarget: String, Value {
     case encoderConfiguration
     case decoderConfiguration
     
-    static var enpointTargets: [ChangeTarget] {
+    static var endpointTargets: [ChangeTarget] {
         [.`self`, .queryParameter, .pathParameter, .contentParameter, .headerParameter, .path, .operation, .errors, .response]
     }
     
     static var objectTargets: [ChangeTarget] {
-        [.`self`, .property, .optionality, .typeName]
+        [.`self`, .property, .propertyOptionality, .typeName]
     }
     
     static var enumTargets: [ChangeTarget] {
@@ -44,8 +44,8 @@ public enum ChangeTarget: String, Value {
         [.serverPath, .version, .encoderConfiguration, .decoderConfiguration]
     }
     
-    static func target(for parameterType: ParameterType) -> ChangeTarget {
-        switch parameterType {
+    static func target(for parameter: Parameter) -> ChangeTarget {
+        switch parameter.parameterType {
         case .lightweight: return .queryParameter
         case .content: return .contentParameter
         case .path: return .pathParameter

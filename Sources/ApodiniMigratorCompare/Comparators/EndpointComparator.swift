@@ -13,16 +13,15 @@ struct EndpointComparator: Comparator {
     let changes: ChangeContainer
     var configuration: EncoderConfiguration
     
-    var element: ChangeElement {
-        .for(endpoint: lhs)
-    }
-    
     func compare() {
+        func element(_ target: ChangeTarget) -> ChangeElement {
+            .for(endpoint: lhs, target: target)
+        }
+        
         if lhs.path != rhs.path { // Comparing resourcePaths
             changes.add(
                 UpdateChange(
-                    element: element,
-                    target: .path,
+                    element: element(.path),
                     from: .string(lhs.path.resourcePath),
                     to: .string(rhs.path.resourcePath),
                     breaking: true,
@@ -34,8 +33,7 @@ struct EndpointComparator: Comparator {
         if lhs.operation != rhs.operation {
             changes.add(
                 UpdateChange(
-                    element: element,
-                    target: .operation,
+                    element: element(.operation),
                     from: .string(lhs.operation.rawValue),
                     to: .string(rhs.operation.rawValue),
                     breaking: true,
@@ -53,8 +51,7 @@ struct EndpointComparator: Comparator {
         if !(lhsResponse.sameType(with: rhsResponse) && (lhsResponse ?= rhsResponse)) {
             changes.add(
                 UpdateChange(
-                    element: element,
-                    target: .response,
+                    element: element(.response),
                     from: .id(from: reference(lhs.response)),
                     to: .json(of: rhs.response),
                     convertFunction: "TODO Add js function",

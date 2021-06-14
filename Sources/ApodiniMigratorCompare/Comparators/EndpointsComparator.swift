@@ -32,7 +32,7 @@ struct EndpointsComparator: Comparator {
         handle(removalCandidates: removalCanditates, additionCandidates: additionCanditates)
     }
     
-    func handle(removalCandidates: [Endpoint], additionCandidates: [Endpoint]) {
+    private func handle(removalCandidates: [Endpoint], additionCandidates: [Endpoint]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
         assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
@@ -44,8 +44,7 @@ struct EndpointsComparator: Comparator {
                 
                 changes.add(
                     RenameChange(
-                        element: .for(endpoint: candidate),
-                        target: .`self`,
+                        element: .for(endpoint: candidate, target: .`self`),
                         from: candidate.deltaIdentifier.rawValue,
                         to: relaxedMatching.deltaIdentifier.rawValue,
                         breaking: false,
@@ -61,8 +60,7 @@ struct EndpointsComparator: Comparator {
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
             changes.add(
                 DeleteChange(
-                    element: .for(endpoint: removal),
-                    target: .`self`,
+                    element: .for(endpoint: removal, target: .`self`),
                     deleted: .none,
                     fallbackValue: .none,
                     breaking: true,
@@ -74,8 +72,7 @@ struct EndpointsComparator: Comparator {
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
             changes.add(
                 AddChange(
-                    element: .for(endpoint: addition),
-                    target: .`self`,
+                    element: .for(endpoint: addition, target: .`self`),
                     added: .json(of: addition),
                     defaultValue: .none,
                     breaking: false,

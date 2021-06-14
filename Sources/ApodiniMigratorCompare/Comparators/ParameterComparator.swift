@@ -18,11 +18,7 @@ struct ParameterComparator: Comparator {
         guard let lhsEndpoint = lhsEndpoint else {
             fatalError("Endpoint of `lhs` parameter not injected")
         }
-        return .for(endpoint: lhsEndpoint)
-    }
-    
-    private var target: ChangeTarget {
-        .target(for: lhs.parameterType)
+        return .for(endpoint: lhsEndpoint, target: .target(for: lhs))
     }
     
     private var targetID: DeltaIdentifier {
@@ -53,7 +49,6 @@ struct ParameterComparator: Comparator {
             changes.add(
                 ParameterChange(
                     element: element,
-                    target: target,
                     targetID: targetID,
                     parameterTarget: .necessity,
                     from: .string(lhs.necessity.rawValue),
@@ -68,7 +63,6 @@ struct ParameterComparator: Comparator {
             changes.add(
                 ParameterChange(
                     element: element,
-                    target: target,
                     targetID: targetID,
                     parameterTarget: .kind,
                     from: .string(lhs.parameterType.rawValue),
@@ -83,7 +77,6 @@ struct ParameterComparator: Comparator {
             changes.add(
                 ParameterChange(
                     element: element,
-                    target: target,
                     targetID: targetID,
                     parameterTarget: .typeInformation,
                     from: .id(from: lhs),

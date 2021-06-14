@@ -10,7 +10,7 @@ import Foundation
 public enum ChangeValue: Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
-        case none, id, string, json
+        case none, id, string = "value", json
     }
     case none
     case id(DeltaIdentifier)

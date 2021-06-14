@@ -13,8 +13,8 @@ struct EnumComparator: Comparator {
     let changes: ChangeContainer
     let configuration: EncoderConfiguration
     
-    var element: ChangeElement {
-        .for(model: lhs)
+    func element(_ target: ChangeTarget) -> ChangeElement {
+        .for(model: lhs, target: target)
     }
     
     func compare() {
@@ -25,8 +25,7 @@ struct EnumComparator: Comparator {
         if lhsRawValue != rhsRawValue {
             changes.add(
                 UpdateChange(
-                    element: element,
-                    target: .rawValueType,
+                    element: element(.rawValueType),
                     from: .string(lhsRawValue.rawValue),
                     to: .string(rhsRawValue.rawValue),
                     breaking: true,
@@ -48,10 +47,6 @@ fileprivate struct EnumCasesComparator: Comparator {
     let configuration: EncoderConfiguration
     let lhsCases: [EnumCase]
     let rhsCases: [EnumCase]
-    
-    var element: ChangeElement {
-        .for(model: lhs)
-    }
     
     init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContainer, configuration: EncoderConfiguration) {
         self.lhs = lhs
@@ -82,8 +77,7 @@ fileprivate struct EnumCasesComparator: Comparator {
         if lhs.rawValue != rhs.rawValue {
             changes.add(
                 UpdateChange(
-                    element: element,
-                    target: .caseRawValue,
+                    element: element(.caseRawValue),
                     from: .json(lhs.rawValue),
                     to: .json(rhs.rawValue),
                     breaking: true,
@@ -93,8 +87,12 @@ fileprivate struct EnumCasesComparator: Comparator {
         }
     }
     
+    private func element(_ target: ChangeTarget) -> ChangeElement {
+        .for(model: lhs, target: target)
+    }
     
-    func handle(removalCandidates: [EnumCase], additionCandidates: [EnumCase]) {
+    
+    private func handle(removalCandidates: [EnumCase], additionCandidates: [EnumCase]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
         assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
@@ -106,8 +104,7 @@ fileprivate struct EnumCasesComparator: Comparator {
                 
                 changes.add(
                     RenameChange(
-                        element: element,
-                        target: .`case`,
+                        element: element(.case),
                         from: candidate.deltaIdentifier.rawValue,
                         to: relaxedMatching.deltaIdentifier.rawValue,
                         breaking: false,
@@ -122,8 +119,7 @@ fileprivate struct EnumCasesComparator: Comparator {
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
             changes.add(
                 DeleteChange(
-                    element: element,
-                    target: .`case`,
+                    element: element(.case),
                     deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: true,
@@ -135,8 +131,7 @@ fileprivate struct EnumCasesComparator: Comparator {
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
             changes.add(
                 AddChange(
-                    element: element,
-                    target: .`case`,
+                    element: element(.case),
                     added: .json(of: addition),
                     defaultValue: .none,
                     breaking: false,

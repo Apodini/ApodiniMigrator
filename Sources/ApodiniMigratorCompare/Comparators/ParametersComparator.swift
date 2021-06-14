@@ -15,10 +15,6 @@ struct ParametersComparator: Comparator {
     let lhsParameters: [Parameter]
     let rhsParameters: [Parameter]
     
-    var element: ChangeElement {
-        .for(endpoint: lhs)
-    }
-    
     init(lhs: Endpoint, rhs: Endpoint, changes: ChangeContainer, configuration: EncoderConfiguration) {
         self.lhs = lhs
         self.rhs = rhs
@@ -46,7 +42,7 @@ struct ParametersComparator: Comparator {
     }
 
     
-    func handle(removalCandidates: [Parameter], additionCandidates: [Parameter]) {
+    private func handle(removalCandidates: [Parameter], additionCandidates: [Parameter]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
         assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
@@ -58,8 +54,7 @@ struct ParametersComparator: Comparator {
                 
                 changes.add(
                     RenameChange(
-                        element: element,
-                        target: .target(for: candidate.parameterType),
+                        element: element(.target(for: candidate)),
                         from: candidate.name,
                         to: relaxedMatching.name,
                         breaking: true,
@@ -74,8 +69,7 @@ struct ParametersComparator: Comparator {
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
             changes.add(
                 DeleteChange(
-                    element: element,
-                    target: .target(for: removal.parameterType),
+                    element: element(.target(for: removal)),
                     deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: false,
@@ -93,8 +87,7 @@ struct ParametersComparator: Comparator {
             
             changes.add(
                 AddChange(
-                    element: element,
-                    target: .target(for: addition.parameterType),
+                    element: element(.target(for: addition)),
                     added: .json(of: addition),
                     defaultValue: defaultValue ?? .none,
                     breaking: isRequired,
@@ -102,5 +95,9 @@ struct ParametersComparator: Comparator {
                 )
             )
         }
+    }
+    
+    private func element(_ target: ChangeTarget) -> ChangeElement {
+        .for(endpoint: lhs, target: target)
     }
 }
