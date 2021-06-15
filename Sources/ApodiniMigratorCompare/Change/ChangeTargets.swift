@@ -12,13 +12,13 @@ public enum EndpointTarget: String, Value {
     /// Indicates a change that relates to the endpoint itself, e.g. a deleted or added endpoint, or update of the id
     case `self`
     /// Query parameter target
-    case queryParameter = "query"
+    case queryParameter = "query-parameter"
     /// Path parameter target
     case pathParameter = "path-parameter"
     /// Content parameter target
-    case contentParameter = "content"
+    case contentParameter = "content-parameter"
     /// Header parameter target
-    case headerParameter = "headers"
+    case headerParameter = "header-parameter"
     /// Path target
     case resourcePath = "resource-path"
     /// Operation target

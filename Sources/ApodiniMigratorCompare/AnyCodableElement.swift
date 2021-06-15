@@ -89,7 +89,7 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
         } else if let value = value as? RawValueType {
             try singleValueContainer.encode(value)
         } else {
-            throw EncodingError.invalidValue(value, EncodingError.Context.init(codingPath: [], debugDescription: "\(Self.self) did not encode any value"))
+            throw EncodingError.invalidValue(value, .init(codingPath: [], debugDescription: "\(Self.self) did not encode any value"))
         }
     }
     
