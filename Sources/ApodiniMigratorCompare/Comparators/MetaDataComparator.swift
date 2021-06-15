@@ -22,8 +22,8 @@ struct MetaDataComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.serverPath),
-                    from: .string(lhs.versionedServerPath),
-                    to: .string(rhs.versionedServerPath),
+                    from: .stringValue(lhs.versionedServerPath),
+                    to: .stringValue(rhs.versionedServerPath),
                     breaking: true,
                     solvable: true
                 )
@@ -37,8 +37,8 @@ struct MetaDataComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.encoderConfiguration),
-                    from: .json(of: lhsEncoderConfig),
-                    to: .json(of: rhsEncoderConfig),
+                    from: .element(lhsEncoderConfig),
+                    to: .element(rhsEncoderConfig),
                     breaking: true,
                     solvable: true
                 )
@@ -52,8 +52,8 @@ struct MetaDataComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.decoderConfiguration),
-                    from: .json(of: lhsDecoderConfig),
-                    to: .json(of: rhsDecoderConfig),
+                    from: .element(lhsDecoderConfig),
+                    to: .element(rhsDecoderConfig),
                     breaking: true,
                     solvable: true
                 )

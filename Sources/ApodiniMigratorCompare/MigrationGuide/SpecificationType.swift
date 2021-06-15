@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SpecificationType: String, Value {
+public enum SpecificationType: String, Value {
     case apodini = "Apodini DSL"
     case openapi = "OpenAPI"
 }

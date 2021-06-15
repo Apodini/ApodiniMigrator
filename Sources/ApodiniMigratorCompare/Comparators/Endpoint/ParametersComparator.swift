@@ -53,7 +53,7 @@ struct ParametersComparator: Comparator {
                 relaxedMatchings += candidate.deltaIdentifier
                 
                 changes.add(
-                    RenameChange(
+                    UpdateChange(
                         element: element(.target(for: candidate)),
                         from: candidate.name,
                         to: relaxedMatching.name,
@@ -88,7 +88,7 @@ struct ParametersComparator: Comparator {
             changes.add(
                 AddChange(
                     element: element(.target(for: addition)),
-                    added: .json(of: addition),
+                    added: .element(addition),
                     defaultValue: defaultValue ?? .none,
                     breaking: isRequired,
                     solvable: true

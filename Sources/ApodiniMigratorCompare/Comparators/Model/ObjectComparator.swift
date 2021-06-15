@@ -50,8 +50,8 @@ struct ObjectComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.propertyOptionality),
-                    from: .string(lhs.optionality.rawValue),
-                    to: .string(rhs.optionality.rawValue),
+                    from: .element(lhs.optionality),
+                    to: .element(rhs.optionality),
                     targetID: targetID,
                     breaking: true,
                     solvable: true
@@ -84,10 +84,10 @@ struct ObjectComparator: Comparator {
                 relaxedMatchings += candidate.deltaIdentifier
                 
                 changes.add(
-                    RenameChange(
+                    UpdateChange(
                         element: element(.property),
-                        from: candidate.deltaIdentifier.rawValue,
-                        to: relaxedMatching.deltaIdentifier.rawValue,
+                        from: candidate.name,
+                        to: relaxedMatching.name,
                         breaking: true,
                         solvable: true
                     )
@@ -113,7 +113,7 @@ struct ObjectComparator: Comparator {
             changes.add(
                 AddChange(
                     element: element(.property),
-                    added: .json(of: addition),
+                    added: .element(addition),
                     defaultValue: .value(from: addition.type, with: configuration),
                     breaking: false,
                     solvable: true

@@ -7,17 +7,28 @@
 
 import Foundation
 
+/// Distinct cases of endpoint targets that are subject to change
 public enum EndpointTarget: String, Value {
+    /// Indicates a change that relates to the endpoint itself, e.g. a deleted or added endpoint, or update of the id
     case `self`
-    case queryParameter
-    case pathParameter
-    case contentParameter
-    case headerParameter
-    case path
-    case operation
+    /// Query parameter target
+    case queryParameter = "query"
+    /// Path parameter target
+    case pathParameter = "path-parameter"
+    /// Content parameter target
+    case contentParameter = "content"
+    /// Header parameter target
+    case headerParameter = "headers"
+    /// Path target
+    case resourcePath = "resource-path"
+    /// Operation target
+    case operation = "http-method"
+    /// Errors target
     case errors
+    /// Response target
     case response
     
+    /// An internal convenience static method to return the corresponding `EndpointTarget` of a parameter
     static func target(for parameter: Parameter) -> EndpointTarget {
         switch parameter.parameterType {
         case .lightweight: return .queryParameter
@@ -28,24 +39,38 @@ public enum EndpointTarget: String, Value {
     }
 }
 
+/// Distinct cases of object targets that are subject to change
 public enum ObjectTarget: String, Value {
+    /// Indicates a change that relates to the object itself, e.g. a deleted or added object
     case `self`
+    /// TypeName target
     case typeName
+    /// Property target
     case property
-    case propertyOptionality
+    /// Property optionality target
+    case propertyOptionality = "property-optionality"
 }
 
+/// Distinct cases of enum targets that are subject to change
 public enum EnumTarget: String, Value {
+    /// Indicates a change that relates to the enum itself, e.g. a deleted or added enum
     case `self`
+    /// TypeName target
+    case typeName = "type-name"
+    /// Case target
     case `case`
-    case caseRawValue
-    case rawValueType
-    case typeName
+    /// Case raw value target
+    case caseRawValue = "raw-value"
+    /// RawValue type target
+    case rawValueType = "raw-value-type"
 }
 
+/// Distinct cases of networking service targets that are subject to change
 public enum NetworkingTarget: String, Value {
-    case serverPath
-    case version
-    case encoderConfiguration
-    case decoderConfiguration
+    /// Server path target, including the version path component
+    case serverPath = "base-url"
+    /// Encoder configuration target
+    case encoderConfiguration = "encoder"
+    /// Decoder configuration target
+    case decoderConfiguration = "decoder"
 }

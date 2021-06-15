@@ -7,53 +7,89 @@
 
 import Foundation
 
-struct MigrationGuide: Codable {
-    static let defaultSummary = "Here would be a nice summary what changed between versions"
+/// Migration guide
+public struct MigrationGuide: Codable {
+    /// A default summary
+    public static let defaultSummary = "A summary of what changed between versions"
     
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case summary
-        case serviceType
+        case serviceType = "service-type"
         case specificationType = "api-spec"
         case from
         case to
-        case changes
+        case changeContainer = "changes"
     }
     
-    let summary: String
-    let serviceType: ServiceType
-    let specificationType: SpecificationType
-    let from: Version
-    let to: Version
-    let changes: ChangeContainer
+    /// A textual description of the migration guide
+    public let summary: String
+    /// The service type the the content of the migration guide corresponds to
+    public let serviceType: ServiceType
+    /// The specification type
+    public let specificationType: SpecificationType
+    /// Old version
+    public let from: Version
+    /// New version
+    public let to: Version
+    /// Private change container that holds, encodes and decodes the changes
+    private let changeContainer: ChangeContainer
+    /// List of changes in the Migration Guide
+    public var changes: [Change] {
+        changeContainer.changes
+    }
     
+    /// An empty migration guide with no changes
+    public static var empty: MigrationGuide {
+        .init(
+            summary: Self.defaultSummary,
+            serviceType: .rest,
+            specificationType: .apodini,
+            from: .default,
+            to: .default,
+            changeContainer: .init()
+        )
+    }
+    
+    /// Internal initializer of the Migration Guide
     init(
         summary: String,
         serviceType: ServiceType,
         specificationType: SpecificationType,
         from: Version,
         to: Version,
-        changes: ChangeContainer
+        changeContainer: ChangeContainer
     ) {
         self.summary = summary
         self.serviceType = serviceType
         self.specificationType = specificationType
         self.from = from
         self.to = to
-        self.changes = changes
+        self.changeContainer = changeContainer
     }
     
-    init(for lhs: Document, rhs: Document) {
+    /// Initializes the Migration Guide out of two Documents. Documents get compared and the changes can be accessed via `changes` of the new
+    /// Migration Guide instance
+    public init(for lhs: Document, rhs: Document) {
         let changeContainer = ChangeContainer()
-        let documentsComparator = DocumentComparator(lhs: lhs, rhs: rhs, changes: changeContainer, configuration: rhs.metaData.encoderConfiguration)
+        
+        let documentsComparator = DocumentComparator(
+            lhs: lhs,
+            rhs: rhs,
+            changes: changeContainer,
+            configuration: rhs.metaData.encoderConfiguration
+        )
+        
+        // Triggers the compare logic for all elements of both documents, and registers the changes in changeContainer
         documentsComparator.compare()
+        
         self.init(
             summary: Self.defaultSummary,
             serviceType: .rest,
             specificationType: .apodini,
             from: lhs.metaData.version,
             to: rhs.metaData.version,
-            changes: changeContainer
+            changeContainer: changeContainer
         )
     }
 }

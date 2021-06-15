@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ServiceType: String, Value {
+public enum ServiceType: String, Value {
     case rest = "REST"
     case graphQL = "GraphQL"
     case gRPC

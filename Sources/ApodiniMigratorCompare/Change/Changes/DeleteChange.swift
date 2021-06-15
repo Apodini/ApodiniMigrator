@@ -7,16 +7,31 @@
 
 import Foundation
 
-struct DeleteChange: Change, Value {
-    let element: ChangeElement
-    let type: ChangeType
+public struct DeleteChange: Change {
+    // MARK: Private Inner Types
+    private enum CodingKeys: String, CodingKey {
+        case element
+        case type
+        case deleted = "deleted-value"
+        case fallbackValue = "fallback-value"
+        case breaking
+        case solvable
+    }
     
-    let deleted: ChangeValue
-    let fallbackValue: ChangeValue
+    /// Top-level changed element related to the change
+    public let element: ChangeElement
+    /// Type of change, always `.deletion`
+    public let type: ChangeType
+    /// Deleted value
+    public let deleted: ChangeValue
+    /// Fallback value for the deleted value
+    public let fallbackValue: ChangeValue
+    /// Indicates whether the change is non-backward compatible
+    public let breaking: Bool
+    /// Indicates whether the change can be handled by `ApodiniMigrator`
+    public let solvable: Bool
     
-    let breaking: Bool
-    let solvable: Bool
-    
+    /// Initializer for a new delete change instance
     init(
         element: ChangeElement,
         deleted: ChangeValue,

@@ -74,7 +74,7 @@ public struct Version: Value {
     }
     
     /// Default version
-    static var `default`: Version {
+    public static var `default`: Version {
         .init()
     }
 }

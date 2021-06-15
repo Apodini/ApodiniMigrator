@@ -3,10 +3,17 @@ import PathKit
 
 // MARK: - Encodable extensions
 public extension Encodable {
-    /// JSON String of this encodable with `.prettyPrinted` output formatting
+    /// JSON String of this encodable with `.prettyPrinted` and `.withoutEscapingSlashes` output formatting
     var json: String {
+        json(with: [.prettyPrinted, .withoutEscapingSlashes])
+    }
+    
+    /// JSON String of this encodable
+    /// - Parameters:
+    ///     - outputFormatting: The output formatting options that determine the readability, size, and element order of an encoded JSON object.
+    func json(with outputFormatting: JSONEncoder.OutputFormatting = [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys]) -> String {
         let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
+        encoder.outputFormatting = outputFormatting
         let data = (try? encoder.encode(self)) ?? Data()
         return String(decoding: data, as: UTF8.self)
     }

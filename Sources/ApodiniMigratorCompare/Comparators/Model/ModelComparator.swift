@@ -18,8 +18,6 @@ struct ModelComparator: Comparator {
             return changes.add(
                 UnsupportedChange(
                     element: lhs.isObject ? .for(object: lhs, target: .`self`) : .for(enum: lhs, target: .`self`),
-                    breaking: true,
-                    solvable: false,
                     description: "ApodiniMigrator is not able to handle the migration of \(lhs.typeName.name). Change from enum to object or vice versa is currently not supported"
                 )
             )

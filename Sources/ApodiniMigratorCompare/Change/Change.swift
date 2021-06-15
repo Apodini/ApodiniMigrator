@@ -7,45 +7,31 @@
 
 import Foundation
 
-enum ChangeType: String, Value {
-    case addition
-    case deletion
-    case rename
-    case update
-    case parameterChange
-    case propertyChange
-    case unsupported
-}
-
-protocol Change: Codable {
+/// A protocol that represents a change that can appear in the Migration Guide
+public protocol Change: Codable {
+    /// Top-level changed element related to the change
     var element: ChangeElement { get }
+    /// Type of change
     var type: ChangeType { get }
-    var breaking: Bool { get }
-    var solvable: Bool { get }
+    /// The id of the top-level changed element. Property not required, default implementation provided
     var elementID: DeltaIdentifier { get }
+    /// An optional property to indicate the id of the targeted element. By default `nil`, concrete `Change` instances initialize it if required
     var targetID: DeltaIdentifier? { get }
+    /// Indicates whether the change is non-backward compatible
+    var breaking: Bool { get }
+    /// Indicates whether the change can be handled by `ApodiniMigrator`
+    var solvable: Bool { get }
 }
 
-extension Change {
+// MARK: - Change default implementation
+public extension Change {
+    /// Element ID of `element`
     var elementID: DeltaIdentifier { element.deltaIdentifier }
+    /// Target ID, by default `nil`
     var targetID: DeltaIdentifier? { nil }
-}
-
-
-// MARK: - Array
-extension Array where Element == Change {
-    func of<D: DeltaIdentifiable>(_ deltaIdentifiable: D) -> [Change] {
-        filter { $0.element.deltaIdentifier == deltaIdentifiable.deltaIdentifier }
-    }
     
-    // needs endpoint as parameter
-    func parameterChanges() -> [ParameterChange] {
-        (filter { $0 is ParameterChange } as? [ParameterChange]) ?? []
-    }
-}
-
-
-extension Change {
+    /// Returns the typed version of `self` to a concrete `Change` implementation
+    /// - Note: results in `fatalError` if casting fails
     func typed<C: Change>(_ type: C.Type) -> C {
         guard let self = self as? C else {
             fatalError("Failed to cast change to \(C.self)")
@@ -54,82 +40,16 @@ extension Change {
     }
 }
 
-/// If deleted, fatalErrorBody, if added, create new with template without changes, otherwise below
-struct MigratedEndpointRenderer {
-    let endpoint: Endpoint
-    var changes: [Change]
-    
-    init(for endpoint: Endpoint, changes: [Change]) {
-        self.endpoint = endpoint
-        self.changes = changes.of(endpoint)
+
+// MARK: - Array
+extension Array where Element == Change {
+    /// Returns all changes of a `DeltaIdentifiable` instance
+    func of<D: DeltaIdentifiable>(_ deltaIdentifiable: D) -> [Change] {
+        filter { $0.elementID == deltaIdentifiable.deltaIdentifier }
     }
     
-    /// no change to previous parameters, add only new ones with default values
-    func signature() -> String {
-        ""
-    }
-    
-    
-    func queryParametersBody() -> String {
-        ""
-    }
-    
-    func headerParametersBody() -> String {
-        ""
-    }
-    
-    func errorsBody() -> String {
-        ""
-    }
-    
-    func path() -> String {
-        ""
-    }
-    
-    func httpMethod() -> String {
-        ""
-    }
-    
-    func headers() -> String {
-        ""
-    }
-    
-    func content() -> String {
-        ""
-    }
-    
-    func authorization() -> String {
-        ""
-    }
-    
-    func errors() -> String {
-        ""
-    }
-    
-    /// check if deleted
-    func endpointMethod() -> String {
-        ""
+    /// Returns all parameter changes of the specified `endpoint`
+    func parameterChanges(of endpoint: Endpoint) -> [ParameterChange] {
+        (of(endpoint).filter { $0 is ParameterChange } as? [ParameterChange]) ?? []
     }
 }
-/*
-public static func \(methodName)(\(endpoint.methodInputString())) -> ApodiniPublisher<\(responseString)> {
-\(queryParametersString)var headers = HTTPHeaders()
-headers.setContentType(to: "application/json")
-
-var errors: [ApodiniError] = []
-\(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.asString))" }.lineBreaked)
-
-let handler = Handler<\(responseString)>(
-path: \(path.asString),
-httpMethod: .\(endpoint.operation.asHTTPMethodString),
-parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),
-headers: headers,
-content: \(endpoint.contentParameterString),
-authorization: \(endpoint.hasAuthorization ? ".authorization(authorization)" : "nil"),
-errors: errors
-)
-
-return NetworkingService.trigger(handler)
-}
-"""
-*/

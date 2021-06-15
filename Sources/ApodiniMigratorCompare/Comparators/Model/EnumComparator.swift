@@ -18,6 +18,9 @@ struct EnumComparator: Comparator {
     }
     
     func compare() {
+        let enumCasesComparator = EnumCasesComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
+        enumCasesComparator.compare()
+        
         guard let lhsRawValue = lhs.rawValueType, let rhsRawValue = rhs.rawValueType else {
             return
         }
@@ -26,16 +29,13 @@ struct EnumComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.rawValueType),
-                    from: .string(lhsRawValue.rawValue),
-                    to: .string(rhsRawValue.rawValue),
+                    from: .element(lhsRawValue),
+                    to: .element(rhsRawValue),
                     breaking: true,
                     solvable: false
                 )
             )
         }
-        
-        let enumCasesComparator = EnumCasesComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
-        enumCasesComparator.compare()
     }
 }
 
@@ -78,8 +78,8 @@ fileprivate struct EnumCasesComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.caseRawValue),
-                    from: .json(lhs.rawValue),
-                    to: .json(rhs.rawValue),
+                    from: .element(lhs),
+                    to: .element(rhs),
                     breaking: true,
                     solvable: true
                 )
@@ -103,10 +103,10 @@ fileprivate struct EnumCasesComparator: Comparator {
                 relaxedMatchings += candidate.deltaIdentifier
                 
                 changes.add(
-                    RenameChange(
+                    UpdateChange(
                         element: element(.case),
-                        from: candidate.deltaIdentifier.rawValue,
-                        to: relaxedMatching.deltaIdentifier.rawValue,
+                        from: candidate.name,
+                        to: relaxedMatching.name,
                         breaking: false,
                         solvable: true
                     )
@@ -132,7 +132,7 @@ fileprivate struct EnumCasesComparator: Comparator {
             changes.add(
                 AddChange(
                     element: element(.case),
-                    added: .json(of: addition),
+                    added: .element(addition),
                     defaultValue: .none,
                     breaking: false,
                     solvable: true

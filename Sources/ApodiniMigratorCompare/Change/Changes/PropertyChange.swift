@@ -7,21 +7,39 @@
 
 import Foundation
 
-struct PropertyChange: Change, Value {
-    let element: ChangeElement
-    let type: ChangeType
+/// Represents a change of a property of an object
+public struct PropertyChange: Change {
+    private enum CodingKeys: String, CodingKey {
+        case element
+        case type
+        case targetID = "target-id"
+        case from
+        case to
+        case convertTo = "convert-to-method"
+        case convertFrom = "convert-from-method"
+        case breaking
+        case solvable
+    }
+    /// Top-level changed element related to the change, always `.object`
+    public let element: ChangeElement
+    /// Type of the change, always `.propertyChange`
+    public let type: ChangeType
+    /// Id of the affected property
+    public let targetID: DeltaIdentifier?
+    /// Type information that the property was updated from
+    public let from: TypeInformation
+    /// Type information that the property was updated to
+    public let to: TypeInformation
+    /// JS convert function to convert old type to new type
+    public let convertTo: String
+    /// JS convert function to convert new type to old type
+    public let convertFrom: String
+    /// Indicates whether the change is non-backward compatible
+    public let breaking: Bool
+    /// Indicates whether the change can be handled by `ApodiniMigrator`
+    public let solvable: Bool
     
-    let targetID: DeltaIdentifier?
-    
-    let from: TypeInformation
-    let to: TypeInformation
-    
-    let convertTo: String
-    let convertFrom: String
-    
-    let breaking: Bool
-    let solvable: Bool
-    
+    /// Initializer for a new property change instance
     init(
         element: ChangeElement,
         targetID: DeltaIdentifier,

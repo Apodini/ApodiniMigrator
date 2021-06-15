@@ -51,8 +51,8 @@ struct ParameterComparator: Comparator {
                     element: element,
                     targetID: targetID,
                     parameterTarget: .necessity,
-                    from: .string(lhs.necessity.rawValue),
-                    to: .string(rhs.necessity.rawValue),
+                    from: .element(lhs.necessity),
+                    to: .element(rhs.necessity),
                     breaking: rhs.necessity == .required,
                     solvable: true
                 )
@@ -65,14 +65,15 @@ struct ParameterComparator: Comparator {
                     element: element,
                     targetID: targetID,
                     parameterTarget: .kind,
-                    from: .string(lhs.parameterType.rawValue),
-                    to: .string(rhs.parameterType.rawValue),
+                    from: .element(lhs.parameterType),
+                    to: .element(rhs.parameterType),
                     breaking: true,
                     solvable: true
                 )
             )
         }
         
+        /// TODO request from change container whether the type has been renamed and check whether the name is not equal
         if typeInformationHasChanged {
             changes.add(
                 ParameterChange(
@@ -80,7 +81,7 @@ struct ParameterComparator: Comparator {
                     targetID: targetID,
                     parameterTarget: .typeInformation,
                     from: .id(from: lhs),
-                    to: .json(of: rhs.typeInformation),
+                    to: .element(rhs.typeInformation),
                     convertFunction: "TODO Add js function",
                     breaking: true,
                     solvable: true

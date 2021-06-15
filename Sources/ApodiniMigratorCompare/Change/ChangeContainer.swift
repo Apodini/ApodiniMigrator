@@ -7,13 +7,19 @@
 
 import Foundation
 
-class ChangeContainer: Value {
-    var changes: [Change]
+/// A container reference object to register changes during comparison of documents of two versions.
+/// Used internally in the migration guide generation to be passed in the DocumentComparator. Furthermore
+/// handles the logic of encoding and decoding different change types
+final class ChangeContainer: Codable {
+    /// Changes of the container
+    private(set) var changes: [Change]
     
+    /// Initializes `self` with empty changes
     init() {
         changes = []
     }
     
+    /// Encodes `self` into the given encoder via an `unkeyedContainer`
     func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         
@@ -23,10 +29,6 @@ class ChangeContainer: Value {
             }
             
             if let change = change as? DeleteChange {
-                try container.encode(change)
-            }
-            
-            if let change = change as? RenameChange {
                 try container.encode(change)
             }
             
@@ -44,7 +46,8 @@ class ChangeContainer: Value {
         }
     }
     
-    required init(from decoder: Decoder) throws {
+    /// Creates a new instance by decoding from the given decoder
+    init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
         self.changes = []
         
@@ -54,10 +57,6 @@ class ChangeContainer: Value {
             }
             
             if let value = try? container.decode(DeleteChange.self) {
-                changes.append(value)
-            }
-            
-            if let value = try? container.decode(RenameChange.self) {
                 changes.append(value)
             }
             
@@ -75,15 +74,8 @@ class ChangeContainer: Value {
         }
     }
     
+    /// Registers `change` to `self`
     func add(_ change: Change) {
         changes.append(change)
-    }
-    
-    static func == (lhs: ChangeContainer, rhs: ChangeContainer) -> Bool {
-        true // TODO
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        // TODO
     }
 }

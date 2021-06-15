@@ -21,9 +21,9 @@ struct EndpointComparator: Comparator {
         if lhs.path != rhs.path { // Comparing resourcePaths
             changes.add(
                 UpdateChange(
-                    element: element(.path),
-                    from: .string(lhs.path.resourcePath),
-                    to: .string(rhs.path.resourcePath),
+                    element: element(.resourcePath),
+                    from: .element(lhs.path),
+                    to: .element(rhs.path),
                     breaking: true,
                     solvable: true
                 )
@@ -34,8 +34,8 @@ struct EndpointComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.operation),
-                    from: .string(lhs.operation.rawValue),
-                    to: .string(rhs.operation.rawValue),
+                    from: .element(lhs.operation),
+                    to: .element(rhs.operation),
                     breaking: true,
                     solvable: true
                 )
@@ -48,12 +48,13 @@ struct EndpointComparator: Comparator {
         let lhsResponse = lhs.response
         let rhsResponse = rhs.response
         
+        /// TODO request from change container whether the type has been renamed and check whether the name is not equal
         if !(lhsResponse.sameType(with: rhsResponse) && (lhsResponse ?= rhsResponse)) {
             changes.add(
                 UpdateChange(
                     element: element(.response),
-                    from: .id(from: reference(lhs.response)),
-                    to: .json(of: rhs.response),
+                    from: .id(from: lhs.response),
+                    to: .element(rhs.response),
                     convertFunction: "TODO Add js function",
                     breaking: true,
                     solvable: true

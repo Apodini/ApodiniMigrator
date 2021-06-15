@@ -157,12 +157,11 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         let document2 = try Document.decode(from: doc2)
         
         let migrationGuide = MigrationGuide(for: document1, rhs: document2)
-        try (Path.desktop + "migration_guide4.json").write(migrationGuide.json)
-        
-        
+        try (Path.desktop + "migration_guide4.json").write(migrationGuide.json())
+
         let mig = try MigrationGuide.decode(from: Path.desktop + "migration_guide4.json")
-        
-        XCTAssert(mig.json == migrationGuide.json)
+        try (Path.desktop + "migration_guide_mig.json").write(mig.json())
+        XCTAssert(mig.json() == migrationGuide.json())
     }
     
     func testEndpointPath() throws {

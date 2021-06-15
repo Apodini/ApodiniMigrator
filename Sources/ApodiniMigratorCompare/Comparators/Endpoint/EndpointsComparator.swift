@@ -2,48 +2,49 @@
 //  File.swift
 //  
 //
-//  Created by Eldi Cano on 13.06.21.
+//  Created by Eldi Cano on 23.05.21.
 //
 
 import Foundation
 
-struct ModelsComparator: Comparator {
-    let lhs: [TypeInformation]
-    let rhs: [TypeInformation]
+extension Array: Value where Element: Value {}
+
+struct EndpointsComparator: Comparator {
+    let lhs: [Endpoint]
+    let rhs: [Endpoint]
     let changes: ChangeContainer
     var configuration: EncoderConfiguration
     
     func compare() {
         let matchedIds = lhs.matchedIds(with: rhs)
         
-        let removalCandidates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
+        let removalCanditates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
         let additionCanditates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }
         
         for matched in matchedIds {
             if let lhs = lhs.firstMatch(on: \.deltaIdentifier, with: matched),
                let rhs = rhs.firstMatch(on: \.deltaIdentifier, with: matched) {
-                let modelComparator = ModelComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
-                modelComparator.compare()
+                let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
+                endpointComparator.compare()
             }
         }
         
-        handle(removalCandidates: removalCandidates, additionCandidates: additionCanditates)
+        handle(removalCandidates: removalCanditates, additionCandidates: additionCanditates)
     }
     
-    private func handle(removalCandidates: [TypeInformation], additionCandidates: [TypeInformation]) {
-        
+    private func handle(removalCandidates: [Endpoint], additionCandidates: [Endpoint]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
         assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
         
         for candidate in removalCandidates {
-            if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates) {
+            if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates, useRawValueDistance: false) {
                 relaxedMatchings += relaxedMatching.deltaIdentifier
                 relaxedMatchings += candidate.deltaIdentifier
                 
                 changes.add(
-                    RenameChange(
-                        element: .for(object: candidate, target: .typeName),
+                    UpdateChange(
+                        element: .for(endpoint: candidate, target: .`self`),
                         from: candidate.deltaIdentifier.rawValue,
                         to: relaxedMatching.deltaIdentifier.rawValue,
                         breaking: false,
@@ -51,18 +52,18 @@ struct ModelsComparator: Comparator {
                     )
                 )
                 
-                let modelComparator = ModelComparator(lhs: candidate, rhs: relaxedMatching, changes: changes, configuration: configuration)
-                modelComparator.compare()
+                let endpointComparator = EndpointComparator(lhs: candidate, rhs: relaxedMatching, changes: changes, configuration: configuration)
+                endpointComparator.compare()
             }
         }
         
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
             changes.add(
                 DeleteChange(
-                    element: .for(object: removal, target: .`self`),
+                    element: .for(endpoint: removal, target: .`self`),
                     deleted: .none,
                     fallbackValue: .none,
-                    breaking: false,
+                    breaking: true,
                     solvable: false
                 )
             )
@@ -71,14 +72,13 @@ struct ModelsComparator: Comparator {
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
             changes.add(
                 AddChange(
-                    element: .for(object: addition, target: .`self`),
-                    added: .json(of: addition),
+                    element: .for(endpoint: addition, target: .`self`),
+                    added: .element(addition),
                     defaultValue: .none,
                     breaking: false,
                     solvable: true
                 )
             )
         }
-        
     }
 }

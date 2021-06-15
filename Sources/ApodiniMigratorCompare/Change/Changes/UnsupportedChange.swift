@@ -7,22 +7,25 @@
 
 import Foundation
 
-struct UnsupportedChange: Change {
-    let element: ChangeElement
-    let type: ChangeType
-    let breaking: Bool
-    let solvable: Bool
-    let description: String
+/// Represents an unsupported change from `ApodiniMigrator`,
+/// E.g. a type changes from an `enum` to an `object` or vice versa
+public struct UnsupportedChange: Change {
+    /// Top-level changed element related to the change
+    public let element: ChangeElement
+    /// Type of the change, always `.unsupported`
+    public let type: ChangeType
+    /// Indicates whether the change is non-backward compatible, always `true`
+    public let breaking: Bool
+    /// Indicates whether the change can be handled by `ApodiniMigrator`, always `false`
+    public let solvable: Bool
+    /// A textual description of the reason
+    public let description: String
     
-    init(
-        element: ChangeElement,
-        breaking: Bool,
-        solvable: Bool,
-        description: String
-    ) {
+    /// Initializer for an unsupported change
+    init(element: ChangeElement, description: String) {
         self.element = element
-        self.breaking = breaking
-        self.solvable = solvable
+        self.breaking = true
+        self.solvable = false
         self.description = description
         type = .unsupported
     }
