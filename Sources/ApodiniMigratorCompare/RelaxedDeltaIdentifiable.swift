@@ -46,7 +46,7 @@ extension DeltaIdentifier {
 }
 
 extension RelaxedDeltaIdentifiable {
-    func mostSimilarWithSelf(in array: [Self], useRawValueDistance: Bool = true, limit: Double = 0.6) -> Self? {
+    func mostSimilarWithSelf(in array: [Self], useRawValueDistance: Bool = true, limit: Double = 0.5) -> Self? {
         let mostSimilarId = array.compactMap { deltaIdentifiable -> DeltaSimilarity? in
             let currentId = deltaIdentifiable.deltaIdentifier
             let similarity = deltaIdentifier.distance(between: currentId)

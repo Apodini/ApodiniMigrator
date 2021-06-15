@@ -7,7 +7,10 @@
 
 import Foundation
 
-/// Represents an update change, the most frequent change that can appear in the Migration guide
+/// Represents an update change of an arbitrary element from some old value to some new value,
+/// the most frequent change that can appear in the Migration guide. Depending on the change element
+/// and the target, the type of an update change can either be a generic `.update`, `.rename`, `.propertyChange` or `.responseChange`,
+/// which can be initialized through different initalizers
 public struct UpdateChange: Change {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
@@ -18,16 +21,17 @@ public struct UpdateChange: Change {
         case targetID = "target-id"
         case breaking
         case solvable
-        case convertFunction = "convert-method"
+        case convertTo = "convert-to-method"
+        case convertFrom = "convert-from-method"
     }
     
     /// Top-level changed element related to the change
     public let element: ChangeElement
-    /// Type of change, can either be `.update` or `.rename`
+    /// Type of change, can either be a generic `.update`, `.rename`, `.propertyChange` or `.responseChange`
     public let type: ChangeType
     /// Old value of the target
     public let from: ChangeValue
-    /// Old value of the target
+    /// New value of the target
     public let to: ChangeValue
     /// Optional id of the target
     public let targetID: DeltaIdentifier?
@@ -35,8 +39,10 @@ public struct UpdateChange: Change {
     public let breaking: Bool
     /// Indicates whether the change can be handled by `ApodiniMigrator`
     public let solvable: Bool
-    /// An optional string property to cover the case if the target change is `typeInformation`, e.g. the response of an endpoint
-    public let convertFunction: String?
+    /// JS convert function to convert old type to new type, e.g. if the change element is an endpoint and the target is the response
+    public let convertTo: String?
+    /// JS convert function to convert new type to old type, e.g. if the change element is an object and the target is property
+    public let convertFrom: String?
     
     /// Initializer for an UpdateChange with type `.update`
     init(
@@ -44,15 +50,15 @@ public struct UpdateChange: Change {
         from: ChangeValue,
         to: ChangeValue,
         targetID: DeltaIdentifier? = nil,
-        convertFunction: String? = nil,
         breaking: Bool,
         solvable: Bool
     ) {
         self.element = element
         self.from = from
         self.to = to
-        self.targetID = targetID
-        self.convertFunction = convertFunction
+        self.targetID = nil
+        self.convertTo = nil
+        self.convertFrom = nil
         self.breaking = breaking
         self.solvable = solvable
         type = .update
@@ -71,8 +77,51 @@ public struct UpdateChange: Change {
         self.to = .stringValue(to)
         self.breaking = breaking
         self.solvable = solvable
-        convertFunction = nil
+        convertTo = nil
+        convertFrom = nil
         targetID = nil
         type = .rename
+    }
+    
+    /// Initializer for an UpdateChange with type `.responseChange`
+    init(
+        element: ChangeElement,
+        from: ChangeValue,
+        to: ChangeValue,
+        convertTo: String,
+        breaking: Bool,
+        solvable: Bool
+    ) {
+        self.element = element
+        self.from = from
+        self.to = to
+        self.targetID = nil
+        self.convertTo = convertTo
+        self.convertFrom = nil
+        self.breaking = breaking
+        self.solvable = solvable
+        type = .responseChange
+    }
+    
+    /// Initializer for an UpdateChange with type `.propertyChange`
+    init(
+        element: ChangeElement,
+        from: ChangeValue,
+        to: ChangeValue,
+        targetID: DeltaIdentifier,
+        convertTo: String,
+        convertFrom: String,
+        breaking: Bool,
+        solvable: Bool
+    ) {
+        self.element = element
+        self.from = from
+        self.to = to
+        self.targetID = targetID
+        self.convertTo = convertTo
+        self.convertFrom = convertFrom
+        self.breaking = breaking
+        self.solvable = solvable
+        type = .propertyChange
     }
 }

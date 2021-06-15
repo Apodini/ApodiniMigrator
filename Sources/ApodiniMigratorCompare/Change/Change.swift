@@ -13,10 +13,6 @@ public protocol Change: Codable {
     var element: ChangeElement { get }
     /// Type of change
     var type: ChangeType { get }
-    /// The id of the top-level changed element. Property not required, default implementation provided
-    var elementID: DeltaIdentifier { get }
-    /// An optional property to indicate the id of the targeted element. By default `nil`, concrete `Change` instances initialize it if required
-    var targetID: DeltaIdentifier? { get }
     /// Indicates whether the change is non-backward compatible
     var breaking: Bool { get }
     /// Indicates whether the change can be handled by `ApodiniMigrator`
@@ -27,8 +23,6 @@ public protocol Change: Codable {
 public extension Change {
     /// Element ID of `element`
     var elementID: DeltaIdentifier { element.deltaIdentifier }
-    /// Target ID, by default `nil`
-    var targetID: DeltaIdentifier? { nil }
     
     /// Returns the typed version of `self` to a concrete `Change` implementation
     /// - Note: results in `fatalError` if casting fails

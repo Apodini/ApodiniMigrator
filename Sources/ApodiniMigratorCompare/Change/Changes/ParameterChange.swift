@@ -34,7 +34,7 @@ public struct ParameterChange: Change {
     /// Type of the change, always `.parameterChange`
     public let type: ChangeType
     /// The id of the parameter
-    public let targetID: DeltaIdentifier?
+    public let targetID: DeltaIdentifier
     /// The target of the parameter which is related to the change
     public let parameterTarget: ParameterChangeTarget
     /// Old value of the parameter target

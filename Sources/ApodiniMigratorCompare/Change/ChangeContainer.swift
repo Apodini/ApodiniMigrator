@@ -39,10 +39,6 @@ final class ChangeContainer: Codable {
             if let change = change as? ParameterChange {
                 try container.encode(change)
             }
-            
-            if let change = change as? PropertyChange {
-                try container.encode(change)
-            }
         }
     }
     
@@ -65,10 +61,6 @@ final class ChangeContainer: Codable {
             }
             
             if let value = try? container.decode(ParameterChange.self) {
-                changes.append(value)
-            }
-            
-            if let value = try? container.decode(PropertyChange.self) {
                 changes.append(value)
             }
         }

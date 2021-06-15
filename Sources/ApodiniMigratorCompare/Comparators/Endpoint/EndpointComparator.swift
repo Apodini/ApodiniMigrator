@@ -55,7 +55,7 @@ struct EndpointComparator: Comparator {
                     element: element(.response),
                     from: .id(from: lhs.response),
                     to: .element(rhs.response),
-                    convertFunction: "TODO Add js function",
+                    convertTo: "TODO Add js function",
                     breaking: true,
                     solvable: true
                 )

@@ -13,14 +13,18 @@ public enum ChangeType: String, Value {
     case addition
     /// A DeleteChange
     case deletion
+    
+    /// An update change
+    case update
     /// An update change where `from` and `to` properties are `.stringValue`
     case rename
-    /// An udpate change
-    case update
+    /// An update change related to the response of an endpoint
+    case responseChange = "response-change"
+    /// An update change related to a property of an object
+    case propertyChange = "property-change"
+    
     /// A change related to an endpoint parameter
     case parameterChange = "parameter-change"
-    /// A change related to a property of an object
-    case propertyChange = "property-change"
     /// An unsupported change by `ApodiniMigrator`
     case unsupported
 }

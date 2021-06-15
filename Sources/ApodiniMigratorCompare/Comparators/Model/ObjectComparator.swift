@@ -59,11 +59,11 @@ struct ObjectComparator: Comparator {
             )
         } else if !(lhsType.sameType(with: rhsType) && (lhsType ?= rhsType)) {
             changes.add(
-                PropertyChange(
+                UpdateChange(
                     element: element(.property),
+                    from: .element(reference(lhsType)),
+                    to: .element(rhsType),
                     targetID: targetID,
-                    from: reference(lhsType),
-                    to: rhsType,
                     convertTo: "TODO Add js function",
                     convertFrom: "TODO Add js function",
                     breaking: true,
