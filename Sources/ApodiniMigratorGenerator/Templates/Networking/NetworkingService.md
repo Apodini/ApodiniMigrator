@@ -17,13 +17,13 @@ public enum NetworkingService {
     )
     
     /// `JSONDecoder` used for decoding responses of an Apodini web service
-    static let decoder = JSONDecoder().configured(with: decoderConfiguration)
+    public static let decoder = JSONDecoder().configured(with: decoderConfiguration)
     
     /// `JSONEncoder` used for encoding request bodies for an Apodini web service
-    static let encoder = JSONEncoder().configured(with: encoderConfiguration)
+    public static let encoder = JSONEncoder().configured(with: encoderConfiguration)
     
     /// BaseURL of the web service
-    static var baseURL: URL = {
+    public static var baseURL: URL = {
         guard let baseURL = URL(string: "___serverpath___") else {
             fatalError("Could not create the base URL for the Web Service")
         }
@@ -34,7 +34,7 @@ public enum NetworkingService {
     /// - Parameters:
     ///    - handler: client-side handler representation for which the request will be triggered
     ///    - baseURL: baseURL of the web service, where the handler is located, default value `NetworkingService.baseURL`
-    static func trigger<D: Decodable>(_ handler: Handler<D>, at baseURL: URL = baseURL) -> ApodiniPublisher<D> {
+    public static func trigger<D: Decodable>(_ handler: Handler<D>, at baseURL: URL = baseURL) -> ApodiniPublisher<D> {
         URLSession.shared.dataTaskPublisher(for: URLRequest(for: handler, with: baseURL))
         .tryMap { data, response in
             guard let response = response as? HTTPURLResponse else {
@@ -60,7 +60,7 @@ public enum NetworkingService {
     }
     
     /// Encodes an instance of the indicated type with `NetworkingService.encoder`
-    static func encode<E: Encodable>(_ value: E?) -> Data? {
+    public static func encode<E: Encodable>(_ value: E?) -> Data? {
         try? encoder.encode(value)
     }
 }

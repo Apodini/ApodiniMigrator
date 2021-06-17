@@ -47,7 +47,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         """
         \(MARKComment(endpoint.deltaIdentifier.rawValue))
         \(EndpointComment(endpoint))
-        public static func \(methodName)(\(endpoint.methodInputString())) -> ApodiniPublisher<\(responseString)> {
+        static func \(methodName)(\(endpoint.methodInputString())) -> ApodiniPublisher<\(responseString)> {
         \(queryParametersString)var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
         
@@ -78,7 +78,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         \(Import(.foundation).render())
 
         \(MARKComment(.endpoints))
-        \(kind.rawValue) \(typeInformation.typeName.name) {
+        \(kind.signature) \(typeInformation.typeName.name) {
         \(endpoints.map { endpointMethod(endpoint: $0) }.joined(separator: .doubleLineBreak))
         }
         """

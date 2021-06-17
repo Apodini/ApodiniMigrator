@@ -41,7 +41,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.operation = operation
         self.path = .init(absolutePath)
         self.parameters = Self.wrappContentParameters(from: parameters, with: handlerName)
-        self.response = response.replaceEmptyIfNeeded()
+        self.response = response //.replaceEmptyIfNeeded()
         self.errors = errors
     }
     

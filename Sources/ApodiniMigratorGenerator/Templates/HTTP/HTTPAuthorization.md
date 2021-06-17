@@ -17,12 +17,12 @@ public struct HTTPAuthorization {
     }
     
     /// Location of the authorization
-    var location: Location
+    public let location: Location
     /// The key of the authorization header
     /// - Note: always `Authorization`
-    let key: String
+    public let key: String
     /// The value of the `Authorization`, e.g. `Basic SGVsbG8gQXBvZGluaU1pZ3JhdG9yIERldmVsb3BlciE=`
-    var value: String
+    public let value: String
     
     /// String representation of the `HTTPAuthorization` as a query
     var query: String {
@@ -36,7 +36,7 @@ public struct HTTPAuthorization {
 }
 
 /// HTTPAuthorization convenience
-extension HTTPAuthorization {
+public extension HTTPAuthorization {
     /// A basic `HTTPAuthorization`
     /// - Parameters:
     ///     - username: username

@@ -1,15 +1,24 @@
 import Foundation
 
 /// An error object representing `@Throws` of Apodini
-struct ApodiniError: Error {
+public struct ApodiniError: Error {
     /// `statusCode` of the error
-    let code: Int
+    public let code: Int
     /// A descriptive message associated with the error
-    let message: String
+    public let message: String
+    
+    /// Initializer for a new `ApodiniError` instance
+    /// - Parameters:
+    ///     - code: `code` of the error
+    ///     - message: descriptive message associated with the error
+    public init(code: Int, message: String) {
+        self.code = code
+        self.message = message
+    }
 }
 
 /// Array extension for `ApodiniError` support
-extension Array where Element == ApodiniError {
+public extension Array where Element == ApodiniError {
     /// Appends a new `ApodiniError` to `self`
     /// - Parameters:
     ///     - code: `statusCode` of the error

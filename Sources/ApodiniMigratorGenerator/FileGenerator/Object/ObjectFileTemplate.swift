@@ -52,8 +52,7 @@ struct ObjectFileTemplate: SwiftFileTemplate {
         self.properties = typeInformation.objectProperties.sorted(by: \.name)
     }
     
-    /// Renders and formats the `typeInformation` in a swift file compliant way
-    func render() -> String {
+    private func header() -> String {
         """
         \(fileComment)
 
@@ -61,22 +60,42 @@ struct ObjectFileTemplate: SwiftFileTemplate {
         
         \(MARKComment(.model))
         \(kind.signature) \(typeNameString): Codable {
-        \(MARKComment(.codingKeys))
-        \(codingKeysEnum.render())
-        
-        \(MARKComment(.properties))
-        \(properties.map { $0.propertyLine }.lineBreaked)
-
-        \(MARKComment(.initializer))
-        \(objectInitializer.render())
-        
-        \(MARKComment(.encodable))
-        \(encodingMethod.render())
-        
-        \(MARKComment(.decodable))
-        \(decoderInitializer.render())
-        }
         """
+    }
+    
+    /// Renders and formats the `typeInformation` in a swift file compliant way
+    func render() -> String {
+        if properties.isEmpty {
+            let content =
+            """
+            \(header())
+            \(MARKComment(.initializer))
+            public init() {}
+            }
+            """
+            return content
+        } else {
+            let content =
+                """
+                \(header())
+                \(MARKComment(.codingKeys))
+                \(codingKeysEnum.render())
+                
+                \(MARKComment(.properties))
+                \(properties.map { $0.propertyLine }.lineBreaked)
+
+                \(MARKComment(.initializer))
+                \(objectInitializer.render())
+                
+                \(MARKComment(.encodable))
+                \(encodingMethod.render())
+                
+                \(MARKComment(.decodable))
+                \(decoderInitializer.render())
+                }
+                """
+            return content
+        }
     }
 }
 
@@ -84,6 +103,6 @@ struct ObjectFileTemplate: SwiftFileTemplate {
 extension TypeProperty {
     /// The corresponding line of the property to be rendered under the list of properties of the object
     var propertyLine: String {
-        "public let \(name): \(type.typeString)"
+        "public var \(name): \(type.typeString)"
     }
 }

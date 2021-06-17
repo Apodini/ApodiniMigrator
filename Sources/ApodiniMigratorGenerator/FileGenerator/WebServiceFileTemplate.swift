@@ -50,7 +50,7 @@ public struct WebServiceFileTemplate: Renderable {
         \(Import(.foundation).render())
 
         \(MARKComment(.endpoints))
-        public \(Kind.enum.rawValue) \(Self.fileName) {
+        \(Kind.enum.signature) \(Self.fileName) {
         \(endpoints.map { method(for: $0) }.joined(separator: .doubleLineBreak))
         }
         """

@@ -2,24 +2,24 @@ import Foundation
 
 /// An object that represents a `Handler` of Apodini DSL.
 /// Encapsulates all neccessary properties, in order to establish a communication with the correspoding `Handler` of the web service
-struct Handler<D: Decodable> {
+public struct Handler<D: Decodable> {
     /// The sub path of the handler, e.g. `v1/users/{id}`
-    let path: String
+    public let path: String
     /// The corresponding `HTTPMethod` of an `Apodini` operation
-    let httpMethod: HTTPMethod
+    public let httpMethod: HTTPMethod
     /// Lightweight / query `Parameters` of the `Handler`
-    let parameters: Parameters
+    public let parameters: Parameters
     /// `.header` parameter types of the handler
-    var headers: HTTPHeaders
+    public let headers: HTTPHeaders
     /// Encoded data of `.content` parameter types in an Apodini `Handler`
     /// - Note: multiple `.content` params are wrapped into one single object, where each param represents a field of the wrapped object
-    let content: Data?
+    public let content: Data?
     /// Optional `HTTPAuthorization` required to establish the communication with the handler
-    let authorization: HTTPAuthorization?
+    public let authorization: HTTPAuthorization?
     /// Errors that an `Apodini` `Handler` can throw (`@Throws`)
-    let errors: [ApodiniError]
+    public let errors: [ApodiniError]
     /// Full sub path of the `Handler` including `query` parameters, e.g. `v1/users/42?name=John`
-    var fullPath: String {
+    public var fullPath: String {
         "\(path)\(parameters.string())"
     }
     
@@ -33,7 +33,7 @@ struct Handler<D: Decodable> {
     ///    Multiple `.content` params are wrapped into one single object, where each param represents a field of the wrapped object
     ///    - authorization: optional `HTTPAuthorization` required to establish the communication with the handler
     ///    - errors: errors that an `Apodini` `Handler` can throw (`@Throws`)
-    init(
+    public init(
         path: String,
         httpMethod: HTTPMethod,
         parameters: Parameters,
@@ -55,7 +55,7 @@ struct Handler<D: Decodable> {
     /// - Parameters:
     ///    - code: `statusCode` of the error
     /// - Returns: an `ApodiniError` if already contained in `errors`, otherwise `nil`
-    func error(with code: Int) -> ApodiniError? {
+    public func error(with code: Int) -> ApodiniError? {
         errors.first { $0.code == code }
     }
 }
