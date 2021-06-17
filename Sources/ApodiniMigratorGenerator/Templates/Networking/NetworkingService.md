@@ -37,14 +37,15 @@ public enum NetworkingService {
     public static func trigger<D: Decodable>(_ handler: Handler<D>, at baseURL: URL = baseURL) -> ApodiniPublisher<D> {
         URLSession.shared.dataTaskPublisher(for: URLRequest(for: handler, with: baseURL))
         .tryMap { data, response in
+            let sanitizedData = !data.isEmpty ? data : "{}".data(using: .utf8) ?? .init()
             guard let response = response as? HTTPURLResponse else {
-                return data
+                return sanitizedData
             }
             
             let statusCode = response.statusCode
             
             if 200 ... 299 ~= statusCode {
-                return data
+                return sanitizedData
             }
             
             if let handlerError = handler.error(with: statusCode) {
