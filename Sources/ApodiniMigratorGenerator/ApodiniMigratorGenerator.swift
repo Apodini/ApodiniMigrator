@@ -6,9 +6,14 @@
 //
 
 import Foundation
+import Logging
 
 /// A generator for a swift package
 public struct ApodiniMigratorGenerator {
+    public static let logger: Logger = {
+        .init(label: "de.apodini.migrator.generator")
+    }()
+    
     /// Name of the package to be generated
     public let packageName: String
     /// Path of the package
@@ -23,6 +28,8 @@ public struct ApodiniMigratorGenerator {
     public let metaData: MetaData
     /// all models of the document
     private let allModels: [TypeInformation]
+    /// logger of package generator
+    private let logger: Logger
     
     /// TODO remove
     private var useTemplateTestFile = false
@@ -36,17 +43,25 @@ public struct ApodiniMigratorGenerator {
         endpoints = document.endpoints
         metaData = document.metaData
         allModels = document.allModels()
+        self.logger = Self.logger
     }
     
     /// Builds and persists the content of the package at the specified path
     public func build() throws {
+        logger.info("Preparing project directories...")
         try directories.build()
         try writeRootFiles()
+        logger.info("Persisting content at \(directories.http.string)")
         try writeHTTP()
+        logger.info("Persisting content at \(directories.networking.string)")
         try writeNetworking()
+        logger.info("Persisting content at \(directories.utils.string)")
         try writeUtils()
+        logger.info("Persisting content at \(directories.models.string)")
         try writeModels()
+        logger.info("Persisting content at \(directories.endpoints.string)")
         try writeEndpoints()
+        logger.info("Persisting content at \(directories.tests.string)")
         try writeTests()
     }
     
