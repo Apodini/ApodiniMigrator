@@ -23,6 +23,12 @@ public struct TypeProperty: Value {
         self.type = type
         self.annotation = annotation
     }
+    
+    public init(name: String, type: TypeInformation) {
+        self.name = name
+        self.type = type
+        self.annotation = nil
+    }
 }
 
 extension TypeProperty: DeltaIdentifiable {
