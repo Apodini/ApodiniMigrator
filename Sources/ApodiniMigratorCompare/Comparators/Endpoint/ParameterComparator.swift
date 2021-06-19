@@ -47,12 +47,12 @@ struct ParameterComparator: Comparator {
     func compare() {
         if lhs.necessity != rhs.necessity {
             changes.add(
-                ParameterChange(
+                UpdateChange(
                     element: element,
-                    targetID: targetID,
-                    parameterTarget: .necessity,
                     from: .element(lhs.necessity),
                     to: .element(rhs.necessity),
+                    targetID: targetID,
+                    parameterTarget: .necessity,
                     breaking: rhs.necessity == .required,
                     solvable: true
                 )
@@ -61,12 +61,12 @@ struct ParameterComparator: Comparator {
         
         if lhs.parameterType != rhs.parameterType {
             changes.add(
-                ParameterChange(
+                UpdateChange(
                     element: element,
-                    targetID: targetID,
-                    parameterTarget: .kind,
                     from: .element(lhs.parameterType),
                     to: .element(rhs.parameterType),
+                    targetID: targetID,
+                    parameterTarget: .kind,
                     breaking: true,
                     solvable: true
                 )
@@ -76,13 +76,13 @@ struct ParameterComparator: Comparator {
         /// TODO request from change container whether the type has been renamed and check whether the name is not equal
         if typeInformationHasChanged {
             changes.add(
-                ParameterChange(
+                UpdateChange(
                     element: element,
-                    targetID: targetID,
-                    parameterTarget: .typeInformation,
                     from: .id(from: lhs),
                     to: .element(rhs.typeInformation),
-                    convertFunction: "TODO Add js function",
+                    targetID: targetID,
+                    convertTo: "TODO Add js function",
+                    parameterTarget: .typeInformation,
                     breaking: true,
                     solvable: true
                 )

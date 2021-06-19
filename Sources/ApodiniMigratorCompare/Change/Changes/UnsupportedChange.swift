@@ -14,12 +14,12 @@ public struct UnsupportedChange: Change {
     public let element: ChangeElement
     /// Type of the change, always `.unsupported`
     public let type: ChangeType
+    /// A textual description of the reason
+    public let description: String
     /// Indicates whether the change is non-backward compatible, always `true`
     public let breaking: Bool
     /// Indicates whether the change can be handled by `ApodiniMigrator`, always `false`
     public let solvable: Bool
-    /// A textual description of the reason
-    public let description: String
     
     /// Initializer for an unsupported change
     init(element: ChangeElement, description: String) {

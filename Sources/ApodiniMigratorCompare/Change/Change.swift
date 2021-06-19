@@ -43,7 +43,7 @@ extension Array where Element == Change {
     }
     
     /// Returns all parameter changes of the specified `endpoint`
-    func parameterChanges(of endpoint: Endpoint) -> [ParameterChange] {
-        (of(endpoint).filter { $0 is ParameterChange } as? [ParameterChange]) ?? []
+    func parameterChanges(of endpoint: Endpoint) -> [UpdateChange] {
+        (of(endpoint).filter { $0.type == .parameterChange } as? [UpdateChange]) ?? []
     }
 }
