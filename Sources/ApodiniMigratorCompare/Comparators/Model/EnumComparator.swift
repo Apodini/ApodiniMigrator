@@ -59,9 +59,9 @@ fileprivate struct EnumCasesComparator: Comparator {
     
     func compare() {
         let matchedIds = lhsCases.matchedIds(with: rhsCases)
-        
         let removalCandidates = lhsCases.filter { !matchedIds.contains($0.deltaIdentifier) }
         let additionCanditates = rhsCases.filter { !matchedIds.contains($0.deltaIdentifier) }
+        handle(removalCandidates: removalCandidates, additionCandidates: additionCanditates)
         
         for matched in matchedIds {
             if let lhs = lhsCases.firstMatch(on: \.deltaIdentifier, with: matched),
@@ -69,8 +69,6 @@ fileprivate struct EnumCasesComparator: Comparator {
                 compare(lhs: lhs, rhs: rhs)
             }
         }
-        
-        handle(removalCandidates: removalCandidates, additionCandidates: additionCanditates)
     }
     
     private func compare(lhs: EnumCase, rhs: EnumCase) {

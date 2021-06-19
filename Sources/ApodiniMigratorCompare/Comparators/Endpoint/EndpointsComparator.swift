@@ -17,9 +17,9 @@ struct EndpointsComparator: Comparator {
     
     func compare() {
         let matchedIds = lhs.matchedIds(with: rhs)
-        
-        let removalCanditates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
-        let additionCanditates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }
+        let removalCandidates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
+        let additionCandidates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }
+        handle(removalCandidates: removalCandidates, additionCandidates: additionCandidates)
         
         for matched in matchedIds {
             if let lhs = lhs.firstMatch(on: \.deltaIdentifier, with: matched),
@@ -28,8 +28,6 @@ struct EndpointsComparator: Comparator {
                 endpointComparator.compare()
             }
         }
-        
-        handle(removalCandidates: removalCanditates, additionCandidates: additionCanditates)
     }
     
     private func handle(removalCandidates: [Endpoint], additionCandidates: [Endpoint]) {

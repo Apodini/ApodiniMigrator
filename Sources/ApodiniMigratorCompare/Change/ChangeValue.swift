@@ -9,12 +9,16 @@ import Foundation
 
 /// Represents distinct cases of values that can appear in sections of Migration Guide, e.g. as default-values, fallback-values or identifiers
 public enum ChangeValue: Codable {
-    // MARK: Private Inner Types
-    private enum CodingKeys: String, CodingKey {
-        case none, element, elementID = "element-id", stringValue = "string-value", json
+    private enum ChangeValueCodingError: Error {
+        case notNone
     }
     
-    /// Not all changed elements need to provide a value. This case serves those scenarios
+    // MARK: Private Inner Types
+    private enum CodingKeys: String, CodingKey {
+        case element, elementID = "element-id", stringValue = "string-value", json
+    }
+    
+    /// Not all changed elements need to provide a value. This case serves those scenarios (this case is decoded in a singleValueContainer)
     case none
     
     /// Holds a type-erasured codable element of one of the models of `ApodiniMigrator` that are subject to change
@@ -105,6 +109,11 @@ public enum ChangeValue: Codable {
     
     /// Encodes `self` into the given encoder
     public func encode(to encoder: Encoder) throws {
+        if isNone, let value = value {
+            var singleValueContainer = encoder.singleValueContainer()
+            return try singleValueContainer.encode(value)
+        }
+        
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         if case let .element(element) = self {
@@ -113,7 +122,6 @@ public enum ChangeValue: Codable {
         
         var key: CodingKeys?
         switch self {
-        case .none: key = CodingKeys.none
         case .elementID: key = .elementID
         case .stringValue: key = .stringValue
         case .json: key = .json
@@ -130,18 +138,27 @@ public enum ChangeValue: Codable {
     
     /// Creates a new instance by decoding from the given decoder
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        guard let key = container.allKeys.first else {
-            throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Failed to decode \(Self.self)"))
-        }
-        
-        switch key {
-        case .none: self = .none
-        case .element: self = .element(try container.decode(AnyCodableElement.self, forKey: .element))
-        case .elementID: self = .elementID(try container.decode(DeltaIdentifier.self, forKey: .elementID))
-        case .stringValue: self = .stringValue(try container.decode(String.self, forKey: .stringValue))
-        case .json: self = .json(try container.decode(String.self, forKey: .json))
+        do {
+            let singleValueContainer = try decoder.singleValueContainer()
+            let string = try singleValueContainer.decode(String.self)
+            if string == ChangeValue.none.value {
+                self = .none
+            } else {
+                throw ChangeValueCodingError.notNone
+            }
+        } catch {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            
+            guard let key = container.allKeys.first else {
+                throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Failed to decode \(Self.self)"))
+            }
+            
+            switch key {
+            case .element: self = .element(try container.decode(AnyCodableElement.self, forKey: .element))
+            case .elementID: self = .elementID(try container.decode(DeltaIdentifier.self, forKey: .elementID))
+            case .stringValue: self = .stringValue(try container.decode(String.self, forKey: .stringValue))
+            case .json: self = .json(try container.decode(String.self, forKey: .json))
+            }
         }
     }
 }

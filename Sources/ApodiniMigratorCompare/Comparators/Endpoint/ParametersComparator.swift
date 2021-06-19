@@ -26,9 +26,9 @@ struct ParametersComparator: Comparator {
     
     func compare() {
         let matchedIds = lhsParameters.matchedIds(with: rhsParameters)
-        
         let removalCandidates = lhsParameters.filter { !matchedIds.contains($0.deltaIdentifier) }
         let additionCandidates = rhsParameters.filter { !matchedIds.contains($0.deltaIdentifier) }
+        handle(removalCandidates: removalCandidates, additionCandidates: additionCandidates)
         
         for matched in matchedIds {
             if let lhs = lhsParameters.firstMatch(on: \.deltaIdentifier, with: matched),
@@ -37,8 +37,6 @@ struct ParametersComparator: Comparator {
                 parameterComparator.compare()
             }
         }
-        
-        handle(removalCandidates: removalCandidates, additionCandidates: additionCandidates)
     }
 
     

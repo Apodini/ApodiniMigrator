@@ -56,7 +56,7 @@ public struct UpdateChange: Change {
         self.element = element
         self.from = from
         self.to = to
-        self.targetID = nil
+        self.targetID = targetID
         self.convertTo = nil
         self.convertFrom = nil
         self.breaking = breaking

@@ -26,9 +26,9 @@ struct ObjectComparator: Comparator {
     
     func compare() {
         let matchedIds = lhsProperties.matchedIds(with: rhsProperties)
-        
         let removalCandidates = lhsProperties.filter { !matchedIds.contains($0.deltaIdentifier) }
-        let additionCanditates = rhsProperties.filter { !matchedIds.contains($0.deltaIdentifier) }
+        let additionCandidates = rhsProperties.filter { !matchedIds.contains($0.deltaIdentifier) }
+        handle(removalCandidates: removalCandidates, additionCandidates: additionCandidates)
         
         for matched in matchedIds {
             if let lhs = lhsProperties.firstMatch(on: \.deltaIdentifier, with: matched),
@@ -36,8 +36,6 @@ struct ObjectComparator: Comparator {
                 compare(lhs: lhs, rhs: rhs)
             }
         }
-        
-        handle(removalCandidates: removalCandidates, additionCandidates: additionCanditates)
     }
     
     private func compare(lhs: TypeProperty, rhs: TypeProperty) {

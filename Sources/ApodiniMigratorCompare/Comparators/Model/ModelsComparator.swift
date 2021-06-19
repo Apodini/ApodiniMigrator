@@ -15,9 +15,9 @@ struct ModelsComparator: Comparator {
     
     func compare() {
         let matchedIds = lhs.matchedIds(with: rhs)
-        
         let removalCandidates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
-        let additionCanditates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }
+        let additionCandidates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }
+        handle(removalCandidates: removalCandidates, additionCandidates: additionCandidates)
         
         for matched in matchedIds {
             if let lhs = lhs.firstMatch(on: \.deltaIdentifier, with: matched),
@@ -26,8 +26,6 @@ struct ModelsComparator: Comparator {
                 modelComparator.compare()
             }
         }
-        
-        handle(removalCandidates: removalCandidates, additionCandidates: additionCanditates)
     }
     
     private func handle(removalCandidates: [TypeInformation], additionCandidates: [TypeInformation]) {
