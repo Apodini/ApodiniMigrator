@@ -75,13 +75,15 @@ fileprivate extension ApodiniMigratorCodable {
         let result = context?.objectForKeyedSubscript(functionName)?.call(withArguments: jsonArgs)?.toString()
         
         guard let data = result?.data(using: .utf8) else {
-            return try defaultValue()
+//            return try defaultValue()
+            fatalError("failed")
         }
         
         do {
             return try Self.decode(from: data)
         } catch {
-            return try defaultValue()
+            // return try defaultValue()
+            fatalError("\(error)")
         }
     }
 }

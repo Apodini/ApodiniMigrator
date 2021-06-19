@@ -1,5 +1,25 @@
 import Foundation
 
+public enum ScalarType: String, RawRepresentable, CaseIterable, Value {
+    case null
+    case bool
+    case string
+    case number
+    case unsignedNumber
+    case float
+    
+    public var representation: PrimitiveType {
+        switch self {
+        case .null: return .null
+        case .bool: return .bool
+        case .string: return .string
+        case .number: return .int64
+        case .unsignedNumber: return .uint64
+        case .float: return .float
+        }
+    }
+}
+
 /// Represents different cases of primitive types
 public enum PrimitiveType: String, RawRepresentable, CaseIterable, Value {
     /// Null (NSNull)
@@ -129,6 +149,17 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, Value {
             self = pritimitveType
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode \(Self.self)")
+        }
+    }
+    
+    public var scalarType: ScalarType {
+        switch self {
+        case .null: return .null
+        case .bool: return .bool
+        case .int, .int8, .int16, .int32, .int64: return .number
+        case .uint, .uint8, .uint16, .uint32, .uint64: return .unsignedNumber
+        case .string, .uuid, .url, .data: return .string
+        case .double, .float, .date: return .float
         }
     }
 }

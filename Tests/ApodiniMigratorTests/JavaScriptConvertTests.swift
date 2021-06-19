@@ -14,6 +14,17 @@ extension ApodiniMigratorCodable {
     }
 }
 
+
+extension Date: Codable {
+    public static var encoder: JSONEncoder {
+        .init()
+    }
+    public static var decoder: JSONDecoder {
+        .init()
+    }
+}
+
+
 let skipFileReadingTests = false
 
 typealias Codable = ApodiniMigratorCodable
@@ -87,31 +98,31 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testMalformedInputAndScript() throws {
-        struct Student: Codable, Equatable {
-            let name: String
-            let github: URL
-            let dog: Dog
-        }
-        
-        struct Dog: Codable, Equatable {
-            let name: String
-        }
-        
-        let constructScript =
-        """
-        function convert(name, matrNr, dog) {
-            return JSON object { name, s, dog with name dog }
-        }
-        """
-        
-        // swiftlint:disable:next discouraged_optional_collection
-        let someInstance: [String???]? = []
-        
-        // input is wrong, and the script is invalid, the default empty instance is created
-        let student = try Student.from(someInstance, script: JSScript(constructScript))
-        
-        XCTAssert(student.name == .default)
-        XCTAssert(student.github == .default)
+//        struct Student: Codable, Equatable {
+//            let name: String
+//            let github: URL
+//            let dog: Dog
+//        }
+//        
+//        struct Dog: Codable, Equatable {
+//            let name: String
+//        }
+//        
+//        let constructScript =
+//        """
+//        function convert(name, matrNr, dog) {
+//            return JSON object { name, s, dog with name dog }
+//        }
+//        """
+//        
+//        // swiftlint:disable:next discouraged_optional_collection
+//        let someInstance: [String???]? = []
+//        
+//        // input is wrong, and the script is invalid, the default empty instance is created
+//        let student = try Student.from(someInstance, script: JSScript(constructScript))
+//        
+//        XCTAssert(student.name == .default)
+//        XCTAssert(student.github == .default)
     }
     
     func testPackageGenerator() throws {
@@ -184,5 +195,195 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssertTrue(parameters.count == 1)
         XCTAssertTrue(first?.name == Parameter.wrappedContentParameter)
         XCTAssertTrue(first?.necessity == .optional)
+    }
+    
+    func testIntString() throws {
+        let script = JSPrimitiveTypeConvertFunction.stringNumber
+        
+        let number = try Int.from("123123", script: script.convertFromTo)
+        let string = try String.from(number, script: script.convertToFrom)
+        let zero = try Int.from("helloWorld", script: script.convertFromTo)
+        XCTAssertEqual(number, 123123)
+        XCTAssertEqual(string, "123123")
+        XCTAssertEqual(zero, 0)
+    }
+    
+    func testFloatString() throws {
+        let script = JSPrimitiveTypeConvertFunction.stringFloat
+        
+        let number = try Double.from("123123.2", script: script.convertFromTo)
+        let string = try String.from(number, script: script.convertToFrom)
+        let zero = try Float.from("helloWorld", script: script.convertFromTo)
+        XCTAssertEqual(number, 123123.2)
+        XCTAssertEqual(string, "123123.2")
+        XCTAssertEqual(zero, 0)
+    }
+    
+    func testNumberUnsigned() throws {
+        let script = JSPrimitiveTypeConvertFunction.numberUnsignedNumber
+        
+        let number = try Int.from(123123123, script: script.convertFromTo)
+        let uint = try UInt64.from(number, script: script.convertToFrom)
+        let zero = try UInt64.from(-123123, script: script.convertFromTo)
+        XCTAssertEqual(number, 123123123)
+        XCTAssertEqual(uint, 123123123)
+        XCTAssertEqual(zero, 0)
+    }
+    
+    func testIntToFloat() throws {
+        let script =
+        """
+        function convert(int) {
+            let parsed = JSON.parse(int)
+            return parsed.toFixed(1)
+        }
+        """
+        
+        let float = XCTAssertNoThrowWithResult(try Float.from(2, script: .init(script)))
+        XCTAssert(float == 2.0)
+    }
+    
+    func testNumberFloat() throws {
+        let script = JSPrimitiveTypeConvertFunction.numberFloat
+        
+        let number = try Int.from(2.2, script: script.convertToFrom)
+        let float = try Float.from(number, script: script.convertFromTo)
+        XCTAssertEqual(number, 2)
+        XCTAssertEqual(float, 2.0)
+    }
+    
+    func testUnsignedNumberFloat() throws {
+        let script = JSPrimitiveTypeConvertFunction.unsignedFloat
+        
+        let number = try UInt.from(2.2, script: script.convertToFrom)
+        let float = try Float.from(number, script: script.convertFromTo)
+        XCTAssertEqual(number, 2)
+        XCTAssertEqual(float, 2.0)
+    }
+    
+    func testFloatToInt() throws {
+        let script =
+        """
+        function convert(float) {
+            let parsed = JSON.parse(float)
+            return Math.round(parsed)
+        }
+        """
+        
+        let int = try Int.from(2.0, script: .init(script))
+    }
+    
+    func testToString() throws {
+        let script =
+        """
+        function convert(float) {
+            let parsed = JSON.parse(float)
+            return JSON.stringify(parsed.toString())
+        }
+        """
+        
+        let string = try String.from(2.0, script: .init(script))
+    }
+    
+    func testConvertBetweenTypeProps() throws {
+        struct User1: Codable {
+            let name: String
+            let id: Int
+        }
+        
+        struct User2: Codable {
+            let name: String
+            let id: String
+        }
+        
+        let script =
+        """
+        function convert(one) {
+            let parsed = JSON.parse(one)
+            return JSON.stringify({ 'name': parsed.name, 'id': parsed.toString() })
+        }
+        """
+        
+        let user2 = try User2.from(User1(name: "", id: 231), script: .init(script))
+    }
+    
+    func testToUUID() throws {
+        // UUIDs must be of the form "xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx", where x is one of [0-9, a-f] M is one of [1-5], and N is [8, 9, a, or b]
+        let script =
+        """
+        function convert(int) {
+            let string = JSON.parse(int).toString()
+            var output = ""
+            var inserted = 0
+            let template = "aaaaaaaa-aaaa-2aaa-8aaa-aaaaaaaaaaaa"
+            for (let i = 0; i < template.length; i++) {
+                let current = template[i]
+                if (current == 'a' && inserted < string.length) {
+                    output += string[inserted]
+                    inserted += 1
+                    continue
+                }
+                output += current
+            }
+            return JSON.stringify(output)
+        }
+        """
+        
+        let uuid = try UUID.from(12121, script: .init(script))
+    }
+    
+    func testuuidToInt() throws {
+        let script =
+        """
+        function uuidToInt(uuid) {
+          let string = JSON.parse(uuid).toString()
+          let skippingIndexes = [8, 13, 14, 18, 19, 23];
+          var intString = ""
+          for (let i = 0; i < string.length; i++) {
+            let current = parseInt(string[i])
+            if (skippingIndexes.includes(i) || isNaN(current)) {
+              continue
+            }
+            intString += current.toString()
+          }
+          return JSON.stringify(parseInt(intString));
+        }
+        """
+        
+        let int = try Int.from(UUID(uuidString: "2123123a-aaaa-2aaa-8aaa-aaaaaaaaaaaa"), script: .init(script))
+        let int2 = try Int.from(UUID(), script: .init(script))
+        print(int2)
+        XCTAssert(int == 2123123)
+    }
+    
+    func testBoolToString() throws {
+        let script = JSPrimitiveTypeConvertFunction.boolString
+        
+        XCTAssert(false == (try Bool.from("NO", script: script.convertToFrom)))
+        XCTAssert("YES" == (try String.from(true, script: script.convertFromTo)))
+    }
+    
+    func testBoolToNumber() throws {
+        let script = JSPrimitiveTypeConvertFunction.boolNumber
+        
+        XCTAssert(true == (try Bool.from(1, script: script.convertToFrom)))
+        XCTAssert(0 == (try Double.from(false, script: script.convertFromTo)))
+    }
+    
+    func testNumberToBool() throws {
+        let script =
+        """
+        function convert(number) {
+            let parsed = JSON.parse(number)
+            return JSON.stringify(parsed % 2 == 0)
+        }
+        """
+        XCTAssert((try Bool.from(6, script: .init(script))))
+    }
+    
+    func testIdentity() throws {
+        let js = JSPrimitiveTypeConvertFunction.identity(for: .bool)
+        
+        let float = try Double.from(Date(), script: js.convertToFrom)
     }
 }
