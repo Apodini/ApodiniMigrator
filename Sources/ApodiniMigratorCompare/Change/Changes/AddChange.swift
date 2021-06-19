@@ -12,7 +12,7 @@ public struct AddChange: Change {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case element
-        case type
+        case type = "change-type"
         case added = "added-value"
         case defaultValue = "default-value"
         case breaking

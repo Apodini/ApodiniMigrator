@@ -1,26 +1,29 @@
 import Foundation
+@_implementationOnly import FineJSON
+@_implementationOnly import RichJSONParser
 import PathKit
 
 // MARK: - Encodable extensions
 public extension Encodable {
-    /// JSON String of this encodable with `.prettyPrinted` and `.withoutEscapingSlashes` output formatting
+    /// JSON String of this encodable
     var json: String {
-        json(with: [.prettyPrinted, .withoutEscapingSlashes])
+        json()
     }
     
     /// JSON String of this encodable
     /// - Parameters:
-    ///     - outputFormatting: The output formatting options that determine the readability, size, and element order of an encoded JSON object.
-    func json(with outputFormatting: JSONEncoder.OutputFormatting = [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys]) -> String {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = outputFormatting
+    ///     - prettyPrinted: Pretty printed format, true by default
+    ///     - indentation: Indentation, by default 4
+    func json(prettyPrinted: Bool = true, indentation: UInt = 4) -> String {
+        let encoder = FineJSONEncoder()
+        encoder.jsonSerializeOptions = JSONSerializeOptions(isPrettyPrint: prettyPrinted, indentString: String(repeating: " ", count: Int(indentation)))
         let data = (try? encoder.encode(self)) ?? Data()
         return String(decoding: data, as: UTF8.self)
     }
     
     /// Writes `json` of self at the specified path
     func write(at path: Path, fileName: String? = nil) {
-        try? (path + "\(fileName ?? String(describing: type(of: self))).json").write(json)
+        try? (path + "\(fileName ?? String(describing: Self.self)).json").write(json)
     }
 }
 

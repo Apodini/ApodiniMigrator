@@ -21,13 +21,13 @@ public struct UpdateChange: Change {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case element
-        case type
+        case type = "change-type"
+        case parameterTarget = "parameter-target"
         case from
         case to
         case targetID = "target-id"
         case convertTo = "convert-to-method"
         case convertFrom = "convert-from-method"
-        case parameterTarget = "parameter-target"
         case breaking
         case solvable
     }

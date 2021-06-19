@@ -11,7 +11,7 @@ public struct DeleteChange: Change {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case element
-        case type
+        case type = "change-type"
         case deleted = "deleted-value"
         case fallbackValue = "fallback-value"
         case breaking
