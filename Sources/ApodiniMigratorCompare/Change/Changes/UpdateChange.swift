@@ -23,9 +23,9 @@ public struct UpdateChange: Change {
         case element
         case type = "change-type"
         case parameterTarget = "parameter-target"
+        case targetID = "target-id"
         case from
         case to
-        case targetID = "target-id"
         case convertTo = "convert-to-method"
         case convertFrom = "convert-from-method"
         case breaking
