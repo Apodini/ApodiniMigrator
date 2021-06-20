@@ -10,7 +10,11 @@ import Foundation
 /// Migration guide
 public struct MigrationGuide: Codable {
     /// A default summary
-    public static let defaultSummary = "A summary of what changed between versions"
+    static let defaultSummary = "A summary of what changed between versions"
+    
+    /// A static property that determines whether the provider-support should be included in changes
+    /// of type addition, deletion or rename. Property set from `init(for:rhs:providerSupport:)` initializer
+    private(set) static var providerSupport = false
     
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
@@ -68,9 +72,11 @@ public struct MigrationGuide: Codable {
         self.changeContainer = changeContainer
     }
     
-    /// Initializes the Migration Guide out of two Documents. Documents get compared and the changes can be accessed via `changes` of the new
-    /// Migration Guide instance
-    public init(for lhs: Document, rhs: Document) {
+    /// Initializes the Migration Guide out of two Documents. Documents get compared
+    /// and the changes can be accessed via `changes` of the new Migration Guide instance
+    public init(for lhs: Document, rhs: Document, providerSupport: Bool = false) {
+        Self.providerSupport = providerSupport
+        
         let changeContainer = ChangeContainer()
         
         let documentsComparator = DocumentComparator(

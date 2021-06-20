@@ -45,6 +45,14 @@ public struct DeltaIdentifier: Value, RawRepresentable {
     }
 }
 
+// MARK: - ExpressibleByStringLiteral
+extension DeltaIdentifier: ExpressibleByStringLiteral {
+    /// Creates an instance initialized to the given string value.
+    public init(stringLiteral value: String) {
+        self.init(value)
+    }
+}
+
 extension DeltaIdentifier: CustomStringConvertible {
     /// String representation of self
     public var description: String { rawValue }

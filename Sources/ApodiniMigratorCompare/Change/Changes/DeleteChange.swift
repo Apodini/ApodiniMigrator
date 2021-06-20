@@ -16,6 +16,7 @@ public struct DeleteChange: Change {
         case fallbackValue = "fallback-value"
         case breaking
         case solvable
+        case providerSupport = "provider-support"
     }
     
     /// Top-level changed element related to the change
@@ -30,6 +31,8 @@ public struct DeleteChange: Change {
     public let breaking: Bool
     /// Indicates whether the change can be handled by `ApodiniMigrator`
     public let solvable: Bool
+    /// Provider support field if `MigrationGuide.providerSupport` is set to `true`
+    public let providerSupport: ProviderSupport?
     
     /// Initializer for a new delete change instance
     init(
@@ -44,6 +47,7 @@ public struct DeleteChange: Change {
         self.fallbackValue = fallbackValue
         self.breaking = breaking
         self.solvable = solvable
+        self.providerSupport = MigrationGuide.providerSupport ? .renameHint(Self.self) : nil
         type = .deletion
     }
 }

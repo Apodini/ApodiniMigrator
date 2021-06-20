@@ -19,7 +19,7 @@ public enum ParameterChangeTarget: String, Value {
 /// which can be initialized through different initalizers
 public struct UpdateChange: Change {
     // MARK: Private Inner Types
-    private enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
         case element
         case type = "change-type"
         case parameterTarget = "parameter-target"
@@ -30,6 +30,7 @@ public struct UpdateChange: Change {
         case convertFrom = "convert-from-method"
         case breaking
         case solvable
+        case providerSupport = "provider-support"
     }
     
     /// Top-level changed element related to the change
@@ -52,6 +53,8 @@ public struct UpdateChange: Change {
     public let breaking: Bool
     /// Indicates whether the change can be handled by `ApodiniMigrator`
     public let solvable: Bool
+    /// Provider support field if change type is a rename and `MigrationGuide.providerSupport` is set to `true`
+    public let providerSupport: ProviderSupport?
     
     /// Initializer for an UpdateChange with type `.update`
     init(
@@ -71,6 +74,7 @@ public struct UpdateChange: Change {
         self.parameterTarget = nil
         self.breaking = breaking
         self.solvable = solvable
+        self.providerSupport = nil
         type = .update
     }
     
@@ -91,6 +95,7 @@ public struct UpdateChange: Change {
         self.parameterTarget = nil
         self.breaking = breaking
         self.solvable = solvable
+        self.providerSupport = MigrationGuide.providerSupport ? .renameValidationHint : nil
         type = .rename
     }
     
@@ -112,6 +117,7 @@ public struct UpdateChange: Change {
         self.parameterTarget = nil
         self.breaking = breaking
         self.solvable = solvable
+        self.providerSupport = nil
         type = .responseChange
     }
     
@@ -135,6 +141,7 @@ public struct UpdateChange: Change {
         self.parameterTarget = nil
         self.breaking = breaking
         self.solvable = solvable
+        self.providerSupport = nil
         type = .propertyChange
     }
     
@@ -158,6 +165,7 @@ public struct UpdateChange: Change {
         self.parameterTarget = parameterTarget
         self.breaking = breaking
         self.solvable = solvable
+        self.providerSupport = nil
         type = .parameterChange
     }
 }

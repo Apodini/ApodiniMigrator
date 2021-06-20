@@ -16,7 +16,10 @@ public extension Encodable {
     ///     - indentation: Indentation, by default 4
     func json(prettyPrinted: Bool = true, indentation: UInt = 4) -> String {
         let encoder = FineJSONEncoder()
-        encoder.jsonSerializeOptions = JSONSerializeOptions(isPrettyPrint: prettyPrinted, indentString: String(repeating: " ", count: Int(indentation)))
+        encoder.jsonSerializeOptions = JSONSerializeOptions(
+            isPrettyPrint: prettyPrinted,
+            indentString: String(repeating: " ", count: Int(indentation))
+        )
         let data = (try? encoder.encode(self)) ?? Data()
         return String(decoding: data, as: UTF8.self)
     }

@@ -8,13 +8,13 @@
 import Foundation
 
 /// Represents distinct cases of values that can appear in sections of Migration Guide, e.g. as default-values, fallback-values or identifiers
-public enum ChangeValue: Codable {
+public enum ChangeValue: Value {
     private enum ChangeValueCodingError: Error {
         case notNone
     }
     
     // MARK: Private Inner Types
-    private enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
         case element, elementID = "element-id", stringValue = "string-value", json
     }
     

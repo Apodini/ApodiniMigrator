@@ -17,6 +17,7 @@ public struct AddChange: Change {
         case defaultValue = "default-value"
         case breaking
         case solvable
+        case providerSupport = "provider-support"
     }
     
     /// Top-level changed element related to the change
@@ -31,6 +32,8 @@ public struct AddChange: Change {
     public let breaking: Bool
     /// Indicates whether the change can be handled by `ApodiniMigrator`
     public let solvable: Bool
+    /// Provider support field if `MigrationGuide.providerSupport` is set to `true`
+    public let providerSupport: ProviderSupport?
     
     /// Initializer for a new add change instance
     init(
@@ -45,6 +48,7 @@ public struct AddChange: Change {
         self.defaultValue = defaultValue
         self.breaking = breaking
         self.solvable = solvable
+        self.providerSupport = MigrationGuide.providerSupport ? .renameHint(Self.self) : nil
         type = .addition
     }
 }

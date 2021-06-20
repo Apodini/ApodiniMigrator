@@ -176,7 +176,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         let document1 = try Document.decode(from: doc)
         let document2 = try Document.decode(from: doc2)
         
-        let migrationGuide = MigrationGuide(for: document1, rhs: document2)
+        let migrationGuide = MigrationGuide(for: document1, rhs: document2, providerSupport: true)
         try (Path.desktop + "migration_guide.json").write(migrationGuide.json)
 
         let mig = try MigrationGuide.decode(from: Path.desktop + "migration_guide.json")
