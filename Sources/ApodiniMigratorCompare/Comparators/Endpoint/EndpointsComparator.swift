@@ -59,7 +59,7 @@ struct EndpointsComparator: Comparator {
             changes.add(
                 DeleteChange(
                     element: .for(endpoint: removal, target: .`self`),
-                    deleted: .none,
+                    deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: true,
                     solvable: false

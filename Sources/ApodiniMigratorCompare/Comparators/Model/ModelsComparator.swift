@@ -69,7 +69,7 @@ struct ModelsComparator: Comparator {
             changes.add(
                 DeleteChange(
                     element: .for(object: removal, target: .`self`),
-                    deleted: .none,
+                    deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: false,
                     solvable: false

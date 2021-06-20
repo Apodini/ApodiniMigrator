@@ -9,4 +9,3 @@ import Foundation
 
 @_exported import ApodiniMigrator
 @_exported import PathKit
-@_exported import ApodiniMigratorShared

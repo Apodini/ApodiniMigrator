@@ -1,5 +1,4 @@
 import Foundation
-import ApodiniMigratorShared
 
 public struct MetaData: Value {
     /// Server path

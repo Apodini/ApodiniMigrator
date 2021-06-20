@@ -71,10 +71,10 @@ extension ProviderSupport {
         assert(C.self == AddChange.self || C.self == DeleteChange.self, "Attempted to use rename hint for change types that are not addition or deletions")
         let isAddition = C.self == AddChange.self
         return .init(
-            hint: "If 'ApodiniCompare' categorized this change incorrectly, replace the value \(ChangeValue.idPlaceholder.value ?? "") of the field \(ChangeValue.CodingKeys.elementID.stringValue) with the corresponding name or id of the element in the '\(isAddition ? "old" : "new")' version, so that 'ApodiniMigrator' traits this change element as a \(ChangeType.rename.rawValue)",
+            hint: "If 'ApodiniCompare' categorized this change incorrectly, replace the value \(ChangeValue.idPlaceholder.value ?? "") of the field \(ChangeValue.CodingKeys.elementID.stringValue) with the corresponding name or id of the element in the '\(isAddition ? "old" : "new")' version, so that 'ApodiniMigrator' traits this change element as a \(ChangeType.rename.rawValue). Note that an adjustment to this change object, requires a corresponding adjustment to the \(isAddition ? "deletion" : "addition") change targeting the same element",
             renamedFrom: isAddition ? .idPlaceholder : nil,
             renamedTo: isAddition ? nil : .idPlaceholder,
-            warning: "The field \(ChangeValue.CodingKeys.elementID.stringValue) expects a value of JSON type 'String'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            warning: "The field \(ChangeValue.CodingKeys.elementID.stringValue) expects a value of JSON type 'string'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
         )
     }
 
@@ -83,7 +83,7 @@ extension ProviderSupport {
         .init(
             hint: "If 'ApodiniCompare' categorized this change incorrectly, replace the value \(true) of the field \(CodingKeys.renameIsValid.rawValue) with \(false), so that 'ApodiniMigrator' does not trait this change element as a \(ChangeType.rename.rawValue). If set to \(false), the element in '\(UpdateChange.CodingKeys.from.rawValue)' will be trated as a deletion, and the element in '\(UpdateChange.CodingKeys.to.rawValue)' will be trated as an addition",
             renameIsValid: true,
-            warning: "The field \(CodingKeys.renameIsValid.rawValue) expects a value of JSON type 'Bool'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            warning: "The field \(CodingKeys.renameIsValid.rawValue) expects a value of JSON type 'boolean'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
         )
     }
 }
