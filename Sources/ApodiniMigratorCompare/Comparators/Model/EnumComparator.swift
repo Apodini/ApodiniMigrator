@@ -40,7 +40,7 @@ struct EnumComparator: Comparator {
 }
 
 
-fileprivate struct EnumCasesComparator: Comparator {
+private struct EnumCasesComparator: Comparator {
     let lhs: TypeInformation
     let rhs: TypeInformation
     let changes: ChangeContainer

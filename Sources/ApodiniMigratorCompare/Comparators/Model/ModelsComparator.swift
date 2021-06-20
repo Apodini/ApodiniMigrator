@@ -29,7 +29,6 @@ struct ModelsComparator: Comparator {
     }
     
     private func handle(removalCandidates: [TypeInformation], additionCandidates: [TypeInformation]) {
-        
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
         assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
@@ -77,6 +76,5 @@ struct ModelsComparator: Comparator {
                 )
             )
         }
-        
     }
 }

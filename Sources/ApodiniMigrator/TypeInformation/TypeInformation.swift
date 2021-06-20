@@ -115,7 +115,7 @@ extension TypeInformation {
                 properties: try objectContainer.decodeIfPresentOrInitEmpty([TypeProperty].self, forKey: .properties)
             )
         case .reference: self = .reference(try container.decode(ReferenceKey.self, forKey: .reference))
-        default: throw DecodingError.dataCorrupted(DecodingError.Context.init(codingPath: [], debugDescription: "Failed to decode TypeInformation"))
+        default: throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Failed to decode TypeInformation"))
         }
     }
 }

@@ -24,6 +24,15 @@ extension Date: Codable {
     }
 }
 
+extension Data: Codable {
+    public static var encoder: JSONEncoder {
+        .init()
+    }
+    public static var decoder: JSONDecoder {
+        .init()
+    }
+}
+
 
 let skipFileReadingTests = false
 
@@ -198,7 +207,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testIntString() throws {
-        let script = JSPrimitiveTypeConvertFunction.stringNumber
+        let script = JSPrimitiveScript.stringNumber
         
         let number = try Int.from("123123", script: script.convertFromTo)
         let string = try String.from(number, script: script.convertToFrom)
@@ -209,7 +218,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testFloatString() throws {
-        let script = JSPrimitiveTypeConvertFunction.stringFloat
+        let script = JSPrimitiveScript.stringFloat
         
         let number = try Double.from("123123.2", script: script.convertFromTo)
         let string = try String.from(number, script: script.convertToFrom)
@@ -220,7 +229,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testNumberUnsigned() throws {
-        let script = JSPrimitiveTypeConvertFunction.numberUnsignedNumber
+        let script = JSPrimitiveScript.numberUnsignedNumber
         
         let number = try Int.from(123123123, script: script.convertFromTo)
         let uint = try UInt64.from(number, script: script.convertToFrom)
@@ -244,7 +253,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testNumberFloat() throws {
-        let script = JSPrimitiveTypeConvertFunction.numberFloat
+        let script = JSPrimitiveScript.numberFloat
         
         let number = try Int.from(2.2, script: script.convertToFrom)
         let float = try Float.from(number, script: script.convertFromTo)
@@ -253,12 +262,14 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testUnsignedNumberFloat() throws {
-        let script = JSPrimitiveTypeConvertFunction.unsignedFloat
+        let script = JSPrimitiveScript.unsignedFloat
         
         let number = try UInt.from(2.2, script: script.convertToFrom)
         let float = try Float.from(number, script: script.convertFromTo)
+        let zero = try UInt.from(-2.332, script: script.convertToFrom)
         XCTAssertEqual(number, 2)
         XCTAssertEqual(float, 2.0)
+        XCTAssertEqual(zero, 0)
     }
     
     func testFloatToInt() throws {
@@ -270,7 +281,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         """
         
-        let int = try Int.from(2.0, script: .init(script))
+        XCTAssertEqual(2, try Int.from(2.0, script: .init(script)))
     }
     
     func testToString() throws {
@@ -282,7 +293,8 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         """
         
-        let string = try String.from(2.0, script: .init(script))
+        let string = try String.from(2.1, script: .init(script))
+        XCTAssertEqual(string, "2.1")
     }
     
     func testConvertBetweenTypeProps() throws {
@@ -304,86 +316,68 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         """
         
-        let user2 = try User2.from(User1(name: "", id: 231), script: .init(script))
+        XCTAssertNoThrow(try User2.from(User1(name: "", id: 231), script: .init(script)))
     }
     
-    func testToUUID() throws {
-        // UUIDs must be of the form "xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx", where x is one of [0-9, a-f] M is one of [1-5], and N is [8, 9, a, or b]
-        let script =
-        """
-        function convert(int) {
-            let string = JSON.parse(int).toString()
-            var output = ""
-            var inserted = 0
-            let template = "aaaaaaaa-aaaa-2aaa-8aaa-aaaaaaaaaaaa"
-            for (let i = 0; i < template.length; i++) {
-                let current = template[i]
-                if (current == 'a' && inserted < string.length) {
-                    output += string[inserted]
-                    inserted += 1
-                    continue
-                }
-                output += current
-            }
-            return JSON.stringify(output)
-        }
-        """
-        
-        let uuid = try UUID.from(12121, script: .init(script))
+    func testPersist() throws {
+        JSPrimitiveScript.allCombinations().write(at: Path.desktop, fileName: "all_combinations")
     }
     
-    func testuuidToInt() throws {
-        let script =
-        """
-        function uuidToInt(uuid) {
-          let string = JSON.parse(uuid).toString()
-          let skippingIndexes = [8, 13, 14, 18, 19, 23];
-          var intString = ""
-          for (let i = 0; i < string.length; i++) {
-            let current = parseInt(string[i])
-            if (skippingIndexes.includes(i) || isNaN(current)) {
-              continue
-            }
-            intString += current.toString()
-          }
-          return JSON.stringify(parseInt(intString));
-        }
-        """
+    
+    func testUUID() throws {
+        let unsignedNumber = JSPrimitiveScript.uuid(to: .uint64)
+        let boolScript = JSPrimitiveScript.uuid(to: .bool)
         
-        let int = try Int.from(UUID(uuidString: "2123123a-aaaa-2aaa-8aaa-aaaaaaaaaaaa"), script: .init(script))
-        let int2 = try Int.from(UUID(), script: .init(script))
-        print(int2)
-        XCTAssert(int == 2123123)
+        let uuid = try UUID.from(123123123123, script: unsignedNumber.convertToFrom)
+        let number = try UInt64.from(uuid, script: unsignedNumber.convertFromTo)
+        
+        XCTAssertEqual(number, 123123123123)
+        
+        XCTAssertNoThrow(try Bool.from(UUID(), script: boolScript.convertFromTo))
+        XCTAssertNoThrow(try UUID.from(true, script: boolScript.convertToFrom))
     }
     
     func testBoolToString() throws {
-        let script = JSPrimitiveTypeConvertFunction.boolString
+        let script = JSPrimitiveScript.boolString
         
         XCTAssert(false == (try Bool.from("NO", script: script.convertToFrom)))
         XCTAssert("YES" == (try String.from(true, script: script.convertFromTo)))
     }
     
     func testBoolToNumber() throws {
-        let script = JSPrimitiveTypeConvertFunction.boolNumber
+        let script = JSPrimitiveScript.boolNumber
         
         XCTAssert(true == (try Bool.from(1, script: script.convertToFrom)))
         XCTAssert(0 == (try Double.from(false, script: script.convertFromTo)))
     }
     
-    func testNumberToBool() throws {
-        let script =
-        """
-        function convert(number) {
-            let parsed = JSON.parse(number)
-            return JSON.stringify(parsed % 2 == 0)
-        }
-        """
-        XCTAssert((try Bool.from(6, script: .init(script))))
+    func testIdentity() throws {
+        let js = JSPrimitiveScript.identity(for: .bool)
+        
+        XCTAssertNoThrow(try Double.from(Date().noon, script: js.convertToFrom))
     }
     
-    func testIdentity() throws {
-        let js = JSPrimitiveTypeConvertFunction.identity(for: .bool)
+    func testIgonoreInput() throws {
+        XCTAssertNoThrow(try Int.from(123123123123, script: .init(JSPrimitiveScript.stringify(to: .uint))))
+    }
+    
+    func testArbitrary() throws {
+        let floatToUUID: JSPrimitiveScript = .script(from: .float, to: .uuid)
         
-        let float = try Double.from(Date(), script: js.convertToFrom)
+        XCTAssertNoThrow(try Float.from(UUID(), script: floatToUUID.convertToFrom))
+        XCTAssertNoThrow(try UUID.from(1234.1234, script: floatToUUID.convertFromTo))
+    }
+    
+    func testArray() throws {
+        /// exactly one to array -> JSON.stringify( to JSON.stringify([ and last index of ) -> ])
+        let script =
+        """
+        function convert(string) {
+            let parsed = JSON.parse(string)
+            return JSON.stringify([parsed])
+        }
+        """
+        let array = try [String].from("hello", script: .init(script))
+        XCTAssert(array.first == "hello")
     }
 }

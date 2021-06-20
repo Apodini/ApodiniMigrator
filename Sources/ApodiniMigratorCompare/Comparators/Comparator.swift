@@ -22,7 +22,6 @@ protocol Comparator {
 }
 
 extension Comparator {
-    
     func reference(_ typeInformation: TypeInformation) -> TypeInformation {
         switch typeInformation {
         case .scalar: return typeInformation

@@ -133,7 +133,6 @@ public enum ChangeValue: Codable {
         } else {
             throw EncodingError.invalidValue((), EncodingError.Context(codingPath: [], debugDescription: "\(Self.self) did not encode any value"))
         }
-        
     }
     
     /// Creates a new instance by decoding from the given decoder

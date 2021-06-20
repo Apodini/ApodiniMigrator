@@ -35,6 +35,14 @@ public struct JSScript: Value, RawRepresentable {
     }
 }
 
+// MARK: - ExpressibleByStringLiteral
+extension JSScript: ExpressibleByStringLiteral {
+    /// Creates an instance initialized to the given string value.
+    public init(stringLiteral value: String) {
+        self.init(value)
+    }
+}
+
 // MARK: - CustomStringConvertible + CustomDebugStringConvertible
 extension JSScript: CustomStringConvertible, CustomDebugStringConvertible {
     /// String description of self

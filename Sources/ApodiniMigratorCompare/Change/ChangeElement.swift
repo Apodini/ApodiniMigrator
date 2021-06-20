@@ -26,14 +26,14 @@ public enum ChangeElement: DeltaIdentifiable, Value {
     case `enum`(DeltaIdentifier, target: EnumTarget)
     /// An internal convenience static method to return an `.enum` change element with its corresponding target
     static func `for`(enum: TypeInformation, target: EnumTarget) -> ChangeElement {
-        return .enum(`enum`.deltaIdentifier, target: target)
+        .enum(`enum`.deltaIdentifier, target: target)
     }
     
     /// Represents an object change element identified by its id and the corresponding object change target
     case object(DeltaIdentifier, target: ObjectTarget)
     /// An internal convenience static method to return an `.object` change element with its corresponding target
     static func `for`(object: TypeInformation, target: ObjectTarget) -> ChangeElement {
-        return .object(object.deltaIdentifier, target: target)
+        .object(object.deltaIdentifier, target: target)
     }
     
     /// Represents an networking change element and the corresponding networking change target
@@ -75,7 +75,6 @@ public enum ChangeElement: DeltaIdentifiable, Value {
             throw DecodingError.dataCorrupted(.init(codingPath: keys, debugDescription: "Failed to decode \(Self.self)"))
         }
     }
-    
 }
 
 // MARK: - ChangeElement
