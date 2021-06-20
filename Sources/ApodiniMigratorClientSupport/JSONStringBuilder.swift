@@ -40,7 +40,7 @@ public struct JSONStringBuilder {
     /// Returns the right format for keys of the dictionary
     private func dictionaryKey(_ primitiveType: PrimitiveType) -> String {
         let jsonString = primitiveType.swiftType.jsonString
-        return primitiveType == .int ? jsonString.asString : jsonString
+        return primitiveType == .int ? jsonString.doubleQuoted : jsonString
     }
     
     /// Builds and returns a valid JSON string from the `typeInformation`
@@ -58,10 +58,10 @@ public struct JSONStringBuilder {
         case let .optional(wrappedValue):
             return "\(Self(wrappedValue.unwrapped, encoder: encoder).build())"
         case let .enum(_, _, cases):
-            return cases.first?.name.asString ?? "{}"
+            return cases.first?.name.doubleQuoted ?? "{}"
         case let .object(_, properties):
             let sorted = properties.sorted(by: \.name)
-            return "{\(sorted.map { $0.name.asString + " : \(Self($0.type, encoder: encoder).build())" }.joined(separator: ", "))}"
+            return "{\(sorted.map { $0.name.doubleQuoted + " : \(Self($0.type, encoder: encoder).build())" }.joined(separator: ", "))}"
         default: return "{}"
         }
     }

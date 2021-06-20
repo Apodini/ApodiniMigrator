@@ -43,9 +43,9 @@ public struct UpdateChange: Change {
     /// Optional id of the target
     public let targetID: DeltaIdentifier?
     /// JS convert function to convert old type to new type, e.g. if the change element is an endpoint and the target is the response
-    public let convertTo: String?
+    public let convertTo: JSScript?
     /// JS convert function to convert new type to old type, e.g. if the change element is an object and the target is property
-    public let convertFrom: String?
+    public let convertFrom: JSScript?
     /// The target of the parameter which is related to the change if type is a `parameterChange`
     public let parameterTarget: ParameterChangeTarget?
     /// Indicates whether the change is non-backward compatible
@@ -99,7 +99,7 @@ public struct UpdateChange: Change {
         element: ChangeElement,
         from: ChangeValue,
         to: ChangeValue,
-        convertTo: String,
+        convertTo: JSScript,
         breaking: Bool,
         solvable: Bool
     ) {
@@ -121,8 +121,8 @@ public struct UpdateChange: Change {
         from: ChangeValue,
         to: ChangeValue,
         targetID: DeltaIdentifier,
-        convertTo: String,
-        convertFrom: String,
+        convertTo: JSScript,
+        convertFrom: JSScript,
         breaking: Bool,
         solvable: Bool
     ) {
@@ -144,7 +144,7 @@ public struct UpdateChange: Change {
         from: ChangeValue,
         to: ChangeValue,
         targetID: DeltaIdentifier,
-        convertTo: String? = nil,
+        convertTo: JSScript? = nil,
         parameterTarget: ParameterChangeTarget,
         breaking: Bool,
         solvable: Bool

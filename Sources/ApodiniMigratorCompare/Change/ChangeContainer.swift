@@ -62,4 +62,20 @@ final class ChangeContainer: Codable {
     func add(_ change: Change) {
         changes.append(change)
     }
+    
+    func typeRenames() -> [UpdateChange] {
+        changes.filter {
+            $0.type == .rename
+                && $0.element.target == ObjectTarget.typeName.rawValue
+        } as? [UpdateChange] ?? []
+    }
+    
+    func propertyRenames(of type: TypeInformation) -> [UpdateChange] {
+        changes.filter {
+            $0.type == .rename
+            && $0.element.isObject
+                && $0.elementID == type.deltaIdentifier
+                && $0.element.target == ObjectTarget.property.rawValue
+        } as? [UpdateChange] ?? []
+    }
 }

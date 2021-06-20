@@ -56,14 +56,15 @@ struct ObjectComparator: Comparator {
                 )
             )
         } else if !(lhsType.sameType(with: rhsType) && (lhsType ?= rhsType)) {
+            let jsConverter = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes)
             changes.add(
                 UpdateChange(
                     element: element(.property),
                     from: .element(reference(lhsType)),
                     to: .element(rhsType),
                     targetID: targetID,
-                    convertTo: "TODO Add js function",
-                    convertFrom: "TODO Add js function",
+                    convertTo: jsConverter.convertToFrom,
+                    convertFrom: jsConverter.convertFromTo,
                     breaking: true,
                     solvable: true
                 )

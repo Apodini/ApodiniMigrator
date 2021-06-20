@@ -16,7 +16,7 @@ struct ParsedEnumCase: Equatable, CustomStringConvertible {
     
     /// Description
     var description: String {
-        "case \(caseName) = \(rawValue.asString)"
+        "case \(caseName) = \(rawValue.doubleQuoted)"
     }
     
     /// Initializes an instance from a string line of the file

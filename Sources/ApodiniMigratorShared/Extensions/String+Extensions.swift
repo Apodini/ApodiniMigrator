@@ -12,9 +12,14 @@ public extension String {
         .lineBreak + .lineBreak
     }
     
-    /// `self` wrapped with apostrophes complying to json strings
-    var asString: String {
+    /// `self` wrapped with double quotes
+    var doubleQuoted: String {
         "\"\(self)\""
+    }
+    
+    /// `self` wrapped with single quotes
+    var singleQuoted: String {
+        "\'\(self)\'"
     }
     
     /// Returns a version of self without the last question mark if present

@@ -289,9 +289,9 @@ extension JSPrimitiveScript {
 
 // MARK: - UUID
 extension JSPrimitiveScript {
-    static func stringify(with content: String) -> String {
+    static func stringify(argumentName: String? = nil, with content: String) -> String {
         """
-        function convert(input) {
+        function convert(\(argumentName ?? "input")) {
             return JSON.stringify(\(content))
         }
         """

@@ -50,12 +50,13 @@ struct EndpointComparator: Comparator {
         
         /// TODO request from change container whether the type has been renamed and check whether the name is not equal
         if !(lhsResponse.sameType(with: rhsResponse) && (lhsResponse ?= rhsResponse)) {
+            let jsConverter = JSScriptBuilder(from: lhsResponse, to: rhsResponse, changes: changes)
             changes.add(
                 UpdateChange(
                     element: element(.response),
                     from: .id(from: lhs.response),
                     to: .element(rhs.response),
-                    convertTo: "TODO Add js function",
+                    convertTo: jsConverter.convertToFrom,
                     breaking: true,
                     solvable: true
                 )

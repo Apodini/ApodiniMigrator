@@ -80,7 +80,7 @@ extension EnumCase: RelaxedDeltaIdentifiable {
 
 extension TypeProperty: RelaxedDeltaIdentifiable {
     static func ?= (lhs: TypeProperty, rhs: TypeProperty) -> Bool {
-        lhs.type ?= rhs.type
+        true
     }
 }
 

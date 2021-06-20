@@ -380,4 +380,27 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         let array = try [String].from("hello", script: .init(script))
         XCTAssert(array.first == "hello")
     }
+    
+    func testcomplexTypes() throws {
+        struct User: Codable {
+            let id: UUID
+            let name: String
+            let age: Int
+        }
+        
+        struct UserNew: Codable {
+            let ident: UUID
+            let name: String
+        }
+        
+        let jsBuilder = JSObjectScript(from: try TypeInformation(type: User.self), to: try TypeInformation(type: UserNew.self))
+        jsBuilder.convertFromTo.write(at: Path.desktop, fileName: "user_to_userNew")
+        jsBuilder.convertToFrom.write(at: Path.desktop, fileName: "userNew_to_user")
+        
+        let newUser = UserNew(ident: .init(), name: "I am new user")
+        let user = try User.from(newUser, script: jsBuilder.convertToFrom)
+        XCTAssert(user.id == newUser.ident)
+        XCTAssert(user.name == newUser.name)
+        XCTAssert(user.age == 0)
+    }
 }

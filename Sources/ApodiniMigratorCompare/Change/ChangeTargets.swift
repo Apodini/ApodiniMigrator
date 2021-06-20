@@ -44,7 +44,7 @@ public enum ObjectTarget: String, Value {
     /// Indicates a change that relates to the object itself, e.g. a deleted or added object
     case `self`
     /// TypeName target
-    case typeName
+    case typeName = "type-name"
     /// Property target
     case property
     /// Property optionality target

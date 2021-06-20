@@ -52,10 +52,10 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         headers.setContentType(to: "application/json")
         
         var errors: [ApodiniError] = []
-        \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.asString))" }.lineBreaked)
+        \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.doubleQuoted))" }.lineBreaked)
 
         let handler = Handler<\(responseString)>(
-        path: \(path.asString),
+        path: \(path.doubleQuoted),
         httpMethod: .\(endpoint.operation.asHTTPMethodString),
         parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),
         headers: headers,

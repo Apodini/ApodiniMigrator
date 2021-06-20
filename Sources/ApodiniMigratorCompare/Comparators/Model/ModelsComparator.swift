@@ -29,7 +29,13 @@ struct ModelsComparator: Comparator {
     }
     
     private func handle(removalCandidates: [TypeInformation], additionCandidates: [TypeInformation]) {
+        struct MatchedPairs: Hashable {
+            let candidate: TypeInformation
+            let relaxedMatching: TypeInformation
+        }
+        
         var relaxedMatchings: Set<DeltaIdentifier> = []
+        var pairs: Set<MatchedPairs> = []
         
         assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
         
@@ -47,8 +53,14 @@ struct ModelsComparator: Comparator {
                         solvable: true
                     )
                 )
-                
-                let modelComparator = ModelComparator(lhs: candidate, rhs: relaxedMatching, changes: changes, configuration: configuration)
+                pairs.insert(.init(candidate: candidate, relaxedMatching: relaxedMatching))
+            }
+        }
+        
+        // ensuring to have registered potential type renamings before comparing
+        defer {
+            pairs.forEach {
+                let modelComparator = ModelComparator(lhs: $0.candidate, rhs: $0.relaxedMatching, changes: changes, configuration: configuration)
                 modelComparator.compare()
             }
         }

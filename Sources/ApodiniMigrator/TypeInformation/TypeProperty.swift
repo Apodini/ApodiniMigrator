@@ -29,6 +29,10 @@ public struct TypeProperty: Value {
         self.type = type
         self.annotation = nil
     }
+    
+    public static func == (lhs: TypeProperty, rhs: TypeProperty) -> Bool {
+        lhs.name == rhs.name && lhs.type == rhs.type
+    }
 }
 
 extension TypeProperty: DeltaIdentifiable {

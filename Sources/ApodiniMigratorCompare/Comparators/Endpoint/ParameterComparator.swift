@@ -75,13 +75,14 @@ struct ParameterComparator: Comparator {
         
         /// TODO request from change container whether the type has been renamed and check whether the name is not equal
         if typeInformationHasChanged {
+            let jsConverter = JSScriptBuilder(from: lhs.typeInformation, to: rhs.typeInformation, changes: changes)
             changes.add(
                 UpdateChange(
                     element: element,
                     from: .id(from: lhs),
                     to: .element(rhs.typeInformation),
                     targetID: targetID,
-                    convertTo: "TODO Add js function",
+                    convertTo: jsConverter.convertFromTo,
                     parameterTarget: .typeInformation,
                     breaking: true,
                     solvable: true

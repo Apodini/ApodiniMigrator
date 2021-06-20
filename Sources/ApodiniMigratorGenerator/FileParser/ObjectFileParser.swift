@@ -63,14 +63,14 @@ struct ObjectFileParser: FileParser {
     
     mutating func addCodingKeyCase(name: String) {
         if let last = codingKeys.last(where: { $0.contains("case ") }), let index = codingKeys.firstIndex(of: last) {
-            return codingKeys.insert("case \(name) = \(name.asString)", at: index + 1)
+            return codingKeys.insert("case \(name) = \(name.doubleQuoted)", at: index + 1)
         }
     }
     
     mutating func changedType(of property: String) {
         if let caseName = parsedCodingKeysCases.firstMatch(on: \.rawValue, with: property)?.caseName {
             if let line = encodable.first(where: { $0.contains("forKey: .\(caseName)") }) {
-                encodable.replacingOccurrences(of: line, with: "try container.encode(\("hello world".asString), forKey: .\(caseName))")
+                encodable.replacingOccurrences(of: line, with: "try container.encode(\("hello world".doubleQuoted), forKey: .\(caseName))")
             }
         }
     }
