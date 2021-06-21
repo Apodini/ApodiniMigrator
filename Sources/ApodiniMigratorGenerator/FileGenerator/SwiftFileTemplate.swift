@@ -27,12 +27,6 @@ protocol SwiftFileTemplate: Renderable {
     
     /// The type of the content of the file
     var kind: Kind { get }
-    
-    /// Initializes a template out of a `TypeInformation`
-    /// - Parameter typeInformation: `typeInformation` for which the template will be created
-    /// - Parameter kind: swift kind of the object
-    /// - Throws: `SwiftFileTemplateError.incompatibleType(message:)` if the template does not support the `typeInformation`
-    init(_ typeInformation: TypeInformation, kind: Kind) throws
 }
 
 /// Errors that can be thrown from a `SwiftFileTemplate` initializer

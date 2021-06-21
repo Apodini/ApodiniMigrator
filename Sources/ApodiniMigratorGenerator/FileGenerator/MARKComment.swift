@@ -21,6 +21,10 @@ extension Annotation {
     }
 }
 
+struct GenericComment: Annotation {
+    let comment: String
+}
+
 struct EndpointComment: Annotation {
     let comment: String
     

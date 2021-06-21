@@ -15,6 +15,17 @@ struct EnumFileTemplate: SwiftFileTemplate {
     /// Kind of the object, always `.enum` if initializer does not throw
     let kind: Kind
     
+    let annotation: Annotation?
+    
+    private var annotationComment: String {
+        if let annotation = annotation {
+            return annotation.comment + .lineBreak
+        }
+        return ""
+    }
+    
+    let rawValueType: RawValueType
+    
     /// Enum cases of the `typeInformation`
     let enumCases: [EnumCase]
     
@@ -37,16 +48,19 @@ struct EnumFileTemplate: SwiftFileTemplate {
     ///     - typeInformation: typeInformation to render
     ///     - kind: kind of the object
     /// - Throws: if the `typeInformation` is not an enum, or kind is other than `.enum`
-    init(_ typeInformation: TypeInformation, kind: Kind = .enum) throws {
-        guard typeInformation.isEnum, kind == .enum else {
-            throw SwiftFileTemplateError.incompatibleType(message: "Attempted to initialize EnumFileTemplate with a non enum TypeInformation \(typeInformation.rootType)")
+    init(_ typeInformation: TypeInformation, kind: Kind = .enum, annotation: Annotation? = nil) {
+        guard typeInformation.isEnum, let rawValueType =  typeInformation.rawValueType, kind == .enum else {
+            fatalError("Attempted to initialize EnumFileTemplate with a non enum TypeInformation \(typeInformation.rootType)")
         }
         
         self.typeInformation = typeInformation
         self.kind = kind
+        self.annotation = annotation
         self.enumCases = typeInformation.enumCases.sorted(by: \.name)
+        self.rawValueType = rawValueType
     }
     
+    /// TODO change rawValue
     /// Renders and formats the `typeInformation` in an enum swift file compliant way
     func render() -> String {
         """
@@ -55,7 +69,7 @@ struct EnumFileTemplate: SwiftFileTemplate {
         \(Import(.foundation).render())
         
         \(MARKComment(.model))
-        \(kind.signature) \(typeNameString): String, Codable, CaseIterable {
+        \(annotationComment)\(kind.signature) \(typeNameString): String, Codable, CaseIterable {
         \(enumCases.map { "case \($0.name) = \($0.name.doubleQuoted)" }.lineBreaked)
 
         \(MARKComment(.deprecated))

@@ -142,7 +142,12 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         
         let document = Path.desktop + "delta_document.json"
         
-        let gen = try ApodiniMigratorGenerator(packageName: "ExampleACD", packagePath: packagePath.string, documentPath: document.string)
+        let gen = try ApodiniMigratorGenerator(
+            packageName: "ExampleACD",
+            packagePath: packagePath.string,
+            documentPath: document.string,
+            migrationGuide: .empty
+        )
         XCTAssertNoThrow(try gen.build())
     }
     
@@ -165,7 +170,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         try objectFileParser.save()
     }
     
-    func testMigraionGuideGeneration() throws {
+    func testMigrationGuide() throws {
         guard Path.desktop.exists, !skipFileReadingTests else {
             return
         }
@@ -240,7 +245,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testStringify() throws {
-        let jsS = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date), changes: .init())
+        let jsS = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date), changes: .init(), encoderConfiguration: .default)
         
         let date = try String?.from(Date(), script: jsS.convertToFrom)
     }
@@ -399,7 +404,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
             let name: String
         }
         
-        let jsBuilder = JSObjectScript(from: try TypeInformation(type: User.self), to: try TypeInformation(type: UserNew.self))
+        let jsBuilder = JSScriptBuilder(from: try TypeInformation(type: User.self), to: try TypeInformation(type: UserNew.self))
         jsBuilder.convertFromTo.write(at: Path.desktop, fileName: "user_to_userNew")
         jsBuilder.convertToFrom.write(at: Path.desktop, fileName: "userNew_to_user")
         

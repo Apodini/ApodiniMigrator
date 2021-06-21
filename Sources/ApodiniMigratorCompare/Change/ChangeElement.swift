@@ -8,6 +8,13 @@
 import Foundation
 import ApodiniMigrator
 
+public enum ElementType: String, Value {
+    case endpoint
+    case `enum`
+    case object
+    case networking
+}
+
 /// Represents distinct top-level elements that are subject to change in the web service
 public enum ChangeElement: DeltaIdentifiable, Value {
     // MARK: Private Inner Types
@@ -99,35 +106,32 @@ public extension ChangeElement {
         }
     }
     
+    var type: ElementType {
+        switch self {
+        case .endpoint: return .endpoint
+        case .enum: return .enum
+        case .object: return .object
+        case .networking: return .networking
+        }
+    }
+    
     /// Indicates whether `self` is an `.endpoint` change element
     var isEndpoint: Bool {
-        if case .endpoint = self {
-            return true
-        }
-        return false
+        type == .endpoint
     }
     
     /// Indicates whether `self` is an `.enum` change element
     var isEnum: Bool {
-        if case .enum = self {
-            return true
-        }
-        return false
+        type == .enum
     }
     
     /// Indicates whether `self` is an `.object` change element
     var isObject: Bool {
-        if case .object = self {
-            return true
-        }
-        return false
+        type == .object
     }
     
     /// Indicates whether `self` is an `.networking` change element
     var isNetworking: Bool {
-        if case .networking = self {
-            return true
-        }
-        return false
+        type == .networking
     }
 }

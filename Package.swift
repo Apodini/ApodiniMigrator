@@ -55,6 +55,7 @@ let package = Package(
         .target(
             name: "ApodiniMigratorGenerator",
             dependencies: [
+                .target(name: "ApodiniMigratorCompare"),
                 .target(name: "ApodiniMigratorClientSupport"),
                 .product(name: "Logging", package: "swift-log")
             ],

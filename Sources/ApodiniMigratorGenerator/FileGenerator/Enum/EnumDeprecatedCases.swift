@@ -9,9 +9,16 @@ import Foundation
 
 struct EnumDeprecatedCases: Renderable {
     static let base = "private static let deprecatedCases: [Self] = "
+    
+    let deprecated: [EnumCase]
+    
+    init(deprecated: [EnumCase] = []) {
+        self.deprecated = deprecated
+    }
+    
     func render() -> String {
         """
-        \(Self.base)[]
+        \(Self.base)[\(deprecated.map { ".\($0.name)" }.joined(separator: ", "))]
         """
     }
 }

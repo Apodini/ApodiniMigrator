@@ -42,6 +42,10 @@ public struct MigrationGuide: Codable {
         changeContainer.changes
     }
     
+    public var changeFilter: ChangeFilter {
+        .init(self)
+    }
+    
     /// An empty migration guide with no changes
     public static var empty: MigrationGuide {
         .init(

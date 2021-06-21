@@ -47,7 +47,7 @@ struct ModelsComparator: Comparator {
                 if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates) {
                     changes.add(
                         UpdateChange(
-                            element: .for(object: candidate, target: .typeName),
+                            element: candidate.isObject ? .for(object: candidate, target: .typeName) : .for(enum: candidate, target: .typeName),
                             from: candidate.deltaIdentifier.rawValue,
                             to: relaxedMatching.deltaIdentifier.rawValue,
                             breaking: false,
@@ -70,7 +70,7 @@ struct ModelsComparator: Comparator {
         for removal in removalCandidates where !pairs.contains(where: { $0.contains(removal.deltaIdentifier) }) {
             changes.add(
                 DeleteChange(
-                    element: .for(object: removal, target: .`self`),
+                    element: removal.isObject ? .for(object: removal, target: .`self`) : .for(enum: removal, target: .`self`),
                     deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: false,
@@ -83,7 +83,7 @@ struct ModelsComparator: Comparator {
         for addition in additionCandidates where !pairs.contains(where: { $0.contains(addition.deltaIdentifier) }) {
             changes.add(
                 AddChange(
-                    element: .for(object: addition, target: .`self`),
+                    element: addition.isObject ? .for(object: addition, target: .`self`) : .for(enum: addition, target: .`self`),
                     added: .element(addition),
                     defaultValue: .none,
                     breaking: false,

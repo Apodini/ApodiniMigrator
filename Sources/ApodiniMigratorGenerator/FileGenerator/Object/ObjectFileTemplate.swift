@@ -43,9 +43,9 @@ struct ObjectFileTemplate: SwiftFileTemplate {
     ///     - typeInformation: typeInformation to render
     ///     - kind: kind of the object
     /// - Throws: if the `typeInformation` is not an object, or kind is other than `class` or `struct`
-    init(_ typeInformation: TypeInformation, kind: Kind = .struct) throws {
+    init(_ typeInformation: TypeInformation, kind: Kind = .struct) {
         guard typeInformation.isObject, [.struct, .class].contains(kind) else {
-            throw SwiftFileTemplateError.incompatibleType(message: "Attempted to initialize ObjectFileTemplate with a non object TypeInformation \(typeInformation.rootType)")
+            fatalError("Attempted to initialize ObjectFileTemplate with a non object TypeInformation \(typeInformation.rootType)")
         }
         self.typeInformation = typeInformation
         self.kind = kind

@@ -66,7 +66,7 @@ struct ParameterComparator: Comparator {
         let rhsType = rhs.typeInformation
         
         if typesNeedConvert(lhs: lhsType, rhs: rhsType) {
-            let jsConverter = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes)
+            let jsConverter = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes, encoderConfiguration: configuration)
             changes.add(
                 UpdateChange(
                     element: element,

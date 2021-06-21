@@ -19,7 +19,7 @@ struct Generator: ParsableCommand {
         logger.info("Starting generation of package \(packageName) at \(targetDirectory)")
         
         do {
-            let generator = try ApodiniMigratorGenerator(packageName: packageName, packagePath: targetDirectory, documentPath: documentPath)
+            let generator = try ApodiniMigratorGenerator(packageName: packageName, packagePath: targetDirectory, documentPath: documentPath, migrationGuide: .empty)
             try generator.build()
             logger.info("Package \(packageName) was generated successfully. You can open the package via \(targetDirectory)/\(packageName)/Package.swift")
         } catch {

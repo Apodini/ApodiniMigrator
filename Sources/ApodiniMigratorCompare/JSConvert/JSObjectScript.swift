@@ -47,13 +47,21 @@ struct JSObjectScript { // TODO consider property renames for json string
     /// JScript converting to to from, property holds the convert function right after initialization of the instance
     private(set) var convertToFrom: JSScript = ""
     
+    private let encoderConfiguration: EncoderConfiguration
+    
     /// Initializer of a new instance
-    init(from: TypeInformation, to: TypeInformation, changes: ChangeContainer = .init()) {
+    init(
+        from: TypeInformation,
+        to: TypeInformation,
+        changes: ChangeContainer = .init(),
+        encoderConfiguration: EncoderConfiguration = .default
+    ) {
         self.from = from
         self.to = to
         self.changes = changes
         fromProperties = from.objectProperties
         toProperties = to.objectProperties
+        self.encoderConfiguration = encoderConfiguration
         
         construct()
     }
@@ -129,7 +137,7 @@ struct JSObjectScript { // TODO consider property renames for json string
             if let matchedName = matchedName {
                 return "parsed\(type.inversed.rawValue).\(matchedName)"
             }
-            return JSONStringBuilder.jsonString(property.type, with: .default)
+            return JSONStringBuilder.jsonString(property.type, with: encoderConfiguration)
         }()
         return "\(property.name.singleQuoted): \(value)"
     }

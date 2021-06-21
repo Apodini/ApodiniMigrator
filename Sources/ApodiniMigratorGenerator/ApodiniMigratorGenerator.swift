@@ -7,6 +7,7 @@
 
 import Foundation
 import Logging
+@_exported import ApodiniMigratorCompare
 
 /// A generator for a swift package
 public struct ApodiniMigratorGenerator {
@@ -24,6 +25,7 @@ public struct ApodiniMigratorGenerator {
     public let directories: ProjectDirectories
     /// Endpoints
     public let endpoints: [Endpoint]
+    public let addedEndpoints: [Endpoint]
     /// Metadata retrieved from the document
     public let metaData: MetaData
     /// all models of the document
@@ -31,16 +33,19 @@ public struct ApodiniMigratorGenerator {
     /// logger of package generator
     private let logger: Logger
     
+    public let changeFilter: ChangeFilter
     /// TODO remove
     private var useTemplateTestFile = false
     
     /// Initializes a new instance with a `packageName`, string `packagePath` and the string `documentPath`
-    public init(packageName: String, packagePath: String, documentPath: String) throws {
+    public init(packageName: String, packagePath: String, documentPath: String, migrationGuide: MigrationGuide) throws {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
         self.packagePath = packagePath.asPath
         document = try Document.decode(from: documentPath.asPath)
         self.directories = ProjectDirectories(packageName: packageName, packagePath: packagePath)
+        changeFilter = migrationGuide.changeFilter
         endpoints = document.endpoints
+        addedEndpoints = changeFilter.addedEndpoints()
         metaData = document.metaData
         allModels = document.allModels()
         self.logger = Self.logger
@@ -91,7 +96,7 @@ public struct ApodiniMigratorGenerator {
     }
     
     private func writeModels() throws {
-        let recursiveFileGenerator = try RecursiveFileGenerator(allModels)
+        let recursiveFileGenerator = try MultipleFileGenerator(allModels)
         try recursiveFileGenerator.persist(at: directories.models)
     }
     
@@ -103,7 +108,7 @@ public struct ApodiniMigratorGenerator {
         let endpointsDirectory = directories.endpoints
         for group in endpointGroups {
             let filePath = group.key.typeName.name + EndpointFileTemplate.fileSuffix
-            let endpointFileTemplate = try EndpointFileTemplate(with: group.key, endpoints: Array(group.value))
+            let endpointFileTemplate = EndpointFileTemplate(with: group.key, endpoints: Array(group.value))
             try (endpointsDirectory + filePath).write(endpointFileTemplate.render().indentationFormatted())
         }
     }

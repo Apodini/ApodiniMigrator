@@ -18,9 +18,6 @@ struct EnumComparator: Comparator {
     }
     
     func compare() {
-        let enumCasesComparator = EnumCasesComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
-        enumCasesComparator.compare()
-        
         guard let lhsRawValue = lhs.rawValueType, let rhsRawValue = rhs.rawValueType else {
             return
         }
@@ -36,6 +33,9 @@ struct EnumComparator: Comparator {
                 )
             )
         }
+        
+        let enumCasesComparator = EnumCasesComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
+        enumCasesComparator.compare()
     }
 }
 

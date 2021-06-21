@@ -86,22 +86,6 @@ final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(result, typeInformation)
     }
     
-    
-    func testJSONStringBuilder() throws {
-        guard !isLinux() else {
-            return
-        }
-        
-        let typeInformation = try TypeInformation(type: someComplexType)
-        let instance = XCTAssertNoThrowWithResult(try JSONStringBuilder.instance(typeInformation, someComplexType))
-        
-        XCTAssert(instance.keys.first == 0)
-        // swiftlint:disable:next force_unwrapping
-        let userInstance = instance.values.first!.values.first!!!!!!
-        XCTAssert(userInstance.birthday.first?.noon == .default)
-        XCTAssert(userInstance.url == .default)
-    }
-    
     func testFileGenerator() throws {
         guard !isLinux(), isEldisMacbook() else {
             return
@@ -143,16 +127,16 @@ final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
     
     
     let testModels: Path = .desktop + "TestModels"
-    
-    func generateTestModels() throws {
-        guard !isLinux(), testModels.exists else {
-            return
-        }
-        let types: [Any.Type] = [
-            User.self,
-            Student.self
-        ]
-        
-        try RecursiveFileGenerator(types).persist(at: testModels)
-    }
+//    
+//    func generateTestModels() throws {
+//        guard !isLinux(), testModels.exists else {
+//            return
+//        }
+//        let types: [TypeInformation] = [
+//            User.self,
+//            Student.self
+//        ]
+//        
+//        try MultipleFileGenerator(types).persist(at: testModels)
+//    }
 }

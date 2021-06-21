@@ -18,13 +18,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         .init(fileName: typeInformation.typeName.name + Self.fileSuffix)
     }
     
-    init(_ typeInformation: TypeInformation, kind: Kind) throws {
-        self.typeInformation = typeInformation
-        self.kind = .extension
-        self.endpoints = []
-    }
-    
-    public init(with response: TypeInformation, endpoints: [Endpoint]) throws {
+    public init(with response: TypeInformation, endpoints: [Endpoint]) {
         let responses = endpoints.map { $0.response.nestedType }.unique()
         guard responses.count == 1, responses.first == response else {
             fatalError("""
@@ -32,8 +26,8 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
                 \(responses.map { $0.typeName.name }.joined(separator: ", "))
                 """)
         }
-        
-        try self.init(response, kind: .extension)
+        self.typeInformation = response
+        self.kind = .extension
         self.endpoints = endpoints.sorted(by: \.deltaIdentifier)
     }
     
