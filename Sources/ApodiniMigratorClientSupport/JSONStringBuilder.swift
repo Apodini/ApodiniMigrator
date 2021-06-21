@@ -48,20 +48,17 @@ public struct JSONStringBuilder {
         switch typeInformation {
         case let .scalar(primitiveType):
             return primitiveType.jsonString(with: encoder)
-        case let .repeated(element):
-            return "[\(Self(element, encoder: encoder).build())]"
-        case let .dictionary(key, value):
-            if requiresCurlyBrackets(key) {
-                return "{ \(dictionaryKey(key)) : \(Self(value, encoder: encoder).build()) }"
-            }
-            return "[\(dictionaryKey(key)), \(Self(value, encoder: encoder).build())]"
-        case let .optional(wrappedValue):
-            return "\(Self(wrappedValue.unwrapped, encoder: encoder).build())"
+        case .repeated:
+            return "[]"
+        case let .dictionary(key, _):
+            return requiresCurlyBrackets(key) ? "{}" : "[]"
+        case .optional:
+            return "null"
         case let .enum(_, _, cases):
             return cases.first?.name.doubleQuoted ?? "{}"
         case let .object(_, properties):
             let sorted = properties.sorted(by: \.name)
-            return "{\(sorted.map { $0.name.doubleQuoted + " : \(Self($0.type, encoder: encoder).build())" }.joined(separator: ", "))}"
+            return "{\(String.lineBreak)\(sorted.map { $0.name.doubleQuoted + " : \(Self($0.type, encoder: encoder).build())" }.joined(separator: ",\(String.lineBreak)"))\(String.lineBreak)}"
         default: return "{}"
         }
     }

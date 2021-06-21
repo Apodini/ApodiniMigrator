@@ -9,8 +9,10 @@ import Foundation
 
 /// Distinct cases of endpoint targets that are subject to change
 public enum EndpointTarget: String, Value {
-    /// Indicates a change that relates to the endpoint itself, e.g. a deleted or added endpoint, or update of the id
+    /// Indicates a change that relates to the endpoint itself, e.g. a deleted or added endpoint
     case `self`
+    /// Indicates a change that relates to the identifier of the endpoint, e.g. updated to some new id
+    case deltaIdentifier = "id"
     /// Query parameter target
     case queryParameter = "query-parameter"
     /// Path parameter target

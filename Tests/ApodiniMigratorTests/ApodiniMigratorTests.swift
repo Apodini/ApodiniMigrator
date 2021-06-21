@@ -47,6 +47,7 @@ final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
         let licence: UInt?
         let url: URL
         let directions: [UUID: Direction]
+        let car: Car
     }
     
     struct SomeStruct: Codable {
@@ -117,9 +118,9 @@ final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
         let name: String
         let friends: [String]
         let age: Int
-        let grades: [Double]
+        let grades: [Double: String]
         let birthday: Date
-        let url: URL
+        let url: URL?
         let shop: Shop
         let car: Car
     }
@@ -130,7 +131,7 @@ final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
         guard !isLinux(), isEldisMacbook() else {
             return
         }
-        try jsonPath.write(try JSONStringBuilder.string(Student.self))
+        try jsonPath.write(try JSONStringBuilder.jsonString(Student.self).indentationFormatted())
     }
     
     func testJSONRead() throws {

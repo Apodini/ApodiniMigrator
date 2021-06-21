@@ -88,7 +88,8 @@ struct ObjectComparator: Comparator {
                         from: candidate.name,
                         to: relaxedMatching.name,
                         breaking: true,
-                        solvable: true
+                        solvable: true,
+                        includeProviderSupport: includeProviderSupport
                     )
                 )
                 
@@ -103,7 +104,8 @@ struct ObjectComparator: Comparator {
                     deleted: .id(from: removal),
                     fallbackValue: .value(from: removal.type, with: configuration),
                     breaking: true,
-                    solvable: true
+                    solvable: true,
+                    includeProviderSupport: includeProviderSupport
                 )
             )
         }
@@ -115,7 +117,8 @@ struct ObjectComparator: Comparator {
                     added: .element(addition),
                     defaultValue: .value(from: addition.type, with: configuration),
                     breaking: false,
-                    solvable: true
+                    solvable: true,
+                    includeProviderSupport: includeProviderSupport
                 )
             )
         }

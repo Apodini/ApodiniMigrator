@@ -13,10 +13,13 @@ import Foundation
 final class ChangeContainer: Codable {
     /// Changes of the container
     private(set) var changes: [Change]
+    /// Compare config passed from migration guide, property is owned by the migration guide, and does not get encoded or decoded from `self`
+    var compareConfiguration: CompareConfiguration?
     
     /// Initializes `self` with empty changes
-    init() {
+    init(compareConfiguration: CompareConfiguration? = nil) {
         changes = []
+        self.compareConfiguration = compareConfiguration
     }
     
     /// Encodes `self` into the given encoder via an `unkeyedContainer`

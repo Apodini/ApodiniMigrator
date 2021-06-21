@@ -41,14 +41,15 @@ public struct AddChange: Change {
         added: ChangeValue,
         defaultValue: ChangeValue,
         breaking: Bool,
-        solvable: Bool
+        solvable: Bool,
+        includeProviderSupport: Bool
     ) {
         self.element = element
         self.added = added
         self.defaultValue = defaultValue
         self.breaking = breaking
         self.solvable = solvable
-        self.providerSupport = MigrationGuide.providerSupport ? .renameHint(Self.self) : nil
+        self.providerSupport = includeProviderSupport ? .renameHint(Self.self) : nil
         type = .addition
     }
 }

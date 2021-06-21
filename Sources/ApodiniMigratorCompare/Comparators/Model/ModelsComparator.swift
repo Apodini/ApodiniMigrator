@@ -32,59 +32,63 @@ struct ModelsComparator: Comparator {
         struct MatchedPairs: Hashable {
             let candidate: TypeInformation
             let relaxedMatching: TypeInformation
+            
+            func contains(_ id: DeltaIdentifier) -> Bool {
+                candidate.deltaIdentifier == id || relaxedMatching.deltaIdentifier == id
+            }
         }
         
-        var relaxedMatchings: Set<DeltaIdentifier> = []
         var pairs: Set<MatchedPairs> = []
         
         assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
         
-        for candidate in removalCandidates {
-            if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates) {
-                relaxedMatchings += relaxedMatching.deltaIdentifier
-                relaxedMatchings += candidate.deltaIdentifier
-                
-                changes.add(
-                    UpdateChange(
-                        element: .for(object: candidate, target: .typeName),
-                        from: candidate.deltaIdentifier.rawValue,
-                        to: relaxedMatching.deltaIdentifier.rawValue,
-                        breaking: false,
-                        solvable: true
+        if allowTypeRename {
+            for candidate in removalCandidates {
+                if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates) {
+                    changes.add(
+                        UpdateChange(
+                            element: .for(object: candidate, target: .typeName),
+                            from: candidate.deltaIdentifier.rawValue,
+                            to: relaxedMatching.deltaIdentifier.rawValue,
+                            breaking: false,
+                            solvable: true,
+                            includeProviderSupport: includeProviderSupport
+                        )
                     )
-                )
-                pairs.insert(.init(candidate: candidate, relaxedMatching: relaxedMatching))
+                    pairs.insert(.init(candidate: candidate, relaxedMatching: relaxedMatching))
+                }
             }
-        }
-        
-        // ensuring to have registered potential type renamings before comparing
-        defer {
+            
+            // ensuring to have registered potential type renamings before comparing
             pairs.forEach {
                 let modelComparator = ModelComparator(lhs: $0.candidate, rhs: $0.relaxedMatching, changes: changes, configuration: configuration)
                 modelComparator.compare()
             }
         }
         
-        for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
+        let includeProviderSupport = allowTypeRename && self.includeProviderSupport
+        for removal in removalCandidates where !pairs.contains(where: { $0.contains(removal.deltaIdentifier) }) {
             changes.add(
                 DeleteChange(
                     element: .for(object: removal, target: .`self`),
                     deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: false,
-                    solvable: false
+                    solvable: false,
+                    includeProviderSupport: includeProviderSupport
                 )
             )
         }
         
-        for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
+        for addition in additionCandidates where !pairs.contains(where: { $0.contains(addition.deltaIdentifier) }) {
             changes.add(
                 AddChange(
                     element: .for(object: addition, target: .`self`),
                     added: .element(addition),
                     defaultValue: .none,
                     breaking: false,
-                    solvable: true
+                    solvable: true,
+                    includeProviderSupport: includeProviderSupport
                 )
             )
         }

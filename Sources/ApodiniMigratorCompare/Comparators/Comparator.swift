@@ -22,6 +22,20 @@ protocol Comparator {
 }
 
 extension Comparator {
+    var includeProviderSupport: Bool {
+        changes.compareConfiguration?.includeProviderSupport == true
+    }
+    
+    var allowEndpointIdentifierUpdate: Bool {
+        changes.compareConfiguration?.allowEndpointIdentifierUpdate == true
+    }
+    
+    var allowTypeRename: Bool {
+        changes.compareConfiguration?.allowTypeRename == true
+    }
+}
+
+extension Comparator {
     func reference(_ typeInformation: TypeInformation) -> TypeInformation {
         switch typeInformation {
         case .scalar: return typeInformation

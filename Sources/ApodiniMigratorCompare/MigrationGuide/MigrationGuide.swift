@@ -12,10 +12,6 @@ public struct MigrationGuide: Codable {
     /// A default summary
     static let defaultSummary = "A summary of what changed between versions"
     
-    /// A static property that determines whether the provider-support should be included in changes
-    /// of type addition, deletion or rename. Property set from `init(for:rhs:providerSupport:)` initializer
-    private(set) static var providerSupport = false
-    
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case summary
@@ -23,6 +19,7 @@ public struct MigrationGuide: Codable {
         case specificationType = "api-spec"
         case from
         case to
+        case compareConfiguration = "compare-config"
         case changeContainer = "changes"
     }
     
@@ -36,6 +33,8 @@ public struct MigrationGuide: Codable {
     public let from: Version
     /// New version
     public let to: Version
+    /// Configuration used for comparison
+    public let compareConfiguration: CompareConfiguration?
     /// Private change container that holds, encodes and decodes the changes
     private let changeContainer: ChangeContainer
     /// List of changes in the Migration Guide
@@ -51,6 +50,7 @@ public struct MigrationGuide: Codable {
             specificationType: .apodini,
             from: .default,
             to: .default,
+            compareConfiguration: nil,
             changeContainer: .init()
         )
     }
@@ -62,6 +62,7 @@ public struct MigrationGuide: Codable {
         specificationType: SpecificationType,
         from: Version,
         to: Version,
+        compareConfiguration: CompareConfiguration?,
         changeContainer: ChangeContainer
     ) {
         self.summary = summary
@@ -70,14 +71,13 @@ public struct MigrationGuide: Codable {
         self.from = from
         self.to = to
         self.changeContainer = changeContainer
+        self.compareConfiguration = compareConfiguration
     }
     
     /// Initializes the Migration Guide out of two Documents. Documents get compared
     /// and the changes can be accessed via `changes` of the new Migration Guide instance
-    public init(for lhs: Document, rhs: Document, providerSupport: Bool = false) {
-        Self.providerSupport = providerSupport
-        
-        let changeContainer = ChangeContainer()
+    public init(for lhs: Document, rhs: Document, compareConfiguration: CompareConfiguration? = nil) {
+        let changeContainer = ChangeContainer(compareConfiguration: compareConfiguration)
         
         let documentsComparator = DocumentComparator(
             lhs: lhs,
@@ -95,6 +95,7 @@ public struct MigrationGuide: Codable {
             specificationType: .apodini,
             from: lhs.metaData.version,
             to: rhs.metaData.version,
+            compareConfiguration: changeContainer.compareConfiguration,
             changeContainer: changeContainer
         )
     }

@@ -56,7 +56,8 @@ struct ParametersComparator: Comparator {
                         from: candidate.name,
                         to: relaxedMatching.name,
                         breaking: true,
-                        solvable: true
+                        solvable: true,
+                        includeProviderSupport: includeProviderSupport
                     )
                 )
                 let parameterComparator = ParameterComparator(lhs: candidate, rhs: relaxedMatching, changes: changes, configuration: configuration, lhsEndpoint: self.lhs)
@@ -71,7 +72,8 @@ struct ParametersComparator: Comparator {
                     deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: false,
-                    solvable: true
+                    solvable: true,
+                    includeProviderSupport: includeProviderSupport
                 )
             )
         }
@@ -89,7 +91,8 @@ struct ParametersComparator: Comparator {
                     added: .element(addition),
                     defaultValue: defaultValue ?? .none,
                     breaking: isRequired,
-                    solvable: true
+                    solvable: true,
+                    includeProviderSupport: includeProviderSupport
                 )
             )
         }

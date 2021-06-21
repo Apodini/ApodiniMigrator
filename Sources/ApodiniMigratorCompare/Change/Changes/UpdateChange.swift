@@ -84,7 +84,8 @@ public struct UpdateChange: Change {
         from: String,
         to: String,
         breaking: Bool,
-        solvable: Bool
+        solvable: Bool,
+        includeProviderSupport: Bool
     ) {
         self.element = element
         self.from = .stringValue(from)
@@ -95,7 +96,7 @@ public struct UpdateChange: Change {
         self.parameterTarget = nil
         self.breaking = breaking
         self.solvable = solvable
-        self.providerSupport = MigrationGuide.providerSupport ? .renameValidationHint : nil
+        self.providerSupport = includeProviderSupport ? .renameValidationHint : nil
         type = .rename
     }
     

@@ -106,7 +106,8 @@ private struct EnumCasesComparator: Comparator {
                         from: candidate.name,
                         to: relaxedMatching.name,
                         breaking: false,
-                        solvable: true
+                        solvable: true,
+                        includeProviderSupport: includeProviderSupport
                     )
                 )
                 
@@ -121,7 +122,8 @@ private struct EnumCasesComparator: Comparator {
                     deleted: .id(from: removal),
                     fallbackValue: .none,
                     breaking: true,
-                    solvable: true
+                    solvable: true,
+                    includeProviderSupport: includeProviderSupport
                 )
             )
         }
@@ -133,7 +135,8 @@ private struct EnumCasesComparator: Comparator {
                     added: .element(addition),
                     defaultValue: .none,
                     breaking: false,
-                    solvable: true
+                    solvable: true,
+                    includeProviderSupport: includeProviderSupport
                 )
             )
         }

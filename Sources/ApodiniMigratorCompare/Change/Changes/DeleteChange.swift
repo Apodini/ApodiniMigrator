@@ -40,14 +40,15 @@ public struct DeleteChange: Change {
         deleted: ChangeValue,
         fallbackValue: ChangeValue,
         breaking: Bool,
-        solvable: Bool
+        solvable: Bool,
+        includeProviderSupport: Bool
     ) {
         self.element = element
         self.deleted = deleted
         self.fallbackValue = fallbackValue
         self.breaking = breaking
         self.solvable = solvable
-        self.providerSupport = MigrationGuide.providerSupport ? .renameHint(Self.self) : nil
+        self.providerSupport = includeProviderSupport ? .renameHint(Self.self) : nil
         type = .deletion
     }
 }
