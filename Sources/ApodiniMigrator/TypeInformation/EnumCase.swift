@@ -21,10 +21,10 @@ public struct EnumCase: Value {
     
     public init(_ name: String) {
         self.name = name
-        self.rawValue = name.json
+        self.rawValue = name
     }
     
-    public init (_ name: String, rawValue: String) {
+    public init(_ name: String, rawValue: String) {
         self.name = name
         self.rawValue = rawValue
     }

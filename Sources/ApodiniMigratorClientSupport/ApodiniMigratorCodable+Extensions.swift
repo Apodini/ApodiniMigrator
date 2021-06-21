@@ -8,6 +8,10 @@ public extension ApodiniMigratorCodable {
         try JSONStringBuilder.instance(Self.self)
     }
     
+    static func value(_ json: String) throws -> Self {
+        try Self.decode(from: json)
+    }
+    
     /// A function that creates an instance of type `Self` from a valid json string
     static func instance(from jsonString: String) throws -> Self {
         try JSONStringBuilder.decode(Self.self, from: jsonString)

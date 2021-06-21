@@ -43,8 +43,8 @@ struct ModelsMigrator {
                 let enumMigrator = EnumMigrator(enum: changedModel, changes: changes)
                 try enumMigrator.write(at: modelsPath)
             } else if changedModel.isObject {
-                let objectMigrator = ObjectMigrator(object: changedModel, changes: changes)
-                try objectMigrator.persist(at: modelsPath)
+                let objectMigrator = ObjectMigrator(changedModel, changes: changes)
+                try objectMigrator.write(at: modelsPath)
             }
         }
     }

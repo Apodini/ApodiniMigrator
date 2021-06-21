@@ -23,13 +23,10 @@ struct EnumComparator: Comparator {
         }
         
         if lhsRawValue != rhsRawValue {
-            changes.add(
-                UpdateChange(
-                    element: element(.rawValueType),
-                    from: .element(lhsRawValue),
-                    to: .element(rhsRawValue),
-                    breaking: true,
-                    solvable: false
+            return changes.add(
+                UnsupportedChange(
+                    element: element(.`self`),
+                    description: "The raw value type of this enum has changed to \(rhsRawValue.rawValue.upperFirst). ApodiniMigrator is not able to migrate this change"
                 )
             )
         }

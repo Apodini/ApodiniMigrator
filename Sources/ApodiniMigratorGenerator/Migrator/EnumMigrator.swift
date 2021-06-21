@@ -12,7 +12,7 @@ struct EnumMigrator: SwiftFileTemplate {
     var typeInformation: TypeInformation
     
     var kind: Kind
-    let hasUnsupportedChange: Bool
+    let unsupportedChange: UnsupportedChange?
     let notPresentInNewVersion: Bool
     let changes: [Change]
     
@@ -21,8 +21,8 @@ struct EnumMigrator: SwiftFileTemplate {
     init(`enum`: TypeInformation, changes: [Change]) {
         typeInformation = `enum`
         kind = .enum
-        changes = changes
-        hasUnsupportedChange = changes.contains(where: { $0.type == .unsupported })
+        self.changes = changes
+        unsupportedChange = changes.first { $0.type == .unsupported } as? UnsupportedChange
         notPresentInNewVersion = changes.contains(where: { $0.type == .deletion && $0.element.target == EnumTarget.`self`.rawValue })
         setRawValueUpdates()
     }
@@ -31,10 +31,9 @@ struct EnumMigrator: SwiftFileTemplate {
     func render() -> String {
         var annotation: Annotation?
         
-        if hasUnsupportedChange {
-            let newRawValue: RawValueType = typeInformation.rawValueType == .string ? .int : .string
+        if let unsupportedChange = unsupportedChange {
             annotation = GenericComment(
-                comment: "@available(*, unavailable, message: \"The raw value type of this enum has changed to \(newRawValue.rawValue.upperFirst). ApodiniMigrator is not able to migrate this change\")"
+                comment: "@available(*, unavailable, message: \(unsupportedChange.description.doubleQuoted))"
             )
         } else if notPresentInNewVersion {
             annotation = GenericComment(

@@ -15,6 +15,15 @@ struct ObjectFileTemplate: SwiftFileTemplate {
     /// Kind of the object, either `struct` or `class`
     let kind: Kind
     
+    let annotation: Annotation?
+    
+    private var annotationComment: String {
+        if let annotation = annotation {
+            return annotation.comment + .lineBreak
+        }
+        return ""
+    }
+    
     /// Properties of the object
     let properties: [TypeProperty]
     
@@ -43,13 +52,11 @@ struct ObjectFileTemplate: SwiftFileTemplate {
     ///     - typeInformation: typeInformation to render
     ///     - kind: kind of the object
     /// - Throws: if the `typeInformation` is not an object, or kind is other than `class` or `struct`
-    init(_ typeInformation: TypeInformation, kind: Kind = .struct) {
-        guard typeInformation.isObject, [.struct, .class].contains(kind) else {
-            fatalError("Attempted to initialize ObjectFileTemplate with a non object TypeInformation \(typeInformation.rootType)")
-        }
+    init(_ typeInformation: TypeInformation, annotation: Annotation? = nil) {
         self.typeInformation = typeInformation
-        self.kind = kind
+        self.kind = .struct
         self.properties = typeInformation.objectProperties.sorted(by: \.name)
+        self.annotation = annotation
     }
     
     private func header() -> String {
@@ -59,7 +66,7 @@ struct ObjectFileTemplate: SwiftFileTemplate {
         \(Import(.foundation).render())
         
         \(MARKComment(.model))
-        \(kind.signature) \(typeNameString): Codable {
+        \(annotationComment)\(kind.signature) \(typeNameString): Codable {
         """
     }
     

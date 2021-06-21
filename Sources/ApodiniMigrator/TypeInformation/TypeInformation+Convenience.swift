@@ -133,7 +133,7 @@ public extension TypeInformation {
         case let .optional(wrappedValue): return wrappedValue.unwrapped.typeName
         case let .enum(name, _, _): return name
         case let .object(name, _): return name
-        case .reference: fatalError("Attempted to request type name from a reference")
+        case let .reference(referenceKey): return .init(name: referenceKey.rawValue)
         }
     }
     
@@ -146,7 +146,7 @@ public extension TypeInformation {
         case let .optional(wrappedValue): return wrappedValue.typeString + "?"
         case let .enum(name, _, _): return name.name
         case let .object(name, _): return name.name
-        case .reference: fatalError("Attempted to request property type string from a reference")
+        case .reference: return typeName.name
         }
     }
     

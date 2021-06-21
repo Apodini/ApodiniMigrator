@@ -104,7 +104,7 @@ struct ObjectComparator: Comparator {
                     element: element(.property),
                     deleted: .id(from: removal),
                     fallbackValue: .value(from: removal.type, with: configuration),
-                    breaking: true,
+                    breaking: removal.optionality == .required,
                     solvable: true,
                     includeProviderSupport: includeProviderSupport
                 )
@@ -117,7 +117,7 @@ struct ObjectComparator: Comparator {
                     element: element(.property),
                     added: .element(addition),
                     defaultValue: .value(from: addition.type, with: configuration),
-                    breaking: false,
+                    breaking: addition.optionality == .required,
                     solvable: true,
                     includeProviderSupport: includeProviderSupport
                 )

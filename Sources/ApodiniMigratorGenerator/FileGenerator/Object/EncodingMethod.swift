@@ -11,10 +11,14 @@ import Foundation
 struct EncodingMethod: Renderable {
     /// The properties of the object that this method belongs to
     let properties: [TypeProperty]
+    let optionalityChanges: [UpdateChange]
+    let convertChanges: [UpdateChange]
     
     /// Initializer
-    init(_ properties: [TypeProperty]) {
-        self.properties = properties
+    init(_ properties: [TypeProperty], deletedIDs: [DeltaIdentifier] = [], optionalityChanges: [UpdateChange] = [], convertChanges: [UpdateChange] = []) {
+        self.properties = properties.filter { !deletedIDs.contains($0.deltaIdentifier) }
+        self.optionalityChanges = optionalityChanges
+        self.convertChanges = convertChanges
     }
     
     /// Renders the content of the method in a non-formatted way
@@ -23,9 +27,24 @@ struct EncodingMethod: Renderable {
         public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        \(properties.map { "\($0.encodingMethodLine)" }.lineBreaked)
+        \(properties.map { "\(encodingLine(for: $0))" }.lineBreaked)
         }
         """
+    }
+    
+    func encodingLine(for property: TypeProperty) -> String {
+        if
+            let change = optionalityChanges.first(where: { $0.targetID == property.deltaIdentifier }),
+            case let .element(anyCodable) = change.to,
+            anyCodable.typed(Optionality.self) == .required {
+            return "try container.encode(\(property.name) ?? try \(property.type.typeString).defaultValue(), forKey: .\(property.name))"
+        } else if let change = convertChanges.first(where: { $0.targetID == property.deltaIdentifier }), case let .element(anyCodable) = change.to, let convertToScript = change.convertToFrom {
+            let newType = anyCodable.typed(TypeInformation.self)
+            return "try container.encode\(newType.isOptional ? "IfPresent" : "")(try \(newType.typeString).from(\(property.name), script: .init(\(convertToScript.rawValue.doubleQuoted)), forKey: .\(property.name))"
+        } else {
+            return property.encodingMethodLine
+        }
+        
     }
 }
 

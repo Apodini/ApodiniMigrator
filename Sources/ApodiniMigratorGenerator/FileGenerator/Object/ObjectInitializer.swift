@@ -10,28 +10,44 @@ import Foundation
 /// Represents initializer of an object
 struct ObjectInitializer: Renderable {
     /// The properties of the object that this initializer belongs to
-    var properties: [TypeProperty]
+    var sortedProperties: [TypeProperty]
+    var defaultValues: [DeltaIdentifier: String]
     
     /// Initializer
-    init(_ properties: [TypeProperty]) {
-        self.properties = properties
+    init(_ properties: [TypeProperty], addedProperties: [AddedProperty] = []) {
+        var allProperties = properties
+        defaultValues = [:]
+        for added in addedProperties {
+            defaultValues[added.typeProperty.deltaIdentifier] = added.defaultValueJSON
+            allProperties.append(added.typeProperty)
+        }
+        sortedProperties = allProperties.sorted(by: \.name)
+       
     }
     
     /// Renders the content of the initializer in a non-formatted way
     func render() -> String {
         """
         public init(
-        \(properties.map { "\($0.name): \($0.type.typeString)" }.joined(separator: ",\(String.lineBreak)"))
+        \(sortedProperties.map { "\($0.name): \(defaultValue(for: $0))" }.joined(separator: ",\(String.lineBreak)"))
         ) {
-        \(properties.map { "\($0.initLine)" }.lineBreaked)
+        \(sortedProperties.map { "\($0.initLine)" }.lineBreaked)
         }
         """
+    }
+    
+    private func defaultValue(for property: TypeProperty) -> String {
+        var typeString = property.type.typeString
+        if let json = defaultValues[property.deltaIdentifier] {
+            typeString += " = try! \(typeString).instance(from: \(json.doubleQuoted))"
+        }
+        return typeString
     }
 }
 
 /// TypeProperty extension
 extension TypeProperty {
-    /// The corresponding line of the property to be rendered inside `init(from decoder: Decoder)`
+    /// The corresponding line of the property to be rendered inside `init`
     var initLine: String {
         "self.\(name) = \(name)"
     }

@@ -148,8 +148,14 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
             documentPath: document.string,
             migrationGuide: .empty
         )
-        XCTAssertNoThrow(try gen.build())
+        
+        let migrator = try Migrator(packageName: "TestMigPackage", packagePath: packagePath.string, documentPath: document.string, migrationGuide: try MigrationGuide.decode(from: .desktop + "migration_guide.json"))
+        try migrator.migrate()
+        
+//        XCTAssertNoThrow(try gen.build())
     }
+    
+    
     
     func testPackageFilesCollector() throws {
         guard Path.desktop.exists, !skipFileReadingTests else {
