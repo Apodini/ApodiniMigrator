@@ -48,15 +48,15 @@ struct EndpointComparator: Comparator {
         let lhsResponse = lhs.response
         let rhsResponse = rhs.response
         
-        /// TODO request from change container whether the type has been renamed and check whether the name is not equal
-        if !(lhsResponse.sameType(with: rhsResponse) && (lhsResponse ?= rhsResponse)) {
+        if typesNeedConvert(lhs: lhsResponse, rhs: rhsResponse) {
             let jsConverter = JSScriptBuilder(from: lhsResponse, to: rhsResponse, changes: changes)
             changes.add(
                 UpdateChange(
                     element: element(.response),
-                    from: .id(from: lhs.response),
-                    to: .element(rhs.response),
-                    convertTo: jsConverter.convertToFrom,
+                    from: .element(reference(lhs.response)),
+                    to: .element(reference(rhs.response)),
+                    convertToFrom: jsConverter.convertToFrom,
+                    convertionWarning: jsConverter.hint,
                     breaking: true,
                     solvable: true
                 )

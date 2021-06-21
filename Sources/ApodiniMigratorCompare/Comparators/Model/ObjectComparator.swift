@@ -44,7 +44,7 @@ struct ObjectComparator: Comparator {
         
         let targetID = lhs.deltaIdentifier
         
-        if lhsType.unwrapped ?= rhsType.unwrapped, lhs.optionality != rhs.optionality {
+        if sameNestedTypes(lhs: lhsType, rhs: rhsType), lhs.optionality != rhs.optionality {
             changes.add(
                 UpdateChange(
                     element: element(.propertyOptionality),
@@ -55,16 +55,17 @@ struct ObjectComparator: Comparator {
                     solvable: true
                 )
             )
-        } else if !(lhsType.sameType(with: rhsType) && (lhsType ?= rhsType)) {
+        } else if typesNeedConvert(lhs: lhsType, rhs: rhsType) {
             let jsConverter = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes)
             changes.add(
                 UpdateChange(
                     element: element(.property),
                     from: .element(reference(lhsType)),
-                    to: .element(rhsType),
+                    to: .element(reference(rhsType)),
                     targetID: targetID,
-                    convertTo: jsConverter.convertToFrom,
-                    convertFrom: jsConverter.convertFromTo,
+                    convertFromTo: jsConverter.convertFromTo,
+                    convertToFrom: jsConverter.convertToFrom,
+                    convertionWarning: jsConverter.hint,
                     breaking: true,
                     solvable: true
                 )

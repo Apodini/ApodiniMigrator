@@ -33,7 +33,20 @@ extension Comparator {
     var allowTypeRename: Bool {
         changes.compareConfiguration?.allowTypeRename == true
     }
+    
+    func sameNestedTypes(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
+        if lhs.typeName.name == rhs.typeName.name {
+            return true
+        }
+        return allowTypeRename ? changes.typesAreRenamings(lhs: lhs, rhs: rhs) : false
+    }
+    
+    func typesNeedConvert(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
+        let sameNestedType = sameNestedTypes(lhs: lhs, rhs: rhs)
+        return (sameNestedType && !lhs.sameType(with: rhs)) || !sameNestedType
+    }
 }
+
 
 extension Comparator {
     func reference(_ typeInformation: TypeInformation) -> TypeInformation {
@@ -47,8 +60,8 @@ extension Comparator {
             return .optional(wrappedValue: reference(wrappedValue))
         case .enum, .object:
             return .reference(.init(typeInformation.typeName.name))
-        case .reference:
-            fatalError("Attempted to reference a reference")
+        case .reference: fatalError("Attempted to reference a reference")
         }
     }
 }
+

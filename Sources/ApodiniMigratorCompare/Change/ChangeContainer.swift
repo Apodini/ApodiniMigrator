@@ -67,10 +67,20 @@ final class ChangeContainer: Codable {
     }
     
     func typeRenames() -> [UpdateChange] {
-        changes.filter {
-            $0.type == .rename
-                && $0.element.target == ObjectTarget.typeName.rawValue
-        } as? [UpdateChange] ?? []
+        guard compareConfiguration?.allowTypeRename == true else {
+            return []
+        }
+        
+        return changes.filter { $0.type == .rename && $0.element.target == ObjectTarget.typeName.rawValue } as? [UpdateChange] ?? []
+    }
+    
+    func typesAreRenamings(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
+        typeRenames().contains(where: { rename in
+            if case let .stringValue(lhsName) = rename.from, case let .stringValue(rhsName) = rename.to {
+                return lhsName == lhs.deltaIdentifier.rawValue && rhsName == rhs.deltaIdentifier.rawValue
+            }
+            return false
+        })
     }
     
     func propertyRenames(of type: TypeInformation) -> [UpdateChange] {

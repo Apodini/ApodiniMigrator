@@ -29,13 +29,13 @@ private enum PropertyType: String {
     }
 }
 
-struct JSObjectScript {
+struct JSObjectScript { // TODO consider property renames for json string
     /// Old type
     private let from: TypeInformation
     /// NewType
     private let to: TypeInformation
     /// TypeRenames, additional attempt to increase the matching probability
-    private let typeRenames: [UpdateChange]
+    private let changes: ChangeContainer
     /// Properties of old type
     private let fromProperties: [TypeProperty]
     /// Properties of new type
@@ -51,7 +51,7 @@ struct JSObjectScript {
     init(from: TypeInformation, to: TypeInformation, changes: ChangeContainer = .init()) {
         self.from = from
         self.to = to
-        typeRenames = changes.typeRenames()
+        self.changes = changes
         fromProperties = from.objectProperties
         toProperties = to.objectProperties
         
@@ -83,18 +83,19 @@ struct JSObjectScript {
         if propertyHasMatching(toProperty, type: .to), !fromProperty.type.sameType(with: toProperty.type) {
             return
         }
+        // from here we now that the properties have the same cardinality, e.g. both optionals or both arrays...
+        if fromProperty == toProperty { // name and the type is equal -> matching
+            return addMatching(from: fromProperty, to: toProperty)
+        }
         
         let namesEqual = fromProperty.name == toProperty.name || ignoreNames
         
-        if fromProperty == toProperty {
+        if namesEqual, fromProperty.type.typeName == toProperty.type.typeName { // same cardinality, same name, same typeName, e.g. (User, User)
             return addMatching(from: fromProperty, to: toProperty)
         }
         
-        if namesEqual, fromProperty.type.typeName == toProperty.type.typeName {
-            return addMatching(from: fromProperty, to: toProperty)
-        }
-        
-        if namesEqual, typesAreRenamings(lhs: fromProperty.type, rhs: toProperty.type) {
+        // same cardinality, same name, same renamed type (e.g. User, UserNew) -> matching
+        if namesEqual, changes.typesAreRenamings(lhs: fromProperty.type, rhs: toProperty.type) {
             return addMatching(from: fromProperty, to: toProperty)
         }
     }
@@ -119,15 +120,6 @@ struct JSObjectScript {
     
     private func matchings(of type: PropertyType) -> [MatchedProperties] {
         matchingProperties.filter { target(for: type).contains(type == .from ? $0.from : $0.to) }
-    }
-    
-    private func typesAreRenamings(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
-        typeRenames.contains(where: { rename in
-            if case let .stringValue(lhsName) = rename.from, case let .stringValue(rhsName) = rename.to {
-                return lhsName == lhs.deltaIdentifier.rawValue && rhsName == rhs.deltaIdentifier.rawValue
-            }
-            return false
-        })
     }
     
     private func keyValuePair(for property: TypeProperty, of type: PropertyType) -> String {

@@ -239,6 +239,12 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(zero, 0)
     }
     
+    func testStringify() throws {
+        let jsS = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date), changes: .init())
+        
+        let date = try String?.from(Date(), script: jsS.convertToFrom)
+    }
+    
     func testIntToFloat() throws {
         let script =
         """

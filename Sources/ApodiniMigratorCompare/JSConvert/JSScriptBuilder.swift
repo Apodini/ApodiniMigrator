@@ -7,8 +7,9 @@
 
 import Foundation
 import ApodiniMigrator
+import ApodiniMigratorClientSupport
 
-struct JSScriptBuilder {
+struct JSScriptBuilder { /// TODO add new jsonstring builder that considers renamings, additions and deletion of properties
     private let from: TypeInformation
     private let to: TypeInformation
     private let changes: ChangeContainer
@@ -16,6 +17,8 @@ struct JSScriptBuilder {
     var convertFromTo: JSScript = ""
     /// JScript converting to to from
     var convertToFrom: JSScript = ""
+    /// Textual hint to be used in the change object if the convertion is not reliable
+    var hint: String? = nil
     
     init(from: TypeInformation, to: TypeInformation, changes: ChangeContainer) {
         self.from = from
@@ -34,26 +37,19 @@ struct JSScriptBuilder {
             let objectScript = JSObjectScript(from: from, to: to, changes: changes)
             convertFromTo = objectScript.convertFromTo
             convertToFrom = objectScript.convertToFrom
-        } else if from.isEnum, to.isEnum {
-            let message = JSScript(
-                """
-                'ApodiniMigrator' is not able to automatically generate convert scripts between two enumerations. Convert methods must be provided
-                by the developer of the web service. Otherwise, the enumerations in the client applications that will consume this Migration Guide,
-                will be always initialized with a random case.
-                """
-                )
-            convertFromTo = message
-            convertToFrom = message
         } else {
-            let message = JSScript(
-                """
-                'ApodiniMigrator' is not able to automatically generate convert scripts between two types with different cardinalities.
-                Convert methods must be provided by the developer of the web service. Otherwise, the respective types in the client applications
-                that will consume this Migration Guide, will be initialized with empty values.
-                """
-                )
-            convertFromTo = message
-            convertToFrom = message
+            // swiftlint:disable:next line_length
+            hint = "'ApodiniMigrator' is not able to automatically generate convert scripts between two types with different cardinalities or root types. Convert methods must be provided by the developer of the web service. Otherwise, the respective types in the client applications that will consume this Migration Guide, will be initialized with these default scripts."
+            convertFromTo = Self.stringify(argumentName: "ignoredFrom", with: JSONStringBuilder.jsonString(to, with: .default))
+            convertToFrom = Self.stringify(argumentName: "ignoredTo", with: JSONStringBuilder.jsonString(from, with: .default))
         }
+    }
+    
+    static func stringify(argumentName: String, with content: String) -> JSScript {
+        .init("""
+        function convert(\(argumentName)) {
+            return JSON.stringify(\(content))
+        }
+        """)
     }
 }

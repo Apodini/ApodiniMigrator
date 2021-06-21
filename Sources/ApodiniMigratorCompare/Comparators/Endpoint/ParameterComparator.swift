@@ -25,17 +25,6 @@ struct ParameterComparator: Comparator {
         lhs.deltaIdentifier
     }
     
-    // Since when comparing type information of parameters we might encounter complex types, the comparison
-    // should not be done on the type information directly since that is being handled by ModelsComparator.
-    // In the context of parameter comparison, the comparison is done on the type name of the parameter.
-    // This means, if primitive types are involved, those are considered equal if the type names are equal
-    // If complex types are involved, we perform a relaxed equatability on the typeNames allowing a degree
-    // of similarity due to potential renamings. Only if this property returns true, a parameter change that
-    // requires a javascript convert is registered
-    private var typeInformationHasChanged: Bool {
-        !(lhs.typeInformation.sameType(with: rhs.typeInformation) && (lhs.typeInformation.typeName ?= rhs.typeInformation.typeName))
-    }
-    
     init(lhs: Parameter, rhs: Parameter, changes: ChangeContainer, configuration: EncoderConfiguration, lhsEndpoint: Endpoint) {
         self.lhs = lhs
         self.rhs = rhs
@@ -73,16 +62,19 @@ struct ParameterComparator: Comparator {
             )
         }
         
-        /// TODO request from change container whether the type has been renamed and check whether the name is not equal
-        if typeInformationHasChanged {
-            let jsConverter = JSScriptBuilder(from: lhs.typeInformation, to: rhs.typeInformation, changes: changes)
+        let lhsType = lhs.typeInformation
+        let rhsType = rhs.typeInformation
+        
+        if typesNeedConvert(lhs: lhsType, rhs: rhsType) {
+            let jsConverter = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes)
             changes.add(
                 UpdateChange(
                     element: element,
-                    from: .id(from: lhs),
-                    to: .element(rhs.typeInformation),
+                    from: .element(reference(lhsType)),
+                    to: .element(reference(rhsType)),
                     targetID: targetID,
-                    convertTo: jsConverter.convertFromTo,
+                    convertFromTo: jsConverter.convertFromTo,
+                    convertionWarning: jsConverter.hint,
                     parameterTarget: .typeInformation,
                     breaking: true,
                     solvable: true

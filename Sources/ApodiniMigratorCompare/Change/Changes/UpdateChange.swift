@@ -26,8 +26,9 @@ public struct UpdateChange: Change {
         case targetID = "target-id"
         case from
         case to
-        case convertTo = "convert-to-method"
-        case convertFrom = "convert-from-method"
+        case convertFromTo = "convert-from-to-method"
+        case convertToFrom = "convert-to-from-method"
+        case convertionWarning = "convertion-warning"
         case breaking
         case solvable
         case providerSupport = "provider-support"
@@ -43,10 +44,12 @@ public struct UpdateChange: Change {
     public let to: ChangeValue
     /// Optional id of the target
     public let targetID: DeltaIdentifier?
-    /// JS convert function to convert old type to new type, e.g. if the change element is an endpoint and the target is the response
-    public let convertTo: JSScript?
+    /// JS convert function to convert old type to new type
+    public let convertFromTo: JSScript?
     /// JS convert function to convert new type to old type, e.g. if the change element is an object and the target is property
-    public let convertFrom: JSScript?
+    public let convertToFrom: JSScript?
+    /// Warning regarding the provided convert scripts
+    public let convertionWarning: String?
     /// The target of the parameter which is related to the change if type is a `parameterChange`
     public let parameterTarget: ParameterChangeTarget?
     /// Indicates whether the change is non-backward compatible
@@ -69,9 +72,10 @@ public struct UpdateChange: Change {
         self.from = from
         self.to = to
         self.targetID = targetID
-        self.convertTo = nil
-        self.convertFrom = nil
-        self.parameterTarget = nil
+        convertFromTo = nil
+        convertToFrom = nil
+        convertionWarning = nil
+        parameterTarget = nil
         self.breaking = breaking
         self.solvable = solvable
         self.providerSupport = nil
@@ -91,8 +95,9 @@ public struct UpdateChange: Change {
         self.from = .stringValue(from)
         self.to = .stringValue(to)
         targetID = nil
-        convertTo = nil
-        convertFrom = nil
+        convertFromTo = nil
+        convertToFrom = nil
+        convertionWarning = nil
         self.parameterTarget = nil
         self.breaking = breaking
         self.solvable = solvable
@@ -105,7 +110,8 @@ public struct UpdateChange: Change {
         element: ChangeElement,
         from: ChangeValue,
         to: ChangeValue,
-        convertTo: JSScript,
+        convertToFrom: JSScript,
+        convertionWarning: String?,
         breaking: Bool,
         solvable: Bool
     ) {
@@ -113,8 +119,9 @@ public struct UpdateChange: Change {
         self.from = from
         self.to = to
         self.targetID = nil
-        self.convertTo = convertTo
-        self.convertFrom = nil
+        self.convertFromTo = nil
+        self.convertToFrom = convertToFrom
+        self.convertionWarning = convertionWarning
         self.parameterTarget = nil
         self.breaking = breaking
         self.solvable = solvable
@@ -128,8 +135,9 @@ public struct UpdateChange: Change {
         from: ChangeValue,
         to: ChangeValue,
         targetID: DeltaIdentifier,
-        convertTo: JSScript,
-        convertFrom: JSScript,
+        convertFromTo: JSScript,
+        convertToFrom: JSScript,
+        convertionWarning: String?,
         breaking: Bool,
         solvable: Bool
     ) {
@@ -137,8 +145,9 @@ public struct UpdateChange: Change {
         self.from = from
         self.to = to
         self.targetID = targetID
-        self.convertTo = convertTo
-        self.convertFrom = convertFrom
+        self.convertFromTo = convertFromTo
+        self.convertToFrom = convertToFrom
+        self.convertionWarning = convertionWarning
         self.parameterTarget = nil
         self.breaking = breaking
         self.solvable = solvable
@@ -152,7 +161,8 @@ public struct UpdateChange: Change {
         from: ChangeValue,
         to: ChangeValue,
         targetID: DeltaIdentifier,
-        convertTo: JSScript? = nil,
+        convertFromTo: JSScript? = nil,
+        convertionWarning: String? = nil,
         parameterTarget: ParameterChangeTarget,
         breaking: Bool,
         solvable: Bool
@@ -161,8 +171,9 @@ public struct UpdateChange: Change {
         self.from = from
         self.to = to
         self.targetID = targetID
-        self.convertTo = convertTo
-        self.convertFrom = nil
+        self.convertFromTo = convertFromTo
+        self.convertToFrom = nil
+        self.convertionWarning = convertionWarning
         self.parameterTarget = parameterTarget
         self.breaking = breaking
         self.solvable = solvable

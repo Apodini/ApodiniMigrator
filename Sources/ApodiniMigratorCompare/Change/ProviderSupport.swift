@@ -66,6 +66,7 @@ public struct ProviderSupport: Value {
 
 // MARK: - ProviderSupport
 extension ProviderSupport {
+    // swiftlint:disable line_length
     /// Rename hint for either a Delete or AddChange.
     static func renameHint<C: Change>(_ type: C.Type) -> ProviderSupport {
         assert(C.self == AddChange.self || C.self == DeleteChange.self, "Attempted to use rename hint for change types that are not addition or deletions")
@@ -86,6 +87,7 @@ extension ProviderSupport {
             warning: "The field \(CodingKeys.renameIsValid.rawValue) expects a value of JSON type 'boolean'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
         )
     }
+    // swiftlint:enable line_length
 }
 
 extension ChangeValue {
