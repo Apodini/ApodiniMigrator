@@ -19,6 +19,10 @@ let package = Package(
             name: "___PACKAGE_NAME___",
             dependencies: [
                 .product(name: "ApodiniMigratorClientSupport", package: "ApodiniMigrator")
+            ],
+            resources: [
+                .process("Resources/js-convert-scripts.json"),
+                .process("Resources/json-values.json")
             ]),
         .testTarget(
             name: "___PACKAGE_NAME___Tests",

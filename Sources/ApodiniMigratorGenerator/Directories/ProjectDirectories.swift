@@ -35,6 +35,11 @@ public struct ProjectDirectories {
         target + .http
     }
     
+    /// `Resources` directory path
+    public var resources: Path {
+        target + .resources
+    }
+    
     /// `Models` directory of the package
     public var models: Path {
         target + .models
@@ -67,7 +72,7 @@ public struct ProjectDirectories {
     
     /// All directories of the package that contain files
     var allDirectories: [Path] {
-        [http, models, endpoints, networking, utils, testsTarget]
+        [http, resources, models, endpoints, networking, utils, testsTarget]
     }
     
     /// Initializes `self` out of a `packageName` and a `packagePath`
@@ -99,6 +104,7 @@ public struct ProjectDirectories {
         switch directory {
         case .sources: return sources
         case .http: return http
+        case .resources: return resources
         case .models: return models
         case .endpoints: return endpoints
         case .networking: return networking

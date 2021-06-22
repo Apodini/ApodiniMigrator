@@ -15,7 +15,7 @@ public enum ChangeValue: Value {
     
     // MARK: Private Inner Types
     enum CodingKeys: String, CodingKey {
-        case element, elementID = "element-id", stringValue = "string-value", json
+        case element, elementID = "element-id", stringValue = "string-value", json = "json-value-id"
     }
     
     /// Not all changed elements need to provide a value. This case serves those scenarios (this case is decoded in a singleValueContainer)
@@ -41,11 +41,12 @@ public enum ChangeValue: Value {
     /// A case to hold json string representation of default values or fallback values of different types that can appear in the web service API,
     ///  and are subject to change. E.g. for a new added property of type User, the string of this case would be `{ "name": "", "id": 0 }`,
     ///  which can then be decoded in the client library accordingly
-    case json(String)
+    case json(Int)
     /// An internal convenience method to initalize `.json` case from the typeInformation of the type
     /// Encoder configuration is passed from the new version in order to encode the default values with the correct encoder configuration
-    static func value(from typeInformation: TypeInformation, with configuration: EncoderConfiguration) -> ChangeValue {
-        .json(JSONStringBuilder.jsonString(typeInformation, with: configuration))
+    static func value(from typeInformation: TypeInformation, with configuration: EncoderConfiguration, changes: ChangeContainer) -> ChangeValue {
+        let jsonValue = JSONValue(JSONStringBuilder.jsonString(typeInformation, with: configuration))
+        return .json(changes.store(jsonValue: jsonValue))
     }
     
     /// Returns the nested string value of the cases, or `nil` if `self` is `.element`
@@ -54,7 +55,7 @@ public enum ChangeValue: Value {
         case .none: return "none"
         case let .elementID(id): return id.rawValue
         case let .stringValue(string): return string
-        case let .json(string): return string
+        case let .json(id): return "\(id)"
         default: return nil
         }
     }
@@ -128,11 +129,15 @@ public enum ChangeValue: Value {
         default: break
         }
         
-        if let key = key, let value = value {
-            try container.encode(value, forKey: key)
-        } else {
+        guard let codingKey = key else {
             throw EncodingError.invalidValue((), EncodingError.Context(codingPath: [], debugDescription: "\(Self.self) did not encode any value"))
         }
+        
+        if codingKey == .json {
+            return try container.encode(Int(value ?? ""), forKey: codingKey)
+        }
+        
+        try container.encode(value, forKey: codingKey)
     }
     
     /// Creates a new instance by decoding from the given decoder
@@ -156,7 +161,7 @@ public enum ChangeValue: Value {
             case .element: self = .element(try container.decode(AnyCodableElement.self, forKey: .element))
             case .elementID: self = .elementID(try container.decode(DeltaIdentifier.self, forKey: .elementID))
             case .stringValue: self = .stringValue(try container.decode(String.self, forKey: .stringValue))
-            case .json: self = .json(try container.decode(String.self, forKey: .json))
+            case .json: self = .json(try container.decode(Int.self, forKey: .json))
             }
         }
     }

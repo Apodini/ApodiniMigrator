@@ -62,7 +62,7 @@ public struct Migrator {
             networkingChanges: changeFilter.networkingChanges
         )
         
-        self.logger = Self.logger
+        logger = Self.logger
     }
     
     public func migrate() throws {
@@ -74,6 +74,8 @@ public struct Migrator {
         
         try writeUtils()
         
+        try writeResources()
+        
         try endpointsMigrator.build()
         
         try modelsMigrator.build()
@@ -81,6 +83,15 @@ public struct Migrator {
         try writeNetworking()
         
         try writeTests()
+    }
+    
+    private func writeResources() throws {
+        let migrationGuide = changeFilter.migrationGuide
+        let jsScripts = migrationGuide.scripts
+        let jsonValues = migrationGuide.jsonValues
+        
+        try (directories.resources + Resources.jsScripts.rawValue).write(jsScripts.json)
+        try (directories.resources + Resources.jsonValues.rawValue).write(jsonValues.json)
     }
     
     private func writeNetworking() throws {

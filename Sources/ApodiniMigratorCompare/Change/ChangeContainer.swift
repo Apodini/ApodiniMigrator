@@ -16,10 +16,16 @@ final class ChangeContainer: Codable {
     /// Compare config passed from migration guide, property is owned by the migration guide, and does not get encoded or decoded from `self`
     var compareConfiguration: CompareConfiguration?
     
+    var scripts: [Int: JSScript]
+    
+    var jsonValues: [Int: JSONValue]
+    
     /// Initializes `self` with empty changes
     init(compareConfiguration: CompareConfiguration? = nil) {
         changes = []
         self.compareConfiguration = compareConfiguration
+        scripts = [:]
+        jsonValues = [:]
     }
     
     /// Encodes `self` into the given encoder via an `unkeyedContainer`
@@ -45,6 +51,8 @@ final class ChangeContainer: Codable {
     init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
         self.changes = []
+        scripts = [:]
+        jsonValues = [:]
         
         while !container.isAtEnd {
             if let value = try? container.decode(AddChange.self) {
@@ -64,6 +72,18 @@ final class ChangeContainer: Codable {
     /// Registers `change` to `self`
     func add(_ change: Change) {
         changes.append(change)
+    }
+    
+    func store(script: JSScript) -> Int {
+        let count = scripts.count
+        scripts[count] = script
+        return count
+    }
+    
+    func store(jsonValue: JSONValue) -> Int {
+        let count = jsonValues.count
+        jsonValues[count] = jsonValue
+        return count
     }
     
     func typeRenames() -> [UpdateChange] {

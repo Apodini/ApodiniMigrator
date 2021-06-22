@@ -14,6 +14,10 @@ public extension Decodable {
         try JSONDecoder().decode(Self.self, from: data)
     }
     
+    static func decode(from url: URL) throws -> Self {
+        try decode(from: try Data(contentsOf: url))
+    }
+    
     /// Initializes self from string
     static func decode(from string: String) throws -> Self {
         try decode(from: string.data(using: .utf8) ?? Data())

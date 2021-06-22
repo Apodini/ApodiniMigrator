@@ -1,5 +1,5 @@
 import Foundation
-@_exported import ApodiniMigratorClientSupport
+import ApodiniMigratorClientSupport
 
 /// A typealias of `ApodiniMigratorDecodable`, a `Decodable` protocol
 /// with additional type constraint to introduce a `JSONDecoder`
@@ -32,3 +32,70 @@ public extension Decodable {
 extension Date: Codable {}
 /// Data conformance to `ApodiniMigratorCodable`
 extension Data: Codable {}
+
+/// JSScript conformance to `ApodiniMigratorCodable`
+extension JSScript: Codable {}
+/// JSONValue conformance to `ApodiniMigratorCodable`
+extension JSONValue: Codable {}
+
+/// Holds distincts resource cases with the name of the resource as raw value
+private enum Resource: String {
+    /// Javascript convert methods
+    case jsScripts = "js-convert-scripts"
+    /// JSON values
+    case jsonValues = "json-values"
+}
+
+/// Bundle extension for resource handling
+fileprivate extension Bundle {
+    func resource<D: Decodable>(_ resource: Resource) -> D {
+        guard
+            let fileURL = url(forResource: resource.rawValue, withExtension: "json"),
+            let instance = try? D.decode(from: fileURL)
+        else { fatalError("Resource \(resource.rawValue) is malformed") }
+        return instance
+    }
+}
+
+/// A caseless enum that initializes and holds js convert functions and json values
+/// Is used in `ExpressibleByIntegerLiteral` initializers of `JSScript` and `JSONValue`
+private enum Resources {
+    /// Module bundle
+    private static var bundle = Bundle.module
+    
+    /// Dictionary of js scripts with keys as id
+    private static let jsScripts: [Int: JSScript] = {
+        bundle.resource(.jsScripts)
+    }()
+    
+    /// Dictionary of json values with keys as id
+    private static let jsonValues: [Int: JSONValue] = {
+        bundle.resource(.jsonValues)
+    }()
+    
+    /// Returns the JSScript in `jsScripts` at key `id`
+    static subscript(scriptID id: Int) -> JSScript {
+        jsScripts[id, default: .init("")]
+    }
+    
+    /// Returns the JSONValue in `jsonValues` at key `id`
+    static subscript(jsonID id: Int) -> JSONValue {
+        jsonValues[id, default: .init("")]
+    }
+}
+
+/// JSScript conformance to ExpressibleByIntegerLiteral
+extension JSScript: ExpressibleByIntegerLiteral {
+    /// Initializes a JSScript instance from the id stored in `js-convert-scripts.json`
+    public init(integerLiteral value: Int) {
+        self = Resources[scriptID: value]
+    }
+}
+
+/// JSONValue conformance to ExpressibleByIntegerLiteral
+extension JSONValue: ExpressibleByIntegerLiteral {
+    /// Initializes a JSONValue instance from the id stored in `json-values.json`
+    public init(integerLiteral value: Int) {
+        self = Resources[jsonID: value]
+    }
+}

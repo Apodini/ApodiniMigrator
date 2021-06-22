@@ -2,14 +2,14 @@
 //  File.swift
 //  
 //
-//  Created by Eldi Cano on 13.06.21.
+//  Created by Eldi Cano on 22.06.21.
 //
 
 import Foundation
 import ApodiniMigrator
 
-/// A `JSScript` object that holds the script function at his rawValue property
-public struct JSScript: Value, RawRepresentable {
+/// A `JSONValue` object that holds the string json of a certain encodable instance at rawValue property
+public struct JSONValue: Value, RawRepresentable {
     /// Raw value
     public let rawValue: String
 
@@ -36,7 +36,7 @@ public struct JSScript: Value, RawRepresentable {
 }
 
 // MARK: - ExpressibleByStringLiteral
-extension JSScript: ExpressibleByStringLiteral {
+extension JSONValue: ExpressibleByStringLiteral {
     /// Creates an instance initialized to the given string value.
     public init(stringLiteral value: String) {
         self.init(value)
@@ -44,7 +44,7 @@ extension JSScript: ExpressibleByStringLiteral {
 }
 
 // MARK: - CustomStringConvertible + CustomDebugStringConvertible
-extension JSScript: CustomStringConvertible, CustomDebugStringConvertible {
+extension JSONValue: CustomStringConvertible, CustomDebugStringConvertible {
     /// String description of self
     public var description: String { rawValue }
     /// String description of self
@@ -52,7 +52,7 @@ extension JSScript: CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 // MARK: - Hashable
-public extension JSScript {
+public extension JSONValue {
     /// :nodoc:
     func hash(into hasher: inout Hasher) {
         hasher.combine(rawValue)
@@ -60,9 +60,9 @@ public extension JSScript {
 }
 
 // MARK: - Equatable
-public extension JSScript {
+public extension JSONValue {
     /// :nodoc:
-    static func == (lhs: JSScript, rhs: JSScript) -> Bool {
+    static func == (lhs: JSONValue, rhs: JSONValue) -> Bool {
         lhs.rawValue == rhs.rawValue
     }
 }

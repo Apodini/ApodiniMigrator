@@ -19,7 +19,7 @@ public struct CompareConfiguration: Value {
     let allowEndpointIdentifierUpdate: Bool
     let allowTypeRename: Bool
     
-    static var `default`: CompareConfiguration {
+    public static var `default`: CompareConfiguration {
         .init(
             includeProviderSupport: true,
             allowEndpointIdentifierUpdate: false,

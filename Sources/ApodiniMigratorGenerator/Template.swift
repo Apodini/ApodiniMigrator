@@ -8,6 +8,12 @@
 import Foundation
 import ApodiniMigrator
 
+/// Resources added to the client library
+enum Resources: String {
+    case jsScripts = "js-convert-scripts.json"
+    case jsonValues = "json-values.json"
+}
+
 enum Template: String, Resource {
     case package
     case readme

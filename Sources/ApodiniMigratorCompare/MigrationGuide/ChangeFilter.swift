@@ -9,7 +9,9 @@ import Foundation
 
 public struct ChangeFilter {
     public let migrationGuide: MigrationGuide
-    public let allChanges: [Change]
+    public var allChanges: [Change] {
+        migrationGuide.changes
+    }
     public let endpointChanges: [Change]
     public let modelChanges: [Change]
     public let networkingChanges: [Change]
@@ -17,10 +19,10 @@ public struct ChangeFilter {
     
     init(_ migrationGuide: MigrationGuide) {
         self.migrationGuide = migrationGuide
-        allChanges = migrationGuide.changes
-        endpointChanges = allChanges.filter { $0.element.isEndpoint }
-        modelChanges = allChanges.filter { [.enum, .object].contains($0.element.type)}
-        networkingChanges = allChanges.filter { $0.element.isNetworking }
+        let changes = migrationGuide.changes
+        endpointChanges = changes.filter { $0.element.isEndpoint }
+        modelChanges = changes.filter { [.enum, .object].contains($0.element.type)}
+        networkingChanges = changes.filter { $0.element.isNetworking }
     }
     
     public func addedModels() -> [TypeInformation] {

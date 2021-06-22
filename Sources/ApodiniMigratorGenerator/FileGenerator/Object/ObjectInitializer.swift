@@ -11,14 +11,14 @@ import Foundation
 struct ObjectInitializer: Renderable {
     /// The properties of the object that this initializer belongs to
     var sortedProperties: [TypeProperty]
-    var defaultValues: [DeltaIdentifier: String]
+    var defaultValueIDs: [DeltaIdentifier: Int]
     
     /// Initializer
     init(_ properties: [TypeProperty], addedProperties: [AddedProperty] = []) {
         var allProperties = properties
-        defaultValues = [:]
+        defaultValueIDs = [:]
         for added in addedProperties {
-            defaultValues[added.typeProperty.deltaIdentifier] = added.defaultValueJSON
+            defaultValueIDs[added.typeProperty.deltaIdentifier] = added.jsonValueID
             allProperties.append(added.typeProperty)
         }
         sortedProperties = allProperties.sorted(by: \.name)
@@ -38,8 +38,8 @@ struct ObjectInitializer: Renderable {
     
     private func defaultValue(for property: TypeProperty) -> String {
         var typeString = property.type.typeString
-        if let json = defaultValues[property.deltaIdentifier] {
-            typeString += " = try! \(typeString).instance(from: \(json.doubleQuoted))"
+        if let id = defaultValueIDs[property.deltaIdentifier] {
+            typeString += " = try! \(typeString).instance(from: \(id))"
         }
         return typeString
     }

@@ -46,9 +46,8 @@ struct EnumMigrator: SwiftFileTemplate {
             return enumFileTemplate.render()
         }
         
-        var allCases = typeInformation.enumCases
         let addedCases = self.addedCases()
-        allCases.append(contentsOf: addedCases)
+        var allCases = typeInformation.enumCases + addedCases
         
         var addedCasesAnnotation = ""
         

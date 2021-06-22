@@ -82,7 +82,7 @@ struct ParametersComparator: Comparator {
             var defaultValue: ChangeValue?
             let isRequired = addition.necessity == .required
             if isRequired {
-                defaultValue = .value(from: addition.typeInformation, with: configuration)
+                defaultValue = .value(from: addition.typeInformation, with: configuration, changes: changes)
             }
             
             changes.add(

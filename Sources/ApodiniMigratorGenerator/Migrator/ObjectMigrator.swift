@@ -9,12 +9,12 @@ import Foundation
 
 struct AddedProperty {
     let typeProperty: TypeProperty
-    let defaultValueJSON: String
+    let jsonValueID: Int
 }
 
 struct DeletedProperty {
     let id: DeltaIdentifier
-    let fallbackValueJSON: String
+    let jsonValueID: Int
     
 }
 
@@ -60,16 +60,16 @@ struct ObjectMigrator: SwiftFileTemplate {
         }
         var addedProperties: [AddedProperty] = []
         for addChange in addedPropertyChanges {
-            if case let .element(anyCodable) = addChange.added, case let .json(json) = addChange.defaultValue {
-                addedProperties.append(.init(typeProperty: anyCodable.typed(TypeProperty.self), defaultValueJSON: json))
+            if case let .element(anyCodable) = addChange.added, case let .json(defaultJSONValueID) = addChange.defaultValue {
+                addedProperties.append(.init(typeProperty: anyCodable.typed(TypeProperty.self), jsonValueID: defaultJSONValueID))
             }
         }
         var allProperties = (typeInformation.objectProperties + addedProperties.map(\.typeProperty)).sorted(by: \.name)
         
         var deletedProperties: [DeletedProperty] = []
         for deleteChange in deletedPropertyChanges {
-            if case let .elementID(id) = deleteChange.deleted, case let .json(json) = deleteChange.fallbackValue {
-                deletedProperties.append(.init(id: id, fallbackValueJSON: json))
+            if case let .elementID(id) = deleteChange.deleted, case let .json(fallbackJSONValueID) = deleteChange.fallbackValue {
+                deletedProperties.append(.init(id: id, jsonValueID: fallbackJSONValueID))
             }
         }
         
@@ -85,7 +85,7 @@ struct ObjectMigrator: SwiftFileTemplate {
         \(ObjectInitializer(typeInformation.objectProperties, addedProperties: addedProperties).render())
 
         \(MARKComment(.encodable))
-        \(EncodingMethod(allProperties, deletedIDs: deletedProperties.map(\.id), optionalityChanges: propertyOptionalityChanges, convertChanges: propertyOptionalityChanges).render())
+        \(EncodingMethod(allProperties, deletedIDs: deletedProperties.map(\.id), optionalityChanges: propertyOptionalityChanges, convertChanges: propertyConvertChanges).render())
 
         \(MARKComment(.decodable))
         \(DecoderInitializer(allProperties).render())

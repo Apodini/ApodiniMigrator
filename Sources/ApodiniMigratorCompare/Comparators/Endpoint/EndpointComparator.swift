@@ -55,7 +55,7 @@ struct EndpointComparator: Comparator {
                     element: element(.response),
                     from: .element(reference(lhs.response)),
                     to: .element(reference(rhs.response)),
-                    convertToFrom: jsConverter.convertToFrom,
+                    convertToFrom: changes.store(script: jsConverter.convertToFrom),
                     convertionWarning: jsConverter.hint,
                     breaking: true,
                     solvable: true

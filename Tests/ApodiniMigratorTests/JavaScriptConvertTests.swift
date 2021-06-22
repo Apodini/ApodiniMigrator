@@ -106,42 +106,10 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssert(student.number == 42)
     }
     
-    func testMalformedInputAndScript() throws {
-//        struct Student: Codable, Equatable {
-//            let name: String
-//            let github: URL
-//            let dog: Dog
-//        }
-//        
-//        struct Dog: Codable, Equatable {
-//            let name: String
-//        }
-//        
-//        let constructScript =
-//        """
-//        function convert(name, matrNr, dog) {
-//            return JSON object { name, s, dog with name dog }
-//        }
-//        """
-//        
-//        // swiftlint:disable:next discouraged_optional_collection
-//        let someInstance: [String???]? = []
-//        
-//        // input is wrong, and the script is invalid, the default empty instance is created
-//        let student = try Student.from(someInstance, script: JSScript(constructScript))
-//        
-//        XCTAssert(student.name == .default)
-//        XCTAssert(student.github == .default)
-    }
+    let document = Path.desktop + "delta_document.json"
+    let packagePath: Path = .desktop
     
     func testPackageGenerator() throws {
-        let packagePath: Path = .desktop
-        guard packagePath.exists, !skipFileReadingTests else {
-            return
-        }
-        
-        let document = Path.desktop + "delta_document.json"
-        
         let gen = try ApodiniMigratorGenerator(
             packageName: "ExampleACD",
             packagePath: packagePath.string,
@@ -149,31 +117,23 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
             migrationGuide: .empty
         )
         
-        let migrator = try Migrator(packageName: "TestMigPackage", packagePath: packagePath.string, documentPath: document.string, migrationGuide: try MigrationGuide.decode(from: .desktop + "migration_guide.json"))
-        try migrator.migrate()
         
-//        XCTAssertNoThrow(try gen.build())
+        XCTAssertNoThrow(try gen.build())
     }
     
-    
-    
-    func testPackageFilesCollector() throws {
-        guard Path.desktop.exists, !skipFileReadingTests else {
+    func testPackageMigration() throws {
+        guard packagePath.exists, !skipFileReadingTests else {
             return
         }
         
-        let packageFilesCollector = PackageFilesCollector(packageName: "ExampleACD", packagePath: .desktop)
+        let migrator = try Migrator(
+            packageName: "TestMigPackage",
+            packagePath: packagePath.string,
+            documentPath: document.string,
+            migrationGuide: try MigrationGuide.decode(from: .desktop + "migration_guide.json")
+        )
         
-        let user = packageFilesCollector.model(name: "Contact")
-        
-        var objectFileParser = try ObjectFileParser(path: user)
-        
-        let endpoint = packageFilesCollector.endpoint(name: "Contact")
-        
-        let fileParser = try EndpointFileParser(path: endpoint)
-        try fileParser.save()
-        objectFileParser.addCodingKeyCase(name: "someTest")
-        try objectFileParser.save()
+        try migrator.migrate()
     }
     
     func testMigrationGuide() throws {
@@ -184,15 +144,11 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         let doc = Path.desktop + "delta_document.json"
         let doc2 = Path.desktop + "delta_document_updated.json"
         
-        let document1 = try Document.decode(from: doc)
-        let document2 = try Document.decode(from: doc2)
-        
-        let migrationGuide = MigrationGuide(for: document1, rhs: document2, compareConfiguration: .default)
+        var migrationGuide = try MigrationGuide.from(doc, doc2)
         try (Path.desktop + "migration_guide.json").write(migrationGuide.json)
 
-        let mig = try MigrationGuide.decode(from: Path.desktop + "migration_guide.json")
-        try (Path.desktop + "migration_guide_decoded.json").write(mig.json)
-        XCTAssert(mig.json == migrationGuide.json)
+        var decoded = try MigrationGuide.decode(from: Path.desktop + "migration_guide.json")
+        XCTAssert(decoded == migrationGuide)
     }
     
     func testEndpointPath() throws {
@@ -251,9 +207,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testStringify() throws {
-        let jsS = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date), changes: .init(), encoderConfiguration: .default)
+        let jsS = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date))
         
-        let date = try String?.from(Date(), script: jsS.convertToFrom)
+        XCTAssertNoThrow(try String?.from(Date(), script: jsS.convertToFrom))
     }
     
     func testIntToFloat() throws {

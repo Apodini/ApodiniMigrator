@@ -26,8 +26,8 @@ public struct UpdateChange: Change {
         case targetID = "target-id"
         case from
         case to
-        case convertFromTo = "convert-from-to-method"
-        case convertToFrom = "convert-to-from-method"
+        case convertFromTo = "convert-from-to-script-id"
+        case convertToFrom = "convert-to-from-script-id"
         case convertionWarning = "convertion-warning"
         case breaking
         case solvable
@@ -45,9 +45,9 @@ public struct UpdateChange: Change {
     /// Optional id of the target
     public let targetID: DeltaIdentifier?
     /// JS convert function to convert old type to new type
-    public let convertFromTo: JSScript?
+    public let convertFromTo: Int?
     /// JS convert function to convert new type to old type, e.g. if the change element is an object and the target is property
-    public let convertToFrom: JSScript?
+    public let convertToFrom: Int?
     /// Warning regarding the provided convert scripts
     public let convertionWarning: String?
     /// The target of the parameter which is related to the change if type is a `parameterChange`
@@ -110,7 +110,7 @@ public struct UpdateChange: Change {
         element: ChangeElement,
         from: ChangeValue,
         to: ChangeValue,
-        convertToFrom: JSScript,
+        convertToFrom: Int,
         convertionWarning: String?,
         breaking: Bool,
         solvable: Bool
@@ -135,8 +135,8 @@ public struct UpdateChange: Change {
         from: ChangeValue,
         to: ChangeValue,
         targetID: DeltaIdentifier,
-        convertFromTo: JSScript,
-        convertToFrom: JSScript,
+        convertFromTo: Int,
+        convertToFrom: Int,
         convertionWarning: String?,
         breaking: Bool,
         solvable: Bool
@@ -161,7 +161,7 @@ public struct UpdateChange: Change {
         from: ChangeValue,
         to: ChangeValue,
         targetID: DeltaIdentifier,
-        convertFromTo: JSScript? = nil,
+        convertFromTo: Int? = nil,
         convertionWarning: String? = nil,
         parameterTarget: ParameterChangeTarget,
         breaking: Bool,

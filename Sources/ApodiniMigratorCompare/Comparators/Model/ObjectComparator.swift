@@ -48,7 +48,7 @@ struct ObjectComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.propertyOptionality),
-                    from: .element(lhs.optionality),
+                    from: .element(lhs.optionality), // TODO needs default value / fallback value
                     to: .element(rhs.optionality),
                     targetID: targetID,
                     breaking: true,
@@ -63,8 +63,8 @@ struct ObjectComparator: Comparator {
                     from: .element(reference(lhsType)),
                     to: .element(reference(rhsType)),
                     targetID: targetID,
-                    convertFromTo: jsConverter.convertFromTo,
-                    convertToFrom: jsConverter.convertToFrom,
+                    convertFromTo: changes.store(script: jsConverter.convertFromTo),
+                    convertToFrom: changes.store(script: jsConverter.convertToFrom),
                     convertionWarning: jsConverter.hint,
                     breaking: true,
                     solvable: true
@@ -103,7 +103,7 @@ struct ObjectComparator: Comparator {
                 DeleteChange(
                     element: element(.property),
                     deleted: .id(from: removal),
-                    fallbackValue: .value(from: removal.type, with: configuration),
+                    fallbackValue: .value(from: removal.type, with: configuration, changes: changes),
                     breaking: removal.optionality == .required,
                     solvable: true,
                     includeProviderSupport: includeProviderSupport
@@ -116,7 +116,7 @@ struct ObjectComparator: Comparator {
                 AddChange(
                     element: element(.property),
                     added: .element(addition),
-                    defaultValue: .value(from: addition.type, with: configuration),
+                    defaultValue: .value(from: addition.type, with: configuration, changes: changes),
                     breaking: addition.optionality == .required,
                     solvable: true,
                     includeProviderSupport: includeProviderSupport

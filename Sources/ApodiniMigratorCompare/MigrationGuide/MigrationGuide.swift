@@ -21,6 +21,8 @@ public struct MigrationGuide: Codable {
         case to
         case compareConfiguration = "compare-config"
         case changeContainer = "changes"
+        case scripts
+        case jsonValues = "json-values"
     }
     
     /// A textual description of the migration guide
@@ -41,7 +43,12 @@ public struct MigrationGuide: Codable {
     public var changes: [Change] {
         changeContainer.changes
     }
+    /// Dictionary holding all registered convert scripts which are referenced from change objects
+    public var scripts: [Int: JSScript]
+    /// Dictionary holding all registered json values which are referenced from change objects
+    public var jsonValues: [Int: JSONValue]
     
+    /// A util property that serves to distribute changes to the elements that those belong to
     public var changeFilter: ChangeFilter {
         .init(self)
     }
@@ -55,7 +62,9 @@ public struct MigrationGuide: Codable {
             from: .default,
             to: .default,
             compareConfiguration: nil,
-            changeContainer: .init()
+            changeContainer: .init(),
+            scripts: [:],
+            jsonValues: [:]
         )
     }
     
@@ -67,7 +76,9 @@ public struct MigrationGuide: Codable {
         from: Version,
         to: Version,
         compareConfiguration: CompareConfiguration?,
-        changeContainer: ChangeContainer
+        changeContainer: ChangeContainer,
+        scripts: [Int: JSScript],
+        jsonValues: [Int: JSONValue]
     ) {
         self.summary = summary
         self.serviceType = serviceType
@@ -76,11 +87,13 @@ public struct MigrationGuide: Codable {
         self.to = to
         self.changeContainer = changeContainer
         self.compareConfiguration = compareConfiguration
+        self.scripts = scripts
+        self.jsonValues = jsonValues
     }
     
     /// Initializes the Migration Guide out of two Documents. Documents get compared
     /// and the changes can be accessed via `changes` of the new Migration Guide instance
-    public init(for lhs: Document, rhs: Document, compareConfiguration: CompareConfiguration? = nil) {
+    public init(for lhs: Document, rhs: Document, compareConfiguration: CompareConfiguration = .default) {
         let changeContainer = ChangeContainer(compareConfiguration: compareConfiguration)
         
         let documentsComparator = DocumentComparator(
@@ -100,7 +113,32 @@ public struct MigrationGuide: Codable {
             from: lhs.metaData.version,
             to: rhs.metaData.version,
             compareConfiguration: changeContainer.compareConfiguration,
-            changeContainer: changeContainer
+            changeContainer: changeContainer,
+            scripts: changeContainer.scripts,
+            jsonValues: changeContainer.jsonValues
         )
     }
+    
+    public static func from(_ lhsDocumentPath: Path, _ rhsDocumentPath: Path, compareConfiguration: CompareConfiguration = .default) throws -> MigrationGuide {
+        .init(for: try .decode(from: lhsDocumentPath), rhs: try .decode(from: rhsDocumentPath), compareConfiguration: compareConfiguration)
+    }
+    
+    public static func from(_ lhsDocumentPath: String, _ rhsDocumentPath: String, compareConfiguration: CompareConfiguration = .default) throws -> MigrationGuide {
+        .init(for: try .decode(from: Path(lhsDocumentPath)), rhs: try .decode(from: Path(rhsDocumentPath)), compareConfiguration: compareConfiguration)
+    }
+}
+
+extension MigrationGuide: Equatable {
+    public static func == (lhs: MigrationGuide, rhs: MigrationGuide) -> Bool {
+        var mutableLhs = lhs
+        var mutableRhs = rhs
+        mutableLhs.scripts = [:]
+        mutableLhs.jsonValues = [:]
+        
+        mutableRhs.scripts = [:]
+        mutableRhs.jsonValues = [:]
+        
+        return mutableLhs.json == mutableRhs.json && lhs.scripts == rhs.scripts && lhs.jsonValues == rhs.jsonValues
+    }
+    
 }

@@ -73,7 +73,7 @@ struct ParameterComparator: Comparator {
                     from: .element(reference(lhsType)),
                     to: .element(reference(rhsType)),
                     targetID: targetID,
-                    convertFromTo: jsConverter.convertFromTo,
+                    convertFromTo: changes.store(script: jsConverter.convertFromTo),
                     convertionWarning: jsConverter.hint,
                     parameterTarget: .typeInformation,
                     breaking: true,

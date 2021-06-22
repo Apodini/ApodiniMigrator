@@ -15,6 +15,8 @@ public enum DirectoryName: String {
     case http = "HTTP"
     /// Models
     case models = "Models"
+    /// Resources
+    case resources = "Resources"
     /// Endpoints
     case endpoints = "Endpoints"
     /// Networking
