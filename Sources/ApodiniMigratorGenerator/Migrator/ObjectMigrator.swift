@@ -18,7 +18,6 @@ struct DeletedProperty {
     
 }
 
-
 struct ObjectMigrator: SwiftFileTemplate {
     var typeInformation: TypeInformation
     var kind: Kind
@@ -29,7 +28,7 @@ struct ObjectMigrator: SwiftFileTemplate {
     private var addedPropertyChanges: [AddChange] = []
     private var deletedPropertyChanges: [DeleteChange] = []
     private var renamePropertyChanges: [UpdateChange] = []
-    private var propertyOptionalityChanges: [UpdateChange] = []
+    private var propertyNecessityChanges: [UpdateChange] = []
     private var propertyConvertChanges: [UpdateChange] = []
     
     init(_ typeInformation: TypeInformation, changes: [Change]) {
@@ -64,7 +63,7 @@ struct ObjectMigrator: SwiftFileTemplate {
                 addedProperties.append(.init(typeProperty: anyCodable.typed(TypeProperty.self), jsonValueID: defaultJSONValueID))
             }
         }
-        var allProperties = (typeInformation.objectProperties + addedProperties.map(\.typeProperty)).sorted(by: \.name)
+        let allProperties = (typeInformation.objectProperties + addedProperties.map(\.typeProperty)).sorted(by: \.name)
         
         var deletedProperties: [DeletedProperty] = []
         for deleteChange in deletedPropertyChanges {
@@ -85,7 +84,7 @@ struct ObjectMigrator: SwiftFileTemplate {
         \(ObjectInitializer(typeInformation.objectProperties, addedProperties: addedProperties).render())
 
         \(MARKComment(.encodable))
-        \(EncodingMethod(allProperties, deletedIDs: deletedProperties.map(\.id), optionalityChanges: propertyOptionalityChanges, convertChanges: propertyConvertChanges).render())
+        \(EncodingMethod(allProperties, deletedIDs: deletedProperties.map(\.id), necessityChanges: propertyNecessityChanges, convertChanges: propertyConvertChanges).render())
 
         \(MARKComment(.decodable))
         \(DecoderInitializer(allProperties).render())
@@ -107,7 +106,8 @@ struct ObjectMigrator: SwiftFileTemplate {
     }
     
     private mutating func collectChanges() {
-        for change in changes where change.element.target == ObjectTarget.property.rawValue {
+        let propertyTargets: [String] = [ObjectTarget.property, .necessity].map { $0.rawValue }
+        for change in changes where propertyTargets.contains(change.element.target) {
             if let deleteChange = change as? DeleteChange {
                 deletedPropertyChanges.append(deleteChange)
             } else if let addChange = change as? AddChange {
@@ -115,8 +115,8 @@ struct ObjectMigrator: SwiftFileTemplate {
             } else if let updateChange = change as? UpdateChange {
                 if updateChange.type == .rename {
                     renamePropertyChanges.append(updateChange)
-                } else if updateChange.element.target == ObjectTarget.propertyOptionality.rawValue {
-                    propertyOptionalityChanges.append(updateChange)
+                } else if updateChange.element.target == ObjectTarget.necessity.rawValue {
+                    propertyNecessityChanges.append(updateChange)
                 } else if updateChange.type == .propertyChange {
                     propertyConvertChanges.append(updateChange)
                 }

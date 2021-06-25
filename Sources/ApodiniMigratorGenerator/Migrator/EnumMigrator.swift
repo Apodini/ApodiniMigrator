@@ -37,7 +37,7 @@ struct EnumMigrator: SwiftFileTemplate {
             )
         } else if notPresentInNewVersion {
             annotation = GenericComment(
-                comment: "@available(*, deprecated, message: \"This enum is not used in the new version anymore!\")"
+                comment: "@available(*, deprecated, message: \("This enum is not used in the new version anymore!".doubleQuoted))"
             )
         }
         
@@ -47,12 +47,12 @@ struct EnumMigrator: SwiftFileTemplate {
         }
         
         let addedCases = self.addedCases()
-        var allCases = typeInformation.enumCases + addedCases
+        let allCases = typeInformation.enumCases + addedCases
         
         var addedCasesAnnotation = ""
         
         if !addedCases.isEmpty {
-            addedCasesAnnotation = "@available(*, introduced, message: \"This enum has been migrated with new cases. The client developer should ensure to adjust potential switch blocks of this enum\")" + .lineBreak
+            addedCasesAnnotation = "@available(*, introduced, message: \("This enum has been migrated with new cases. The client developer should ensure to adjust potential switch blocks of this enum".doubleQuoted)"
         }
         
         
@@ -64,7 +64,7 @@ struct EnumMigrator: SwiftFileTemplate {
 
         \(MARKComment(.model))
         \(addedCasesAnnotation)\(kind.signature) \(typeNameString): \(typeInformation.rawValueType?.rawValue.upperFirst ?? ""), Codable, CaseIterable {
-        \(allCases.map { "case \($0.name) = \(rawValue(for: $0))" }.lineBreaked)
+        \(allCases.map { "case \($0.name)\(rawValue(for: $0))" }.lineBreaked)
 
         \(MARKComment(.deprecated))
         \(EnumDeprecatedCases(deprecated: deletedCases()).render())
@@ -85,9 +85,9 @@ struct EnumMigrator: SwiftFileTemplate {
     
     private func rawValue(for oldCase: EnumCase) -> String {
         if let updated = rawValueUpdates[oldCase] {
-            return updated.name.doubleQuoted
+            return " = \(updated.name.doubleQuoted)"
         }
-        return oldCase.name.doubleQuoted
+        return ""
     }
 
     private func addedCases() -> [EnumCase] {

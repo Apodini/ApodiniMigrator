@@ -23,7 +23,7 @@ public struct MultipleFileGenerator: Persistable {
     /// Initializes generator from an array of `TypeInformation` elements.
     /// From `typeInformation` the generator retrieves all distinct `enum` and `object` types recursively
     public init(_ typeInformation: [TypeInformation]) throws {
-        files = try typeInformation
+        files = typeInformation
             .map { typeInformation in
                 if typeInformation.isEnum {
                     return EnumFileTemplate(typeInformation)

@@ -52,7 +52,6 @@ public struct Migrator {
             path: directories.models,
             oldModels: document.allModels(),
             addedModels: changeFilter.addedModels().fileRenderableTypes(),
-            deletedModelIDs: changeFilter.deletedModelIDs(),
             modelChanges: changeFilter.modelChanges
         )
         

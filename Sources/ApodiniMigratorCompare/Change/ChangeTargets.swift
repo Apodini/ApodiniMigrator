@@ -49,8 +49,8 @@ public enum ObjectTarget: String, Value {
     case typeName = "type-name"
     /// Property target
     case property
-    /// Property optionality target
-    case propertyOptionality = "property-optionality"
+    /// Property necessity target
+    case necessity = "property-necessity"
 }
 
 /// Distinct cases of enum targets that are subject to change

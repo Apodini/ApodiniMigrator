@@ -49,14 +49,14 @@ struct EndpointComparator: Comparator {
         let rhsResponse = rhs.response
         
         if typesNeedConvert(lhs: lhsResponse, rhs: rhsResponse) {
-            let jsConverter = JSScriptBuilder(from: lhsResponse, to: rhsResponse, changes: changes, encoderConfiguration: configuration)
+            let jsScriptBuilder = JSScriptBuilder(from: lhsResponse, to: rhsResponse, changes: changes, encoderConfiguration: configuration)
             changes.add(
                 UpdateChange(
                     element: element(.response),
                     from: .element(reference(lhs.response)),
                     to: .element(reference(rhs.response)),
-                    convertToFrom: changes.store(script: jsConverter.convertToFrom),
-                    convertionWarning: jsConverter.hint,
+                    convertToFrom: changes.store(script: jsScriptBuilder.convertToFrom),
+                    convertionWarning: jsScriptBuilder.hint,
                     breaking: true,
                     solvable: true
                 )

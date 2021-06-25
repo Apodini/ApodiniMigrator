@@ -16,17 +16,7 @@ struct ObjectCodingKeys: Renderable {
     var enumCases: [EnumCase] {
         codingKeysEnum.enumCases
     }
-    
-//    AddChange(
-//        element: element(.property),
-//        added: .element(addition),
-//        defaultValue: .value(from: addition.type, with: configuration),
-//        breaking: addition.optionality == .required,
-//        solvable: true,
-//        includeProviderSupport: includeProviderSupport
-//    )
-    
-    
+   
     /// Initializer of the coding keys from the properties of the object
     init(_ properties: [TypeProperty], addedProperties: [TypeProperty] = [], renameChanges: [UpdateChange] = []) {
         var renames: [String: String] = [:]
@@ -48,7 +38,7 @@ struct ObjectCodingKeys: Renderable {
     func render() -> String {
         """
         private \(Kind.enum.signature.without("public ")) \(codingKeysEnum.typeName.name): String, CodingKey {
-        \(enumCases.map { "case \($0.name) = \($0.rawValue.doubleQuoted)" }.lineBreaked)
+        \(enumCases.map { "case \($0.name)\($0.rawValue == $0.name ? "" : " = \($0.rawValue.doubleQuoted)")" }.lineBreaked)
         }
         """
     }

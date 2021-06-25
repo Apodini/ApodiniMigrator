@@ -104,8 +104,11 @@ public struct EndpointPath: Value {
     /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        
-        self = Self(try container.decode(String.self))
+        let string = try container.decode(String.self)
+        guard string.starts(with: Self.separator) else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Not an endpoint path value")
+        }
+        self = Self(string)
     }
     
     /// Checks equality between lhs and rhs based on respective string components

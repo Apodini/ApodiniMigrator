@@ -1,5 +1,6 @@
 import XCTest
 @testable import ApodiniMigratorGenerator
+@testable import ApodiniMigratorCompare
 
 final class MigrationGuideTests: ApodiniMigratorXCTestCase {
     let document = Path.desktop + "delta_document.json"
@@ -21,12 +22,12 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
         guard packagePath.exists, !skipFileReadingTests else {
             return
         }
-        
+        let mig = try MigrationGuide.decode(from: .desktop + "migration_guide.json")
         let migrator = try Migrator(
             packageName: "TestMigPackage",
             packagePath: packagePath.string,
             documentPath: document.string,
-            migrationGuide: try MigrationGuide.decode(from: .desktop + "migration_guide.json")
+            migrationGuide: mig
         )
         
         try migrator.migrate()

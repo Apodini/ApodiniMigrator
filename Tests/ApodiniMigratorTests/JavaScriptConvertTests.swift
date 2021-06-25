@@ -121,36 +121,6 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssertNoThrow(try gen.build())
     }
     
-    func testPackageMigration() throws {
-        guard packagePath.exists, !skipFileReadingTests else {
-            return
-        }
-        
-        let migrator = try Migrator(
-            packageName: "TestMigPackage",
-            packagePath: packagePath.string,
-            documentPath: document.string,
-            migrationGuide: try MigrationGuide.decode(from: .desktop + "migration_guide.json")
-        )
-        
-        try migrator.migrate()
-    }
-    
-    func testMigrationGuide() throws {
-        guard Path.desktop.exists, !skipFileReadingTests else {
-            return
-        }
-        
-        let doc = Path.desktop + "delta_document.json"
-        let doc2 = Path.desktop + "delta_document_updated.json"
-        
-        let migrationGuide = try MigrationGuide.from(doc, doc2)
-        try (Path.desktop + "migration_guide.json").write(migrationGuide.json)
-
-        let decoded = try MigrationGuide.decode(from: Path.desktop + "migration_guide.json")
-        XCTAssert(decoded == migrationGuide)
-    }
-    
     func testEndpointPath() throws {
         let string = "/v1/{some}/users/{id}"
         let string1 = "/v1/{s}/users/{idsdad}"

@@ -27,7 +27,6 @@ extension TypeInformation: AnyCodableElementValue {}
 extension EncoderConfiguration: AnyCodableElementValue {}
 extension DecoderConfiguration: AnyCodableElementValue {}
 extension ApodiniMigrator.Operation: AnyCodableElementValue {}
-extension Optionality: AnyCodableElementValue {}
 extension Necessity: AnyCodableElementValue {}
 extension TypeProperty: AnyCodableElementValue {}
 extension ParameterType: AnyCodableElementValue {}
@@ -76,8 +75,6 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
             try singleValueContainer.encode(value)
         } else if let value = value as? ApodiniMigrator.Operation {
             try singleValueContainer.encode(value)
-        } else if let value = value as? Optionality {
-            try singleValueContainer.encode(value)
         } else if let value = value as? ParameterType {
             try singleValueContainer.encode(value)
         } else if let value = value as? Necessity {
@@ -98,12 +95,20 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
         let container = try decoder.singleValueContainer()
         
         if let value = try? container.decode(Document.self) {
+            self.value = value  
+        } else if let value = try? container.decode(Necessity.self) {
             self.value = value
-        } else if let value = try? container.decode(DeltaIdentifier.self) {
+        } else if let value = try? container.decode(ParameterType.self) {
+            self.value = value
+        } else if let value = try? container.decode(RawValueType.self) {
+            self.value = value
+        } else if let value = try? container.decode(ApodiniMigrator.Operation.self) {
             self.value = value
         } else if let value = try? container.decode(Endpoint.self) {
             self.value = value
         } else if let value = try? container.decode(EndpointPath.self) {
+            self.value = value
+        } else if let value = try? container.decode(DeltaIdentifier.self) {
             self.value = value
         } else if let value = try? container.decode(Parameter.self) {
             self.value = value
@@ -113,19 +118,9 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
             self.value = value
         } else if let value = try? container.decode(DecoderConfiguration.self) {
             self.value = value
-        } else if let value = try? container.decode(ApodiniMigrator.Operation.self) {
-            self.value = value
-        } else if let value = try? container.decode(Optionality.self) {
-            self.value = value
-        } else if let value = try? container.decode(ParameterType.self) {
-            self.value = value
-        } else if let value = try? container.decode(Necessity.self) {
-            self.value = value
         } else if let value = try? container.decode(TypeProperty.self) {
             self.value = value
         } else if let value = try? container.decode(EnumCase.self) {
-            self.value = value
-        } else if let value = try? container.decode(RawValueType.self) {
             self.value = value
         } else { throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode \(Self.self)") }
     }
@@ -136,7 +131,7 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
     /// - Note: Results in `fatalError` if casting fails
     public func typed<C: Codable>(_ type: C.Type) -> C {
         guard let value = value as? C else {
-            fatalError("Failed to case value to \(C.self)")
+            fatalError("Failed to cast value to \(C.self)")
         }
         return value
     }

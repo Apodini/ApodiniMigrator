@@ -44,28 +44,29 @@ struct ObjectComparator: Comparator {
         
         let targetID = lhs.deltaIdentifier
         
-        if sameNestedTypes(lhs: lhsType, rhs: rhsType), lhs.optionality != rhs.optionality {
+        if sameNestedTypes(lhs: lhsType, rhs: rhsType), lhs.necessity != rhs.necessity {
             changes.add(
                 UpdateChange(
-                    element: element(.propertyOptionality),
-                    from: .element(lhs.optionality), // TODO needs default value / fallback value
-                    to: .element(rhs.optionality),
+                    element: element(.necessity),
+                    from: .element(lhs.necessity as Necessity),
+                    to: .element(rhs.necessity as Necessity),
+                    necessityValue: .value(from: lhs.type.unwrapped, with: configuration, changes: changes),
                     targetID: targetID,
                     breaking: true,
                     solvable: true
                 )
             )
         } else if typesNeedConvert(lhs: lhsType, rhs: rhsType) {
-            let jsConverter = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes, encoderConfiguration: configuration)
+            let jsScriptBuilder = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes, encoderConfiguration: configuration)
             changes.add(
                 UpdateChange(
                     element: element(.property),
                     from: .element(reference(lhsType)),
                     to: .element(reference(rhsType)),
                     targetID: targetID,
-                    convertFromTo: changes.store(script: jsConverter.convertFromTo),
-                    convertToFrom: changes.store(script: jsConverter.convertToFrom),
-                    convertionWarning: jsConverter.hint,
+                    convertFromTo: changes.store(script: jsScriptBuilder.convertFromTo),
+                    convertToFrom: changes.store(script: jsScriptBuilder.convertToFrom),
+                    convertionWarning: jsScriptBuilder.hint,
                     breaking: true,
                     solvable: true
                 )
@@ -104,7 +105,7 @@ struct ObjectComparator: Comparator {
                     element: element(.property),
                     deleted: .id(from: removal),
                     fallbackValue: .value(from: removal.type, with: configuration, changes: changes),
-                    breaking: removal.optionality == .required,
+                    breaking: removal.necessity == .required,
                     solvable: true,
                     includeProviderSupport: includeProviderSupport
                 )
@@ -117,7 +118,7 @@ struct ObjectComparator: Comparator {
                     element: element(.property),
                     added: .element(addition),
                     defaultValue: .value(from: addition.type, with: configuration, changes: changes),
-                    breaking: addition.optionality == .required,
+                    breaking: addition.necessity == .required,
                     solvable: true,
                     includeProviderSupport: includeProviderSupport
                 )

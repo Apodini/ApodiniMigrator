@@ -26,6 +26,7 @@ public struct UpdateChange: Change {
         case targetID = "target-id"
         case from
         case to
+        case necessityValue = "necessity-value"
         case convertFromTo = "convert-from-to-script-id"
         case convertToFrom = "convert-to-from-script-id"
         case convertionWarning = "convertion-warning"
@@ -44,6 +45,8 @@ public struct UpdateChange: Change {
     public let to: ChangeValue
     /// Optional id of the target
     public let targetID: DeltaIdentifier?
+    /// A json id in case that the necessity of a property or a parameter changed
+    public let necessityValue: ChangeValue?
     /// JS convert function to convert old type to new type
     public let convertFromTo: Int?
     /// JS convert function to convert new type to old type, e.g. if the change element is an object and the target is property
@@ -56,7 +59,7 @@ public struct UpdateChange: Change {
     public let breaking: Bool
     /// Indicates whether the change can be handled by `ApodiniMigrator`
     public let solvable: Bool
-    /// Provider support field if change type is a rename and `MigrationGuide.providerSupport` is set to `true`
+    /// Provider support field if change type is a rename and `compare-config` of the Migration Guide is set to `true` for `include-provider-support`
     public let providerSupport: ProviderSupport?
     
     /// Initializer for an UpdateChange with type `.update`
@@ -64,6 +67,7 @@ public struct UpdateChange: Change {
         element: ChangeElement,
         from: ChangeValue,
         to: ChangeValue,
+        necessityValue: ChangeValue? = nil,
         targetID: DeltaIdentifier? = nil,
         breaking: Bool,
         solvable: Bool
@@ -72,6 +76,7 @@ public struct UpdateChange: Change {
         self.from = from
         self.to = to
         self.targetID = targetID
+        self.necessityValue = necessityValue
         convertFromTo = nil
         convertToFrom = nil
         convertionWarning = nil
@@ -95,6 +100,7 @@ public struct UpdateChange: Change {
         self.from = .stringValue(from)
         self.to = .stringValue(to)
         targetID = nil
+        self.necessityValue = nil
         convertFromTo = nil
         convertToFrom = nil
         convertionWarning = nil
@@ -119,6 +125,7 @@ public struct UpdateChange: Change {
         self.from = from
         self.to = to
         self.targetID = nil
+        self.necessityValue = nil
         self.convertFromTo = nil
         self.convertToFrom = convertToFrom
         self.convertionWarning = convertionWarning
@@ -145,6 +152,7 @@ public struct UpdateChange: Change {
         self.from = from
         self.to = to
         self.targetID = targetID
+        self.necessityValue = nil
         self.convertFromTo = convertFromTo
         self.convertToFrom = convertToFrom
         self.convertionWarning = convertionWarning
@@ -161,6 +169,7 @@ public struct UpdateChange: Change {
         from: ChangeValue,
         to: ChangeValue,
         targetID: DeltaIdentifier,
+        necessityValue: ChangeValue? = nil,
         convertFromTo: Int? = nil,
         convertionWarning: String? = nil,
         parameterTarget: ParameterChangeTarget,
@@ -171,6 +180,7 @@ public struct UpdateChange: Change {
         self.from = from
         self.to = to
         self.targetID = targetID
+        self.necessityValue = necessityValue
         self.convertFromTo = convertFromTo
         self.convertToFrom = nil
         self.convertionWarning = convertionWarning

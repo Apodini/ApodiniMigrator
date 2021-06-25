@@ -27,11 +27,10 @@ extension ParameterType: CustomStringConvertible {
 }
 
 /** Necessity from Apodini*/
-/// Defines the necessity of a `Parameter`
 public enum Necessity: String, Value {
-    /// `.required` necessity describes parameters which require a value in any case.
+    /// `.required` necessity describes parameters or properties which require a value in any case.
     case required
-    /// `.optional` necessity describes parameters which do not necessarily require a value.
+    /// `.optional` necessity describes parameters or properties which do not necessarily require a value.
     /// This does not necessarily translate to `nil` being a valid value.
     case optional
 }

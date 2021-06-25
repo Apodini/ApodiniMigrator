@@ -70,7 +70,7 @@ struct EnumFileTemplate: SwiftFileTemplate {
         
         \(MARKComment(.model))
         \(annotationComment)\(kind.signature) \(typeNameString): String, Codable, CaseIterable {
-        \(enumCases.map { "case \($0.name) = \($0.name.doubleQuoted)" }.lineBreaked)
+        \(enumCases.map { "case \($0.name)" }.lineBreaked)
 
         \(MARKComment(.deprecated))
         \(deprecatedCases.render())

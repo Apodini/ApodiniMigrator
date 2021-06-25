@@ -14,11 +14,11 @@ struct ModelsMigrator {
     let unchangedModels: [TypeInformation]
     let modelChanges: [Change]
     
-    init(path: Path, oldModels: [TypeInformation], addedModels: [TypeInformation], deletedModelIDs: [DeltaIdentifier], modelChanges: [Change]) {
+    init(path: Path, oldModels: [TypeInformation], addedModels: [TypeInformation], modelChanges: [Change]) {
         self.modelsPath = path
         self.modelChanges = modelChanges
         
-        let changedIds = modelChanges.map { $0.element.deltaIdentifier }
+        let changedIds = modelChanges.map { $0.element.deltaIdentifier }.unique()
         var unchangedModels: Set<TypeInformation> = Set(addedModels)
         var changedModels: Set<TypeInformation> = []
         for old in oldModels {

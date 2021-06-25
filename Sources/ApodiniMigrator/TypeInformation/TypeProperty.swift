@@ -1,10 +1,5 @@
 import Foundation
 
-public enum Optionality: String, Value {
-    case optional
-    case required
-}
-
 public struct TypeProperty: Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
@@ -14,7 +9,7 @@ public struct TypeProperty: Value {
     public let type: TypeInformation
     public let annotation: String?
     
-    public var optionality: Optionality {
+    public var necessity: Necessity {
         type.isOptional ? .optional : .required
     }
     

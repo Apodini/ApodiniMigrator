@@ -41,6 +41,7 @@ struct ParameterComparator: Comparator {
                     from: .element(lhs.necessity),
                     to: .element(rhs.necessity),
                     targetID: targetID,
+                    necessityValue: rhs.necessity == .required ? .value(from: rhs.typeInformation, with: configuration, changes: changes) : nil,
                     parameterTarget: .necessity,
                     breaking: rhs.necessity == .required,
                     solvable: true
@@ -66,15 +67,15 @@ struct ParameterComparator: Comparator {
         let rhsType = rhs.typeInformation
         
         if typesNeedConvert(lhs: lhsType, rhs: rhsType) {
-            let jsConverter = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes, encoderConfiguration: configuration)
+            let jsScriptBuilder = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes, encoderConfiguration: configuration)
             changes.add(
                 UpdateChange(
                     element: element,
                     from: .element(reference(lhsType)),
                     to: .element(reference(rhsType)),
                     targetID: targetID,
-                    convertFromTo: changes.store(script: jsConverter.convertFromTo),
-                    convertionWarning: jsConverter.hint,
+                    convertFromTo: changes.store(script: jsScriptBuilder.convertFromTo),
+                    convertionWarning: jsScriptBuilder.hint,
                     parameterTarget: .typeInformation,
                     breaking: true,
                     solvable: true
