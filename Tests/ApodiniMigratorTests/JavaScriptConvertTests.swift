@@ -144,10 +144,10 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         let doc = Path.desktop + "delta_document.json"
         let doc2 = Path.desktop + "delta_document_updated.json"
         
-        var migrationGuide = try MigrationGuide.from(doc, doc2)
+        let migrationGuide = try MigrationGuide.from(doc, doc2)
         try (Path.desktop + "migration_guide.json").write(migrationGuide.json)
 
-        var decoded = try MigrationGuide.decode(from: Path.desktop + "migration_guide.json")
+        let decoded = try MigrationGuide.decode(from: Path.desktop + "migration_guide.json")
         XCTAssert(decoded == migrationGuide)
     }
     

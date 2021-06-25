@@ -1,5 +1,5 @@
 import Foundation
-import JavaScriptCore
+@_implementationOnly import JavaScriptCore
 // swiftlint:disable line_length function_parameter_count
 /// ApodiniMigratorCodable extension
 public extension ApodiniMigratorCodable {
