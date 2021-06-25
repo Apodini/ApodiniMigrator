@@ -75,12 +75,12 @@ private enum Resources {
     
     /// Returns the JSScript in `jsScripts` at key `id`
     static subscript(scriptID id: Int) -> JSScript {
-        jsScripts[id, default: .init("")]
+        jsScripts[id, default: ""]
     }
     
     /// Returns the JSONValue in `jsonValues` at key `id`
     static subscript(jsonID id: Int) -> JSONValue {
-        jsonValues[id, default: .init("")]
+        jsonValues[id, default: ""]
     }
 }
 
