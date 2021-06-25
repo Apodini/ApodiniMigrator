@@ -18,17 +18,16 @@ struct ObjectCodingKeys: Renderable {
     }
    
     /// Initializer of the coding keys from the properties of the object
-    init(_ properties: [TypeProperty], addedProperties: [TypeProperty] = [], renameChanges: [UpdateChange] = []) {
-        var renames: [String: String] = [:]
-        for renameChange in renameChanges {
-            if case let .stringValue(oldName) = renameChange.from, case let .stringValue(newName) = renameChange.to {
-                renames[oldName] = newName
+    init(_ properties: [TypeProperty], renameChanges: [UpdateChange] = []) {
+        let renames = renameChanges.reduce(into: [String: String]()) { result, current in
+            if case let .stringValue(oldName) = current.from, case let .stringValue(newName) = current.to {
+                result[oldName] = newName
             }
         }
-        var allCases: [EnumCase] = addedProperties.map { .init($0.name) }
-        for oldProperty in properties {
-            let rawValue = renames[oldProperty.name] ?? oldProperty.name
-            allCases.append(.init(oldProperty.name, rawValue: rawValue))
+        
+        let allCases: [EnumCase] = properties.map { property in
+            let rawValue = renames[property.name] ?? property.name
+            return .init(property.name, rawValue: rawValue)
         }
         
         codingKeysEnum = .enum(name: .init(name: "CodingKeys"), cases: allCases.sorted(by: \.name))

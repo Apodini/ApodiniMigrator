@@ -10,7 +10,7 @@ import Foundation
 struct EnumComparator: Comparator {
     let lhs: TypeInformation
     let rhs: TypeInformation
-    let changes: ChangeContainer
+    let changes: ChangeContextNode
     let configuration: EncoderConfiguration
     
     func element(_ target: EnumTarget) -> ChangeElement {
@@ -40,12 +40,12 @@ struct EnumComparator: Comparator {
 private struct EnumCasesComparator: Comparator {
     let lhs: TypeInformation
     let rhs: TypeInformation
-    let changes: ChangeContainer
+    let changes: ChangeContextNode
     let configuration: EncoderConfiguration
     let lhsCases: [EnumCase]
     let rhsCases: [EnumCase]
     
-    init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContainer, configuration: EncoderConfiguration) {
+    init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContextNode, configuration: EncoderConfiguration) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes

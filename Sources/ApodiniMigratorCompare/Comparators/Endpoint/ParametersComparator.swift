@@ -10,12 +10,12 @@ import Foundation
 struct ParametersComparator: Comparator {
     let lhs: Endpoint
     let rhs: Endpoint
-    let changes: ChangeContainer
+    let changes: ChangeContextNode
     var configuration: EncoderConfiguration
     let lhsParameters: [Parameter]
     let rhsParameters: [Parameter]
     
-    init(lhs: Endpoint, rhs: Endpoint, changes: ChangeContainer, configuration: EncoderConfiguration) {
+    init(lhs: Endpoint, rhs: Endpoint, changes: ChangeContextNode, configuration: EncoderConfiguration) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes

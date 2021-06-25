@@ -30,25 +30,12 @@ public struct ChangeFilter {
             change.type == .addition && change.element.target == ObjectTarget.`self`.rawValue
         } as? [AddChange] ?? []
         
-        return addedChanges.map { change in
+        return addedChanges.compactMap { change in
             if case let .element(typeInformation) = change.added {
                 return typeInformation.typed(TypeInformation.self)
             }
-            fatalError("Encountered a model AddChange that did not encode the type information in its element")
-        }
-    }
-    
-    public func deletedModelIDs() -> [DeltaIdentifier] {
-        let deletedChanges = modelChanges.filter { change in
-            change.type == .deletion && change.element.target == ObjectTarget.`self`.rawValue
-        } as? [DeleteChange] ?? []
-        
-        return deletedChanges.map { change in
-            if case let .elementID(id) = change.deleted {
-                return id
-            }
-            fatalError("Encountered a model DeleteChange that did not encode the id of type information in its element")
-        }
+            return nil
+        }.fileRenderableTypes()
     }
     
     public func addedEndpoints() -> [Endpoint] {
@@ -56,11 +43,11 @@ public struct ChangeFilter {
             change.type == .addition && change.element.target == EndpointTarget.`self`.rawValue
         } as? [AddChange] ?? []
         
-        return addedChanges.map { change in
+        return addedChanges.compactMap { change in
             if case let .element(endpoint) = change.added {
                 return endpoint.typed(Endpoint.self)
             }
-            fatalError("Encountered an endpoint AddChange that did not encode the endpoint in its element")
+            return nil
         }
     }
     
@@ -69,11 +56,11 @@ public struct ChangeFilter {
             change.type == .deletion && change.element.target == EndpointTarget.`self`.rawValue
         } as? [DeleteChange] ?? []
         
-        return deleteChange.map { change in
+        return deleteChange.compactMap { change in
             if case let .elementID(id) = change.deleted {
                 return id
             }
-            fatalError("Encountered an endpoint DeleteChange that did not encode the id of its element")
+            return nil
         }
     }
 }

@@ -20,9 +20,10 @@ public struct MigrationGuide: Codable {
         case from
         case to
         case compareConfiguration = "compare-config"
-        case changeContainer = "changes"
+        case changeContextNode = "changes"
         case scripts
         case jsonValues = "json-values"
+        case objectJSONs = "updated-json-representations"
     }
     
     /// A textual description of the migration guide
@@ -37,16 +38,20 @@ public struct MigrationGuide: Codable {
     public let to: Version
     /// Configuration used for comparison
     public let compareConfiguration: CompareConfiguration?
-    /// Private change container that holds, encodes and decodes the changes
-    private let changeContainer: ChangeContainer
+    /// Private change context node that holds, encodes and decodes the changes
+    private let changeContextNode: ChangeContextNode
     /// List of changes in the Migration Guide
     public var changes: [Change] {
-        changeContainer.changes
+        changeContextNode.changes
     }
     /// Dictionary holding all registered convert scripts which are referenced from change objects
     public var scripts: [Int: JSScript]
     /// Dictionary holding all registered json values which are referenced from change objects
     public var jsonValues: [Int: JSONValue]
+    
+    /// A property that holds json representation of models that had a breaking change on their properties, e.g. rename, addition, deletion or property type change.
+    /// This property is used for test cases in the client application
+    public var objectJSONs: [String: JSONValue]
     
     /// A util property that serves to distribute changes to the elements that those belong to
     public var changeFilter: ChangeFilter {
@@ -62,9 +67,7 @@ public struct MigrationGuide: Codable {
             from: .default,
             to: .default,
             compareConfiguration: nil,
-            changeContainer: .init(),
-            scripts: [:],
-            jsonValues: [:]
+            changeContextNode: .init()
         )
     }
     
@@ -76,34 +79,33 @@ public struct MigrationGuide: Codable {
         from: Version,
         to: Version,
         compareConfiguration: CompareConfiguration?,
-        changeContainer: ChangeContainer,
-        scripts: [Int: JSScript],
-        jsonValues: [Int: JSONValue]
+        changeContextNode: ChangeContextNode
     ) {
         self.summary = summary
         self.serviceType = serviceType
         self.specificationType = specificationType
         self.from = from
         self.to = to
-        self.changeContainer = changeContainer
+        self.changeContextNode = changeContextNode
         self.compareConfiguration = compareConfiguration
-        self.scripts = scripts
-        self.jsonValues = jsonValues
+        self.scripts = changeContextNode.scripts
+        self.jsonValues = changeContextNode.jsonValues
+        self.objectJSONs = changeContextNode.objectJSONs
     }
     
     /// Initializes the Migration Guide out of two Documents. Documents get compared
     /// and the changes can be accessed via `changes` of the new Migration Guide instance
     public init(for lhs: Document, rhs: Document, compareConfiguration: CompareConfiguration = .default) {
-        let changeContainer = ChangeContainer(compareConfiguration: compareConfiguration)
+        let changeContextNode = ChangeContextNode(compareConfiguration: compareConfiguration)
         
         let documentsComparator = DocumentComparator(
             lhs: lhs,
             rhs: rhs,
-            changes: changeContainer,
+            changes: changeContextNode,
             configuration: rhs.metaData.encoderConfiguration
         )
         
-        // Triggers the compare logic for all elements of both documents, and registers the changes in changeContainer
+        // Triggers the compare logic for all elements of both documents, and registers the changes in changeContextNode
         documentsComparator.compare()
         
         self.init(
@@ -112,10 +114,8 @@ public struct MigrationGuide: Codable {
             specificationType: .apodini,
             from: lhs.metaData.version,
             to: rhs.metaData.version,
-            compareConfiguration: changeContainer.compareConfiguration,
-            changeContainer: changeContainer,
-            scripts: changeContainer.scripts,
-            jsonValues: changeContainer.jsonValues
+            compareConfiguration: changeContextNode.compareConfiguration,
+            changeContextNode: changeContextNode
         )
     }
     
@@ -134,11 +134,13 @@ extension MigrationGuide: Equatable {
         var mutableRhs = rhs
         mutableLhs.scripts = [:]
         mutableLhs.jsonValues = [:]
+        mutableLhs.objectJSONs = [:]
         
         mutableRhs.scripts = [:]
         mutableRhs.jsonValues = [:]
+        mutableRhs.objectJSONs = [:]
         
-        return mutableLhs.json == mutableRhs.json && lhs.scripts == rhs.scripts && lhs.jsonValues == rhs.jsonValues
+        return mutableLhs.json == mutableRhs.json && lhs.scripts == rhs.scripts && lhs.jsonValues == rhs.jsonValues && lhs.objectJSONs == rhs.objectJSONs
     }
     
 }

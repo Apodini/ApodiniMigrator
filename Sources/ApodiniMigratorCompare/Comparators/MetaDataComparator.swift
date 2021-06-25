@@ -10,7 +10,7 @@ import Foundation
 struct MetaDataComparator: Comparator {
     let lhs: MetaData
     let rhs: MetaData
-    let changes: ChangeContainer
+    let changes: ChangeContextNode
     var configuration: EncoderConfiguration
     
     func compare() {

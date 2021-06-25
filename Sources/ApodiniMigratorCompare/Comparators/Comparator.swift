@@ -14,7 +14,7 @@ protocol Comparator {
     var lhs: Element { get }
     var rhs: Element { get }
     
-    var changes: ChangeContainer { get }
+    var changes: ChangeContextNode { get }
     
     var configuration: EncoderConfiguration { get }
     

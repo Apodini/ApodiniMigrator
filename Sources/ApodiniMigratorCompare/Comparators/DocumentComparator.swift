@@ -10,7 +10,7 @@ import Foundation
 struct DocumentComparator: Comparator {
     let lhs: Document
     let rhs: Document
-    let changes: ChangeContainer
+    let changes: ChangeContextNode
     let configuration: EncoderConfiguration
     
     var currentEncoderConfiguration: EncoderConfiguration {

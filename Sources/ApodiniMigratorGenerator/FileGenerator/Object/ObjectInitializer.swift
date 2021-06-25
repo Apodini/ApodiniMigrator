@@ -10,7 +10,7 @@ import Foundation
 /// Represents initializer of an object
 struct ObjectInitializer: Renderable {
     /// The properties of the object that this initializer belongs to
-    var sortedProperties: [TypeProperty]
+    var properties: [TypeProperty]
     var defaultValueIDs: [DeltaIdentifier: Int]
     
     /// Initializer
@@ -21,7 +21,7 @@ struct ObjectInitializer: Renderable {
             defaultValueIDs[added.typeProperty.deltaIdentifier] = added.jsonValueID
             allProperties.append(added.typeProperty)
         }
-        sortedProperties = allProperties.sorted(by: \.name)
+        self.properties = allProperties.sorted(by: \.name)
        
     }
     
@@ -29,9 +29,9 @@ struct ObjectInitializer: Renderable {
     func render() -> String {
         """
         public init(
-        \(sortedProperties.map { "\($0.name): \(defaultValue(for: $0))" }.joined(separator: ",\(String.lineBreak)"))
+        \(properties.map { "\($0.name): \(defaultValue(for: $0))" }.joined(separator: ",\(String.lineBreak)"))
         ) {
-        \(sortedProperties.map { "\($0.initLine)" }.lineBreaked)
+        \(properties.map { "\($0.initLine)" }.lineBreaked)
         }
         """
     }

@@ -10,7 +10,7 @@ import Foundation
 struct ModelComparator: Comparator {
     let lhs: TypeInformation
     let rhs: TypeInformation
-    let changes: ChangeContainer
+    let changes: ChangeContextNode
     let configuration: EncoderConfiguration
     
     func compare() {

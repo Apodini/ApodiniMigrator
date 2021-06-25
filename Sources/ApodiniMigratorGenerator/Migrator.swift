@@ -33,6 +33,11 @@ public struct Migrator {
     let endpointsMigrator: EndpointsMigrator
     let modelsMigrator: ModelsMigrator
     let networkingMigrator: NetworkingMigrator
+    let allModels: [TypeInformation]
+    let objectJSONs: [String: JSONValue]
+    let encoderConfiguration: EncoderConfiguration
+    private var useTemplateTestFile = false
+    
     
     public init(packageName: String, packagePath: String, documentPath: String, migrationGuide: MigrationGuide) throws {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
@@ -47,20 +52,22 @@ public struct Migrator {
             deletedEndpointIDs: changeFilter.deletedEndpointIDs(),
             endpointChanges: changeFilter.endpointChanges
         )
-        
+        let oldModels = document.allModels()
+        let addedModels = changeFilter.addedModels()
         modelsMigrator = .init(
             path: directories.models,
-            oldModels: document.allModels(),
-            addedModels: changeFilter.addedModels().fileRenderableTypes(),
+            oldModels: oldModels,
+            addedModels: addedModels,
             modelChanges: changeFilter.modelChanges
         )
-        
+        self.allModels = oldModels + addedModels
         networkingMigrator = .init(
             networkingPath: directories.networking,
             oldMetaData: document.metaData,
             networkingChanges: changeFilter.networkingChanges
         )
-        
+        self.encoderConfiguration = networkingMigrator.encoderConfiguration()
+        self.objectJSONs = migrationGuide.objectJSONs
         logger = Self.logger
     }
     
@@ -95,7 +102,7 @@ public struct Migrator {
     
     private func writeNetworking() throws {
         let serverPath = networkingMigrator.serverPath()
-        let encoderConfiguration = networkingMigrator.encoderConfiguration().networkingDescription
+        let encoderConfiguration = self.encoderConfiguration.networkingDescription
         let decoderConfiguration = networkingMigrator.decoderConfiguration().networkingDescription
         let handler = templateContentWithFileComment(.handler)
         let networking = templateContentWithFileComment(.networkingService)
@@ -119,7 +126,9 @@ public struct Migrator {
         let tests = directories.tests
         let testsTarget = directories.testsTarget
         let testFileName = packageName + "Tests" + .swift
-        let testFile = templateContentWithFileComment(.testFile, alternativeFileName: testFileName).with(packageName: packageName)
+        let testFile = useTemplateTestFile
+            ? templateContentWithFileComment(.testFile, alternativeFileName: testFileName).with(packageName: packageName)
+            : TestFileTemplate(allModels, objectJSONs: objectJSONs, encoderConfiguration: encoderConfiguration, fileName: testFileName, packageName: packageName).render().indentationFormatted()
             
         
         try (testsTarget + testFileName).write(testFile)

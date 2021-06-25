@@ -7,18 +7,21 @@
 
 import Foundation
 
-/// A container reference object to register changes during comparison of documents of two versions.
+/// A reference object to register changes during comparison of documents of two versions.
 /// Used internally in the migration guide generation to be passed in the DocumentComparator. Furthermore
 /// handles the logic of encoding and decoding different change types
-final class ChangeContainer: Codable {
+final class ChangeContextNode: Codable {
     /// Changes of the container
     private(set) var changes: [Change]
     /// Compare config passed from migration guide, property is owned by the migration guide, and does not get encoded or decoded from `self`
     var compareConfiguration: CompareConfiguration?
     
+    /// All javascript convert methods created during comparison
     var scripts: [Int: JSScript]
-    
+    /// All json values of properties or parameter that require a default or fallback value
     var jsonValues: [Int: JSONValue]
+    /// All json representations of objects that had some kind of breaking change in their properties
+    private(set) var objectJSONs: [String: JSONValue]
     
     /// Initializes `self` with empty changes
     init(compareConfiguration: CompareConfiguration? = nil) {
@@ -26,6 +29,8 @@ final class ChangeContainer: Codable {
         self.compareConfiguration = compareConfiguration
         scripts = [:]
         jsonValues = [:]
+        objectJSONs = [:]
+        
     }
     
     /// Encodes `self` into the given encoder via an `unkeyedContainer`
@@ -53,6 +58,7 @@ final class ChangeContainer: Codable {
         self.changes = []
         scripts = [:]
         jsonValues = [:]
+        objectJSONs = [:]
         
         while !container.isAtEnd {
             if let value = try? container.decode(AddChange.self) {
@@ -74,16 +80,26 @@ final class ChangeContainer: Codable {
         changes.append(change)
     }
     
+    /// Stores the script and returns its stored index
     func store(script: JSScript) -> Int {
         let count = scripts.count
         scripts[count] = script
         return count
     }
     
+    /// Stores the jsonValue and returns stored index
     func store(jsonValue: JSONValue) -> Int {
         let count = jsonValues.count
         jsonValues[count] = jsonValue
         return count
+    }
+    
+    /// For every compare between two models of different versions, this function is called to register potentially updated json representation of an object
+    func store(rhs: TypeInformation, encoderConfiguration: EncoderConfiguration) {
+        let propertyTargets = [ObjectTarget.property, .necessity].map { $0.rawValue }
+        if changes.contains(where: { $0.element.isObject && $0.elementID == rhs.deltaIdentifier && propertyTargets.contains($0.element.target) }) {
+            objectJSONs[rhs.typeName.name] = .init(JSONStringBuilder.jsonString(rhs, with: encoderConfiguration))
+        }
     }
     
     func typeRenames() -> [UpdateChange] {
@@ -101,14 +117,5 @@ final class ChangeContainer: Codable {
             }
             return false
         })
-    }
-    
-    func propertyRenames(of type: TypeInformation) -> [UpdateChange] {
-        changes.filter {
-            $0.type == .rename
-            && $0.element.isObject
-                && $0.elementID == type.deltaIdentifier
-                && $0.element.target == ObjectTarget.property.rawValue
-        } as? [UpdateChange] ?? []
     }
 }

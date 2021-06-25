@@ -35,7 +35,7 @@ struct JSObjectScript { // TODO consider property renames for json string
     /// NewType
     private let to: TypeInformation
     /// TypeRenames, additional attempt to increase the matching probability
-    private let changes: ChangeContainer
+    private let changes: ChangeContextNode
     /// Properties of old type
     private let fromProperties: [TypeProperty]
     /// Properties of new type
@@ -53,7 +53,7 @@ struct JSObjectScript { // TODO consider property renames for json string
     init(
         from: TypeInformation,
         to: TypeInformation,
-        changes: ChangeContainer = .init(),
+        changes: ChangeContextNode = .init(),
         encoderConfiguration: EncoderConfiguration = .default
     ) {
         self.from = from

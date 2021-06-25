@@ -10,7 +10,7 @@ import Foundation
 struct EndpointComparator: Comparator {
     let lhs: Endpoint
     let rhs: Endpoint
-    let changes: ChangeContainer
+    let changes: ChangeContextNode
     var configuration: EncoderConfiguration
     
     func compare() {

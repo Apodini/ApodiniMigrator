@@ -38,7 +38,7 @@ struct ObjectMigrator: SwiftFileTemplate {
         unsupportedChange = changes.first { $0.type == .unsupported } as? UnsupportedChange
         notPresentInNewVersion = changes.contains(where: { $0.type == .deletion && $0.element.target == ObjectTarget.`self`.rawValue })
         self.kind = .struct
-        collectChanges()
+        collectPropertyChanges()
     }
     
     func render() -> String {
@@ -57,25 +57,27 @@ struct ObjectMigrator: SwiftFileTemplate {
             let objectFileTemplate = ObjectFileTemplate(typeInformation, annotation: annotation)
             return objectFileTemplate.render()
         }
-        var addedProperties: [AddedProperty] = []
-        for addChange in addedPropertyChanges {
-            if case let .element(anyCodable) = addChange.added, case let .json(defaultJSONValueID) = addChange.defaultValue {
-                addedProperties.append(.init(typeProperty: anyCodable.typed(TypeProperty.self), jsonValueID: defaultJSONValueID))
+        
+        let addedProperties: [AddedProperty] = addedPropertyChanges.compactMap {
+            if case let .element(anyCodable) = $0.added, case let .json(defaultJSONValueID) = $0.defaultValue {
+                return .init(typeProperty: anyCodable.typed(TypeProperty.self), jsonValueID: defaultJSONValueID)
             }
+            return nil
         }
+        
         let allProperties = (typeInformation.objectProperties + addedProperties.map(\.typeProperty)).sorted(by: \.name)
         
-        var deletedProperties: [DeletedProperty] = []
-        for deleteChange in deletedPropertyChanges {
-            if case let .elementID(id) = deleteChange.deleted, case let .json(fallbackJSONValueID) = deleteChange.fallbackValue {
-                deletedProperties.append(.init(id: id, jsonValueID: fallbackJSONValueID))
+        let deletedProperties: [DeletedProperty] = deletedPropertyChanges.compactMap { change in
+            if case let .elementID(id) = change.deleted, case let .json(fallbackJSONValueID) = change.fallbackValue {
+                return .init(id: id, jsonValueID: fallbackJSONValueID)
             }
+            return nil
         }
         
         let fileContent =
         """
         \(header())
-        \(ObjectCodingKeys(oldProperties, addedProperties: addedProperties.map(\.typeProperty), renameChanges: renamePropertyChanges).render())
+        \(ObjectCodingKeys(allProperties, renameChanges: renamePropertyChanges).render())
 
         \(MARKComment(.properties))
         \(allProperties.map { $0.propertyLine }.lineBreaked)
@@ -84,10 +86,10 @@ struct ObjectMigrator: SwiftFileTemplate {
         \(ObjectInitializer(typeInformation.objectProperties, addedProperties: addedProperties).render())
 
         \(MARKComment(.encodable))
-        \(EncodingMethod(allProperties, deletedIDs: deletedProperties.map(\.id), necessityChanges: propertyNecessityChanges, convertChanges: propertyConvertChanges).render())
+        \(EncodingMethod(allProperties.filter { !deletedProperties.map(\.id).contains($0.deltaIdentifier) }, necessityChanges: propertyNecessityChanges, convertChanges: propertyConvertChanges).render())
 
         \(MARKComment(.decodable))
-        \(DecoderInitializer(allProperties).render())
+        \(DecoderInitializer(allProperties, deleted: deletedProperties, necessityChanges: propertyNecessityChanges, convertChanges: propertyConvertChanges).render())
         }
         """
         return fileContent
@@ -105,8 +107,8 @@ struct ObjectMigrator: SwiftFileTemplate {
         """
     }
     
-    private mutating func collectChanges() {
-        let propertyTargets: [String] = [ObjectTarget.property, .necessity].map { $0.rawValue }
+    private mutating func collectPropertyChanges() {
+        let propertyTargets = [ObjectTarget.property, .necessity].map { $0.rawValue }
         for change in changes where propertyTargets.contains(change.element.target) {
             if let deleteChange = change as? DeleteChange {
                 deletedPropertyChanges.append(deleteChange)

@@ -217,8 +217,7 @@ extension URL: DefaultInitializable {
 
 extension UUID: DefaultInitializable {
     public init(_ default: Default) {
-        // swiftlint:disable:next force_unwrapping
-        self = UUID(uuidString: "3070B293-C664-412B-A43E-21FF445608B7")!
+        self = .init()
     }
     
     public static func construct() -> TypeInformation {

@@ -10,12 +10,12 @@ import Foundation
 struct ObjectComparator: Comparator {
     let lhs: TypeInformation
     let rhs: TypeInformation
-    let changes: ChangeContainer
+    let changes: ChangeContextNode
     let configuration: EncoderConfiguration
     let lhsProperties: [TypeProperty]
     let rhsProperties: [TypeProperty]
     
-    init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContainer, configuration: EncoderConfiguration) {
+    init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContextNode, configuration: EncoderConfiguration) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes
@@ -36,6 +36,8 @@ struct ObjectComparator: Comparator {
                 compare(lhs: lhs, rhs: rhs)
             }
         }
+        
+        changes.store(rhs: rhs, encoderConfiguration: configuration)
     }
     
     private func compare(lhs: TypeProperty, rhs: TypeProperty) {
@@ -48,8 +50,8 @@ struct ObjectComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.necessity),
-                    from: .element(lhs.necessity as Necessity),
-                    to: .element(rhs.necessity as Necessity),
+                    from: .element(lhs.necessity),
+                    to: .element(rhs.necessity),
                     necessityValue: .value(from: lhs.type.unwrapped, with: configuration, changes: changes),
                     targetID: targetID,
                     breaking: true,

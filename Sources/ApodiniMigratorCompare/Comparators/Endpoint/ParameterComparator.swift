@@ -10,7 +10,7 @@ import Foundation
 struct ParameterComparator: Comparator {
     let lhs: Parameter
     let rhs: Parameter
-    let changes: ChangeContainer
+    let changes: ChangeContextNode
     let configuration: EncoderConfiguration
     var lhsEndpoint: Endpoint?
     
@@ -25,7 +25,7 @@ struct ParameterComparator: Comparator {
         lhs.deltaIdentifier
     }
     
-    init(lhs: Parameter, rhs: Parameter, changes: ChangeContainer, configuration: EncoderConfiguration, lhsEndpoint: Endpoint) {
+    init(lhs: Parameter, rhs: Parameter, changes: ChangeContextNode, configuration: EncoderConfiguration, lhsEndpoint: Endpoint) {
         self.lhs = lhs
         self.rhs = rhs
         self.changes = changes

@@ -15,8 +15,8 @@ struct EncodingMethod: Renderable {
     let convertChanges: [UpdateChange]
     
     /// Initializer
-    init(_ properties: [TypeProperty], deletedIDs: [DeltaIdentifier] = [], necessityChanges: [UpdateChange] = [], convertChanges: [UpdateChange] = []) {
-        self.properties = properties.filter { !deletedIDs.contains($0.deltaIdentifier) }
+    init(_ properties: [TypeProperty], necessityChanges: [UpdateChange] = [], convertChanges: [UpdateChange] = []) {
+        self.properties = properties
         self.necessityChanges = necessityChanges
         self.convertChanges = convertChanges
     }
@@ -33,16 +33,19 @@ struct EncodingMethod: Renderable {
     }
     
     func encodingLine(for property: TypeProperty) -> String {
+        let id = property.deltaIdentifier
+        let name = property.name
         if
-            let change = necessityChanges.first(where: { $0.targetID == property.deltaIdentifier }),
+            let change = necessityChanges.firstMatch(on: \.targetID, with: id),
             let necessityValue = change.necessityValue,
             case let .element(anyCodable) = change.to,
             anyCodable.typed(Necessity.self) == .required,
             case let .json(id) = necessityValue {
-            return "try container.encode(\(property.name) ?? (try \(property.type.unwrapped.typeString).instance(from: \(id))), forKey: .\(property.name))"
-        } else if let change = convertChanges.first(where: { $0.targetID == property.deltaIdentifier }), case let .element(anyCodable) = change.to, let convertToScript = change.convertFromTo {
+            return "try container.encode(\(name) ?? (try \(property.type.unwrapped.typeString).instance(from: \(id))), forKey: .\(name))"
+        } else if let change = convertChanges.firstMatch(on: \.targetID, with: id), case let .element(anyCodable) = change.to, let scriptID = change.convertFromTo {
             let newType = anyCodable.typed(TypeInformation.self)
-            return "try container.encode\(newType.isOptional ? "IfPresent" : "")(try \(newType.typeString).from(\(property.name), script: \(convertToScript)), forKey: .\(property.name))"
+            let encodeMethod = "encode\(newType.isOptional ? "IfPresent" : "")"
+            return "try container.\(encodeMethod)(try \(newType.typeString).from(\(name), script: \(scriptID)), forKey: .\(name))"
         } else {
             return property.encodingMethodLine
         }

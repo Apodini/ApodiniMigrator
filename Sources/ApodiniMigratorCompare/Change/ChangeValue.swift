@@ -44,7 +44,7 @@ public enum ChangeValue: Value {
     case json(Int)
     /// An internal convenience method to initalize `.json` case from the typeInformation of the type
     /// Encoder configuration is passed from the new version in order to encode the default values with the correct encoder configuration
-    static func value(from typeInformation: TypeInformation, with configuration: EncoderConfiguration, changes: ChangeContainer) -> ChangeValue {
+    static func value(from typeInformation: TypeInformation, with configuration: EncoderConfiguration, changes: ChangeContextNode) -> ChangeValue {
         let jsonValue = JSONValue(JSONStringBuilder.jsonString(typeInformation, with: configuration))
         return .json(changes.store(jsonValue: jsonValue))
     }

@@ -12,7 +12,7 @@ import ApodiniMigratorClientSupport
 struct JSScriptBuilder { /// TODO add new jsonstring builder that considers renamings, additions and deletion of properties
     private let from: TypeInformation
     private let to: TypeInformation
-    private let changes: ChangeContainer
+    private let changes: ChangeContextNode
     private let encoderConfiguration: EncoderConfiguration
     /// JScript converting from to to
     var convertFromTo: JSScript = ""
@@ -24,7 +24,7 @@ struct JSScriptBuilder { /// TODO add new jsonstring builder that considers rena
     init(
         from: TypeInformation,
         to: TypeInformation,
-        changes: ChangeContainer = .init(),
+        changes: ChangeContextNode = .init(),
         encoderConfiguration: EncoderConfiguration = .default
     ) {
         self.from = from

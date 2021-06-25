@@ -10,11 +10,23 @@ import Foundation
 /// Represents `init(from decoder: Decoder)` initializer of a Decodable object
 struct DecoderInitializer: Renderable {
     /// The properties of the object that this initializer belongs to
-    var properties: [TypeProperty]
+    let properties: [TypeProperty]
+    let deleted: [DeletedProperty]
+    let necessityChanges: [UpdateChange]
+    let convertChanges: [UpdateChange]
+    
     
     /// Initializer
-    init(_ properties: [TypeProperty]) {
+    init(
+        _ properties: [TypeProperty],
+        deleted: [DeletedProperty] = [],
+        necessityChanges: [UpdateChange] = [],
+        convertChanges: [UpdateChange] = []
+    ) {
         self.properties = properties
+        self.deleted = deleted
+        self.necessityChanges = necessityChanges
+        self.convertChanges = convertChanges
     }
     
     /// Renders the content of the initializer in a non-formatted way
@@ -23,9 +35,31 @@ struct DecoderInitializer: Renderable {
         public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        \(properties.map { "\($0.decoderInitLine)" }.lineBreaked)
+        \(properties.map { "\(decodingLine(for: $0))" }.lineBreaked)
         }
         """
+    }
+    
+    func decodingLine(for property: TypeProperty) -> String {
+        let id = property.deltaIdentifier
+        let name = property.name
+        if property.necessity == .required, let deletedProperty = deleted.firstMatch(on: \.id, with: id) {
+            return "\(name) = try \(property.type.typeString).instance(from: \(deletedProperty.jsonValueID))"
+        } else if let change = necessityChanges.firstMatch(on: \.targetID, with: id),
+                  let necessityValue = change.necessityValue,
+                  case let .element(anyCodable) = change.to,
+                  anyCodable.typed(Necessity.self) == .optional,
+                  case let .json(id) = necessityValue {
+            return "\(name) = try container.decodeIfPresent(\(property.type.typeString).self, forKey: .\(name)) ?? (try \(property.type.typeString).instance(from: \(id)))"
+        } else if let change = convertChanges.firstMatch(on: \.targetID, with: id),
+                  case let .element(anyCodable) = change.to,
+                  let scriptID = change.convertToFrom {
+            let newType = anyCodable.typed(TypeInformation.self)
+            let decodeMethod = "decode\(newType.isOptional ? "IfPresent" : "")"
+            return "\(name) = try \(property.type.typeString).from(try container.\(decodeMethod)(\(newType.typeString.dropQuestionMark).self, forKey: .\(name)), script: \(scriptID))"
+        } else {
+            return property.decoderInitLine
+        }
     }
 }
 
