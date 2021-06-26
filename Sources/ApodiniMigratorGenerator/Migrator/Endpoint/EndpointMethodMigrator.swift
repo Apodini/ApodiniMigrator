@@ -103,9 +103,9 @@ class EndpointMethodMigrator: Renderable {
         guard let convertID = responseConvertID else {
             return base
         }
-        let indentation = Indentation.tab
-        base += .lineBreak + indentation + ".tryMap { try \(endpoint.response.typeString).from($0, script: \(convertID)) }" + .lineBreak
-        base += indentation + ".eraseToAnyPublisher()" + .lineBreak
+        let indentationPlaceholder = Indentation.placeholder
+        base += .lineBreak + indentationPlaceholder + ".tryMap { try \(endpoint.response.typeString).from($0, script: \(convertID)) }" + .lineBreak
+        base += indentationPlaceholder + ".eraseToAnyPublisher()"
         return base
     }
     

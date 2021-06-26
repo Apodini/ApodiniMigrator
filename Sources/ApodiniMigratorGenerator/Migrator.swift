@@ -110,7 +110,6 @@ public struct Migrator {
             .with(serverPath, insteadOf: Template.serverPath)
             .with(encoderConfiguration, insteadOf: Template.encoderConfiguration)
             .with(decoderConfiguration, insteadOf: Template.decoderConfiguration)
-            .indentationFormatted()
 //        let webServiceFile = WebServiceFileTemplate(endpoints).render().indentationFormatted()
         let networkingDirectory = directories.networking
         

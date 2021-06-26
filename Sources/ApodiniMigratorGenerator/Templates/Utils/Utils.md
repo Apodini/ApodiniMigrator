@@ -48,10 +48,11 @@ private enum Resource: String {
 
 /// Bundle extension for resource handling
 fileprivate extension Bundle {
+    /// Returns the typed instance at `resource`
     func resource<D: Decodable>(_ resource: Resource) -> D {
         guard
-            let fileURL = url(forResource: resource.rawValue, withExtension: "json"),
-            let instance = try? D.decode(from: fileURL)
+        ____INDENTATION____let fileURL = url(forResource: resource.rawValue, withExtension: "json"),
+        ____INDENTATION____let instance = try? D.decode(from: fileURL)
         else { fatalError("Resource \(resource.rawValue) is malformed") }
         return instance
     }

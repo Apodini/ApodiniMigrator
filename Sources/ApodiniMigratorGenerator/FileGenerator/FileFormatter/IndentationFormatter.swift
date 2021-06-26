@@ -70,13 +70,16 @@ public struct IndentationFormatter: SwiftFileFormatter {
     public mutating func format(_ content: String) -> String {
         let formatted = content.sanitizedLines().reduce(into: "") { result, line in
             var indentation = currentIndentation
-            if updateStorage(with: line) == .closing {
+            var currentLine = line
+            if updateStorage(with: currentLine) == .closing || line.starts(with: Indentation.skip) {
                 indentation.dropLevel()
+                currentLine = currentLine.without(Indentation.skip)
             }
-            result += indentation + line + .lineBreak
+            result += indentation + currentLine + .lineBreak
         }
         assert(storage == 0, "Encountered a malformed swift file. Non-balanced number of opening a closing brackets: \(abs(storage))")
-        return formatted
+        return formatted.with(Indentation.tab, insteadOf: Indentation.placeholder)
+        
     }
     
     /// Formats content at the specified path with `(Command+A, Control+I)` `Xcode` command combinations, and persists the changes

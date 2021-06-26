@@ -40,28 +40,28 @@ public enum NetworkingService {
     ///    - baseURL: baseURL of the web service, where the handler is located, default value `NetworkingService.baseURL`
     public static func trigger<D: Decodable>(_ handler: Handler<D>, at baseURL: URL = baseURL) -> ApodiniPublisher<D> {
         URLSession.shared.dataTaskPublisher(for: URLRequest(for: handler, with: baseURL))
-        .tryMap { data, response in
-            let sanitizedData = !data.isEmpty ? data : "{}".data(using: .utf8) ?? .init()
-            guard let response = response as? HTTPURLResponse else {
-                return sanitizedData
-            }
-            
-            let statusCode = response.statusCode
-            
-            if 200 ... 299 ~= statusCode {
-                return sanitizedData
-            }
-            
-            if let handlerError = handler.error(with: statusCode) {
-                throw handlerError
-            }
-            
-            throw URLError(.init(rawValue: statusCode))
-        }
-        .decode(type: DataWrapper<D>.self, decoder: decoder)
-        .map(\.data)
-        .receive(on: DispatchQueue.main)
-        .eraseToAnyPublisher()
+        ____INDENTATION____.tryMap { data, response in
+        ____INDENTATION____let sanitizedData = !data.isEmpty ? data : "{}".data(using: .utf8) ?? .init()
+        ____INDENTATION____guard let response = response as? HTTPURLResponse else {
+        ____INDENTATION____    return sanitizedData
+        ____INDENTATION____}
+        ____INDENTATION____
+        ____INDENTATION____let statusCode = response.statusCode
+        ____INDENTATION____
+        ____INDENTATION____if 200 ... 299 ~= statusCode {
+        ____INDENTATION____    return sanitizedData
+        ____INDENTATION____}
+        ____INDENTATION____
+        ____INDENTATION____if let handlerError = handler.error(with: statusCode) {
+        ____INDENTATION____    throw handlerError
+        ____INDENTATION____}
+        ____INDENTATION____
+        ____INDENTATION____throw URLError(.init(rawValue: statusCode))
+        ____INDENTATION____}
+        ____INDENTATION____.decode(type: DataWrapper<D>.self, decoder: decoder)
+        ____INDENTATION____.map(\.data)
+        ____INDENTATION____.receive(on: DispatchQueue.main)
+        ____INDENTATION____.eraseToAnyPublisher()
     }
     
     /// Encodes an instance of the indicated type with `NetworkingService.encoder`
