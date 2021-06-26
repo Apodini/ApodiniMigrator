@@ -28,7 +28,7 @@ public protocol Resource {
 }
 
 /// Default internal implementations
-public extension Resource {
+extension Resource {
     /// name of the file
     var fileName: String {
         "\(name).\(fileExtension.description)"

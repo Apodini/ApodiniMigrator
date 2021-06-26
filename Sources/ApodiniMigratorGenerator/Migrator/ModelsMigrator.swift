@@ -29,13 +29,13 @@ struct ModelsMigrator {
             }
         }
         self.changedModels = changedModels.asArray
-        self.unchangedModels = unchangedModels.asArray.fileRenderableTypes()
+        self.unchangedModels = unchangedModels.asArray
     }
     
     
-    func build() throws {
+    func migrate() throws {
         let multipleFileGenerator = try MultipleFileGenerator(unchangedModels)
-        try multipleFileGenerator.persist(at: modelsPath)
+        try multipleFileGenerator.write(at: modelsPath)
         
         for changedModel in changedModels {
             let changes = modelChanges.filter { $0.elementID == changedModel.deltaIdentifier }

@@ -18,11 +18,11 @@ class EndpointFile: SwiftFileTemplate {
         .init(fileName: typeInformation.typeName.name + EndpointsMigrator.fileSuffix)
     }
     
-    init(typeInformation: TypeInformation, endpoints: [Endpoint], changes: [Change], kind: Kind) {
+    init(typeInformation: TypeInformation, endpoints: [Endpoint], changes: [Change]) {
         self.typeInformation = typeInformation
         self.endpoints = endpoints
         self.changes = changes
-        self.kind = kind
+        self.kind = .extension
     }
     
     private func methodBody(for endpoint: Endpoint) -> String {

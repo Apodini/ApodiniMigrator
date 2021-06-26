@@ -75,7 +75,7 @@ fileprivate extension ApodiniMigratorCodable {
         let result = context?.objectForKeyedSubscript(functionName)?.call(withArguments: jsonArgs)?.toString()
         
         guard let data = result?.data(using: .utf8) else {
-//            return try defaultValue()
+//            return try defaultValue() /// TODO adjust
             fatalError("failed")
         }
         
@@ -206,18 +206,6 @@ public extension ApodiniMigratorCodable {
     /// ```
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable, E9: ApodiniMigratorEncodable, E10: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, arg7: E7, arg8: E8, arg9: E9, arg10: E10, script: JSScript) throws -> Self {
         try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js(), arg7.js(), arg8.js(), arg9.js(), arg10.js()], script: script)
-    }
-}
-
-/// TODO Review, might not be needed
-private struct EncodableContainer<E: ApodiniMigratorEncodable> {
-    /// The encodable value of the container
-    let value: E
-    
-    /// JSON String of value
-    var json: String {
-        let data = (try? E.encoder.encode(value)) ?? Data()
-        return String(decoding: data, as: UTF8.self)
     }
 }
 

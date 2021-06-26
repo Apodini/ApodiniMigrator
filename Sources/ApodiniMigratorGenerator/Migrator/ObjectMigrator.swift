@@ -35,9 +35,9 @@ struct ObjectMigrator: SwiftFileTemplate {
         self.typeInformation = typeInformation
         self.oldProperties = typeInformation.objectProperties
         self.changes = changes
+        kind = .struct
         unsupportedChange = changes.first { $0.type == .unsupported } as? UnsupportedChange
         notPresentInNewVersion = changes.contains(where: { $0.type == .deletion && $0.element.target == ObjectTarget.`self`.rawValue })
-        self.kind = .struct
         collectPropertyChanges()
     }
     
@@ -74,6 +74,21 @@ struct ObjectMigrator: SwiftFileTemplate {
             return nil
         }
         
+        let objectInitializer = ObjectInitializer(typeInformation.objectProperties, addedProperties: addedProperties)
+        let encodingMethod = EncodingMethod(
+            allProperties.filter { !deletedProperties.map(\.id).contains($0.deltaIdentifier) },
+            necessityChanges: propertyNecessityChanges,
+            convertChanges: propertyConvertChanges
+        )
+        
+        let decoderInitializer = DecoderInitializer(
+            allProperties,
+            deleted: deletedProperties,
+            necessityChanges: propertyNecessityChanges,
+            convertChanges: propertyConvertChanges
+        )
+        
+        
         let fileContent =
         """
         \(header())
@@ -83,13 +98,13 @@ struct ObjectMigrator: SwiftFileTemplate {
         \(allProperties.map { $0.propertyLine }.lineBreaked)
         
         \(MARKComment(.initializer))
-        \(ObjectInitializer(typeInformation.objectProperties, addedProperties: addedProperties).render())
+        \(objectInitializer.render())
 
         \(MARKComment(.encodable))
-        \(EncodingMethod(allProperties.filter { !deletedProperties.map(\.id).contains($0.deltaIdentifier) }, necessityChanges: propertyNecessityChanges, convertChanges: propertyConvertChanges).render())
+        \(encodingMethod.render())
 
         \(MARKComment(.decodable))
-        \(DecoderInitializer(allProperties, deleted: deletedProperties, necessityChanges: propertyNecessityChanges, convertChanges: propertyConvertChanges).render())
+        \(decoderInitializer.render())
         }
         """
         return fileContent

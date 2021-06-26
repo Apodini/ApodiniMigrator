@@ -10,7 +10,7 @@ import Logging
 @_exported import ApodiniMigratorCompare
 
 /// A generator for a swift package
-public struct ApodiniMigratorGenerator {
+public struct ApodiniMigratorGenerator { // TODO Remove
     public static let logger: Logger = {
         .init(label: "de.apodini.migrator.generator")
     }()
@@ -33,7 +33,7 @@ public struct ApodiniMigratorGenerator {
     /// logger of package generator
     private let logger: Logger
     
-    public let changeFilter: ChangeFilter
+    let changeFilter: ChangeFilter
     /// TODO remove
     private var useTemplateTestFile = false
     
@@ -43,7 +43,7 @@ public struct ApodiniMigratorGenerator {
         self.packagePath = packagePath.asPath
         document = try Document.decode(from: documentPath.asPath)
         self.directories = ProjectDirectories(packageName: packageName, packagePath: packagePath)
-        changeFilter = migrationGuide.changeFilter
+        changeFilter = .init(migrationGuide)
         endpoints = document.endpoints
         addedEndpoints = changeFilter.addedEndpoints()
         metaData = document.metaData
@@ -97,7 +97,7 @@ public struct ApodiniMigratorGenerator {
     
     private func writeModels() throws {
         let recursiveFileGenerator = try MultipleFileGenerator(allModels)
-        try recursiveFileGenerator.persist(at: directories.models)
+        try recursiveFileGenerator.write(at: directories.models)
     }
     
     private func writeEndpoints() throws {

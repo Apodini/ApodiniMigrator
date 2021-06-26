@@ -12,10 +12,10 @@ class EndpointMethodMigrator: Renderable {
     let endpoint: Endpoint
     let unavailable: Bool // TODO added endpoint, skip other steps
     let endpointChanges: [Change]
-    private var parameters: [ChangedParameter] = []
-    var webServiceEndpoint: WebServiceEndpoint {
-        .init(endpoint: endpoint, unavailable: unavailable, parameters: parameters)
-    }
+    private var parameters: [ChangedParameter]
+    lazy var webServiceEndpoint: WebServiceEndpoint = {
+        .init(endpoint: endpoint, unavailable: unavailable, parameters: parameters, path: path())
+    }()
     
     var responseConvertID: Int?
     var newResponse: TypeInformation?
@@ -25,22 +25,8 @@ class EndpointMethodMigrator: Renderable {
         self.endpointChanges = changes.filter { $0.elementID == endpoint.deltaIdentifier }
         
         unavailable = endpointChanges.contains(where: { $0.type == .deletion && $0.element.target == EndpointTarget.`self`.rawValue })
-        setupParameters()
+        parameters = Self.changedParameters(of: endpoint, with: endpointChanges)
     }
-//    if typesNeedConvert(lhs: lhsResponse, rhs: rhsResponse) {
-//        let jsScriptBuilder = JSScriptBuilder(from: lhsResponse, to: rhsResponse, changes: changes, encoderConfiguration: configuration)
-//        changes.add(
-//            UpdateChange(
-//                element: element(.response),
-//                from: .element(reference(lhs.response)),
-//                to: .element(reference(rhs.response)),
-//                convertToFrom: changes.store(script: jsScriptBuilder.convertToFrom),
-//                convertionWarning: jsScriptBuilder.hint,
-//                breaking: true,
-//                solvable: true
-//            )
-//        )
-//    }
     
     private func responseString() -> String {
         if let responseChange = endpointChanges.firstMatch(on: \.type, with: .responseChange) as? UpdateChange, case let .element(anyCodable) = responseChange.to {
@@ -55,26 +41,44 @@ class EndpointMethodMigrator: Renderable {
         return endpoint.response.typeString
     }
     
+    private func target(_ target: EndpointTarget) -> String {
+        target.rawValue
+    }
+    
     private func operation() -> ApodiniMigrator.Operation {
-        if let operationChange = endpointChanges.first(where: { $0.element.target == EndpointTarget.operation.rawValue }) as? UpdateChange, case let .element(anyCodable) = operationChange.to {
+        if let operationChange = endpointChanges.first(where: { $0.element.target == target(.operation) }) as? UpdateChange, case let .element(anyCodable) = operationChange.to {
             return anyCodable.typed(ApodiniMigrator.Operation.self)
         }
         return endpoint.operation
     }
     
+    private func path() -> EndpointPath {
+        if let pathChange = endpointChanges.first(where: { $0.element.target == target(.resourcePath) }) as? UpdateChange, case let .element(anyCodable) = pathChange.to {
+            return anyCodable.typed(EndpointPath.self)
+        }
+        return endpoint.path
+    }
+    
+    private func returnValueString() -> String {
+        var retValue = "return NetworkingService.trigger(handler)"
+        guard let convertID = responseConvertID else {
+            return retValue
+        }
+        let indentationPlaceholder = Indentation.placeholder
+        retValue += .lineBreak + indentationPlaceholder + ".tryMap { try \(endpoint.response.typeString).from($0, script: \(convertID)) }" + .lineBreak
+        retValue += indentationPlaceholder + ".eraseToAnyPublisher()"
+        return retValue
+    }
+    
     func render() -> String {
-        let webServiceEndpoint = self.webServiceEndpoint
-        guard !webServiceEndpoint.unavailable else {
+        guard !unavailable else {
             return webServiceEndpoint.unavailableBody()
         }
         
-        let path = endpoint.path.resourcePath.replacingOccurrences(of: "{", with: "\\(").replacingOccurrences(of: "}", with: ")")
         let responseString = self.responseString()
         let queryParametersString = webServiceEndpoint.queryParametersString()
-        let methodName = endpoint.deltaIdentifier
         let body =
         """
-        \(EndpointComment(endpoint))
         \(webServiceEndpoint.signature())
         \(queryParametersString)var headers = httpHeaders
         headers.setContentType(to: "application/json")
@@ -83,8 +87,8 @@ class EndpointMethodMigrator: Renderable {
         \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.doubleQuoted))" }.lineBreaked)
 
         let handler = Handler<\(responseString)>(
-        path: \(webServiceEndpoint.path(pathChange: endpointChanges.first(where: { $0.element.target == EndpointTarget.resourcePath.rawValue }) as? UpdateChange).doubleQuoted),
-        httpMethod: .\(self.operation().asHTTPMethodString),
+        path: \(webServiceEndpoint.resourcePath().doubleQuoted),
+        httpMethod: .\(operation().asHTTPMethodString),
         parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),
         headers: headers,
         content: \(webServiceEndpoint.contentParameterString()),
@@ -98,18 +102,8 @@ class EndpointMethodMigrator: Renderable {
         return body
     }
     
-    private func returnValueString() -> String {
-        var base = "return NetworkingService.trigger(handler)"
-        guard let convertID = responseConvertID else {
-            return base
-        }
-        let indentationPlaceholder = Indentation.placeholder
-        base += .lineBreak + indentationPlaceholder + ".tryMap { try \(endpoint.response.typeString).from($0, script: \(convertID)) }" + .lineBreak
-        base += indentationPlaceholder + ".eraseToAnyPublisher()"
-        return base
-    }
-    
-    private func setupParameters() {
+    static func changedParameters(of endpoint: Endpoint, with endpointChanges: [Change]) -> [ChangedParameter] {
+        var parameters: [ChangedParameter] = []
         let parameterTargets = [EndpointTarget.queryParameter, .pathParameter, .contentParameter].map { $0.rawValue }
         
         for change in endpointChanges where parameterTargets.contains(change.element.target) && [.addition, .deletion].contains(change.type) {
@@ -119,7 +113,7 @@ class EndpointMethodMigrator: Renderable {
                     jsonValueID = id
                 }
                 let parameter = anyCodable.typed(Parameter.self)
-                parameters.append(.addedParameter(parameter, jsonValueID: jsonValueID))
+                parameters.append(.addedParameter(parameter, jsonValueID: jsonValueID ?? -1))
             } else if let deleteChange = change as? DeleteChange, case let .elementID(id) = deleteChange.deleted, let oldParameter = endpoint.parameters.firstMatch(on: \.deltaIdentifier, with: id) {
                 parameters.append(.deletedParameter(oldParameter))
             }
@@ -174,5 +168,7 @@ class EndpointMethodMigrator: Renderable {
                 )
             )
         }
+        
+        return parameters
     }
 }

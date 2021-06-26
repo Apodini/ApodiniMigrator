@@ -50,8 +50,7 @@ struct ObjectFileTemplate: SwiftFileTemplate {
     /// Initializer
     /// - Parameters:
     ///     - typeInformation: typeInformation to render
-    ///     - kind: kind of the object
-    /// - Throws: if the `typeInformation` is not an object, or kind is other than `class` or `struct`
+    ///     - annotation: an annotation on the object, e.g. if the model is not present in the new version anymore
     init(_ typeInformation: TypeInformation, annotation: Annotation? = nil) {
         self.typeInformation = typeInformation
         self.kind = .struct

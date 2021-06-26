@@ -42,7 +42,7 @@ struct EnumMigrator: SwiftFileTemplate {
         }
         
         if let annotation = annotation {
-            let enumFileTemplate = EnumFileTemplate(typeInformation, kind: .enum, annotation: annotation)
+            let enumFileTemplate = EnumFileTemplate(typeInformation, annotation: annotation)
             return enumFileTemplate.render()
         }
         
@@ -63,7 +63,7 @@ struct EnumMigrator: SwiftFileTemplate {
         \(Import(.foundation).render())
 
         \(MARKComment(.model))
-        \(addedCasesAnnotation)\(kind.signature) \(typeNameString): \(typeInformation.rawValueType?.rawValue.upperFirst ?? ""), Codable, CaseIterable {
+        \(addedCasesAnnotation)\(kind.signature) \(typeNameString): String, Codable, CaseIterable {
         \(allCases.map { "case \($0.name)\(rawValue(for: $0))" }.lineBreaked)
 
         \(MARKComment(.deprecated))

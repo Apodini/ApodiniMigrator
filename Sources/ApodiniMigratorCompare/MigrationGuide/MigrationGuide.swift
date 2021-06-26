@@ -53,11 +53,6 @@ public struct MigrationGuide: Codable {
     /// This property is used for test cases in the client application
     public var objectJSONs: [String: JSONValue]
     
-    /// A util property that serves to distribute changes to the elements that those belong to
-    public var changeFilter: ChangeFilter {
-        .init(self)
-    }
-    
     /// An empty migration guide with no changes
     public static var empty: MigrationGuide {
         .init(

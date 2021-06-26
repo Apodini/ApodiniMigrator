@@ -7,8 +7,18 @@
 
 import Foundation
 
-struct WebServiceEndpoint {
+struct WebServiceEndpoint: Comparable {
+    static func < (lhs: WebServiceEndpoint, rhs: WebServiceEndpoint) -> Bool {
+        let lhsEndpoint = lhs.endpoint
+        let rhsEndpoint = rhs.endpoint
+        if lhsEndpoint.response == rhsEndpoint.response {
+            return lhsEndpoint.deltaIdentifier < rhsEndpoint.deltaIdentifier
+        }
+        return lhsEndpoint.response.typeName.name < rhsEndpoint.response.typeName.name
+    }
+    
     let endpoint: Endpoint
+    let path: EndpointPath
     let unavailable: Bool
     let parameters: [ChangedParameter]
     
@@ -20,10 +30,11 @@ struct WebServiceEndpoint {
         endpoint.response.typeString
     }
     
-    init(endpoint: Endpoint, unavailable: Bool, parameters: [ChangedParameter]) {
+    init(endpoint: Endpoint, unavailable: Bool, parameters: [ChangedParameter], path: EndpointPath) {
         self.endpoint = endpoint
         self.unavailable = unavailable
         self.parameters = parameters.sorted(by: \.oldName)
+        self.path = path
     }
     
     func methodInput() -> String {
@@ -31,7 +42,7 @@ struct WebServiceEndpoint {
             let typeString = parameter.oldType.typeString + (parameter.necessity == .optional ? "?" : "")
             var parameterSignature = "\(parameter.oldName): \(typeString)"
             if let addedValue = parameter.addedValueJSONId {
-                parameterSignature += " = \(parameter.necessity == .optional ? "nil" : "try! \(typeString).instance(from: \(addedValue))")"
+                parameterSignature += " = \(addedValue == -1 ? "nil" : "try! \(typeString).instance(from: \(addedValue))")"
             }
             
             return parameterSignature
@@ -50,17 +61,19 @@ struct WebServiceEndpoint {
         return "@available(*, unavailable, message: \("This endpoint is not available in the new version anymore. Calling this method results in a fatal error!".doubleQuoted))" + .lineBreak
     }
     
-    func signature() -> String {
+    func signature(asPublic: Bool = false) -> String {
         let methodName = endpoint.deltaIdentifier.rawValue.lowerFirst
+        let accessModifier = asPublic ? "public " : ""
         let signature =
         """
-        \(unavailableComment())static func \(methodName)(\(methodInput())) -> ApodiniPublisher<\(responseString)> {
+        \(EndpointComment(endpoint.handlerName, path: path))
+        \(unavailableComment())\(accessModifier)static func \(methodName)(\(methodInput())) -> ApodiniPublisher<\(responseString)> {
         """
         return signature
     }
     
-    func unavailableBody() -> String {
-        var body = signature()
+    func unavailableBody(asPublic: Bool = false) -> String {
+        var body = signature(asPublic: asPublic)
         body += .lineBreak + "fatalError(\("This endpoint is not available in the new version anymore".doubleQuoted))" + .lineBreak + "}"
         return body
     }
@@ -100,19 +113,56 @@ struct WebServiceEndpoint {
         return "NetworkingService.encode(\(setValue(for: contentParameter)))"
     }
     
-    func path(pathChange: UpdateChange?) -> String {
-        let endpointPath: EndpointPath
-        if let pathChange = pathChange, case let .element(anyCodable) = pathChange.to {
-            endpointPath = anyCodable.typed(EndpointPath.self)
-        } else {
-            endpointPath = endpoint.path
-        }
-        var resourcePath = endpointPath.resourcePath
+    func resourcePath() -> String {
+        var resourcePath = path.resourcePath
         
-        for pathParameter in parameters.filter({ $0.kind == .path }) {
+        for pathParameter in parameters.filter({ $0.kind == .path }) { // TODO consider convert?
             resourcePath = resourcePath.with("{\(pathParameter.oldName)}", insteadOf: "{\(pathParameter.newName)}")
         }
         return resourcePath.with("\\(", insteadOf: "{").with(")", insteadOf: "}")
     }
     
+    
+}
+
+public struct WebServiceFileTemplate2: Renderable {
+    public static let fileName = "WebService"
+    public static let filePath = fileName + .swift
+    let endpoints: [WebServiceEndpoint]
+
+    init(_ endpoints: [WebServiceEndpoint]) {
+        self.endpoints = endpoints.sorted()
+    }
+
+
+    private func method(for webServiceEndpoint: WebServiceEndpoint) -> String {
+        if webServiceEndpoint.unavailable {
+            return webServiceEndpoint.unavailableBody(asPublic: true)
+        }
+        let endpoint = webServiceEndpoint.endpoint
+        let nestedType = endpoint.response.nestedType.typeName.name
+        var bodyInput = webServiceEndpoint.parameters.map { "\($0.oldName): \($0.oldName)"}
+        bodyInput.append("authorization: authorization")
+        bodyInput.append("httpHeaders: httpHeaders")
+        let body =
+        """
+        \(webServiceEndpoint.signature(asPublic: true))
+        \(nestedType).\(endpoint.deltaIdentifier)(\(String.lineBreak)\(bodyInput.joined(separator: ",\(String.lineBreak)"))\(String.lineBreak))
+        }
+        """
+        return body
+    }
+
+    public func render() -> String {
+        """
+        \(FileHeaderComment(fileName: Self.filePath).render())
+
+        \(Import(.foundation).render())
+
+        \(MARKComment(.endpoints))
+        \(Kind.enum.signature) \(Self.fileName) {
+        \(endpoints.map { method(for: $0) }.joined(separator: .doubleLineBreak))
+        }
+        """
+    }
 }

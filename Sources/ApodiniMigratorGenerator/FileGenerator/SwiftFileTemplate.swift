@@ -29,11 +29,6 @@ protocol SwiftFileTemplate: Renderable {
     var kind: Kind { get }
 }
 
-/// Errors that can be thrown from a `SwiftFileTemplate` initializer
-enum SwiftFileTemplateError: Error {
-    case incompatibleType(message: String)
-}
-
 /// Distinct cases of mark comments that might appear in a file
 enum MARKCommentType: String {
     case model

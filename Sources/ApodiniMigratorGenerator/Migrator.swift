@@ -7,14 +7,13 @@
 
 import Foundation
 
-import Foundation
 import Logging
 @_exported import ApodiniMigratorCompare
 
 /// A generator for a swift package
 public struct Migrator {
     public static let logger: Logger = {
-        .init(label: "de.apodini.migrator.generator")
+        .init(label: "org.apodini.migrator")
     }()
     
     /// Name of the package to be generated
@@ -28,11 +27,11 @@ public struct Migrator {
 
     private let logger: Logger
     
-    public let changeFilter: ChangeFilter
-    
     let endpointsMigrator: EndpointsMigrator
     let modelsMigrator: ModelsMigrator
     let networkingMigrator: NetworkingMigrator
+    let scripts: [Int: JSScript]
+    let jsonValues: [Int: JSONValue]
     let allModels: [TypeInformation]
     let objectJSONs: [String: JSONValue]
     let encoderConfiguration: EncoderConfiguration
@@ -44,31 +43,33 @@ public struct Migrator {
         self.packagePath = packagePath.asPath
         document = try Document.decode(from: documentPath.asPath)
         self.directories = ProjectDirectories(packageName: packageName, packagePath: packagePath)
-        changeFilter = migrationGuide.changeFilter
+        self.scripts = migrationGuide.scripts
+        self.jsonValues = migrationGuide.jsonValues
+        self.objectJSONs = migrationGuide.objectJSONs
+        let changeFilter: ChangeFilter = .init(migrationGuide)
         endpointsMigrator = .init(
             endpointsPath: directories.endpoints,
             webServicePath: directories.networking,
-            oldEndpoints: document.endpoints,
-            addedEndpoints: changeFilter.addedEndpoints(),
-            deletedEndpointIDs: changeFilter.deletedEndpointIDs(),
+            allEndpoints: document.endpoints + changeFilter.addedEndpoints(),
             endpointChanges: changeFilter.endpointChanges
         )
         let oldModels = document.allModels()
         let addedModels = changeFilter.addedModels()
+        self.allModels = oldModels + addedModels
         modelsMigrator = .init(
             path: directories.models,
             oldModels: oldModels,
             addedModels: addedModels,
             modelChanges: changeFilter.modelChanges
         )
-        self.allModels = oldModels + addedModels
+        
         networkingMigrator = .init(
             networkingPath: directories.networking,
             oldMetaData: document.metaData,
             networkingChanges: changeFilter.networkingChanges
         )
         self.encoderConfiguration = networkingMigrator.encoderConfiguration()
-        self.objectJSONs = migrationGuide.objectJSONs
+        
         logger = Self.logger
     }
     
@@ -83,9 +84,9 @@ public struct Migrator {
         
         try writeResources()
         
-        try endpointsMigrator.build()
+        try endpointsMigrator.migrate()
         
-        try modelsMigrator.build()
+        try modelsMigrator.migrate()
         
         try writeNetworking()
         
@@ -93,11 +94,7 @@ public struct Migrator {
     }
     
     private func writeResources() throws {
-        let migrationGuide = changeFilter.migrationGuide
-        let jsScripts = migrationGuide.scripts
-        let jsonValues = migrationGuide.jsonValues
-        
-        try (directories.resources + Resources.jsScripts.rawValue).write(jsScripts.json)
+        try (directories.resources + Resources.jsScripts.rawValue).write(scripts.json)
         try (directories.resources + Resources.jsonValues.rawValue).write(jsonValues.json)
     }
     
@@ -110,12 +107,11 @@ public struct Migrator {
             .with(serverPath, insteadOf: Template.serverPath)
             .with(encoderConfiguration, insteadOf: Template.encoderConfiguration)
             .with(decoderConfiguration, insteadOf: Template.decoderConfiguration)
-//        let webServiceFile = WebServiceFileTemplate(endpoints).render().indentationFormatted()
+            .indentationFormatted()
         let networkingDirectory = directories.networking
         
         try (networkingDirectory + .handler).write(handler)
         try (networkingDirectory + .networkingService).write(networking)
-//        try (networkingDirectory + (WebServiceFileTemplate.fileName + .swift)).write(webServiceFile)
     }
     
     private func readTemplate(_ template: Template) -> String {
@@ -128,7 +124,15 @@ public struct Migrator {
         let testFileName = packageName + "Tests" + .swift
         let testFile = useTemplateTestFile
             ? templateContentWithFileComment(.testFile, alternativeFileName: testFileName).with(packageName: packageName)
-            : TestFileTemplate(allModels, objectJSONs: objectJSONs, encoderConfiguration: encoderConfiguration, fileName: testFileName, packageName: packageName).render().indentationFormatted()
+            : TestFileTemplate(
+                allModels,
+                objectJSONs: objectJSONs,
+                encoderConfiguration: encoderConfiguration,
+                fileName: testFileName,
+                packageName: packageName
+            )
+            .render()
+            .indentationFormatted()
             
         
         try (testsTarget + testFileName).write(testFile)

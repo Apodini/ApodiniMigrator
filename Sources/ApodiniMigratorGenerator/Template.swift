@@ -45,7 +45,7 @@ enum Template: String, Resource {
     }
     
     var projectFileName: String {
-        rawValue.upperFirst + projectFileExtension
+        name + projectFileExtension
     }
 }
 

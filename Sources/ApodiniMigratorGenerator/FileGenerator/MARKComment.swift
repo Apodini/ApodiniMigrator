@@ -28,8 +28,8 @@ struct GenericComment: Annotation {
 struct EndpointComment: Annotation {
     let comment: String
     
-    init(_ endpoint: Endpoint) {
-        comment = "/// API call for \(endpoint.handlerName) at: \(endpoint.path.resourcePath)"
+    init(_ handlerName: String, path: EndpointPath) {
+        comment = "/// API call for \(handlerName) at: \(path)"
     }
 }
 

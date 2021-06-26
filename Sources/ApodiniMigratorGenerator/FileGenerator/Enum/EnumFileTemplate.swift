@@ -46,21 +46,19 @@ struct EnumFileTemplate: SwiftFileTemplate {
     /// Initializer
     /// - Parameters:
     ///     - typeInformation: typeInformation to render
-    ///     - kind: kind of the object
-    /// - Throws: if the `typeInformation` is not an enum, or kind is other than `.enum`
-    init(_ typeInformation: TypeInformation, kind: Kind = .enum, annotation: Annotation? = nil) {
-        guard typeInformation.isEnum, let rawValueType =  typeInformation.rawValueType, kind == .enum else {
+    ///     - annotation: an annotation on the object, e.g. if the model is not present in the new version anymore
+    init(_ typeInformation: TypeInformation, annotation: Annotation? = nil) {
+        guard typeInformation.isEnum, let rawValueType = typeInformation.rawValueType else {
             fatalError("Attempted to initialize EnumFileTemplate with a non enum TypeInformation \(typeInformation.rootType)")
         }
         
         self.typeInformation = typeInformation
-        self.kind = kind
+        self.kind = .enum
         self.annotation = annotation
         self.enumCases = typeInformation.enumCases.sorted(by: \.name)
         self.rawValueType = rawValueType
     }
     
-    /// TODO change rawValue
     /// Renders and formats the `typeInformation` in an enum swift file compliant way
     func render() -> String {
         """
