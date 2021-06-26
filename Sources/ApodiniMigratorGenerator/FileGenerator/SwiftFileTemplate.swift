@@ -75,8 +75,8 @@ extension SwiftFileTemplate {
     /// - Throws: if the writing of the content fails
     /// - Returns: absolute path where the file is located
     @discardableResult
-    func write(at directory: Path) throws -> Path {
-        let absolutePath = directory + fileName
+    func write(at directory: Path, alternativeFileName: String? = nil) throws -> Path {
+        let absolutePath = directory + (alternativeFileName ?? fileName)
         try absolutePath.write(render().indentationFormatted())
         return absolutePath
     }

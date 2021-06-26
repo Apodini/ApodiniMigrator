@@ -47,6 +47,7 @@ public struct Migrator {
         changeFilter = migrationGuide.changeFilter
         endpointsMigrator = .init(
             endpointsPath: directories.endpoints,
+            webServicePath: directories.networking,
             oldEndpoints: document.endpoints,
             addedEndpoints: changeFilter.addedEndpoints(),
             deletedEndpointIDs: changeFilter.deletedEndpointIDs(),
@@ -106,9 +107,9 @@ public struct Migrator {
         let decoderConfiguration = networkingMigrator.decoderConfiguration().networkingDescription
         let handler = templateContentWithFileComment(.handler)
         let networking = templateContentWithFileComment(.networkingService)
-            .replacingOccurrences(of: Template.serverPath, with: serverPath)
-            .replacingOccurrences(of: Template.encoderConfiguration, with: encoderConfiguration)
-            .replacingOccurrences(of: Template.decoderConfiguration, with: decoderConfiguration)
+            .with(serverPath, insteadOf: Template.serverPath)
+            .with(encoderConfiguration, insteadOf: Template.encoderConfiguration)
+            .with(decoderConfiguration, insteadOf: Template.decoderConfiguration)
             .indentationFormatted()
 //        let webServiceFile = WebServiceFileTemplate(endpoints).render().indentationFormatted()
         let networkingDirectory = directories.networking
@@ -177,6 +178,6 @@ public struct Migrator {
     
 fileprivate extension String {
     func with(packageName: String) -> String {
-        replacingOccurrences(of: Template.packageName, with: packageName)
+        with(packageName, insteadOf: Template.packageName)
     }
 }

@@ -39,7 +39,7 @@ public struct Handler<D: Decodable> {
         parameters: Parameters,
         headers: HTTPHeaders,
         content: Data?,
-        authorization: HTTPAuthorization?,
+        authorization: String?,
         errors: [ApodiniError]
     ) {
         self.path = path
@@ -47,7 +47,7 @@ public struct Handler<D: Decodable> {
         self.parameters = parameters
         self.headers = headers
         self.content = content
-        self.authorization = authorization
+        self.authorization = .authorization(authorization) ?? .networkingService()
         self.errors = errors
     }
     
@@ -75,10 +75,10 @@ extension URLRequest {
         if let authorization = handler.authorization {
             switch authorization.location {
                 case .cookie, .header:
-                    authorization.inject(into: &headers)
+                authorization.inject(into: &headers)
                 case .query:
-                    let query = "\(url?.query != nil ? "&" : "?")\(authorization.query)"
-                    url?.appendPathComponent(query)
+                let query = "\(url?.query != nil ? "&" : "?")\(authorization.query)"
+                url?.appendPathComponent(query)
             }
         }
         

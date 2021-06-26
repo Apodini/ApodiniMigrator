@@ -64,4 +64,9 @@ public extension HTTPAuthorization {
         }
         return nil
     }
+    
+    /// `HTTPAuthorization` if `NetworkingService.authorization` is set
+    static func networkingService() -> HTTPAuthorization? {
+        .authorization(NetworkingService.authorization)
+    }
 }

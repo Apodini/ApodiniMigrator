@@ -18,8 +18,8 @@ struct ModelsMigrator {
         self.modelsPath = path
         self.modelChanges = modelChanges
         
-        let changedIds = modelChanges.map { $0.element.deltaIdentifier }.unique()
-        var unchangedModels: Set<TypeInformation> = Set(addedModels)
+        let changedIds = modelChanges.map { $0.elementID }.unique()
+        var unchangedModels = Set(addedModels)
         var changedModels: Set<TypeInformation> = []
         for old in oldModels {
             if changedIds.contains(old.deltaIdentifier) {

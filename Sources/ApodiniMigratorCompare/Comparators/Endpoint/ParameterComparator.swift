@@ -34,21 +34,6 @@ struct ParameterComparator: Comparator {
     }
     
     func compare() {
-        if lhs.necessity != rhs.necessity {
-            changes.add(
-                UpdateChange(
-                    element: element,
-                    from: .element(lhs.necessity),
-                    to: .element(rhs.necessity),
-                    targetID: targetID,
-                    necessityValue: rhs.necessity == .required ? .value(from: rhs.typeInformation, with: configuration, changes: changes) : nil,
-                    parameterTarget: .necessity,
-                    breaking: rhs.necessity == .required,
-                    solvable: true
-                )
-            )
-        }
-        
         if lhs.parameterType != rhs.parameterType {
             changes.add(
                 UpdateChange(
@@ -58,6 +43,21 @@ struct ParameterComparator: Comparator {
                     targetID: targetID,
                     parameterTarget: .kind,
                     breaking: true,
+                    solvable: true
+                )
+            )
+        }
+        
+        if sameNestedTypes(lhs: lhs.typeInformation, rhs: rhs.typeInformation), lhs.necessity != rhs.necessity, rhs.necessity == .required {
+            return changes.add(
+                UpdateChange(
+                    element: element,
+                    from: .element(lhs.necessity),
+                    to: .element(rhs.necessity),
+                    targetID: targetID,
+                    necessityValue: .value(from: rhs.typeInformation, with: configuration, changes: changes),
+                    parameterTarget: .necessity,
+                    breaking: rhs.necessity == .required,
                     solvable: true
                 )
             )

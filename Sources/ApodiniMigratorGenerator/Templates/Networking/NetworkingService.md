@@ -30,6 +30,10 @@ public enum NetworkingService {
         return baseURL
     }()
     
+    /// An authorization token that can be used for all endpoints
+    /// - Note: If an authorization value is set on an endpoint call, that value will be used instead of `NetworkingService.authorization`
+    public static var authorization: String? = nil
+    
     /// Triggers a request via a client `Handler` to a handler of an `Apodini` web service
     /// - Parameters:
     ///    - handler: client-side handler representation for which the request will be triggered

@@ -7,12 +7,6 @@
 
 import Foundation
 
-extension Array where Element: DeltaIdentifiable {
-    func identifiers() -> [DeltaIdentifier] {
-        map { $0.deltaIdentifier }
-    }
-}
-
 extension Array where Element: DeltaIdentifiable & Hashable {
     func matchedIds(with other: Self) -> [DeltaIdentifier] {
         let ownIds = Set(identifiers())

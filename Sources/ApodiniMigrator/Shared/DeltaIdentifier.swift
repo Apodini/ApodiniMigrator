@@ -45,6 +45,12 @@ public struct DeltaIdentifier: Value, RawRepresentable {
     }
 }
 
+public extension Array where Element: DeltaIdentifiable {
+    func identifiers() -> [DeltaIdentifier] {
+        map { $0.deltaIdentifier }
+    }
+}
+
 // MARK: - ExpressibleByStringLiteral
 extension DeltaIdentifier: ExpressibleByStringLiteral {
     /// Creates an instance initialized to the given string value.
