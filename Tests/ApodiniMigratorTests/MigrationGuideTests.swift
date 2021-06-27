@@ -6,18 +6,6 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
     let document = Path.desktop + "delta_document.json"
     let packagePath: Path = .desktop
     
-    func testPackageGenerator() throws {
-        let gen = try ApodiniMigratorGenerator(
-            packageName: "ExampleACD",
-            packagePath: packagePath.string,
-            documentPath: document.string,
-            migrationGuide: .empty
-        )
-        
-        
-        XCTAssertNoThrow(try gen.build())
-    }
-    
     func testPackageMigration() throws {
         guard packagePath.exists, !skipFileReadingTests else {
             return
@@ -32,6 +20,24 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
         )
         
         try migrator.migrate()
+    }
+    
+    func testEnumDelete() throws {
+        struct User {
+            let name: String
+            let id: UUID
+            let age: Int
+        }
+        
+        let typeInfo = try TypeInformation(type: User.self)
+        let objectMigrator = ObjectMigrator(typeInfo, changes: [DeleteChange(element: .object(typeInfo.deltaIdentifier, target: .`self`), deleted: .none, fallbackValue: .none, breaking: true, solvable: false, includeProviderSupport: false)])
+        
+        try objectMigrator.write(at: .desktop)
+        
+        let endpoint = Endpoint(handlerName: "TestHandler", deltaIdentifier: "sayHelloWorld", operation: .read, absolutePath: "/v1/hello", parameters: [], response: .scalar(.string), errors: [.init(code: 404, message: "Could not say hallo")])
+        
+        let endpointsFile = EndpointFile(typeInformation: .scalar(.string), endpoints: [endpoint], changes: [DeleteChange(element: .endpoint(endpoint.deltaIdentifier, target: .`self`), deleted: .none, fallbackValue: .none, breaking: true, solvable: false, includeProviderSupport: false)])
+        try endpointsFile.write(at: .desktop)
     }
     
     func testMigrationGuide() throws {

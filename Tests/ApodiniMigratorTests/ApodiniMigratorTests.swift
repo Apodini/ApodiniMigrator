@@ -93,7 +93,7 @@ final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
         
         let desktop = Path.desktop
         let student = XCTAssertNoThrowWithResult(try TypeInformation(type: Student.self))
-        let absolutePath = XCTAssertNoThrowWithResult(try ObjectFileTemplate(student).write(at: desktop))
+        let absolutePath = XCTAssertNoThrowWithResult(try DefaultObjectFile(student).write(at: desktop))
         XCTAssertTrue(absolutePath.exists)
     }
     
@@ -127,16 +127,4 @@ final class ApodiniMigratorTests: ApodiniMigratorXCTestCase {
     
     
     let testModels: Path = .desktop + "TestModels"
-//    
-//    func generateTestModels() throws {
-//        guard !isLinux(), testModels.exists else {
-//            return
-//        }
-//        let types: [TypeInformation] = [
-//            User.self,
-//            Student.self
-//        ]
-//        
-//        try MultipleFileGenerator(types).persist(at: testModels)
-//    }
 }

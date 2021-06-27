@@ -106,21 +106,6 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssert(student.number == 42)
     }
     
-    let document = Path.desktop + "delta_document.json"
-    let packagePath: Path = .desktop
-    
-    func testPackageGenerator() throws {
-        let gen = try ApodiniMigratorGenerator(
-            packageName: "ExampleACD",
-            packagePath: packagePath.string,
-            documentPath: document.string,
-            migrationGuide: .empty
-        )
-        
-        
-        XCTAssertNoThrow(try gen.build())
-    }
-    
     func testEndpointPath() throws {
         let string = "/v1/{some}/users/{id}"
         let string1 = "/v1/{s}/users/{idsdad}"

@@ -14,13 +14,13 @@ struct Generator: ParsableCommand {
     var documentPath: String
     
     func run() throws {
-        let logger = ApodiniMigratorGenerator.logger
+        let logger = Migrator.logger
         
         logger.info("Starting generation of package \(packageName) at \(targetDirectory)")
         
         do {
-            let generator = try ApodiniMigratorGenerator(packageName: packageName, packagePath: targetDirectory, documentPath: documentPath, migrationGuide: .empty)
-            try generator.build()
+            let generator = try Migrator(packageName: packageName, packagePath: targetDirectory, documentPath: documentPath, migrationGuide: .empty)
+            try generator.migrate()
             logger.info("Package \(packageName) was generated successfully. You can open the package via \(targetDirectory)/\(packageName)/Package.swift")
         } catch {
             logger.error("Package generation failed with error: \(error.localizedDescription)")

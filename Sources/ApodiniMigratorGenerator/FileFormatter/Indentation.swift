@@ -4,7 +4,7 @@ import Foundation
 struct Indentation: CustomStringConvertible {
     /// A space string with length of 4
     static let tab = String(repeating: " ", count: 4)
-    /// A placeholder to add indentation to lines that start with a `.`, since the current logic of `IndentationFormatter` can't handle those case
+    /// A placeholder to add indentation to lines that start with a `.`, since the current logic of `IndentationFormatter` can't handle those cases
     static let placeholder = "____INDENTATION____"
     /// A placeholder to indicate to `IndentationFormatter` to ignore one level of indentation for the lines that start with `Indentation.skip`
     static let skip = "____SKIP____"

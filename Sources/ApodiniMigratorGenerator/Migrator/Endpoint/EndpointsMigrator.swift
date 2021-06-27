@@ -41,7 +41,7 @@ struct EndpointsMigrator {
             try endpointFile.write(at: endpointsPath, alternativeFileName: fileName)
             migratedEndpoints.append(contentsOf: endpointFile.migratedEndpoints)
         }
-        // renderes the api file from the migratedEndpoints collected in the for loop
+        // Renders the api file from the migratedEndpoints collected in the for loop
         let apiFile = APIFile(migratedEndpoints)
         try apiFile.write(at: apiFilePath)
     }

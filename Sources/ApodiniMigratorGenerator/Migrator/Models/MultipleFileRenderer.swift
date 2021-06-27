@@ -7,31 +7,27 @@
 
 import Foundation
 
-/// An object to write unchanged models at a specific directy
-struct MultipleFileGenerator {
+/// An object to write unchanged models at a specific directory
+struct MultipleFileRenderer {
     /// Swift files
-    let files: [SwiftFileTemplate]
+    private let files: [SwiftFile]
     
     /// Initializes generator from an array of `TypeInformation` elements.
     init(_ typeInformation: [TypeInformation]) throws {
         files = typeInformation
             .map { typeInformation in
                 if typeInformation.isEnum {
-                    return EnumFileTemplate(typeInformation)
+                    return DefaultEnumFile(typeInformation)
                 } else {
-                    return ObjectFileTemplate(typeInformation)
+                    return DefaultObjectFile(typeInformation)
                 }
             }
     }
     
-    /// Persists `files` at the specified directory. Additionally it creates the directory if it does not exist
+    /// Persists `files` at the specified directory
     /// - Parameter directory: path of directory where the files should be persisted
     /// - Throws: if the path is not a valid directory path, or if the write operation fails
     func write(at directory: Path) throws {
-        if !directory.exists {
-            try directory.mkpath()
-        }
-        
         try files.forEach {
             try $0.write(at: directory)
         }

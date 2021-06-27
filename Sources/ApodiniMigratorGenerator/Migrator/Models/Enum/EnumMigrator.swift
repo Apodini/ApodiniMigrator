@@ -8,26 +8,81 @@
 import Foundation
 import ApodiniMigratorCompare
 
-struct EnumMigrator: SwiftFileTemplate {
-    var typeInformation: TypeInformation
+/// An object that handles the migration of an enum declaration and renders the output accordingly
+struct EnumMigrator: SwiftFile {
+    /// Type information enum that will be rendered
+    let typeInformation: TypeInformation
+    /// Kind of the file, always `.enum`
+    let kind: Kind = .enum
+    /// RawValue type of the enum, either int or string
+    private let rawValueType: RawValueType
+    /// An unsupported change related to the enum from the migration guide,
+    private let unsupportedChange: UnsupportedChange?
+    /// A flag that indicates whether enum has been deleted in the new version
+    private let notPresentInNewVersion: Bool
+    /// All changes related to the `enum`
+    private let changes: [Change]
+    /// A dictionary holding updates of the raw values of the enum
+    private var rawValueUpdates: [EnumCase: EnumCase] = [:]
     
-    var kind: Kind
-    let unsupportedChange: UnsupportedChange?
-    let notPresentInNewVersion: Bool
-    let changes: [Change]
-    
-    var rawValueUpdates: [EnumCase: EnumCase] = [:]
-    
+    /// Initializes a new instance out of an `enum` type information and its correspoinding changes
     init(`enum`: TypeInformation, changes: [Change]) {
+        guard `enum`.isEnum, let rawValueType = `enum`.rawValueType else {
+            fatalError("Attempted to initialize EnumMigrator with a non enum TypeInformation \(`enum`.rootType)")
+        }
         typeInformation = `enum`
-        kind = .enum
+        self.rawValueType = rawValueType
         self.changes = changes
         unsupportedChange = changes.first { $0.type == .unsupported } as? UnsupportedChange
         notPresentInNewVersion = changes.contains(where: { $0.type == .deletion && $0.element.target == EnumTarget.`self`.rawValue })
         setRawValueUpdates()
     }
     
+    /// Returns the corresponding raw value of the case, considering potential updates
+    private func rawValue(for case: EnumCase) -> String {
+        if let updated = rawValueUpdates[`case`] {
+            return " = \(updated.name.doubleQuoted)"
+        }
+        return ""
+    }
+
+    /// Filters changes and returns the added cases of the enum if any
+    private func addedCases() -> [EnumCase] {
+        var retValue: [EnumCase] = []
+        
+        for change in changes where change.element.target == EnumTarget.case.rawValue {
+            if let addChange = change as? AddChange, case let .element(anyCodable) = addChange.added {
+                retValue.append(anyCodable.typed(EnumCase.self))
+            }
+        }
+        return retValue
+    }
     
+    /// Filters changes and returns the deleted cases of the enum if any
+    private func deletedCases() -> [EnumCase] {
+        var retValue: [EnumCase] = []
+        
+        for change in changes where change.element.target == EnumTarget.case.rawValue {
+            if let deleteChange = change as? DeleteChange, case let .elementID(id) = deleteChange.deleted, let deletedCase = typeInformation.enumCases.firstMatch(on: \.deltaIdentifier, with: id) {
+                retValue.append(deletedCase)
+            }
+        }
+        return retValue
+    }
+    
+    /// Filters changes and sets the corresponding raw value updates in `rawValueUpdates` dictionary
+    private mutating func setRawValueUpdates() {
+        for change in changes where change.element.target == EnumTarget.caseRawValue.rawValue {
+            if
+                let renameChange = change as? UpdateChange,
+                case let .element(oldCase) = renameChange.from,
+                case let .element(newCase) = renameChange.to {
+                rawValueUpdates[oldCase.typed(EnumCase.self)] = newCase.typed(EnumCase.self)
+            }
+        }
+    }
+    
+    /// Renders the migrated content of the enum
     func render() -> String {
         var annotation: Annotation?
         
@@ -42,7 +97,7 @@ struct EnumMigrator: SwiftFileTemplate {
         }
         
         if let annotation = annotation {
-            let enumFileTemplate = EnumFileTemplate(typeInformation, annotation: annotation)
+            let enumFileTemplate = DefaultEnumFile(typeInformation, annotation: annotation)
             return enumFileTemplate.render()
         }
         
@@ -63,7 +118,7 @@ struct EnumMigrator: SwiftFileTemplate {
         \(Import(.foundation).render())
 
         \(MARKComment(.model))
-        \(addedCasesAnnotation)\(kind.signature) \(typeNameString): String, Codable, CaseIterable {
+        \(addedCasesAnnotation)\(kind.signature) \(typeNameString): \(rawValueType), Codable, CaseIterable {
         \(allCases.map { "case \($0.name)\(rawValue(for: $0))" }.lineBreaked)
 
         \(MARKComment(.deprecated))
@@ -82,44 +137,5 @@ struct EnumMigrator: SwiftFileTemplate {
         
         return fileContent
     }
-    
-    private func rawValue(for oldCase: EnumCase) -> String {
-        if let updated = rawValueUpdates[oldCase] {
-            return " = \(updated.name.doubleQuoted)"
-        }
-        return ""
-    }
 
-    private func addedCases() -> [EnumCase] {
-        var retValue: [EnumCase] = []
-        
-        for change in changes where change.element.target == EnumTarget.case.rawValue {
-            if let addChange = change as? AddChange, case let .element(anyCodable) = addChange.added {
-                retValue.append(anyCodable.typed(EnumCase.self))
-            }
-        }
-        return retValue
-    }
-    
-    private func deletedCases() -> [EnumCase] {
-        var retValue: [EnumCase] = []
-        
-        for change in changes where change.element.target == EnumTarget.case.rawValue {
-            if let deleteChange = change as? DeleteChange, case let .elementID(id) = deleteChange.deleted, let deletedCase = typeInformation.enumCases.firstMatch(on: \.deltaIdentifier, with: id) {
-                retValue.append(deletedCase)
-            }
-        }
-        return retValue
-    }
-    
-    private mutating func setRawValueUpdates() {
-        for change in changes where change.element.target == EnumTarget.caseRawValue.rawValue {
-            if
-                let renameChange = change as? UpdateChange,
-                case let .element(oldCase) = renameChange.from,
-                case let .element(newCase) = renameChange.to {
-                rawValueUpdates[oldCase.typed(EnumCase.self)] = newCase.typed(EnumCase.self)
-            }
-        }
-    }
 }

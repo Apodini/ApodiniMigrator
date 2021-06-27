@@ -7,13 +7,18 @@
 
 import Foundation
 
+/// An object that handles / triggeres the migrated rendering of enums and objects of the client library
 struct ModelsMigrator {
+    /// Path of `Models` folder of the client library
+    private let modelsPath: Path
+    /// Changed models of the client library
+    private let changedModels: [TypeInformation]
+    /// Unchanged models of the client library
+    private let unchangedModels: [TypeInformation]
+    /// All changes of the migration guide with element either an enum or an object
+    private let modelChanges: [Change]
     
-    let modelsPath: Path
-    let changedModels: [TypeInformation]
-    let unchangedModels: [TypeInformation]
-    let modelChanges: [Change]
-    
+    /// Initializer for a new instance
     init(path: Path, oldModels: [TypeInformation], addedModels: [TypeInformation], modelChanges: [Change]) {
         self.modelsPath = path
         self.modelChanges = modelChanges
@@ -32,10 +37,10 @@ struct ModelsMigrator {
         self.unchangedModels = unchangedModels.asArray
     }
     
-    
+    /// Triggeres the rendering of migrated content of model files
     func migrate() throws {
-        let multipleFileGenerator = try MultipleFileGenerator(unchangedModels)
-        try multipleFileGenerator.write(at: modelsPath)
+        let multipleFileRenderer = try MultipleFileRenderer(unchangedModels)
+        try multipleFileRenderer.write(at: modelsPath)
         
         for changedModel in changedModels {
             let changes = modelChanges.filter { $0.elementID == changedModel.deltaIdentifier }

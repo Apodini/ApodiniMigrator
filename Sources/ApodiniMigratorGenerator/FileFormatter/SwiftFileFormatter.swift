@@ -25,7 +25,7 @@ public protocol SwiftFileFormatter {
 
 public extension String {
     /// Returns a formatted version of `self` by a formatterType
-    func formatted(with formatterType: SwiftFileFormatter.Type) -> String {
+    func formatted<S: SwiftFileFormatter>(with formatterType: S.Type) -> String {
         var formatter = formatterType.init()
         return formatter.format(self)
     }
@@ -38,7 +38,7 @@ public extension String {
 
 public extension Path {
     /// Returns a formatted version of the string content of the path by a formatterType
-    func formatted(with formatterType: SwiftFileFormatter.Type) throws {
+    func formatted<S: SwiftFileFormatter>(with formatterType: S.Type) throws {
         var formatter = formatterType.init()
         return try formatter.format(self)
     }

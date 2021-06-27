@@ -7,18 +7,25 @@
 
 import Foundation
 
+/// Represents the deprecetad cases static property on an `enum` declaration
 struct EnumDeprecatedCases: Renderable {
-    static let base = "private static let deprecatedCases: [Self] = "
+    /// Name of the deprecated cases variable
+    static let variableName = "deprecatedCases"
+    /// String description of the static variable
+    private static let base = "private static let \(variableName): [Self] = "
     
-    let deprecated: [EnumCase]
+    /// Names of deprecated cases of the enum
+    private let deprecatedCaseNames: [String]
     
+    /// Initializes a new instance out of the deprecated cases of an enum
     init(deprecated: [EnumCase] = []) {
-        self.deprecated = deprecated
+        self.deprecatedCaseNames = deprecated.map { $0.name }
     }
     
+    /// Renders the deprecated cases static variable
     func render() -> String {
         """
-        \(Self.base)[\(deprecated.map { ".\($0.name)" }.joined(separator: ", "))]
+        \(Self.base)[\(deprecatedCaseNames.map { ".\($0)" }.joined(separator: ", "))]
         """
     }
 }

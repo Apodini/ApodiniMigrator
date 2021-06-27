@@ -7,12 +7,13 @@
 
 import Foundation
 
+/// Represents the `encodableValue()` util method in an enum
 struct EnumEncodeValueMethod: Renderable {
     /// Renders the content of the initializer in a non-formatted way
     func render() -> String {
         """
         private func encodableValue() -> Self {
-        let deprecated = Self.deprecatedCases
+        let deprecated = Self.\(EnumDeprecatedCases.variableName)
         guard deprecated.contains(self) else {
         return self
         }

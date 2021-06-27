@@ -9,12 +9,14 @@ import Foundation
 
 /// Represents `init(from decoder: Decoder)` initializer of a Decodable object
 struct DecoderInitializer: Renderable {
-    /// The properties of the object that this initializer belongs to
+    /// All properties of the object that this initializer belongs to
     let properties: [TypeProperty]
+    /// Deleted properties of the object if any
     let deleted: [DeletedProperty]
+    /// Necessity changes related to the properties of the object
     let necessityChanges: [UpdateChange]
+    /// Convert changes related to the properties of the object
     let convertChanges: [UpdateChange]
-    
     
     /// Initializer
     init(
@@ -29,18 +31,8 @@ struct DecoderInitializer: Renderable {
         self.convertChanges = convertChanges
     }
     
-    /// Renders the content of the initializer in a non-formatted way
-    func render() -> String {
-        """
-        public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        \(properties.map { "\(decodingLine(for: $0))" }.lineBreaked)
-        }
-        """
-    }
-    
-    func decodingLine(for property: TypeProperty) -> String {
+    /// Returns the corresponding line of `property` inside of the initializer by considering potential changes of the property
+    private func decodingLine(for property: TypeProperty) -> String {
         let id = property.deltaIdentifier
         let name = property.name
         if let deletedProperty = deleted.firstMatch(on: \.id, with: id) {
@@ -68,11 +60,24 @@ struct DecoderInitializer: Renderable {
             return property.decoderInitLine
         }
     }
+    
+    /// Renders the content of the initializer in a non-formatted way
+    func render() -> String {
+        """
+        public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        \(properties.map { "\(decodingLine(for: $0))" }.lineBreaked)
+        }
+        """
+    }
+    
+    
 }
 
 /// TypeProperty extension
-extension TypeProperty {
-    /// The corresponding line of the property to be rendered inside `init(from decoder: Decoder)`
+fileprivate extension TypeProperty {
+    /// The corresponding line of the property to be rendered inside `init(from decoder: Decoder)` if no change affected the property
     var decoderInitLine: String {
         let decodeMethodString = "decode\(type.isOptional ? "IfPresent" : "")"
         return "\(name) = try container.\(decodeMethodString)(\(type.typeString.dropQuestionMark).self, forKey: .\(name))"

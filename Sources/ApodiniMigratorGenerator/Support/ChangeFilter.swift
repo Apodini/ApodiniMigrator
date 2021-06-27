@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// A util property that serves to distribute changes to the elements that those belong to
+/// A util object that serves to distribute changes to the elements that those belong to
 struct ChangeFilter {
     /// Filtered changes where change element is an endpoint
     let endpointChanges: [Change]

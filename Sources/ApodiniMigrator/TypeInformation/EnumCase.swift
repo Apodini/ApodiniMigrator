@@ -1,9 +1,13 @@
 import Foundation
 
 
-public enum RawValueType: String, Value {
+public enum RawValueType: String, Value, CustomStringConvertible {
     case int
     case string
+    
+    public var description: String {
+        rawValue.upperFirst
+    }
     
     init<R: RawRepresentable>(_ rawRepresentable: R.Type) {
         let rawValueTypeString = String(describing: R.RawValue.self)

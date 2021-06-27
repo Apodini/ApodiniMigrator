@@ -7,15 +7,16 @@
 
 import Foundation
 
-/// Represents an `object` file template
-struct ObjectFileTemplate: SwiftFileTemplate {
+/// Represents an `object` file that was not affected by any change
+struct DefaultObjectFile: ObjectSwiftFile {
     /// `TypeInformation` to be rendered in this file
     let typeInformation: TypeInformation
     
     /// Kind of the object, either `struct` or `class`
     let kind: Kind
     
-    let annotation: Annotation?
+    /// Optional annotation that can be rendered in the file declaration
+    private let annotation: Annotation?
     
     private var annotationComment: String {
         if let annotation = annotation {
@@ -25,48 +26,39 @@ struct ObjectFileTemplate: SwiftFileTemplate {
     }
     
     /// Properties of the object
-    let properties: [TypeProperty]
+    private let properties: [TypeProperty]
     
     /// CodingKeys enum of the object
-    var codingKeysEnum: ObjectCodingKeys {
+    private var codingKeysEnum: ObjectCodingKeys {
         .init(properties)
     }
     
-    /// Initializer of an object
-    var objectInitializer: ObjectInitializer {
+    /// Initializer of the object
+    private var objectInitializer: ObjectInitializer {
         .init(properties)
     }
     
     /// Encoding method of the object
-    var encodingMethod: EncodingMethod {
+    private var encodingMethod: EncodingMethod {
         .init(properties)
     }
     
     /// Decoder initializer of the object
-    var decoderInitializer: DecoderInitializer {
+    private var decoderInitializer: DecoderInitializer {
         .init(properties)
     }
     
     /// Initializer
     /// - Parameters:
     ///     - typeInformation: typeInformation to render
+    ///     - kind: the kind of the file, if other than .struct or .class is passed, .struct is chosen by default
     ///     - annotation: an annotation on the object, e.g. if the model is not present in the new version anymore
-    init(_ typeInformation: TypeInformation, annotation: Annotation? = nil) {
+    init(_ typeInformation: TypeInformation, kind: Kind = .struct, annotation: Annotation? = nil) {
+        precondition([.struct, .class].contains(kind) && typeInformation.isObject, "Can't initialize an ObjectFile with a non object type information or file other than struct or class")
         self.typeInformation = typeInformation
-        self.kind = .struct
+        self.kind = kind
         self.properties = typeInformation.objectProperties.sorted(by: \.name)
         self.annotation = annotation
-    }
-    
-    private func header() -> String {
-        """
-        \(fileComment)
-
-        \(Import(.foundation).render())
-        
-        \(MARKComment(.model))
-        \(annotationComment)\(kind.signature) \(typeNameString): Codable {
-        """
     }
     
     /// Renders and formats the `typeInformation` in a swift file compliant way
@@ -74,7 +66,7 @@ struct ObjectFileTemplate: SwiftFileTemplate {
         if properties.isEmpty {
             let content =
             """
-            \(header())
+            \(fileHeader())
             \(MARKComment(.initializer))
             public init() {}
             }
@@ -83,7 +75,7 @@ struct ObjectFileTemplate: SwiftFileTemplate {
         } else {
             let content =
                 """
-                \(header())
+                \(fileHeader())
                 \(MARKComment(.codingKeys))
                 \(codingKeysEnum.render())
                 

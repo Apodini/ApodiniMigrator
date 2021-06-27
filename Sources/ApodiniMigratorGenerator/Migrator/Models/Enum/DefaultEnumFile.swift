@@ -7,16 +7,18 @@
 
 import Foundation
 
-/// Represents an `enum` file template
-struct EnumFileTemplate: SwiftFileTemplate {
+/// Represents an `enum` file that did not got affected by any change
+struct DefaultEnumFile: SwiftFile {
     /// The `.enum` `typeInformation` to be rendered in this file
     let typeInformation: TypeInformation
     
-    /// Kind of the object, always `.enum` if initializer does not throw
-    let kind: Kind
+    /// Kind of the object, always `.enum`
+    let kind: Kind = .enum
     
-    let annotation: Annotation?
+    /// An annotation comment that can be rendered in the enum declaration
+    private let annotation: Annotation?
     
+    /// String representation of the annotation if not nil
     private var annotationComment: String {
         if let annotation = annotation {
             return annotation.comment + .lineBreak
@@ -24,22 +26,23 @@ struct EnumFileTemplate: SwiftFileTemplate {
         return ""
     }
     
-    let rawValueType: RawValueType
+    /// Raw value type of the enum
+    private let rawValueType: RawValueType
     
     /// Enum cases of the `typeInformation`
-    let enumCases: [EnumCase]
+    private let enumCases: [EnumCase]
     
     /// Deprecated cases
-    let deprecatedCases = EnumDeprecatedCases()
+    private let deprecatedCases = EnumDeprecatedCases()
     
     /// Encode value method
-    let encodeValueMethod = EnumEncodeValueMethod()
+    private let encodeValueMethod = EnumEncodeValueMethod()
     
     /// Encoding method of the enum
-    let enumEncodingMethod = EnumEncodingMethod()
+    private let enumEncodingMethod = EnumEncodingMethod()
     
     /// Decoding method of the enum
-    var enumDecoderInitializer: EnumDecoderInitializer {
+    private var enumDecoderInitializer: EnumDecoderInitializer {
         .init(enumCases)
     }
     
@@ -53,7 +56,6 @@ struct EnumFileTemplate: SwiftFileTemplate {
         }
         
         self.typeInformation = typeInformation
-        self.kind = .enum
         self.annotation = annotation
         self.enumCases = typeInformation.enumCases.sorted(by: \.name)
         self.rawValueType = rawValueType
@@ -67,7 +69,7 @@ struct EnumFileTemplate: SwiftFileTemplate {
         \(Import(.foundation).render())
         
         \(MARKComment(.model))
-        \(annotationComment)\(kind.signature) \(typeNameString): String, Codable, CaseIterable {
+        \(annotationComment)\(kind.signature) \(typeNameString): \(rawValueType), Codable, CaseIterable {
         \(enumCases.map { "case \($0.name)" }.lineBreaked)
 
         \(MARKComment(.deprecated))

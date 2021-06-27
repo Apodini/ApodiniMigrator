@@ -8,7 +8,7 @@
 import Foundation
 
 /// An object that represents an `Type+Endpoint.swift` file in the client library
-class EndpointFile: SwiftFileTemplate {
+class EndpointFile: SwiftFile {
     /// Nested response type of endpoints that are grouped in the file, e.g `User` and `[User]` -> `User`
     let typeInformation: TypeInformation
     /// Kind of the file, always extension
@@ -39,7 +39,7 @@ class EndpointFile: SwiftFileTemplate {
         return endpointMigrator.render()
     }
     
-    /// Renderes the content of the file with all migrated endpoints
+    /// Renders the content of the file with all migrated endpoints
     func render() -> String {
         """
         \(endpointFileComment.render())

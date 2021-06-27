@@ -9,11 +9,12 @@ import Foundation
 
 /// Represents initializer of an object
 struct ObjectInitializer: Renderable {
-    /// The properties of the object that this initializer belongs to
-    var properties: [TypeProperty]
-    var defaultValues: [DeltaIdentifier: ChangeValue]
+    /// All properties of the object that this initializer belongs to (including added and deleted properties
+    private let properties: [TypeProperty]
+    /// Dictionary of default values of the added properties of the object
+    private var defaultValues: [DeltaIdentifier: ChangeValue]
     
-    /// Initializer
+    /// Initializes a new instance out of old properties of the object and the added properties
     init(_ properties: [TypeProperty], addedProperties: [AddedProperty] = []) {
         var allProperties = properties
         defaultValues = [:]
@@ -36,6 +37,7 @@ struct ObjectInitializer: Renderable {
         """
     }
     
+    /// Returns the string of the type of the property appending a corresponding default value for added properties as provided in the migration guide
     private func defaultValue(for property: TypeProperty) -> String {
         var typeString = property.type.typeString
         if let defaultValue = defaultValues[property.deltaIdentifier] {

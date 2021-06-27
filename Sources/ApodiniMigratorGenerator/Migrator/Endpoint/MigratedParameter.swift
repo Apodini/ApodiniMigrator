@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// A `MigratedParameter` holds properties of an endpoint `Parameter` from both versions,
+/// A `MigratedParameter` holds properties of an endpoint `Parameter` from both versions based on the changes specified in the migration guide
 struct MigratedParameter: Hashable {
     /// Name of the parameter in the previous version
     let oldName: String

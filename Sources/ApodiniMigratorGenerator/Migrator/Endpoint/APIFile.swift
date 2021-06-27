@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents the `API.swift` file of the client library
-struct APIFile: SwiftFileTemplate {
+struct APIFile: SwiftFile {
     /// TypeInformation is a caseless enum named `API`
     let typeInformation: TypeInformation = .enum(name: .init(name: "API"), cases: [])
     /// Kind of the file
@@ -21,7 +21,7 @@ struct APIFile: SwiftFileTemplate {
         self.endpoints = endpoints.sorted()
     }
 
-    /// Renderes the wrapper method for the `migratedEndpoint`
+    /// Renders the wrapper method for the `migratedEndpoint`
     private func method(for migratedEndpoint: MigratedEndpoint) -> String {
         if migratedEndpoint.unavailable {
             return migratedEndpoint.unavailableBody()
@@ -39,7 +39,7 @@ struct APIFile: SwiftFileTemplate {
         return body
     }
 
-    /// Renderes the content of the file
+    /// Renders the content of the file
     public func render() -> String {
         """
         \(fileComment)

@@ -9,11 +9,11 @@ import Foundation
 
 class EndpointMethodMigrator: Renderable {
     /// Endpoint of old version that will be migrated
-    let endpoint: Endpoint
+    private let endpoint: Endpoint
     /// A flag that indicates whether the endpoint has been deleted in the new version
-    let unavailable: Bool
+    private let unavailable: Bool
     /// Only changes that belong to `endpoint`
-    let endpointChanges: [Change]
+    private let endpointChanges: [Change]
     /// Migrated parameters of the endpoint by means of `endpointChanges`, property gets initialized by from `Self.migratedParameters(of:with:)` static method
     private let parameters: [MigratedParameter]
     /// Lazy migrated endpoint property.
@@ -22,7 +22,7 @@ class EndpointMethodMigrator: Renderable {
     }()
     
     /// An optional property that holds the id of the javascript convert function in case that response changed to some other type. Property set in `responseString()`
-    var responseConvertID: Int?
+    private var responseConvertID: Int?
     
     /// Initializes a new instance out of an endpoint of old version and the changes that belong to `endpoint`
     init(_ endpoint: Endpoint, changes: [Change]) {
@@ -182,5 +182,17 @@ fileprivate extension EndpointMethodMigrator {
             )
         }
         return parameters
+    }
+}
+
+// MARK: - Operation
+fileprivate extension ApodiniMigrator.Operation {
+    var asHTTPMethodString: String {
+        switch self {
+        case .create: return "post"
+        case .read: return "get"
+        case .update: return "put"
+        case .delete: return "delete"
+        }
     }
 }

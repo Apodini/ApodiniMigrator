@@ -21,7 +21,7 @@ enum Kind: String {
 }
 
 /// A protocol that template models can conform to
-protocol SwiftFileTemplate: Renderable {
+protocol SwiftFile: Renderable {
     /// The `typeInformation` for which the template will be created
     var typeInformation: TypeInformation { get }
     
@@ -47,7 +47,7 @@ enum MARKCommentType: String {
 }
 
 /// `SwiftFileTemplate` default implementations
-extension SwiftFileTemplate {
+extension SwiftFile {
     /// The string of the type name of the `typeInformation`, without the name of the module
     var typeNameString: String {
         typeInformation.typeName.name
@@ -74,6 +74,23 @@ extension SwiftFileTemplate {
         let absolutePath = directory + (alternativeFileName ?? fileName)
         try absolutePath.write(render().indentationFormatted())
         return absolutePath
+    }
+}
+
+/// A protocol for object swift files (object models of the client library
+protocol ObjectSwiftFile: SwiftFile {}
+/// ObjectSwiftFile extension
+extension ObjectSwiftFile {
+    /// File header including file comment, foundation import and the signature of object declaration
+    func fileHeader() -> String {
+        """
+        \(fileComment)
+
+        \(Import(.foundation).render())
+        
+        \(MARKComment(.model))
+        \(kind.signature) \(typeNameString): Codable {
+        """
     }
 }
 

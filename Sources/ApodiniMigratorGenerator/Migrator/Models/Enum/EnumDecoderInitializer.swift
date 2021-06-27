@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Represents the `init(from:)` initializer of an `enum`
 struct EnumDecoderInitializer: Renderable {
     /// The default enum case to be set in the initializer
     let defaultCase: EnumCase
@@ -14,7 +15,7 @@ struct EnumDecoderInitializer: Renderable {
     /// Initializer
     init(_ cases: [EnumCase]) {
         guard let defaultCase = cases.first else {
-            fatalError("Something went fundamentally wrong. Enum types supported by ApodiniMigrator, must encode and decode their rawValue as String")
+            fatalError("Something went fundamentally wrong. Enum types supported by ApodiniMigrator, must be raw representable codables")
         }
         self.defaultCase = defaultCase
     }
