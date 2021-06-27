@@ -35,7 +35,7 @@ public struct WebServiceFileTemplate: Renderable {
         let methodName = endpoint.deltaIdentifier
         let body =
         """
-        \(EndpointComment(endpoint.handlerName, path: endpoint.path))
+        \(EndpointComment(endpoint.handlerName, path: endpoint.path.resourcePath))
         public static func \(methodName)(\(methodInputString)) -> ApodiniPublisher<\(typeString)> {
         \(nestedType).\(methodName)(\(methodParameters.joined(separator: ", ")))
         }

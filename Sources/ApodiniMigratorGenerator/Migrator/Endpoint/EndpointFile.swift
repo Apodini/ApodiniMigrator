@@ -7,30 +7,39 @@
 
 import Foundation
 
+/// An object that represents an `Type+Endpoint.swift` file in the client library
 class EndpointFile: SwiftFileTemplate {
-    var typeInformation: TypeInformation
-    var endpoints: [Endpoint]
-    var changes: [Change]
+    /// Nested response type of endpoints that are grouped in the file, e.g `User` and `[User]` -> `User`
+    let typeInformation: TypeInformation
+    /// Kind of the file, always extension
+    let kind: Kind = .extension
+    /// Endpoints that are rendered in the file (same nested response type)
+    let endpoints: [Endpoint]
+    /// All changes of the migration guide that belong to the `endpoints`
+    let changes: [Change]
+    /// Array of endpoints that have been migrated from `EndpointMethodMigrator`, property gets appended with new migrated endpoints inside of `methodBody(for:)`
     var migratedEndpoints: [MigratedEndpoint] = []
-    var kind: Kind
     
+    /// File comment that will be rendered for `self`
     var endpointFileComment: FileHeaderComment {
         .init(fileName: typeInformation.typeName.name + EndpointsMigrator.fileSuffix)
     }
     
+    /// Initializes a new instance out of the same nested response type of `endpoints` and the `changes` that belong to those endpoints
     init(typeInformation: TypeInformation, endpoints: [Endpoint], changes: [Change]) {
         self.typeInformation = typeInformation
         self.endpoints = endpoints
         self.changes = changes
-        self.kind = .extension
     }
     
+    /// Renders the migrated method for `endpoint`
     private func methodBody(for endpoint: Endpoint) -> String {
-        let endpointMigrator = EndpointMethodMigrator(endpoint, changes: changes)
+        let endpointMigrator = EndpointMethodMigrator(endpoint, changes: changes.filter { $0.elementID == endpoint.deltaIdentifier })
         migratedEndpoints.append(endpointMigrator.migratedEndpoint)
         return endpointMigrator.render()
     }
     
+    /// Renderes the content of the file with all migrated endpoints
     func render() -> String {
         """
         \(endpointFileComment.render())

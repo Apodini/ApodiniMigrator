@@ -49,7 +49,7 @@ public struct Migrator {
         let changeFilter: ChangeFilter = .init(migrationGuide)
         endpointsMigrator = .init(
             endpointsPath: directories.endpoints,
-            webServicePath: directories.target,
+            apiFilePath: directories.target,
             allEndpoints: document.endpoints + changeFilter.addedEndpoints(),
             endpointChanges: changeFilter.endpointChanges
         )

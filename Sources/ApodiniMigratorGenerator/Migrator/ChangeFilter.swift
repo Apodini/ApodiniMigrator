@@ -27,8 +27,8 @@ struct ChangeFilter {
     /// Filters added models out of the model changes
     func addedModels() -> [TypeInformation] {
         modelChanges.compactMap { change in
-            if change.element.target == ObjectTarget.`self`.rawValue, let change = change as? AddChange, case let .element(model) = change.added {
-                return model.typed(TypeInformation.self)
+            if change.element.target == ObjectTarget.`self`.rawValue, let change = change as? AddChange, case let .element(anyCodable) = change.added {
+                return anyCodable.typed(TypeInformation.self)
             }
             return nil
         }
@@ -37,8 +37,8 @@ struct ChangeFilter {
     /// Filteres added endpoints out of the endpoint changes
     func addedEndpoints() -> [Endpoint] {
         endpointChanges.compactMap { change in
-            if change.element.target == EndpointTarget.`self`.rawValue, let change = change as? AddChange, case let .element(endpoint) = change.added {
-                return endpoint.typed(Endpoint.self)
+            if change.element.target == EndpointTarget.`self`.rawValue, let change = change as? AddChange, case let .element(anyCodable) = change.added {
+                return anyCodable.typed(Endpoint.self)
             }
             return nil
         }

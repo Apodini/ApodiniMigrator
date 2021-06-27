@@ -94,8 +94,8 @@ struct EnumMigrator: SwiftFileTemplate {
         var retValue: [EnumCase] = []
         
         for change in changes where change.element.target == EnumTarget.case.rawValue {
-            if let addChange = change as? AddChange, case let .element(enumCase) = addChange.added {
-                retValue.append(enumCase.typed(EnumCase.self))
+            if let addChange = change as? AddChange, case let .element(anyCodable) = addChange.added {
+                retValue.append(anyCodable.typed(EnumCase.self))
             }
         }
         return retValue

@@ -8,26 +8,38 @@
 import Foundation
 
 class EndpointMethodMigrator: Renderable {
-    
+    /// Endpoint of old version that will be migrated
     let endpoint: Endpoint
-    let unavailable: Bool // TODO added endpoint, skip other steps
+    /// A flag that indicates whether the endpoint has been deleted in the new version
+    let unavailable: Bool
+    /// Only changes that belong to `endpoint`
     let endpointChanges: [Change]
-    private var parameters: [MigratedParameter]
+    /// Migrated parameters of the endpoint by means of `endpointChanges`, property gets initialized by from `Self.migratedParameters(of:with:)` static method
+    private let parameters: [MigratedParameter]
+    /// Lazy migrated endpoint property.
     lazy var migratedEndpoint: MigratedEndpoint = {
         .init(endpoint: endpoint, unavailable: unavailable, parameters: parameters, path: path())
     }()
     
+    /// An optional property that holds the id of the javascript convert function in case that response changed to some other type. Property set in `responseString()`
     var responseConvertID: Int?
-    var newResponse: TypeInformation?
     
+    /// Initializes a new instance out of an endpoint of old version and the changes that belong to `endpoint`
     init(_ endpoint: Endpoint, changes: [Change]) {
         self.endpoint = endpoint
-        self.endpointChanges = changes.filter { $0.elementID == endpoint.deltaIdentifier }
+        self.endpointChanges = changes
         
         unavailable = endpointChanges.contains(where: { $0.type == .deletion && $0.element.target == EndpointTarget.`self`.rawValue })
         parameters = Self.migratedParameters(of: endpoint, with: endpointChanges)
     }
     
+    /// Returns the string raw value of `target`
+    private func target(_ target: EndpointTarget) -> String {
+        target.rawValue
+    }
+    
+    /// Checks changes whether the response has changed to some other types. If that is the case returns the string of the new response type
+    /// and saves the corresponding convert id in `responseConvertID`, otherwise returns the string of the old response type
     private func responseString() -> String {
         if let responseChange = endpointChanges.firstMatch(on: \.type, with: .responseChange) as? UpdateChange, case let .element(anyCodable) = responseChange.to {
             guard let convertID = responseChange.convertToFrom else {
@@ -35,16 +47,12 @@ class EndpointMethodMigrator: Renderable {
             }
             responseConvertID = convertID
             let response = anyCodable.typed(TypeInformation.self)
-            newResponse = response
             return response.typeString
         }
         return endpoint.response.typeString
     }
     
-    private func target(_ target: EndpointTarget) -> String {
-        target.rawValue
-    }
-    
+    /// Checks changes whether the operation has changed, if that is the case, returns the `operation` of the new version, otherwise the `operation` of `endpoint`
     private func operation() -> ApodiniMigrator.Operation {
         if let operationChange = endpointChanges.first(where: { $0.element.target == target(.operation) }) as? UpdateChange, case let .element(anyCodable) = operationChange.to {
             return anyCodable.typed(ApodiniMigrator.Operation.self)
@@ -52,6 +60,7 @@ class EndpointMethodMigrator: Renderable {
         return endpoint.operation
     }
     
+    /// Checks whether the `path` has changed, if that is the case the new path is returned, otherwise the `path` of `endpoint`
     private func path() -> EndpointPath {
         if let pathChange = endpointChanges.first(where: { $0.element.target == target(.resourcePath) }) as? UpdateChange, case let .element(anyCodable) = pathChange.to {
             return anyCodable.typed(EndpointPath.self)
@@ -59,6 +68,7 @@ class EndpointMethodMigrator: Renderable {
         return endpoint.path
     }
     
+    /// If response has changed, the migrator converts the return of the function to the old type by means of the `responseConvertID` saved from `responseString()`.
     private func returnValueString() -> String {
         var retValue = "return NetworkingService.trigger(handler)"
         guard let convertID = responseConvertID else {
@@ -70,8 +80,9 @@ class EndpointMethodMigrator: Renderable {
         return retValue
     }
     
+    /// Renders the body of the migrated endpoint
     func render() -> String {
-        guard !unavailable else {
+        if unavailable {
             return migratedEndpoint.unavailableBody()
         }
         
@@ -87,7 +98,7 @@ class EndpointMethodMigrator: Renderable {
         \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.doubleQuoted))" }.lineBreaked)
 
         let handler = Handler<\(responseString)>(
-        path: \(migratedEndpoint.resourcePath().doubleQuoted),
+        path: \(migratedEndpoint.resourcePath.doubleQuoted),
         httpMethod: .\(operation().asHTTPMethodString),
         parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),
         headers: headers,
@@ -101,11 +112,16 @@ class EndpointMethodMigrator: Renderable {
         """
         return body
     }
-    
+}
+
+// MARK: - EndpointMethodMigrator
+fileprivate extension EndpointMethodMigrator {
+    /// Returns the migrated endpoints of `endpoint` by means of `endpointChanges`, by taking into account all changes that target paramaters
     static func migratedParameters(of endpoint: Endpoint, with endpointChanges: [Change]) -> [MigratedParameter] {
         var parameters: [MigratedParameter] = []
         let parameterTargets = [EndpointTarget.queryParameter, .pathParameter, .contentParameter].map { $0.rawValue }
         
+        // First registering additions and deletions
         for change in endpointChanges where parameterTargets.contains(change.element.target) && [.addition, .deletion].contains(change.type) {
             if let addChange = change as? AddChange, case let .element(anyCodable) = addChange.added {
                 parameters.append(.addedParameter(anyCodable.typed(Parameter.self), defaultValue: addChange.defaultValue))
@@ -114,6 +130,7 @@ class EndpointMethodMigrator: Renderable {
             }
         }
         
+        // Iterating through old parameters that have not been deleted and registering the corresponding changes
         for oldParameter in endpoint.parameters where !parameters.contains(where: { $0.oldName == oldParameter.name }) {
             let oldName = oldParameter.name
             let oldType = oldParameter.typeInformation
@@ -122,6 +139,7 @@ class EndpointMethodMigrator: Renderable {
             var newName: String?
             var necessityValueJSONId: Int?
             var convertFromToJSONId: Int?
+            // All changes related to parameters are of type `UpdateChange`
             for change in endpointChanges where (change as? UpdateChange)?.targetID == oldParameter.deltaIdentifier {
                 if let updateChange = change as? UpdateChange {
                     if updateChange.type == .rename, case let .stringValue(rename) = updateChange.to {
@@ -163,7 +181,6 @@ class EndpointMethodMigrator: Renderable {
                 )
             )
         }
-        
         return parameters
     }
 }

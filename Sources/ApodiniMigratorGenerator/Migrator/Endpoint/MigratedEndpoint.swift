@@ -7,29 +7,38 @@
 
 import Foundation
 
-struct MigratedEndpoint: Comparable {
-    static func < (lhs: MigratedEndpoint, rhs: MigratedEndpoint) -> Bool {
-        let lhsEndpoint = lhs.endpoint
-        let rhsEndpoint = rhs.endpoint
-        if lhsEndpoint.response == rhsEndpoint.response {
-            return lhsEndpoint.deltaIdentifier < rhsEndpoint.deltaIdentifier
-        }
-        return lhsEndpoint.response.typeName.name < rhsEndpoint.response.typeName.name
-    }
-    
+/// Represents a migrated endpoint of the client library
+class MigratedEndpoint {
+    /// Old endpoint of the client library
     let endpoint: Endpoint
-    let path: EndpointPath
+    /// Path of `endpoint` in the new version
+    private let path: EndpointPath
+    /// A flag that indicates whether the endpoint has been deleted in the new version
     let unavailable: Bool
+    /// Migrated parameters of the client libray (all added, deleted, renamed or updated parameters)
     let parameters: [MigratedParameter]
     
-    var queryParameters: [MigratedParameter] {
-        parameters.filter { $0.kind == .lightweight }
+    /// Only `parameters` that have not been deleted, that should be considered in the method body
+    var activeParameters: [MigratedParameter] {
+        parameters.filter { !$0.deleted }
     }
     
-    var responseString: String {
+    /// Response string of the endpoint in the old version
+    private var responseString: String {
         endpoint.response.typeString
     }
     
+    /// Returns the adjusted resource path by considering potential renamings of the parameters in the new version and replacing them accordingly
+    lazy var resourcePath: String = {
+        var resourcePath = path.resourcePath
+        
+        for pathParameter in activeParameters.filter({ $0.kind == .path }) { // TODO consider convert?
+            resourcePath = resourcePath.with("{\(pathParameter.oldName)}", insteadOf: "{\(pathParameter.newName)}")
+        }
+        return resourcePath.with("\\(", insteadOf: "{").with(")", insteadOf: "}")
+    }()
+    
+    /// Initializes a new instance out of an endpoint of the old version, unavailable flag, migrated parameters and the path of the endpoint in the new version
     init(endpoint: Endpoint, unavailable: Bool, parameters: [MigratedParameter], path: EndpointPath) {
         self.endpoint = endpoint
         self.unavailable = unavailable
@@ -37,7 +46,8 @@ struct MigratedEndpoint: Comparable {
         self.path = path
     }
     
-    func methodInput() -> String {
+    /// Returns the input string of the endpoint method considering added parameters and providing default values for those
+    private func methodInput() -> String {
         var input = parameters.map { parameter -> String in
             let typeString = parameter.oldType.typeString + (parameter.necessity == .optional ? "?" : "")
             var parameterSignature = "\(parameter.oldName): \(typeString)"
@@ -60,6 +70,7 @@ struct MigratedEndpoint: Comparable {
         return .lineBreak + input.joined(separator: ",\(String.lineBreak)") + .lineBreak
     }
     
+    /// Returns the `@available(*, unavailable, message:)` annotation in case that the endpoint has been deleted in the new version
     private func unavailableComment() -> String {
         guard unavailable else {
             return ""
@@ -67,22 +78,7 @@ struct MigratedEndpoint: Comparable {
         return "@available(*, unavailable, message: \("This endpoint is not available in the new version anymore. Calling this method results in a fatal error!".doubleQuoted))" + .lineBreak
     }
     
-    func signature() -> String {
-        let methodName = endpoint.deltaIdentifier.rawValue.lowerFirst
-        let signature =
-        """
-        \(EndpointComment(endpoint.handlerName, path: path))
-        \(unavailableComment())static func \(methodName)(\(methodInput())) -> ApodiniPublisher<\(responseString)> {
-        """
-        return signature
-    }
-    
-    func unavailableBody() -> String {
-        var body = signature()
-        body += .lineBreak + "fatalError(\("This endpoint is not available in the new version anymore".doubleQuoted))" + .lineBreak + "}"
-        return body
-    }
-    
+    /// Returns the set value for `parameter` that should be used inside of the method body, considering necessity and convert changes
     private func setValue(for parameter: MigratedParameter) -> String {
         let setValue: String
         if let necessityValueID = parameter.necessityValueJSONId {
@@ -94,9 +90,28 @@ struct MigratedEndpoint: Comparable {
         }
         return setValue
     }
-
+    
+    /// Returns the signature of the endpoint method
+    func signature() -> String {
+        let methodName = endpoint.deltaIdentifier.rawValue.lowerFirst
+        let signature =
+        """
+        \(EndpointComment(endpoint.handlerName, path: self.resourcePath))
+        \(unavailableComment())static func \(methodName)(\(methodInput())) -> ApodiniPublisher<\(responseString)> {
+        """
+        return signature
+    }
+    
+    /// Returns the endpoint method with unavailable comment and a fatalError body
+    func unavailableBody() -> String {
+        var body = signature()
+        body += .lineBreak + "fatalError(\("This endpoint is not available in the new version anymore".doubleQuoted))" + .lineBreak + "}"
+        return body
+    }
+    
+    /// Returns the query parameters string that should be rendered inside of the method body, considering only non-deleted query parameters
     func queryParametersString() -> String {
-        let queryParameters = self.queryParameters
+        let queryParameters = activeParameters.filter { $0.kind == .lightweight }
         guard !queryParameters.isEmpty else {
             return ""
         }
@@ -110,66 +125,34 @@ struct MigratedEndpoint: Comparable {
         return body + .lineBreak
     }
     
+    /// Returns the string that should be used in the `content` field of the handler initializer inside of the endpoint method, by only considering active content parameter
     func contentParameterString() -> String {
-        guard let contentParameter = parameters.firstMatch(on: \.kind, with: .content) else {
+        guard let contentParameter = activeParameters.firstMatch(on: \.kind, with: .content) else {
             return "nil"
         }
         
         return "NetworkingService.encode(\(setValue(for: contentParameter)))"
     }
-    
-    func resourcePath() -> String {
-        var resourcePath = path.resourcePath
-        
-        for pathParameter in parameters.filter({ $0.kind == .path }) { // TODO consider convert?
-            resourcePath = resourcePath.with("{\(pathParameter.oldName)}", insteadOf: "{\(pathParameter.newName)}")
-        }
-        return resourcePath.with("\\(", insteadOf: "{").with(")", insteadOf: "}")
-    }
-    
-    
 }
 
-public struct WebServiceFileTemplate2: Renderable {
-    public static let fileName = "API"
-    public static let filePath = fileName + .swift
-    let endpoints: [MigratedEndpoint]
-
-    init(_ endpoints: [MigratedEndpoint]) {
-        self.endpoints = endpoints.sorted()
+// MARK: - Equatable
+extension MigratedEndpoint: Equatable {
+    static func == (lhs: MigratedEndpoint, rhs: MigratedEndpoint) -> Bool {
+        lhs.endpoint == rhs.endpoint
+            && lhs.unavailable == rhs.unavailable
+            && lhs.parameters == rhs.parameters
+            && lhs.path == rhs.path
     }
+}
 
-
-    private func method(for migratedEndpoint: MigratedEndpoint) -> String {
-        if migratedEndpoint.unavailable {
-            return migratedEndpoint.unavailableBody()
+// MARK: - Comparable
+extension MigratedEndpoint: Comparable {
+    static func < (lhs: MigratedEndpoint, rhs: MigratedEndpoint) -> Bool {
+        let lhsEndpoint = lhs.endpoint
+        let rhsEndpoint = rhs.endpoint
+        if lhsEndpoint.response == rhsEndpoint.response {
+            return lhsEndpoint.deltaIdentifier < rhsEndpoint.deltaIdentifier
         }
-        let endpoint = migratedEndpoint.endpoint
-        let nestedType = endpoint.response.nestedType.typeName.name
-        var bodyInput = migratedEndpoint.parameters.map { "\($0.oldName): \($0.oldName)"}
-        bodyInput.append(contentsOf: DefaultEndpointInput.allCases.map { $0.keyValue })
-        let body =
-        """
-        \(migratedEndpoint.signature())
-        \(nestedType).\(endpoint.deltaIdentifier)(\(String.lineBreak)\(bodyInput.joined(separator: ",\(String.lineBreak)"))\(String.lineBreak))
-        }
-        """
-        return body
-    }
-
-    public func render() -> String {
-        """
-        \(FileHeaderComment(fileName: Self.filePath).render())
-
-        \(Import(.foundation).render())
-
-        \(MARKComment(Self.fileName))
-        \(Kind.enum.signature) \(Self.fileName) {}
-
-        \(MARKComment(.endpoints))
-        \(Kind.extension.signature) \(Self.fileName) {
-        \(endpoints.map { method(for: $0) }.joined(separator: .doubleLineBreak))
-        }
-        """
+        return lhsEndpoint.response.typeName.name < rhsEndpoint.response.typeName.name
     }
 }

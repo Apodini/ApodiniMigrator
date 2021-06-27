@@ -40,7 +40,7 @@ public struct EndpointFileTemplate: SwiftFileTemplate {
         let body =
         """
         \(MARKComment(endpoint.deltaIdentifier.rawValue))
-        \(EndpointComment(endpoint.handlerName, path: endpoint.path))
+        \(EndpointComment(endpoint.handlerName, path: endpoint.path.resourcePath))
         static func \(methodName)(\(endpoint.methodInputString())) -> ApodiniPublisher<\(responseString)> {
         \(queryParametersString)var headers = HTTPHeaders()
         headers.setContentType(to: "application/json")
