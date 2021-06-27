@@ -198,7 +198,7 @@ public struct Migrator {
     
     /// A util function to log persisting of content at a directory
     private func log(_ directory: DirectoryName) {
-        logger.info("Persisting content at \(directories.path(of: directory).string)")
+        logger.info("Persisting content at \(directories.path(of: directory).string.without(packagePath.string + "/"))")
     }
     
     /// A util function that returns the string content of a template
