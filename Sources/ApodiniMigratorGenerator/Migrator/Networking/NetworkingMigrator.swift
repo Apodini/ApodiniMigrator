@@ -21,7 +21,6 @@ struct NetworkingMigrator {
             }
         }
         return serverPath
-        
     }
     
     func encoderConfiguration() -> EncoderConfiguration {

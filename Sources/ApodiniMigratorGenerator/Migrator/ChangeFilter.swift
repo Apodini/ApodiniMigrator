@@ -10,11 +10,11 @@ import Foundation
 /// A util property that serves to distribute changes to the elements that those belong to
 struct ChangeFilter {
     /// Filtered changes where change element is an endpoint
-    public let endpointChanges: [Change]
+    let endpointChanges: [Change]
     /// Filtered changes where change element is a model (either object or enum)
-    public let modelChanges: [Change]
+    let modelChanges: [Change]
     /// Filtered changes where change element is related with `NetworkingService`
-    public let networkingChanges: [Change]
+    let networkingChanges: [Change]
     
     /// Initializes a new instance out of the migration guide
     init(_ migrationGuide: MigrationGuide) {

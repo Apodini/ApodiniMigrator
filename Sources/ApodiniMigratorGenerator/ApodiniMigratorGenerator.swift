@@ -162,23 +162,6 @@ public struct ApodiniMigratorGenerator { // TODO Remove
     }
 }
 
-extension DecoderConfiguration {
-    var networkingDescription: String {
-        """
-        dateDecodingStrategy: .\(dateDecodingStrategy.rawValue),
-        dataDecodingStrategy: .\(dataDecodingStrategy.rawValue)
-        """
-    }
-}
-
-extension EncoderConfiguration {
-    var networkingDescription: String {
-        """
-        dateEncodingStrategy: .\(dateEncodingStrategy.rawValue),
-        dataEncodingStrategy: .\(dataEncodingStrategy.rawValue)
-        """
-    }
-}
 
 fileprivate extension String {
     func with(packageName: String) -> String {

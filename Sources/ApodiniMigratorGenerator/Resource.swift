@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import ApodiniMigrator
-import PathKit
 
 /// A protocol to allow manipulation of bundle resources
 /// Conforming types should specify the `Bundle` where the resources are stored and the name of the file
