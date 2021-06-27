@@ -102,12 +102,13 @@ struct ObjectComparator: Comparator {
         }
         
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
+            let wasRequired = removal.necessity == .required
             changes.add(
                 DeleteChange(
                     element: element(.property),
                     deleted: .id(from: removal),
-                    fallbackValue: .value(from: removal.type, with: configuration, changes: changes),
-                    breaking: removal.necessity == .required,
+                    fallbackValue: wasRequired ? .value(from: removal.type, with: configuration, changes: changes) : .none,
+                    breaking: wasRequired,
                     solvable: true,
                     includeProviderSupport: includeProviderSupport
                 )
@@ -115,12 +116,13 @@ struct ObjectComparator: Comparator {
         }
         
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
+            let isRequired = addition.necessity == .required
             changes.add(
                 AddChange(
                     element: element(.property),
                     added: .element(addition),
-                    defaultValue: .value(from: addition.type, with: configuration, changes: changes),
-                    breaking: addition.necessity == .required,
+                    defaultValue: isRequired ? .value(from: addition.type, with: configuration, changes: changes) : .none,
+                    breaking: isRequired,
                     solvable: true,
                     includeProviderSupport: includeProviderSupport
                 )

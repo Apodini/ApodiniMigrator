@@ -43,8 +43,15 @@ struct DecoderInitializer: Renderable {
     func decodingLine(for property: TypeProperty) -> String {
         let id = property.deltaIdentifier
         let name = property.name
-        if property.necessity == .required, let deletedProperty = deleted.firstMatch(on: \.id, with: id) {
-            return "\(name) = try \(property.type.typeString).instance(from: \(deletedProperty.jsonValueID))"
+        if let deletedProperty = deleted.firstMatch(on: \.id, with: id) {
+            let valueString: String
+            if case let .json(id) = deletedProperty.fallbackValue {
+                valueString = "try \(property.type.typeString).instance(from: \(id))"
+            } else {
+                assert(deletedProperty.fallbackValue.isNone && property.necessity == .optional, "Migration guide did not provide a default value for the deleted property: \(name)")
+                valueString = "nil"
+            }
+            return "\(name) = \(valueString)"
         } else if let change = necessityChanges.firstMatch(on: \.targetID, with: id),
                   let necessityValue = change.necessityValue,
                   case let .element(anyCodable) = change.to,

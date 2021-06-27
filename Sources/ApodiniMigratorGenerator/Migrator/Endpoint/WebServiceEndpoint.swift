@@ -20,9 +20,9 @@ struct WebServiceEndpoint: Comparable {
     let endpoint: Endpoint
     let path: EndpointPath
     let unavailable: Bool
-    let parameters: [ChangedParameter]
+    let parameters: [MigratedParameter]
     
-    var queryParameters: [ChangedParameter] {
+    var queryParameters: [MigratedParameter] {
         parameters.filter { $0.kind == .lightweight }
     }
     
@@ -30,7 +30,7 @@ struct WebServiceEndpoint: Comparable {
         endpoint.response.typeString
     }
     
-    init(endpoint: Endpoint, unavailable: Bool, parameters: [ChangedParameter], path: EndpointPath) {
+    init(endpoint: Endpoint, unavailable: Bool, parameters: [MigratedParameter], path: EndpointPath) {
         self.endpoint = endpoint
         self.unavailable = unavailable
         self.parameters = parameters.sorted(by: \.oldName)
@@ -41,8 +41,15 @@ struct WebServiceEndpoint: Comparable {
         var input = parameters.map { parameter -> String in
             let typeString = parameter.oldType.typeString + (parameter.necessity == .optional ? "?" : "")
             var parameterSignature = "\(parameter.oldName): \(typeString)"
-            if let addedValue = parameter.addedValueJSONId {
-                parameterSignature += " = \(addedValue == -1 ? "nil" : "try! \(typeString).instance(from: \(addedValue))")"
+            if let defaultValue = parameter.defaultValue {
+                let defaultValueString: String
+                if case let .json(id) = defaultValue {
+                    defaultValueString = "try! \(typeString).instance(from: \(id))"
+                } else {
+                    assert(defaultValue.isNone && parameter.necessity == .optional, "Migration guide did not provide a default value for the required added parameter: \(parameter.newName)")
+                    defaultValueString = "nil"
+                }
+                parameterSignature += " = \(defaultValueString)"
             }
             
             return parameterSignature
@@ -78,7 +85,7 @@ struct WebServiceEndpoint: Comparable {
         return body
     }
     
-    private func setValue(for parameter: ChangedParameter) -> String {
+    private func setValue(for parameter: MigratedParameter) -> String {
         let setValue: String
         if let necessityValueID = parameter.necessityValueJSONId {
             setValue = "\(parameter.oldName) ?? (try! \(parameter.oldType.typeString).instance(from: \(necessityValueID))"

@@ -12,7 +12,7 @@ class EndpointMethodMigrator: Renderable {
     let endpoint: Endpoint
     let unavailable: Bool // TODO added endpoint, skip other steps
     let endpointChanges: [Change]
-    private var parameters: [ChangedParameter]
+    private var parameters: [MigratedParameter]
     lazy var webServiceEndpoint: WebServiceEndpoint = {
         .init(endpoint: endpoint, unavailable: unavailable, parameters: parameters, path: path())
     }()
@@ -25,7 +25,7 @@ class EndpointMethodMigrator: Renderable {
         self.endpointChanges = changes.filter { $0.elementID == endpoint.deltaIdentifier }
         
         unavailable = endpointChanges.contains(where: { $0.type == .deletion && $0.element.target == EndpointTarget.`self`.rawValue })
-        parameters = Self.changedParameters(of: endpoint, with: endpointChanges)
+        parameters = Self.migratedParameters(of: endpoint, with: endpointChanges)
     }
     
     private func responseString() -> String {
@@ -102,18 +102,13 @@ class EndpointMethodMigrator: Renderable {
         return body
     }
     
-    static func changedParameters(of endpoint: Endpoint, with endpointChanges: [Change]) -> [ChangedParameter] {
-        var parameters: [ChangedParameter] = []
+    static func migratedParameters(of endpoint: Endpoint, with endpointChanges: [Change]) -> [MigratedParameter] {
+        var parameters: [MigratedParameter] = []
         let parameterTargets = [EndpointTarget.queryParameter, .pathParameter, .contentParameter].map { $0.rawValue }
         
         for change in endpointChanges where parameterTargets.contains(change.element.target) && [.addition, .deletion].contains(change.type) {
             if let addChange = change as? AddChange, case let .element(anyCodable) = addChange.added {
-                var jsonValueID: Int?
-                if case let .json(id) = addChange.defaultValue {
-                    jsonValueID = id
-                }
-                let parameter = anyCodable.typed(Parameter.self)
-                parameters.append(.addedParameter(parameter, jsonValueID: jsonValueID ?? -1))
+                parameters.append(.addedParameter(anyCodable.typed(Parameter.self), defaultValue: addChange.defaultValue))
             } else if let deleteChange = change as? DeleteChange, case let .elementID(id) = deleteChange.deleted, let oldParameter = endpoint.parameters.firstMatch(on: \.deltaIdentifier, with: id) {
                 parameters.append(.deletedParameter(oldParameter))
             }
@@ -162,7 +157,7 @@ class EndpointMethodMigrator: Renderable {
                     oldType: oldType,
                     newType: newType ?? oldType,
                     convertFromTo: convertFromToJSONId,
-                    addedValueJSONId: nil,
+                    defaultValue: nil,
                     necessityValueJSONId: necessityValueJSONId,
                     deleted: false
                 )

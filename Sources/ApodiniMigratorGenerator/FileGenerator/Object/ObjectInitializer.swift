@@ -11,14 +11,14 @@ import Foundation
 struct ObjectInitializer: Renderable {
     /// The properties of the object that this initializer belongs to
     var properties: [TypeProperty]
-    var defaultValueIDs: [DeltaIdentifier: Int]
+    var defaultValues: [DeltaIdentifier: ChangeValue]
     
     /// Initializer
     init(_ properties: [TypeProperty], addedProperties: [AddedProperty] = []) {
         var allProperties = properties
-        defaultValueIDs = [:]
+        defaultValues = [:]
         for added in addedProperties {
-            defaultValueIDs[added.typeProperty.deltaIdentifier] = added.jsonValueID
+            defaultValues[added.typeProperty.deltaIdentifier] = added.defaultValue
             allProperties.append(added.typeProperty)
         }
         self.properties = allProperties.sorted(by: \.name)
@@ -38,8 +38,15 @@ struct ObjectInitializer: Renderable {
     
     private func defaultValue(for property: TypeProperty) -> String {
         var typeString = property.type.typeString
-        if let id = defaultValueIDs[property.deltaIdentifier] {
-            typeString += " = try! \(typeString).instance(from: \(id))"
+        if let defaultValue = defaultValues[property.deltaIdentifier] {
+            let defaultValueString: String
+            if case let .json(id) = defaultValue {
+                defaultValueString = "try! \(typeString).instance(from: \(id))"
+            } else {
+                assert(defaultValue.isNone && property.necessity == .optional, "Migration guide did not provide a json id for a non-optional property: \(property.name)")
+                defaultValueString = "nil"
+            }
+            typeString += " = \(defaultValueString)"
         }
         return typeString
     }

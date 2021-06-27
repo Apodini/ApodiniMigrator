@@ -9,12 +9,12 @@ import Foundation
 
 struct AddedProperty {
     let typeProperty: TypeProperty
-    let jsonValueID: Int
+    let defaultValue: ChangeValue
 }
 
 struct DeletedProperty {
     let id: DeltaIdentifier
-    let jsonValueID: Int
+    let fallbackValue: ChangeValue
     
 }
 
@@ -58,9 +58,9 @@ struct ObjectMigrator: SwiftFileTemplate {
             return objectFileTemplate.render()
         }
         
-        let addedProperties: [AddedProperty] = addedPropertyChanges.compactMap {
-            if case let .element(anyCodable) = $0.added, case let .json(defaultJSONValueID) = $0.defaultValue {
-                return .init(typeProperty: anyCodable.typed(TypeProperty.self), jsonValueID: defaultJSONValueID)
+        let addedProperties: [AddedProperty] = addedPropertyChanges.compactMap { change in
+            if case let .element(anyCodable) = change.added {
+                return .init(typeProperty: anyCodable.typed(TypeProperty.self), defaultValue: change.defaultValue)
             }
             return nil
         }
@@ -68,8 +68,8 @@ struct ObjectMigrator: SwiftFileTemplate {
         let allProperties = (typeInformation.objectProperties + addedProperties.map(\.typeProperty)).sorted(by: \.name)
         
         let deletedProperties: [DeletedProperty] = deletedPropertyChanges.compactMap { change in
-            if case let .elementID(id) = change.deleted, case let .json(fallbackJSONValueID) = change.fallbackValue {
-                return .init(id: id, jsonValueID: fallbackJSONValueID)
+            if case let .elementID(id) = change.deleted {
+                return .init(id: id, fallbackValue: change.fallbackValue)
             }
             return nil
         }
