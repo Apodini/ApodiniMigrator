@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct WebServiceEndpoint: Comparable {
-    static func < (lhs: WebServiceEndpoint, rhs: WebServiceEndpoint) -> Bool {
+struct MigratedEndpoint: Comparable {
+    static func < (lhs: MigratedEndpoint, rhs: MigratedEndpoint) -> Bool {
         let lhsEndpoint = lhs.endpoint
         let rhsEndpoint = rhs.endpoint
         if lhsEndpoint.response == rhsEndpoint.response {
@@ -55,8 +55,7 @@ struct WebServiceEndpoint: Comparable {
             return parameterSignature
         }
         
-        input.append("authorization: String? = nil")
-        input.append("httpHeaders: HTTPHeaders = [:]")
+        input.append(contentsOf: DefaultEndpointInput.allCases.map { $0.signature})
         
         return .lineBreak + input.joined(separator: ",\(String.lineBreak)") + .lineBreak
     }
@@ -68,19 +67,18 @@ struct WebServiceEndpoint: Comparable {
         return "@available(*, unavailable, message: \("This endpoint is not available in the new version anymore. Calling this method results in a fatal error!".doubleQuoted))" + .lineBreak
     }
     
-    func signature(asPublic: Bool = false) -> String {
+    func signature() -> String {
         let methodName = endpoint.deltaIdentifier.rawValue.lowerFirst
-        let accessModifier = asPublic ? "public " : ""
         let signature =
         """
         \(EndpointComment(endpoint.handlerName, path: path))
-        \(unavailableComment())\(accessModifier)static func \(methodName)(\(methodInput())) -> ApodiniPublisher<\(responseString)> {
+        \(unavailableComment())static func \(methodName)(\(methodInput())) -> ApodiniPublisher<\(responseString)> {
         """
         return signature
     }
     
-    func unavailableBody(asPublic: Bool = false) -> String {
-        var body = signature(asPublic: asPublic)
+    func unavailableBody() -> String {
+        var body = signature()
         body += .lineBreak + "fatalError(\("This endpoint is not available in the new version anymore".doubleQuoted))" + .lineBreak + "}"
         return body
     }
@@ -133,27 +131,26 @@ struct WebServiceEndpoint: Comparable {
 }
 
 public struct WebServiceFileTemplate2: Renderable {
-    public static let fileName = "WebService"
+    public static let fileName = "API"
     public static let filePath = fileName + .swift
-    let endpoints: [WebServiceEndpoint]
+    let endpoints: [MigratedEndpoint]
 
-    init(_ endpoints: [WebServiceEndpoint]) {
+    init(_ endpoints: [MigratedEndpoint]) {
         self.endpoints = endpoints.sorted()
     }
 
 
-    private func method(for webServiceEndpoint: WebServiceEndpoint) -> String {
-        if webServiceEndpoint.unavailable {
-            return webServiceEndpoint.unavailableBody(asPublic: true)
+    private func method(for migratedEndpoint: MigratedEndpoint) -> String {
+        if migratedEndpoint.unavailable {
+            return migratedEndpoint.unavailableBody()
         }
-        let endpoint = webServiceEndpoint.endpoint
+        let endpoint = migratedEndpoint.endpoint
         let nestedType = endpoint.response.nestedType.typeName.name
-        var bodyInput = webServiceEndpoint.parameters.map { "\($0.oldName): \($0.oldName)"}
-        bodyInput.append("authorization: authorization")
-        bodyInput.append("httpHeaders: httpHeaders")
+        var bodyInput = migratedEndpoint.parameters.map { "\($0.oldName): \($0.oldName)"}
+        bodyInput.append(contentsOf: DefaultEndpointInput.allCases.map { $0.keyValue })
         let body =
         """
-        \(webServiceEndpoint.signature(asPublic: true))
+        \(migratedEndpoint.signature())
         \(nestedType).\(endpoint.deltaIdentifier)(\(String.lineBreak)\(bodyInput.joined(separator: ",\(String.lineBreak)"))\(String.lineBreak))
         }
         """
@@ -166,8 +163,11 @@ public struct WebServiceFileTemplate2: Renderable {
 
         \(Import(.foundation).render())
 
+        \(MARKComment(Self.fileName))
+        \(Kind.enum.signature) \(Self.fileName) {}
+
         \(MARKComment(.endpoints))
-        \(Kind.enum.signature) \(Self.fileName) {
+        \(Kind.extension.signature) \(Self.fileName) {
         \(endpoints.map { method(for: $0) }.joined(separator: .doubleLineBreak))
         }
         """

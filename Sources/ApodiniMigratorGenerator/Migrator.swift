@@ -49,7 +49,7 @@ public struct Migrator {
         let changeFilter: ChangeFilter = .init(migrationGuide)
         endpointsMigrator = .init(
             endpointsPath: directories.endpoints,
-            webServicePath: directories.networking,
+            webServicePath: directories.target,
             allEndpoints: document.endpoints + changeFilter.addedEndpoints(),
             endpointChanges: changeFilter.endpointChanges
         )
@@ -103,7 +103,7 @@ public struct Migrator {
         let encoderConfiguration = self.encoderConfiguration.networkingDescription
         let decoderConfiguration = networkingMigrator.decoderConfiguration().networkingDescription
         let handler = templateContentWithFileComment(.handler)
-        let networking = templateContentWithFileComment(.networkingService)
+        let networking = templateContentWithFileComment(.networkingService, indented: false)
             .with(serverPath, insteadOf: Template.serverPath)
             .with(encoderConfiguration, insteadOf: Template.encoderConfiguration)
             .with(decoderConfiguration, insteadOf: Template.decoderConfiguration)
@@ -172,10 +172,10 @@ public struct Migrator {
     }
     
     
-    private func templateContentWithFileComment(_ template: Template, alternativeFileName: String? = nil) -> String {
+    private func templateContentWithFileComment(_ template: Template, indented: Bool = true, alternativeFileName: String? = nil) -> String {
         let fileHeader = FileHeaderComment(fileName: alternativeFileName ?? template.projectFileName).render() + .doubleLineBreak
-        
-        return (fileHeader + readTemplate(template)).indentationFormatted()
+        let fileContent = fileHeader + readTemplate(template)
+        return indented ? fileContent.indentationFormatted() : fileContent
     }
 }
     

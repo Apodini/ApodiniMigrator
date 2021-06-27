@@ -13,7 +13,7 @@ class EndpointMethodMigrator: Renderable {
     let unavailable: Bool // TODO added endpoint, skip other steps
     let endpointChanges: [Change]
     private var parameters: [MigratedParameter]
-    lazy var webServiceEndpoint: WebServiceEndpoint = {
+    lazy var migratedEndpoint: MigratedEndpoint = {
         .init(endpoint: endpoint, unavailable: unavailable, parameters: parameters, path: path())
     }()
     
@@ -72,14 +72,14 @@ class EndpointMethodMigrator: Renderable {
     
     func render() -> String {
         guard !unavailable else {
-            return webServiceEndpoint.unavailableBody()
+            return migratedEndpoint.unavailableBody()
         }
         
         let responseString = self.responseString()
-        let queryParametersString = webServiceEndpoint.queryParametersString()
+        let queryParametersString = migratedEndpoint.queryParametersString()
         let body =
         """
-        \(webServiceEndpoint.signature())
+        \(migratedEndpoint.signature())
         \(queryParametersString)var headers = httpHeaders
         headers.setContentType(to: "application/json")
         
@@ -87,11 +87,11 @@ class EndpointMethodMigrator: Renderable {
         \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.doubleQuoted))" }.lineBreaked)
 
         let handler = Handler<\(responseString)>(
-        path: \(webServiceEndpoint.resourcePath().doubleQuoted),
+        path: \(migratedEndpoint.resourcePath().doubleQuoted),
         httpMethod: .\(operation().asHTTPMethodString),
         parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),
         headers: headers,
-        content: \(webServiceEndpoint.contentParameterString()),
+        content: \(migratedEndpoint.contentParameterString()),
         authorization: authorization,
         errors: errors
         )

@@ -21,7 +21,7 @@ struct EndpointsMigrator {
             result[nestedResponseType, default: []].insert(current)
         }
         
-        var webServiceEndpoints: [WebServiceEndpoint] = []
+        var migratedEndpoints: [MigratedEndpoint] = []
         for group in endpointGroups {
             let endpoints = Array(group.value)
             let endpointIds = endpoints.identifiers()
@@ -29,10 +29,10 @@ struct EndpointsMigrator {
             let fileName = group.key.typeName.name + Self.fileSuffix
             let endpointFile = EndpointFile(typeInformation: group.key, endpoints: endpoints, changes: groupChanges)
             try endpointFile.write(at: endpointsPath, alternativeFileName: fileName)
-            webServiceEndpoints.append(contentsOf: endpointFile.webServiceEndpoints)
+            migratedEndpoints.append(contentsOf: endpointFile.migratedEndpoints)
         }
         
-        let webServiceFile = WebServiceFileTemplate2(webServiceEndpoints)
+        let webServiceFile = WebServiceFileTemplate2(migratedEndpoints)
         try (webServicePath + WebServiceFileTemplate2.filePath).write(webServiceFile.render().indentationFormatted())
     }
 }

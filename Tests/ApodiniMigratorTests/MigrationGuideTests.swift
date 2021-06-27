@@ -22,6 +22,7 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
         guard packagePath.exists, !skipFileReadingTests else {
             return
         }
+        
         let mig = try MigrationGuide.decode(from: .desktop + "migration_guide.json")
         let migrator = try Migrator(
             packageName: "TestMigPackage",

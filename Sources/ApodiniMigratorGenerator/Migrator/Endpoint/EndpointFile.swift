@@ -11,7 +11,7 @@ class EndpointFile: SwiftFileTemplate {
     var typeInformation: TypeInformation
     var endpoints: [Endpoint]
     var changes: [Change]
-    var webServiceEndpoints: [WebServiceEndpoint] = []
+    var migratedEndpoints: [MigratedEndpoint] = []
     var kind: Kind
     
     var endpointFileComment: FileHeaderComment {
@@ -27,7 +27,7 @@ class EndpointFile: SwiftFileTemplate {
     
     private func methodBody(for endpoint: Endpoint) -> String {
         let endpointMigrator = EndpointMethodMigrator(endpoint, changes: changes)
-        webServiceEndpoints.append(endpointMigrator.webServiceEndpoint)
+        migratedEndpoints.append(endpointMigrator.migratedEndpoint)
         return endpointMigrator.render()
     }
     
