@@ -137,5 +137,4 @@ extension MigrationGuide: Equatable {
         
         return mutableLhs.json == mutableRhs.json && lhs.scripts == rhs.scripts && lhs.jsonValues == rhs.jsonValues && lhs.objectJSONs == rhs.objectJSONs
     }
-    
 }

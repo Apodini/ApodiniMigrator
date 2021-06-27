@@ -137,5 +137,4 @@ struct EnumMigrator: SwiftFile {
         
         return fileContent
     }
-
 }

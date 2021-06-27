@@ -30,7 +30,6 @@ final class ChangeContextNode: Codable {
         scripts = [:]
         jsonValues = [:]
         objectJSONs = [:]
-        
     }
     
     /// Encodes `self` into the given encoder via an `unkeyedContainer`

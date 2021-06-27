@@ -23,7 +23,6 @@ struct ObjectInitializer: Renderable {
             allProperties.append(added.typeProperty)
         }
         self.properties = allProperties.sorted(by: \.name)
-       
     }
     
     /// Renders the content of the initializer in a non-formatted way

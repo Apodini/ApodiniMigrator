@@ -95,7 +95,7 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
         let container = try decoder.singleValueContainer()
         
         if let value = try? container.decode(Document.self) {
-            self.value = value  
+            self.value = value
         } else if let value = try? container.decode(Necessity.self) {
             self.value = value
         } else if let value = try? container.decode(ParameterType.self) {

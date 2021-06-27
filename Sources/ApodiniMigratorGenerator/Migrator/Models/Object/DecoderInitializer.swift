@@ -71,8 +71,6 @@ struct DecoderInitializer: Renderable {
         }
         """
     }
-    
-    
 }
 
 /// TypeProperty extension

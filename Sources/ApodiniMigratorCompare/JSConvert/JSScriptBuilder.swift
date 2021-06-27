@@ -19,7 +19,7 @@ struct JSScriptBuilder { /// TODO add new jsonstring builder that considers rena
     /// JScript converting to to from
     var convertToFrom: JSScript = ""
     /// Textual hint to be used in the change object if the convertion is not reliable
-    var hint: String? = nil
+    var hint: String?
     
     init(
         from: TypeInformation,

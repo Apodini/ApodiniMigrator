@@ -65,7 +65,7 @@ class MigratedEndpoint {
             return parameterSignature
         }
         
-        input.append(contentsOf: DefaultEndpointInput.allCases.map { $0.signature})
+        input.append(contentsOf: DefaultEndpointInput.allCases.map { $0.signature })
         
         return .lineBreak + input.joined(separator: ",\(String.lineBreak)") + .lineBreak
     }
