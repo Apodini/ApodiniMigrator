@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ParameterComparator.swift
 //  
 //
 //  Created by Eldi Cano on 14.06.21.

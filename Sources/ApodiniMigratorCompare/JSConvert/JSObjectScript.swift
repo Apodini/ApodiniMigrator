@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  JSObjectScript.swift
 //  
 //
 //  Created by Eldi Cano on 20.06.21.

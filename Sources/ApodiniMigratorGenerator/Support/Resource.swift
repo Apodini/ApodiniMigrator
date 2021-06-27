@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Resource.swift
 //  
 //
 //  Created by Eldi Cano on 18.05.21.

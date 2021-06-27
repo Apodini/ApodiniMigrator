@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  JSScript.swift
 //  
 //
 //  Created by Eldi Cano on 13.06.21.

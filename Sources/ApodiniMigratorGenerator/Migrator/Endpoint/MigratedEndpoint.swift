@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  MigratedEndpoint.swift
 //  
 //
 //  Created by Eldi Cano on 26.06.21.

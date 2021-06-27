@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DecodingStrategies.swift
 //  
 //
 //  Created by Eldi Cano on 17.05.21.

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  EncodingStrategies.swift
 //  
 //
 //  Created by Eldi Cano on 17.05.21.

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ChangeType.swift
 //  
 //
 //  Created by Eldi Cano on 15.06.21.

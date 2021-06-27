@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  JSONEncoderBuilder.swift
 //  
 //
 //  Created by Eldi Cano on 03.06.21.

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  JSONValue.swift
 //  
 //
 //  Created by Eldi Cano on 22.06.21.

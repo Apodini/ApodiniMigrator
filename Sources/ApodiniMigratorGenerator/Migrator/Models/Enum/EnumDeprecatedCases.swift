@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  EnumDeprecatedCases.swift
 //  
 //
 //  Created by Eldi Cano on 21.05.21.

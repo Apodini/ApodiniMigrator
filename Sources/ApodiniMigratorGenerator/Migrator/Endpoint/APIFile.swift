@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  APIFile.swift
 //  
 //
 //  Created by Eldi Cano on 27.06.21.

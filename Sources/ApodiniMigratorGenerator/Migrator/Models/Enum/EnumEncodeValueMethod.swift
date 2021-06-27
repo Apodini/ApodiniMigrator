@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  EnumEncodeValueMethod.swift
 //  
 //
 //  Created by Eldi Cano on 10.05.21.

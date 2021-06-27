@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  JSPrimitiveScript.swift
 //  
 //
 //  Created by Eldi Cano on 19.06.21.

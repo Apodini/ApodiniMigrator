@@ -22,6 +22,18 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
         try migrator.migrate()
     }
     
+    func testFileSwiftUpdate() throws {
+        let comment = "//  File.swift"
+        let path = Path.projectRoot + "Sources"
+        
+        for child in path.recursiveSwiftFiles() {
+            let lastPathComponent = child.lastComponent
+            var content: String = try child.read()
+            content = content.with("//  \(lastPathComponent)", insteadOf: comment)
+            try child.write(content)
+        }
+    }
+    
     func testEnumDelete() throws {
         struct User {
             let name: String

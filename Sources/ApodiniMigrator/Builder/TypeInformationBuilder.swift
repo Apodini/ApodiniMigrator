@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  TypeInformationBuilder.swift
 //
 //
 //  Created by Eldi Cano on 05.06.21.

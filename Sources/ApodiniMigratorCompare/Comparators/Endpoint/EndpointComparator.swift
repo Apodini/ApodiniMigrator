@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  EndpointComparator.swift
 //  
 //
 //  Created by Eldi Cano on 23.05.21.
