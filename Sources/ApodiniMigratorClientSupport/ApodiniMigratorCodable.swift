@@ -1,3 +1,11 @@
+//
+//  ApodiniMigratorCodable.swift
+//  ApodiniMigratorClientSupport
+//
+//  Created by Eldi Cano on 27.06.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
+//
+
 import Foundation
 
 /// `Encodable` protocol with additional type constraint to introduce a `JSONEncoder`

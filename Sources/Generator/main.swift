@@ -1,3 +1,11 @@
+//
+//  main.swift
+//  Generator
+//
+//  Created by Eldi Cano on 27.06.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
+//
+
 import ArgumentParser
 import ApodiniMigratorGenerator
 import Foundation

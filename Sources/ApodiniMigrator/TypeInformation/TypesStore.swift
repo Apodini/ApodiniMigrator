@@ -1,3 +1,11 @@
+//
+//  TypesStore.swift
+//  ApodiniMigrator
+//
+//  Created by Eldi Cano on 27.06.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
+//
+
 import Foundation
 
 /// `TypesStore` provides logic to reference and store `typeInformation` instances, while e.g. an endpoint keeps only the reference of the response type

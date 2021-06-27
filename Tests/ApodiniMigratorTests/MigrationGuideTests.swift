@@ -1,5 +1,6 @@
 import XCTest
 @testable import ApodiniMigratorGenerator
+@testable import ApodiniMigratorShared
 @testable import ApodiniMigratorCompare
 
 final class MigrationGuideTests: ApodiniMigratorXCTestCase {
@@ -22,16 +23,8 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
         try migrator.migrate()
     }
     
-    func testFileSwiftUpdate() throws {
-        let comment = "//  File.swift"
-        let path = Path.projectRoot + "Sources"
-        
-        for child in path.recursiveSwiftFiles() {
-            let lastPathComponent = child.lastComponent
-            var content: String = try child.read()
-            content = content.with("//  \(lastPathComponent)", insteadOf: comment)
-            try child.write(content)
-        }
+    func testProjectFilesUpdater() throws {
+        try ProjectFilesUpdater.run()
     }
     
     func testEnumDelete() throws {
@@ -46,7 +39,7 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
         
         try objectMigrator.write(at: .desktop)
         
-        let endpoint = Endpoint(handlerName: "TestHandler", deltaIdentifier: "sayHelloWorld", operation: .read, absolutePath: "/v1/hello", parameters: [], response: .scalar(.string), errors: [.init(code: 404, message: "Could not say hallo")])
+        let endpoint = Endpoint(handlerName: "TestHandler", deltaIdentifier: "sayHelloWorld", operation: .read, absolutePath: "/v1/hello", parameters: [], response: .scalar(.string), errors: [.init(code: 404, message: "Could not say hello")])
         
         let endpointsFile = EndpointFile(typeInformation: .scalar(.string), endpoints: [endpoint], changes: [DeleteChange(element: .endpoint(endpoint.deltaIdentifier, target: .`self`), deleted: .none, fallbackValue: .none, breaking: true, solvable: false, includeProviderSupport: false)])
         try endpointsFile.write(at: .desktop)

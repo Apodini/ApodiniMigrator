@@ -1,12 +1,14 @@
 //
 //  TestFileTemplate.swift
-//  
+//  ApodiniMigratorGenerator
 //
-//  Created by Eldi Cano on 25.05.21.
+//  Created by Eldi Cano on 27.06.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation
 import ApodiniMigratorClientSupport
+import ApodiniMigratorShared
 
 public struct TestFileTemplate: Renderable {
     let models: [TypeInformation]

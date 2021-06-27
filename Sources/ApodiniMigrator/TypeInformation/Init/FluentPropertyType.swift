@@ -1,3 +1,11 @@
+//
+//  FluentPropertyType.swift
+//  ApodiniMigrator
+//
+//  Created by Eldi Cano on 27.06.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
+//
+
 import Foundation
 
 /// Represents distinct cases of FluentKit (version: 1.12.0) property wrappers

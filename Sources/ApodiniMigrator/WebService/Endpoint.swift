@@ -1,3 +1,11 @@
+//
+//  Endpoint.swift
+//  ApodiniMigrator
+//
+//  Created by Eldi Cano on 27.06.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
+//
+
 import Foundation
 
 /// A typealias of an array of `Parameter`

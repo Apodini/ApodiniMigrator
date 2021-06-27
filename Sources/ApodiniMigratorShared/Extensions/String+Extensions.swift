@@ -1,3 +1,11 @@
+//
+//  String+Extensions.swift
+//  ApodiniMigratorShared
+//
+//  Created by Eldi Cano on 27.06.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
+//
+
 import Foundation
 import PathKit
 
@@ -65,6 +73,10 @@ public extension String {
         components(separatedBy: string).filter { ignoreEmptyComponents ? !$0.isEmpty : true }
     }
     
+    /// Returns the lines of a string
+    func lines() -> [String] {
+        split(string: .lineBreak)
+    }
     /// Returns lines of self separated by `\n`, and trimming whitespace characters
     func sanitizedLines() -> [String] {
         // splitting the string, empty lines are mapped into empty string array elements

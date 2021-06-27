@@ -1,3 +1,11 @@
+//
+//  ApodiniMigratorCodable+Extensions.swift
+//  ApodiniMigratorClientSupport
+//
+//  Created by Eldi Cano on 27.06.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
+//
+
 import Foundation
 @_implementationOnly import JavaScriptCore
 // swiftlint:disable line_length function_parameter_count

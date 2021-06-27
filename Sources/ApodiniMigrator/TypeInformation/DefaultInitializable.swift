@@ -1,3 +1,11 @@
+//
+//  DefaultInitializable.swift
+//  ApodiniMigrator
+//
+//  Created by Eldi Cano on 27.06.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
+//
+
 import Foundation
 
 /// `Default` is an empty struct that can either be initalized with `.init()` or
