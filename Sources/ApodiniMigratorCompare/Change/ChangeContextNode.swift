@@ -23,6 +23,8 @@ final class ChangeContextNode: Codable {
     var jsonValues: [Int: JSONValue]
     /// All json representations of objects that had some kind of breaking change in their properties
     private(set) var objectJSONs: [String: JSONValue]
+    /// All models that have some kind of breaking change in the new version
+    private(set) var rhsModels: [TypeInformation] = []
     
     /// Initializes `self` with empty changes
     init(compareConfiguration: CompareConfiguration? = nil) {
@@ -100,6 +102,15 @@ final class ChangeContextNode: Codable {
         if changes.contains(where: { $0.breaking && $0.element.isObject && $0.elementID == rhs.deltaIdentifier && propertyTargets.contains($0.element.target) }) {
             objectJSONs[rhs.typeName.name] = .init(JSONStringBuilder.jsonString(rhs, with: encoderConfiguration))
         }
+    }
+    
+    func set(rhsModels: [TypeInformation]) -> [TypeInformation] {
+        self.rhsModels = rhsModels
+        return rhsModels
+    }
+    
+    func currentVersion(of lhs: TypeInformation) -> TypeInformation? {
+        rhsModels.firstMatch(on: \.deltaIdentifier, with: lhs.deltaIdentifier)
     }
     
     func typeRenames() -> [UpdateChange] {

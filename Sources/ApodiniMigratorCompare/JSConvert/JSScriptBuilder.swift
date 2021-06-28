@@ -37,27 +37,49 @@ struct JSScriptBuilder { /// TODO add new jsonstring builder that considers rena
     }
     
     private mutating func construct() {
-        if case let .scalar(fromPrimitive) = from, case let .scalar(toPrimitive) = to {
+        let currentFrom = currentVersion(of: from)
+        if case let .scalar(fromPrimitive) = currentFrom, case let .scalar(toPrimitive) = to {
             let primitiveScript = JSPrimitiveScript.script(from: fromPrimitive, to: toPrimitive)
             convertFromTo = primitiveScript.convertFromTo
             convertToFrom = primitiveScript.convertToFrom
-        } else if from.isObject, to.isObject {
-            let objectScript = JSObjectScript(from: from, to: to, changes: changes, encoderConfiguration: encoderConfiguration)
-            convertFromTo = objectScript.convertFromTo
-            convertToFrom = objectScript.convertToFrom
         } else {
-            // swiftlint:disable:next line_length
-            hint = "'ApodiniMigrator' is not able to automatically generate convert scripts between two types with different cardinalities or root types. Convert methods must be provided by the developer of the web service. Otherwise, the respective types in the client applications that will consume this Migration Guide, will be initialized with these default scripts."
-            convertFromTo = Self.stringify(argumentName: "ignoredFrom", with: JSONStringBuilder.jsonString(to, with: encoderConfiguration))
-            convertToFrom = Self.stringify(argumentName: "ignoredTo", with: JSONStringBuilder.jsonString(from, with: encoderConfiguration))
+            if currentFrom.isObject, to.isObject {
+                let objectScript = JSObjectScript(from: currentFrom, to: to, changes: changes, encoderConfiguration: encoderConfiguration)
+                convertFromTo = objectScript.convertFromTo
+                convertToFrom = objectScript.convertToFrom
+            } else {
+                // swiftlint:disable:next line_length
+                hint = "'ApodiniMigrator' is not able to automatically generate convert scripts between two types with different cardinalities or root types. Convert methods must be provided by the developer of the web service. Otherwise, the respective types in the client applications that will consume this Migration Guide, will be initialized with these default scripts."
+                convertFromTo = Self.stringify(
+                    argumentName: "ignoredFrom",
+                    with: JSONStringBuilder.jsonString(to, with: encoderConfiguration)
+                )
+                convertToFrom = Self.stringify(
+                    argumentName: "ignoredTo",
+                    with: JSONStringBuilder.jsonString(currentFrom, with: encoderConfiguration)
+                )
+            }
+        }
+    }
+    
+    private func currentVersion(of from: TypeInformation) -> TypeInformation {
+        switch from {
+        case .scalar: return from
+        case let .repeated(element): return .repeated(element: currentVersion(of: element))
+        case let .dictionary(key, value): return .dictionary(key: key, value: currentVersion(of: value))
+        case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue)
+        case .enum, .object: return changes.currentVersion(of: from) ?? from
+        case .reference: fatalError("Encountered a reference in `\(Self.self)`")
         }
     }
     
     static func stringify(argumentName: String, with content: String) -> JSScript {
-        .init("""
+        .init(
+        """
         function convert(\(argumentName)) {
             return JSON.stringify(\(content))
         }
-        """)
+        """
+        )
     }
 }
