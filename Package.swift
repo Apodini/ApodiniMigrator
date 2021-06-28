@@ -20,7 +20,7 @@ let package = Package(
         .library(name: "ApodiniMigratorShared", targets: ["ApodiniMigratorShared"]),
         .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"]),
         .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"]),
-        .executable(name: "Generator", targets: ["Generator"])
+        .executable(name: "migrator", targets: ["ApodiniMigratorCLI"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -41,7 +41,7 @@ let package = Package(
                 .product(name: "Runtime", package: "Runtime")
             ]),
         .target(
-            name: "Generator",
+            name: "ApodiniMigratorCLI",
             dependencies: [
                 .target(name: "ApodiniMigratorGenerator"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),

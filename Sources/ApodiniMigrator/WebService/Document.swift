@@ -2,7 +2,7 @@
 //  Document.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 27.06.21.
+//  Created by Eldi Cano on 28.06.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -34,8 +34,11 @@ public struct MetaData: Value {
 public struct Document: Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
-        case metaData = "info", endpoints, components
+        case id, metaData = "info", endpoints, components
     }
+    
+    /// Id of the document
+    public var id: UUID
     
     /// Metadata
     public var metaData: MetaData
@@ -44,6 +47,7 @@ public struct Document: Value {
     
     /// Initializes an empty document
     public init() {
+        id = .init()
         metaData = .init()
         endpoints = []
     }
@@ -75,6 +79,7 @@ public struct Document: Value {
     /// Encodes self into the given encoder.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
         try container.encode(metaData, forKey: .metaData)
         var typesStore = TypesStore()
         
@@ -91,6 +96,7 @@ public struct Document: Value {
     /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
         metaData = try container.decode(MetaData.self, forKey: .metaData)
         
         var typesStore = TypesStore()

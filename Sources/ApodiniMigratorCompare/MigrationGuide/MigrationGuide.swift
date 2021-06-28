@@ -2,7 +2,7 @@
 //  MigrationGuide.swift
 //  ApodiniMigratorCompare
 //
-//  Created by Eldi Cano on 27.06.21.
+//  Created by Eldi Cano on 28.06.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -18,6 +18,7 @@ public struct MigrationGuide: Codable {
         case summary
         case serviceType = "service-type"
         case specificationType = "api-spec"
+        case id = "document-id"
         case from
         case to
         case compareConfiguration = "compare-config"
@@ -33,6 +34,8 @@ public struct MigrationGuide: Codable {
     public let serviceType: ServiceType
     /// The specification type
     public let specificationType: SpecificationType
+    /// Id of the old document from which the migration guide was generated
+    public let id: UUID?
     /// Old version
     public let from: Version
     /// New version
@@ -60,6 +63,7 @@ public struct MigrationGuide: Codable {
             summary: Self.defaultSummary,
             serviceType: .rest,
             specificationType: .apodini,
+            id: nil,
             from: .default,
             to: .default,
             compareConfiguration: nil,
@@ -72,6 +76,7 @@ public struct MigrationGuide: Codable {
         summary: String,
         serviceType: ServiceType,
         specificationType: SpecificationType,
+        id: UUID?,
         from: Version,
         to: Version,
         compareConfiguration: CompareConfiguration?,
@@ -80,6 +85,7 @@ public struct MigrationGuide: Codable {
         self.summary = summary
         self.serviceType = serviceType
         self.specificationType = specificationType
+        self.id = id
         self.from = from
         self.to = to
         self.changeContextNode = changeContextNode
@@ -108,6 +114,7 @@ public struct MigrationGuide: Codable {
             summary: Self.defaultSummary,
             serviceType: .rest,
             specificationType: .apodini,
+            id: lhs.id,
             from: lhs.metaData.version,
             to: rhs.metaData.version,
             compareConfiguration: changeContextNode.compareConfiguration,

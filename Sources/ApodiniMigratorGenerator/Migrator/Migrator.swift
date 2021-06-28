@@ -2,7 +2,7 @@
 //  Migrator.swift
 //  ApodiniMigratorGenerator
 //
-//  Created by Eldi Cano on 27.06.21.
+//  Created by Eldi Cano on 28.06.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -12,6 +12,9 @@ import Logging
 
 /// A generator for a swift package
 public struct Migrator {
+    enum MigratorError: Error {
+        case incompatible(message: String)
+    }
     public static let logger: Logger = {
         .init(label: "org.apodini.migrator")
     }()
@@ -56,6 +59,16 @@ public struct Migrator {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
         self.packagePath = packagePath.asPath
         document = try Document.decode(from: documentPath.asPath)
+        guard document.id == migrationGuide.id else {
+            throw MigratorError.incompatible(
+                message:
+                    """
+                    Migration guide is not compatible with the provided document. Apparently another old document version,
+                    has been used to generate the migration guide
+                    """
+            )
+        }
+        
         self.directories = ProjectDirectories(packageName: packageName, packagePath: packagePath)
         self.scripts = migrationGuide.scripts
         self.jsonValues = migrationGuide.jsonValues
