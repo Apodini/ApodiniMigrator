@@ -48,12 +48,13 @@ struct ObjectComparator: Comparator {
         let targetID = lhs.deltaIdentifier
         
         if sameNestedTypes(lhs: lhsType, rhs: rhsType), lhs.necessity != rhs.necessity {
+            let currentLhsType = changes.currentVersion(of: lhsType)
             changes.add(
                 UpdateChange(
                     element: element(.necessity),
                     from: .element(lhs.necessity),
                     to: .element(rhs.necessity),
-                    necessityValue: .value(from: lhs.type.unwrapped, with: configuration, changes: changes),
+                    necessityValue: .value(from: currentLhsType.unwrapped, with: configuration, changes: changes),
                     targetID: targetID,
                     breaking: true,
                     solvable: true

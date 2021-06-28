@@ -109,8 +109,15 @@ final class ChangeContextNode: Codable {
         return rhsModels
     }
     
-    func currentVersion(of lhs: TypeInformation) -> TypeInformation? {
-        rhsModels.firstMatch(on: \.deltaIdentifier, with: lhs.deltaIdentifier)
+    func currentVersion(of lhs: TypeInformation) -> TypeInformation {
+        switch lhs {
+        case .scalar: return lhs
+        case let .repeated(element): return .repeated(element: currentVersion(of: element))
+        case let .dictionary(key, value): return .dictionary(key: key, value: currentVersion(of: value))
+        case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue)
+        case .enum, .object: return rhsModels.firstMatch(on: \.deltaIdentifier, with: lhs.deltaIdentifier) ?? lhs
+        case .reference: fatalError("Encountered a reference in `\(Self.self)`")
+        }
     }
     
     func typeRenames() -> [UpdateChange] {

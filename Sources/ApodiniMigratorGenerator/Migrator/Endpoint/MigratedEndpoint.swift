@@ -151,9 +151,9 @@ extension MigratedEndpoint: Comparable {
     static func < (lhs: MigratedEndpoint, rhs: MigratedEndpoint) -> Bool {
         let lhsEndpoint = lhs.endpoint
         let rhsEndpoint = rhs.endpoint
-        if lhsEndpoint.response == rhsEndpoint.response {
+        if lhsEndpoint.response.typeString == rhsEndpoint.response.typeString {
             return lhsEndpoint.deltaIdentifier < rhsEndpoint.deltaIdentifier
         }
-        return lhsEndpoint.response.typeName.name < rhsEndpoint.response.typeName.name
+        return lhsEndpoint.response.typeString < rhsEndpoint.response.typeString
     }
 }

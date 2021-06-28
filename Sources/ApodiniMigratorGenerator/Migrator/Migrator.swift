@@ -59,7 +59,7 @@ public struct Migrator {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
         self.packagePath = packagePath.asPath
         document = try Document.decode(from: documentPath.asPath)
-        guard document.id == migrationGuide.id else {
+        if let id = migrationGuide.id, document.id != id {
             throw MigratorError.incompatible(
                 message:
                     """

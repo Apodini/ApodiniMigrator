@@ -29,7 +29,12 @@ class EndpointFile: SwiftFile {
     /// Initializes a new instance out of the same nested response type of `endpoints` and the `changes` that belong to those endpoints
     init(typeInformation: TypeInformation, endpoints: [Endpoint], changes: [Change]) {
         self.typeInformation = typeInformation
-        self.endpoints = endpoints
+        self.endpoints = endpoints.sorted { lhs, rhs in
+            if lhs.response.typeString == rhs.response.typeString {
+                return lhs.deltaIdentifier < rhs.deltaIdentifier
+            }
+            return lhs.response.typeString < rhs.response.typeString
+        }
         self.changes = changes
     }
     

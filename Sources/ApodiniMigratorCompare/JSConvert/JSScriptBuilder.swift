@@ -37,7 +37,7 @@ struct JSScriptBuilder { /// TODO add new jsonstring builder that considers rena
     }
     
     private mutating func construct() {
-        let currentFrom = currentVersion(of: from)
+        let currentFrom = changes.currentVersion(of: from)
         if case let .scalar(fromPrimitive) = currentFrom, case let .scalar(toPrimitive) = to {
             let primitiveScript = JSPrimitiveScript.script(from: fromPrimitive, to: toPrimitive)
             convertFromTo = primitiveScript.convertFromTo
@@ -59,17 +59,6 @@ struct JSScriptBuilder { /// TODO add new jsonstring builder that considers rena
                     with: JSONStringBuilder.jsonString(currentFrom, with: encoderConfiguration)
                 )
             }
-        }
-    }
-    
-    private func currentVersion(of from: TypeInformation) -> TypeInformation {
-        switch from {
-        case .scalar: return from
-        case let .repeated(element): return .repeated(element: currentVersion(of: element))
-        case let .dictionary(key, value): return .dictionary(key: key, value: currentVersion(of: value))
-        case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue)
-        case .enum, .object: return changes.currentVersion(of: from) ?? from
-        case .reference: fatalError("Encountered a reference in `\(Self.self)`")
         }
     }
     

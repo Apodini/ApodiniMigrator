@@ -24,7 +24,7 @@ public struct TestFileTemplate: Renderable {
         fileName: String,
         packageName: String
     ) {
-        self.models = models
+        self.models = models.sorted(by: \.typeString)
         self.fileName = fileName
         self.packageName = packageName
         self.objectJSONs = objectJSONs
