@@ -2,15 +2,14 @@
 //  Migrate.swift
 //  ApodiniMigratorCLI
 //
-//  Created by Eldi Cano on 28.06.21.
+//  Created by Eldi Cano on 29.06.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation
 import ArgumentParser
-import ApodiniMigratorGenerator
+import ApodiniMigrator
 
-/// swift run migrator migrate -t=/Users/eld/Desktop -d=/Users/eld/Desktop/delta_document.json -m=/Users/eld/Desktop/migration_guide.json -p=MigratorCLI
 struct Migrate: ParsableCommand {
     static var configuration = CommandConfiguration(
         abstract: "A utility to migrate a client library out of a delta document and a migration guide"
@@ -29,7 +28,7 @@ struct Migrate: ParsableCommand {
     var migrationGuidePath: String
     
     func run() throws {
-        let migrator = ApodiniMigratorGenerator.Migrator.self
+        let migrator = ApodiniMigrator.Migrator.self
         let logger = migrator.logger
         
         logger.info("Starting migration of package \(packageName) at \(targetDirectory)")

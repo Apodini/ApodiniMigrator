@@ -2,15 +2,14 @@
 //  Compare.swift
 //  ApodiniMigratorCLI
 //
-//  Created by Eldi Cano on 28.06.21.
+//  Created by Eldi Cano on 29.06.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation
 import ArgumentParser
-import ApodiniMigratorGenerator
+import ApodiniMigrator
 
-/// swift run migrator compare -o=/Users/eld/Desktop/delta_document.json -n=/Users/eld/Desktop/delta_document_updated.json -m=/Users/eld/Desktop
 struct Compare: ParsableCommand {
     static var configuration = CommandConfiguration(
         abstract: "A utility to compare delta documents and automatically generate a migration guide between two versions"
@@ -32,7 +31,7 @@ struct Compare: ParsableCommand {
     }
     
     func run() throws {
-        let migrator = ApodiniMigratorGenerator.Migrator.self
+        let migrator = ApodiniMigrator.Migrator.self
         let logger = migrator.logger
 
         logger.info("Starting generation of the migration guide...")

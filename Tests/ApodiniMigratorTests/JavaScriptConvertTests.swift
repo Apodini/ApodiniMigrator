@@ -1,7 +1,7 @@
 import XCTest
-@testable import ApodiniMigrator
+@testable import ApodiniMigratorCore
 @testable import ApodiniMigratorClientSupport
-@testable import ApodiniMigratorGenerator
+@testable import ApodiniMigrator
 @testable import ApodiniMigratorCompare
 @testable import Runtime
 

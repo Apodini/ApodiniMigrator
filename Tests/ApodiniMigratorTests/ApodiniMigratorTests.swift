@@ -1,6 +1,6 @@
 import XCTest
+@testable import ApodiniMigratorCore
 @testable import ApodiniMigrator
-@testable import ApodiniMigratorGenerator
 @testable import ApodiniMigratorClientSupport
 
 func isLinux() -> Bool {

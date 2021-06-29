@@ -15,8 +15,8 @@ let package = Package(
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
+        .library(name: "ApodiniMigratorCore", targets: ["ApodiniMigratorCore"]),
         .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
-        .library(name: "ApodiniMigratorGenerator", targets: ["ApodiniMigratorGenerator"]),
         .library(name: "ApodiniMigratorShared", targets: ["ApodiniMigratorShared"]),
         .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"]),
         .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"]),
@@ -35,7 +35,7 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "ApodiniMigrator",
+            name: "ApodiniMigratorCore",
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
                 .product(name: "Runtime", package: "Runtime")
@@ -43,17 +43,17 @@ let package = Package(
         .target(
             name: "ApodiniMigratorCLI",
             dependencies: [
-                .target(name: "ApodiniMigratorGenerator"),
+                .target(name: "ApodiniMigrator"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log")
             ]),
         .target(
             name: "ApodiniMigratorClientSupport",
             dependencies: [
-                .target(name: "ApodiniMigrator")
+                .target(name: "ApodiniMigratorCore")
             ]),
         .target(
-            name: "ApodiniMigratorGenerator",
+            name: "ApodiniMigrator",
             dependencies: [
                 .target(name: "ApodiniMigratorCompare"),
                 .target(name: "ApodiniMigratorClientSupport"),
@@ -91,8 +91,8 @@ let package = Package(
         .testTarget(
             name: "ApodiniMigratorTests",
             dependencies: [
+                "ApodiniMigratorCore",
                 "ApodiniMigrator",
-                "ApodiniMigratorGenerator",
                 "ApodiniMigratorCompare",
                 "ApodiniMigratorClientSupport"
             ])

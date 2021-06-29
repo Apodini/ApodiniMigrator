@@ -2,12 +2,12 @@
 //  JSONValue.swift
 //  ApodiniMigratorClientSupport
 //
-//  Created by Eldi Cano on 28.06.21.
+//  Created by Eldi Cano on 29.06.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation
-import ApodiniMigrator
+import ApodiniMigratorCore
 
 /// A `JSONValue` object that holds the string json of a certain encodable instance at rawValue property
 public struct JSONValue: Value, RawRepresentable {

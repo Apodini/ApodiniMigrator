@@ -2,7 +2,7 @@
 //  AnyCodableElement.swift
 //  ApodiniMigratorCompare
 //
-//  Created by Eldi Cano on 28.06.21.
+//  Created by Eldi Cano on 29.06.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -27,7 +27,7 @@ extension Parameter: AnyCodableElementValue {}
 extension TypeInformation: AnyCodableElementValue {}
 extension EncoderConfiguration: AnyCodableElementValue {}
 extension DecoderConfiguration: AnyCodableElementValue {}
-extension ApodiniMigrator.Operation: AnyCodableElementValue {}
+extension ApodiniMigratorCore.Operation: AnyCodableElementValue {}
 extension Necessity: AnyCodableElementValue {}
 extension TypeProperty: AnyCodableElementValue {}
 extension ParameterType: AnyCodableElementValue {}
@@ -74,7 +74,7 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
             try singleValueContainer.encode(value)
         } else if let value = value as? DecoderConfiguration {
             try singleValueContainer.encode(value)
-        } else if let value = value as? ApodiniMigrator.Operation {
+        } else if let value = value as? ApodiniMigratorCore.Operation {
             try singleValueContainer.encode(value)
         } else if let value = value as? ParameterType {
             try singleValueContainer.encode(value)
@@ -103,7 +103,7 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
             self.value = value
         } else if let value = try? container.decode(RawValueType.self) {
             self.value = value
-        } else if let value = try? container.decode(ApodiniMigrator.Operation.self) {
+        } else if let value = try? container.decode(ApodiniMigratorCore.Operation.self) {
             self.value = value
         } else if let value = try? container.decode(Endpoint.self) {
             self.value = value

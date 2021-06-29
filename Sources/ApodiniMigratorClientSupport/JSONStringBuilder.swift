@@ -2,12 +2,12 @@
 //  JSONStringBuilder.swift
 //  ApodiniMigratorClientSupport
 //
-//  Created by Eldi Cano on 28.06.21.
+//  Created by Eldi Cano on 29.06.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation
-@_exported import ApodiniMigrator
+@_exported import ApodiniMigratorCore
 
 /// Builds a valid JSON string with values empty strings, 0 for numbers, empty Data, date of today, and random UUID
 /// by means of a `typeInformation` object
