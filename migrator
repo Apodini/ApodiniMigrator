@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+require 'open3'
+
+if ARGV.count != 1
+    puts "Usage: #{$0} <migrator-command>"
+    exit 0
+end
+
+$action = ARGV[0]
+
+class ACTION
+    MIGRATE = "migrate"
+    GENERATE = "generate"
+    COMPARE = "compare"
+end
+
+def command(action:)
+    base = "swift run migrator"
+    target = "./CLIOutput"
+    case action
+    when ACTION::MIGRATE
+        return "#{base} migrate -t=#{target} -d=#{target}/delta_document.json -m=#{target}/migration_guide.json -p=ExampleACD"
+    when ACTION::GENERATE
+        return "#{base} generate -d=#{target}/delta_document.json -p=ExampleACD -t=#{target}"
+    when ACTION::COMPARE
+        return "#{base} compare -o=#{target}/delta_document.json -n=#{target}/delta_document_updated.json -m=#{target}"
+    else
+        puts "Usage: #{$0} | Use one of the following commands: <generate> or <compare>. After generating the migration guide with the <compare> command, the library can be migrated via <migrate>"
+        exit 0
+    end
+end
+
+
+
+def migrator()
+    cmd = command(action: $action)
+    Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+        puts stdout.read
+        puts stderr.read
+    end
+end
+
+migrator()

@@ -26,7 +26,7 @@ struct Compare: ParsableCommand {
     var migrationGuidePath: String
     
     func validate() throws {
-        guard Path(migrationGuidePath).isDirectory else {
+        guard migrationGuidePath.asPath.isDirectory else {
             throw ValidationError("The specified path to persist the migration guide is not a directory")
         }
     }
@@ -37,11 +37,11 @@ struct Compare: ParsableCommand {
 
         logger.info("Starting generation of the migration guide...")
         do {
-            let oldDocument = try Document.decode(from: Path(oldDocumentPath))
-            let newDocument = try Document.decode(from: Path(newDocumentPath))
+            let oldDocument = try Document.decode(from: oldDocumentPath.asPath)
+            let newDocument = try Document.decode(from: newDocumentPath.asPath)
             let migrationGuideFileName = "migration_guide"
             let migrationGuide = MigrationGuide(for: oldDocument, rhs: newDocument)
-            migrationGuide.write(at: Path(migrationGuidePath), fileName: migrationGuideFileName)
+            migrationGuide.write(at: migrationGuidePath.asPath, fileName: migrationGuideFileName)
             logger.info("Migration guide was generated successfully at \(migrationGuidePath)/\(migrationGuideFileName).json.")
         } catch {
             logger.error("Migration guide generation failed with error: \(error)")

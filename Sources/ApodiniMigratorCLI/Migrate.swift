@@ -35,7 +35,7 @@ struct Migrate: ParsableCommand {
         logger.info("Starting migration of package \(packageName) at \(targetDirectory)")
         
         do {
-            let migrationGuide = try MigrationGuide.decode(from: Path(migrationGuidePath))
+            let migrationGuide = try MigrationGuide.decode(from: migrationGuidePath.asPath)
             let generator = try migrator.init(packageName: packageName, packagePath: targetDirectory, documentPath: documentPath, migrationGuide: migrationGuide)
             try generator.migrate()
             logger.info("Package \(packageName) was migrated successfully. You can open the package via \(targetDirectory)/\(packageName)/Package.swift")

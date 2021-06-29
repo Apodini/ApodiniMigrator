@@ -1,0 +1,509 @@
+{
+  "components" : {
+    "Contact" : {
+      "object" : {
+        "properties" : [
+          {
+            "name" : "id",
+            "type" : {
+              "optional" : {
+                "scalar" : "UUID"
+              }
+            },
+            "annotation" : "@ID"
+          },
+          {
+            "name" : "createdAt",
+            "type" : {
+              "optional" : {
+                "scalar" : "Date"
+              }
+            },
+            "annotation" : "@Timestamp"
+          },
+          {
+            "name" : "name",
+            "type" : {
+              "scalar" : "String"
+            },
+            "annotation" : "@Field"
+          },
+          {
+            "name" : "birthday",
+            "type" : {
+              "scalar" : "Date"
+            },
+            "annotation" : "@Field"
+          },
+          {
+            "name" : "residencies",
+            "type" : {
+              "repeated" : {
+                "reference" : "Residence"
+              }
+            },
+            "annotation" : "@Children"
+          }
+        ],
+        "typeName" : {
+          "name" : "Contact",
+          "defined-in" : "Shared"
+        }
+      }
+    },
+    "ContactMediator" : {
+      "object" : {
+        "properties" : [
+          {
+            "name" : "name",
+            "type" : {
+              "optional" : {
+                "scalar" : "String"
+              }
+            }
+          },
+          {
+            "name" : "birthday",
+            "type" : {
+              "optional" : {
+                "scalar" : "Date"
+              }
+            }
+          }
+        ],
+        "typeName" : {
+          "name" : "ContactMediator",
+          "defined-in" : "ExampleWebService"
+        }
+      }
+    },
+    "ContactID" : {
+      "object" : {
+        "properties" : [
+          {
+            "name" : "id",
+            "type" : {
+              "optional" : {
+                "scalar" : "UUID"
+              }
+            }
+          }
+        ],
+        "typeName" : {
+          "name" : "ContactID",
+          "defined-in" : "ContactID"
+        }
+      }
+    },
+    "Residence" : {
+      "object" : {
+        "properties" : [
+          {
+            "name" : "id",
+            "type" : {
+              "optional" : {
+                "scalar" : "UUID"
+              }
+            },
+            "annotation" : "@ID"
+          },
+          {
+            "name" : "createdAt",
+            "type" : {
+              "optional" : {
+                "scalar" : "Date"
+              }
+            },
+            "annotation" : "@Timestamp"
+          },
+          {
+            "name" : "address",
+            "type" : {
+              "scalar" : "String"
+            },
+            "annotation" : "@Field"
+          },
+          {
+            "name" : "postalCode",
+            "type" : {
+              "scalar" : "String"
+            },
+            "annotation" : "@Field"
+          },
+          {
+            "name" : "country",
+            "type" : {
+              "scalar" : "String"
+            },
+            "annotation" : "@Field"
+          },
+          {
+            "name" : "contact",
+            "type" : {
+              "reference" : "ContactID"
+            },
+            "annotation" : "@Parent"
+          }
+        ],
+        "typeName" : {
+          "name" : "Residence",
+          "defined-in" : "Shared"
+        }
+      }
+    },
+    "Empty" : {
+      "object" : {
+        "typeName" : {
+          "name" : "Empty",
+          "defined-in" : "Apodini"
+        }
+      }
+    }
+  },
+  "id": "FCFD7671-92FF-4253-A199-ED4947FFA107",
+  "info" : {
+    "version" : "v_1.0.0",
+    "encoderConfiguration" : {
+      "dateEncodingStrategy" : "deferredToDate",
+      "dataEncodingStrategy" : "base64"
+    },
+    "decoderConfiguration" : {
+      "dateDecodingStrategy" : "deferredToDate",
+      "dataDecodingStrategy" : "base64"
+    },
+    "serverPath" : "http://0.0.0.0:8080"
+  },
+  "endpoints" : [
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "CreateResidence",
+      "operation" : "create",
+      "path" : "/v1/residencies",
+      "deltaIdentifier" : "createResidence",
+      "response" : {
+        "reference" : "Residence"
+      },
+      "parameters" : [
+        {
+          "kind" : "content",
+          "name" : "residence",
+          "type" : {
+            "reference" : "Residence"
+          },
+          "necessity" : "required"
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "GetResidencies",
+      "operation" : "read",
+      "path" : "/v1/residencies",
+      "deltaIdentifier" : "getResidencies",
+      "response" : {
+        "repeated" : {
+          "reference" : "Residence"
+        }
+      },
+      "parameters" : [
+
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "DeleteResidence",
+      "operation" : "delete",
+      "path" : "/v1/residencies/{residenceId}",
+      "deltaIdentifier" : "deleteResidence",
+      "response" : {
+        "reference" : "Empty"
+      },
+      "parameters" : [
+        {
+          "kind" : "path",
+          "name" : "residenceId",
+          "type" : {
+            "scalar" : "UUID"
+          },
+          "necessity" : "required"
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "GetResidence",
+      "operation" : "read",
+      "path" : "/v1/residencies/{residenceId}",
+      "deltaIdentifier" : "getResidenceWithId",
+      "response" : {
+        "reference" : "Residence"
+      },
+      "parameters" : [
+        {
+          "kind" : "path",
+          "name" : "residenceId",
+          "type" : {
+            "scalar" : "UUID"
+          },
+          "necessity" : "required"
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "GetContacts",
+      "operation" : "read",
+      "path" : "/v1/contacts",
+      "deltaIdentifier" : "getContacts",
+      "response" : {
+        "repeated" : {
+          "reference" : "Contact"
+        }
+      },
+      "parameters" : [
+
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "CreateContact",
+      "operation" : "create",
+      "path" : "/v1/contacts",
+      "deltaIdentifier" : "createContact",
+      "response" : {
+        "reference" : "Contact"
+      },
+      "parameters" : [
+        {
+          "kind" : "content",
+          "name" : "contact",
+          "type" : {
+            "reference" : "Contact"
+          },
+          "necessity" : "required"
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "GetContact",
+      "operation" : "read",
+      "path" : "/v1/contacts/{contactId}",
+      "deltaIdentifier" : "getContact",
+      "response" : {
+        "reference" : "Contact"
+      },
+      "parameters" : [
+        {
+          "kind" : "path",
+          "name" : "contactId",
+          "type" : {
+            "scalar" : "UUID"
+          },
+          "necessity" : "required"
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "UpdateContact",
+      "operation" : "update",
+      "path" : "/v1/contacts/{contactId}",
+      "deltaIdentifier" : "updateContact",
+      "response" : {
+        "reference" : "Contact"
+      },
+      "parameters" : [
+        {
+          "kind" : "path",
+          "name" : "contactId",
+          "type" : {
+            "scalar" : "UUID"
+          },
+          "necessity" : "required"
+        },
+        {
+          "kind" : "content",
+          "name" : "mediator",
+          "type" : {
+            "reference" : "ContactMediator"
+          },
+          "necessity" : "required"
+        }
+      ]
+    },
+    {
+      "errors" : [
+        {
+          "message" : "Unauthorized",
+          "code" : 401
+        },
+        {
+          "message" : "Forbidden",
+          "code" : 403
+        },
+        {
+          "message" : "Not found",
+          "code" : 404
+        },
+        {
+          "message" : "Internal server error",
+          "code" : 500
+        }
+      ],
+      "handlerName" : "DeleteContact",
+      "operation" : "delete",
+      "path" : "/v1/contacts/{contactId}",
+      "deltaIdentifier" : "deleteContact",
+      "response" : {
+        "reference" : "Empty"
+      },
+      "parameters" : [
+        {
+          "kind" : "path",
+          "name" : "contactId",
+          "type" : {
+            "scalar" : "UUID"
+          },
+          "necessity" : "required"
+        }
+      ]
+    }
+  ]
+}
