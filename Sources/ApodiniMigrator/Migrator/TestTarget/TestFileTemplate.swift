@@ -62,6 +62,7 @@ public struct TestFileTemplate: Renderable {
         
         \(Import(.xCTest).render())
         @testable import \(packageName)
+        @testable \(Import(.apodiniMigratorClientSupport).render())
 
         final class \(packageName)Tests: XCTestCase {
         \(models.map { method(for: $0) }.joined(separator: .doubleLineBreak))

@@ -1,5 +1,5 @@
 import Foundation
-@_exported import ApodiniMigratorClientSupport
+import ApodiniMigratorClientSupport
 
 /// A typealias of `ApodiniMigratorDecodable`, a `Decodable` protocol
 /// with additional type constraint to introduce a `JSONDecoder`

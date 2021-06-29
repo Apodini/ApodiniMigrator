@@ -8,7 +8,6 @@
 
 import Foundation
 import Logging
-@_exported import ApodiniMigratorCompare
 
 /// A generator for a swift package
 public struct Migrator {

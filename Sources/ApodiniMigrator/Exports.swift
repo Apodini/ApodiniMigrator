@@ -9,5 +9,5 @@
 import Foundation
 
 @_exported import ApodiniMigratorCore
+@_exported import ApodiniMigratorCompare
 @_exported import ApodiniMigratorShared
-@_exported import PathKit

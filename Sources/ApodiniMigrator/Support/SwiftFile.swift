@@ -124,6 +124,7 @@ struct Import: Renderable {
         case foundation
         case combine
         case apodiniMigrator
+        case apodiniMigratorClientSupport
         case xCTest
         
         /// String representation of the import

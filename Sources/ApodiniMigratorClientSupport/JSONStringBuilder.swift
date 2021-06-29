@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@_exported import ApodiniMigratorCore
+import ApodiniMigratorCore
 
 /// Builds a valid JSON string with values empty strings, 0 for numbers, empty Data, date of today, and random UUID
 /// by means of a `typeInformation` object

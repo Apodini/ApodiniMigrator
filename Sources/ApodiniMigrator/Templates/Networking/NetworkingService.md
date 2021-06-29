@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import ApodiniMigratorClientSupport
 
 /// A `typealias` of `AnyPublisher` where `Output` conforms to `Decodable` (`ApodiniMigratorDecodable`)
 public typealias ApodiniPublisher<D> = AnyPublisher<D, Error> where D: Decodable
