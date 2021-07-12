@@ -8,6 +8,7 @@
 
 import ArgumentParser
 
+@main
 struct Migrator: ParsableCommand {
     static var configuration = CommandConfiguration(
         abstract: "A utility to automatically generate migration guides and migrated client libraries",

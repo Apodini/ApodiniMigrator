@@ -1,12 +1,25 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
-let enumSupport = false
-let runtime: Package.Dependency = enumSupport
-    ? .package(url: "https://github.com/PSchmiedmayer/Runtime.git", .revision("b810847a466ecd1cf65e7f39e6e715734fdc672c"))
-    : .package(url: "https://github.com/wickwirew/Runtime.git", from: "2.2.2")
+private enum RuntimeDependency {
+    case enumSupport
+    case mainRepo
+    case supereg
+    
+    var version: Package.Dependency {
+        switch self {
+        case .enumSupport: return .package(url: "https://github.com/PSchmiedmayer/Runtime.git", .revision("b810847a466ecd1cf65e7f39e6e715734fdc672c"))
+        case .mainRepo: return .package(url: "https://github.com/wickwirew/Runtime.git", from: "2.2.2")
+        case .supereg: return .package(url: "https://github.com/Supereg/Runtime.git", .branch("master"))
+        }
+    }
+}
+
+private func runtime(_ type: RuntimeDependency) -> Package.Dependency {
+    type.version
+}
 
 let package = Package(
     name: "ApodiniMigrator",
@@ -25,7 +38,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        runtime,
+        runtime(.supereg),
         .package(url: "https://github.com/kylef/PathKit.git", .exact("0.9.2")),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "0.3.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
@@ -40,7 +53,7 @@ let package = Package(
                 .target(name: "ApodiniMigratorShared"),
                 .product(name: "Runtime", package: "Runtime")
             ]),
-        .target(
+        .executableTarget(
             name: "ApodiniMigratorCLI",
             dependencies: [
                 .target(name: "ApodiniMigrator"),
