@@ -29,10 +29,6 @@ public extension Parameters {
 /// `UUID` Conformance to `LosslessStringConvertible`
 extension UUID: LosslessStringConvertible {
     public init?(_ description: String) {
-        if let uuid = UUID(uuidString: description) {
-            self = uuid
-        } else {
-            return nil
-        }
+        self.init(uuidString: description)
     }
 }

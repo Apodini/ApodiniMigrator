@@ -134,8 +134,9 @@ struct EnumMigrator: SwiftFile {
         \(MARKComment(.utils))
         \(EnumEncodeValueMethod().render())
         }
-        """
         
+        \(EnumExtensions(typeInformation, rawValueType: rawValueType).render())
+        """
         return fileContent
     }
 }

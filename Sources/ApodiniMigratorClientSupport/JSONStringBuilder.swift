@@ -61,7 +61,10 @@ public struct JSONStringBuilder {
             return requiresCurlyBrackets(key) ? "{}" : "[]"
         case .optional:
             return "null"
-        case let .enum(_, _, cases):
+        case let .enum(_, rawValueType, cases):
+            if rawValueType == .int {
+                return PrimitiveType.int.jsonString(with: encoder)
+            }
             return cases.first?.name.doubleQuoted ?? "{}"
         case let .object(_, properties):
             let sorted = properties.sorted(by: \.name)

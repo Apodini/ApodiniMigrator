@@ -85,6 +85,8 @@ struct DefaultEnumFile: SwiftFile {
         \(MARKComment(.utils))
         \(encodeValueMethod.render())
         }
+        
+        \(EnumExtensions(typeInformation, rawValueType: rawValueType).render())
         """
     }
 }
