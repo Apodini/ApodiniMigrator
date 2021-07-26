@@ -90,7 +90,6 @@ public struct ProjectDirectories {
     
     /// Creates empty directories of the package
     public func build() throws {
-        try? root.delete()
         
         try allDirectories.forEach { try $0.mkpath() }
     }

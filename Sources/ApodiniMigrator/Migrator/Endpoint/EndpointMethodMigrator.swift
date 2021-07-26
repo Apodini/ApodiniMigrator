@@ -99,7 +99,7 @@ class EndpointMethodMigrator: Renderable {
         \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.doubleQuoted))" }.lineBreaked)
 
         let handler = Handler<\(responseString)>(
-        path: \(migratedEndpoint.resourcePath.doubleQuoted),
+        path: \(migratedEndpoint.resourcePath().doubleQuoted),
         httpMethod: .\(operation().asHTTPMethodString),
         parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),
         headers: headers,

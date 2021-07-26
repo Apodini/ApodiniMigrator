@@ -103,7 +103,7 @@ struct EnumMigrator: SwiftFile {
         }
         
         let addedCases = self.addedCases()
-        let allCases = typeInformation.enumCases + addedCases
+        let allCases = (typeInformation.enumCases + addedCases).sorted(by: \.name)
         
         var addedCasesAnnotation = ""
         

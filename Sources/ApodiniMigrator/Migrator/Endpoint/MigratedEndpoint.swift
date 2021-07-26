@@ -29,16 +29,6 @@ class MigratedEndpoint {
         endpoint.response.typeString
     }
     
-    /// Returns the adjusted resource path by considering potential renamings of the parameters in the new version and replacing them accordingly
-    lazy var resourcePath: String = {
-        var resourcePath = path.resourcePath
-        
-        for pathParameter in activeParameters.filter({ $0.kind == .path }) { // TODO consider convert?
-            resourcePath = resourcePath.with("{\(pathParameter.oldName)}", insteadOf: "{\(pathParameter.newName)}")
-        }
-        return resourcePath.with("\\(", insteadOf: "{").with(")", insteadOf: "}")
-    }()
-    
     /// Initializes a new instance out of an endpoint of the old version, unavailable flag, migrated parameters and the path of the endpoint in the new version
     init(endpoint: Endpoint, unavailable: Bool, parameters: [MigratedParameter], path: EndpointPath) {
         self.endpoint = endpoint
@@ -97,10 +87,20 @@ class MigratedEndpoint {
         let methodName = endpoint.deltaIdentifier.rawValue.lowerFirst
         let signature =
         """
-        \(EndpointComment(endpoint.handlerName, path: self.resourcePath))
+        \(EndpointComment(endpoint.handlerName, path: resourcePath(replaceBrackets: false)))
         \(unavailableComment())static func \(methodName)(\(methodInput())) -> ApodiniPublisher<\(responseString)> {
         """
         return signature
+    }
+    
+    /// Returns the adjusted resource path by considering potential renamings of the parameters in the new version and replacing them accordingly
+    func resourcePath(replaceBrackets: Bool = true) -> String {
+        var resourcePath = path.resourcePath
+        
+        for pathParameter in activeParameters.filter({ $0.kind == .path }) { // TODO consider convert?
+            resourcePath = resourcePath.with("{\(pathParameter.oldName)}", insteadOf: "{\(pathParameter.newName)}")
+        }
+        return replaceBrackets ? resourcePath.with("\\(", insteadOf: "{").with(")", insteadOf: "}") : resourcePath
     }
     
     /// Returns the endpoint method with unavailable comment and a fatalError body
