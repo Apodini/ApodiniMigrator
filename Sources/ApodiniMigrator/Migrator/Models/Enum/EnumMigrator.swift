@@ -108,7 +108,7 @@ struct EnumMigrator: SwiftFile {
         var addedCasesAnnotation = ""
         
         if !addedCases.isEmpty {
-            addedCasesAnnotation = "@available(*, introduced, message: \("This enum has been migrated with new cases. The client developer should ensure to adjust potential switch blocks of this enum".doubleQuoted)"
+            addedCasesAnnotation = "@available(*, message: \("This enum has been migrated with new cases. The client developer should ensure to adjust potential switch blocks of this enum".doubleQuoted))" + .lineBreak
         }
         
         

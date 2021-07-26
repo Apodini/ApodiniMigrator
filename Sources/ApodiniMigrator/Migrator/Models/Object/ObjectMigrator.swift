@@ -86,11 +86,11 @@ struct ObjectMigrator: ObjectSwiftFile {
         var annotation: Annotation?
         if let unsupportedChange = unsupportedChange {
             annotation = GenericComment(
-                comment: "@available(*, unavailable, message: \(unsupportedChange.description.doubleQuoted))"
+                comment: "@available(*, unavailable, message: \(unsupportedChange.description.doubleQuoted))" + .lineBreak
             )
         } else if notPresentInNewVersion {
             annotation = GenericComment(
-                comment: "@available(*, deprecated, message: \"This model is not used in the new version anymore!\")"
+                comment: "@available(*, deprecated, message: \"This model is not used in the new version anymore!\")" + .lineBreak
             )
         }
         
@@ -117,7 +117,7 @@ struct ObjectMigrator: ObjectSwiftFile {
         
         let fileContent =
         """
-        \(fileHeader())
+        \(fileHeader(annotation: annotation?.comment ?? ""))
         \(MARKComment(.codingKeys))
         \(ObjectCodingKeys(allProperties, renameChanges: renamePropertyChanges).render())
 

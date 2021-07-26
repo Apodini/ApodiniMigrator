@@ -1,0 +1,758 @@
+{
+    "summary": "A summary of what changed between versions",
+    "service-type": "REST",
+    "api-spec": "Apodini DSL",
+    "document-id": "B61BB458-A69F-48FD-8712-F4A6972C941C",
+    "from": "v_1.0.0",
+    "to": "v_2.0.0",
+    "compare-config": {
+        "include-provider-support": true,
+        "allowed-endpoint-id-update": false,
+        "allowed-type-rename": false
+    },
+    "changes": [
+        {
+            "element": {
+                "networking": "NetworkingService",
+                "target": "base-url"
+            },
+            "change-type": "value-update",
+            "from": {
+                "string-value": "http://127.0.0.1:8080/v1"
+            },
+            "to": {
+                "string-value": "http://127.0.0.1:8080/v2"
+            },
+            "breaking": true,
+            "solvable": true
+        },
+        {
+            "element": {
+                "enum": "CategoryStatus",
+                "target": "self"
+            },
+            "change-type": "deletion",
+            "deleted-value": {
+                "element-id": "CategoryStatus"
+            },
+            "fallback-value": "none",
+            "breaking": false,
+            "solvable": false
+        },
+        {
+            "element": {
+                "enum": "UserBadge",
+                "target": "self"
+            },
+            "change-type": "addition",
+            "added-value": {
+                "element": {
+                    "enum": {
+                        "typeName": {
+                            "name": "UserBadge",
+                            "defined-in": "qonectiq"
+                        },
+                        "rawValueType": "string",
+                        "cases": [
+                            {
+                                "name": "newbie",
+                                "rawValue": "newbie"
+                            },
+                            {
+                                "name": "explorer",
+                                "rawValue": "explorer"
+                            },
+                            {
+                                "name": "achiever",
+                                "rawValue": "achiever"
+                            },
+                            {
+                                "name": "worldSaver",
+                                "rawValue": "worldSaver"
+                            }
+                        ]
+                    }
+                }
+            },
+            "default-value": "none",
+            "breaking": false,
+            "solvable": true
+        },
+        {
+            "element": {
+                "object": "UserStatistic",
+                "target": "self"
+            },
+            "change-type": "addition",
+            "added-value": {
+                "element": {
+                    "object": {
+                        "typeName": {
+                            "name": "UserStatistic",
+                            "defined-in": "qonectiq"
+                        },
+                        "properties": [
+                            {
+                                "name": "userID",
+                                "type": {
+                                    "scalar": "UUID"
+                                }
+                            },
+                            {
+                                "name": "participatingEventsCount",
+                                "type": {
+                                    "scalar": "UInt"
+                                }
+                            },
+                            {
+                                "name": "createdEventsCount",
+                                "type": {
+                                    "scalar": "UInt"
+                                }
+                            },
+                            {
+                                "name": "topCategory",
+                                "type": {
+                                    "object": {
+                                        "typeName": {
+                                            "name": "EventCategory",
+                                            "defined-in": "qonectiq"
+                                        },
+                                        "properties": [
+                                            {
+                                                "name": "id",
+                                                "type": {
+                                                    "optional": {
+                                                        "scalar": "UUID"
+                                                    }
+                                                },
+                                                "annotation": "@ID"
+                                            },
+                                            {
+                                                "name": "title",
+                                                "type": {
+                                                    "scalar": "String"
+                                                },
+                                                "annotation": "@Field"
+                                            },
+                                            {
+                                                "name": "group",
+                                                "type": {
+                                                    "enum": {
+                                                        "typeName": {
+                                                            "name": "EventCategoryGroup",
+                                                            "defined-in": "qonectiq"
+                                                        },
+                                                        "rawValueType": "string",
+                                                        "cases": [
+                                                            {
+                                                                "name": "marketing",
+                                                                "rawValue": "marketing"
+                                                            },
+                                                            {
+                                                                "name": "blogging",
+                                                                "rawValue": "blogging"
+                                                            },
+                                                            {
+                                                                "name": "coding",
+                                                                "rawValue": "coding"
+                                                            },
+                                                            {
+                                                                "name": "cooking",
+                                                                "rawValue": "cooking"
+                                                            },
+                                                            {
+                                                                "name": "dating",
+                                                                "rawValue": "dating"
+                                                            },
+                                                            {
+                                                                "name": "travelling",
+                                                                "rawValue": "travelling"
+                                                            },
+                                                            {
+                                                                "name": "studying",
+                                                                "rawValue": "studying"
+                                                            },
+                                                            {
+                                                                "name": "science",
+                                                                "rawValue": "science"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "annotation": "@Enum"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "name": "registeredSince",
+                                "type": {
+                                    "scalar": "Date"
+                                }
+                            },
+                            {
+                                "name": "badge",
+                                "type": {
+                                    "enum": {
+                                        "typeName": {
+                                            "name": "UserBadge",
+                                            "defined-in": "qonectiq"
+                                        },
+                                        "rawValueType": "string",
+                                        "cases": [
+                                            {
+                                                "name": "newbie",
+                                                "rawValue": "newbie"
+                                            },
+                                            {
+                                                "name": "explorer",
+                                                "rawValue": "explorer"
+                                            },
+                                            {
+                                                "name": "achiever",
+                                                "rawValue": "achiever"
+                                            },
+                                            {
+                                                "name": "worldSaver",
+                                                "rawValue": "worldSaver"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "default-value": "none",
+            "breaking": false,
+            "solvable": true
+        },
+        {
+            "element": {
+                "enum": "EventCategoryGroup",
+                "target": "case"
+            },
+            "change-type": "rename",
+            "from": {
+                "string-value": "travellinng"
+            },
+            "to": {
+                "string-value": "travelling"
+            },
+            "breaking": false,
+            "solvable": true,
+            "provider-support": {
+                "hint": "If 'ApodiniCompare' categorized this change incorrectly, replace the value true of the field rename-is-valid with false, so that 'ApodiniMigrator' does not trait this change element as a rename. If set to false, the element in 'from' will be trated as a deletion, and the element in 'to' will be trated as an addition",
+                "rename-is-valid": true,
+                "warning": "The field rename-is-valid expects a value of JSON type 'boolean'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            }
+        },
+        {
+            "element": {
+                "enum": "EventCategoryGroup",
+                "target": "raw-value"
+            },
+            "change-type": "value-update",
+            "from": {
+                "element": {
+                    "name": "travellinng",
+                    "rawValue": "travellinng"
+                }
+            },
+            "to": {
+                "element": {
+                    "name": "travelling",
+                    "rawValue": "travelling"
+                }
+            },
+            "breaking": true,
+            "solvable": true
+        },
+        {
+            "element": {
+                "object": "EventCategory",
+                "target": "property"
+            },
+            "change-type": "deletion",
+            "deleted-value": {
+                "element-id": "status"
+            },
+            "fallback-value": {
+                "json-value-id": 0
+            },
+            "breaking": true,
+            "solvable": true,
+            "provider-support": {
+                "hint": "If 'ApodiniCompare' categorized this change incorrectly, replace the value _ of the field element-id with the corresponding name or id of the element in the 'new' version, so that 'ApodiniMigrator' traits this change element as a rename. Note that an adjustment to this change object, requires a corresponding adjustment to the addition change targeting the same element",
+                "renamed-to": {
+                    "element-id": "_"
+                },
+                "warning": "The field element-id expects a value of JSON type 'string'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            }
+        },
+        {
+            "element": {
+                "enum": "Rating",
+                "target": "case"
+            },
+            "change-type": "deletion",
+            "deleted-value": {
+                "element-id": "undefined"
+            },
+            "fallback-value": "none",
+            "breaking": true,
+            "solvable": true,
+            "provider-support": {
+                "hint": "If 'ApodiniCompare' categorized this change incorrectly, replace the value _ of the field element-id with the corresponding name or id of the element in the 'new' version, so that 'ApodiniMigrator' traits this change element as a rename. Note that an adjustment to this change object, requires a corresponding adjustment to the addition change targeting the same element",
+                "renamed-to": {
+                    "element-id": "_"
+                },
+                "warning": "The field element-id expects a value of JSON type 'string'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            }
+        },
+        {
+            "element": {
+                "object": "Review",
+                "target": "property"
+            },
+            "change-type": "addition",
+            "added-value": {
+                "element": {
+                    "name": "displayReviewerName",
+                    "type": {
+                        "scalar": "Bool"
+                    },
+                    "annotation": "@Field"
+                }
+            },
+            "default-value": {
+                "json-value-id": 1
+            },
+            "breaking": true,
+            "solvable": true,
+            "provider-support": {
+                "hint": "If 'ApodiniCompare' categorized this change incorrectly, replace the value _ of the field element-id with the corresponding name or id of the element in the 'old' version, so that 'ApodiniMigrator' traits this change element as a rename. Note that an adjustment to this change object, requires a corresponding adjustment to the deletion change targeting the same element",
+                "renamed-from": {
+                    "element-id": "_"
+                },
+                "warning": "The field element-id expects a value of JSON type 'string'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            }
+        },
+        {
+            "element": {
+                "object": "Event",
+                "target": "property"
+            },
+            "change-type": "property-change",
+            "target-id": "duration",
+            "from": {
+                "element": {
+                    "scalar": "UInt"
+                }
+            },
+            "to": {
+                "element": {
+                    "scalar": "String"
+                }
+            },
+            "convert-from-to-script-id": 0,
+            "convert-to-from-script-id": 1,
+            "breaking": true,
+            "solvable": true
+        },
+        {
+            "element": {
+                "object": "Event",
+                "target": "property-necessity"
+            },
+            "change-type": "value-update",
+            "target-id": "maxParticipants",
+            "from": {
+                "element": "optional"
+            },
+            "to": {
+                "element": "required"
+            },
+            "necessity-value": {
+                "json-value-id": 2
+            },
+            "breaking": true,
+            "solvable": true
+        },
+        {
+            "element": {
+                "enum": "Gender",
+                "target": "case"
+            },
+            "change-type": "addition",
+            "added-value": {
+                "element": {
+                    "name": "undefined",
+                    "rawValue": "undefined"
+                }
+            },
+            "default-value": "none",
+            "breaking": false,
+            "solvable": true,
+            "provider-support": {
+                "hint": "If 'ApodiniCompare' categorized this change incorrectly, replace the value _ of the field element-id with the corresponding name or id of the element in the 'old' version, so that 'ApodiniMigrator' traits this change element as a rename. Note that an adjustment to this change object, requires a corresponding adjustment to the deletion change targeting the same element",
+                "renamed-from": {
+                    "element-id": "_"
+                },
+                "warning": "The field element-id expects a value of JSON type 'string'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            }
+        },
+        {
+            "element": {
+                "endpoint": "statisticsOfUser",
+                "target": "self"
+            },
+            "change-type": "addition",
+            "added-value": {
+                "element": {
+                    "handlerName": "StatisticsHandler",
+                    "deltaIdentifier": "statisticsOfUser",
+                    "operation": "read",
+                    "path": "/v2/users/statistics",
+                    "parameters": [
+                        {
+                            "name": "userIdentifier",
+                            "type": {
+                                "scalar": "UUID"
+                            },
+                            "kind": "path",
+                            "necessity": "required"
+                        }
+                    ],
+                    "response": {
+                        "object": {
+                            "typeName": {
+                                "name": "UserStatistic",
+                                "defined-in": "qonectiq"
+                            },
+                            "properties": [
+                                {
+                                    "name": "userID",
+                                    "type": {
+                                        "scalar": "UUID"
+                                    }
+                                },
+                                {
+                                    "name": "participatingEventsCount",
+                                    "type": {
+                                        "scalar": "UInt"
+                                    }
+                                },
+                                {
+                                    "name": "createdEventsCount",
+                                    "type": {
+                                        "scalar": "UInt"
+                                    }
+                                },
+                                {
+                                    "name": "topCategory",
+                                    "type": {
+                                        "object": {
+                                            "typeName": {
+                                                "name": "EventCategory",
+                                                "defined-in": "qonectiq"
+                                            },
+                                            "properties": [
+                                                {
+                                                    "name": "id",
+                                                    "type": {
+                                                        "optional": {
+                                                            "scalar": "UUID"
+                                                        }
+                                                    },
+                                                    "annotation": "@ID"
+                                                },
+                                                {
+                                                    "name": "title",
+                                                    "type": {
+                                                        "scalar": "String"
+                                                    },
+                                                    "annotation": "@Field"
+                                                },
+                                                {
+                                                    "name": "group",
+                                                    "type": {
+                                                        "enum": {
+                                                            "typeName": {
+                                                                "name": "EventCategoryGroup",
+                                                                "defined-in": "qonectiq"
+                                                            },
+                                                            "rawValueType": "string",
+                                                            "cases": [
+                                                                {
+                                                                    "name": "marketing",
+                                                                    "rawValue": "marketing"
+                                                                },
+                                                                {
+                                                                    "name": "blogging",
+                                                                    "rawValue": "blogging"
+                                                                },
+                                                                {
+                                                                    "name": "coding",
+                                                                    "rawValue": "coding"
+                                                                },
+                                                                {
+                                                                    "name": "cooking",
+                                                                    "rawValue": "cooking"
+                                                                },
+                                                                {
+                                                                    "name": "dating",
+                                                                    "rawValue": "dating"
+                                                                },
+                                                                {
+                                                                    "name": "travelling",
+                                                                    "rawValue": "travelling"
+                                                                },
+                                                                {
+                                                                    "name": "studying",
+                                                                    "rawValue": "studying"
+                                                                },
+                                                                {
+                                                                    "name": "science",
+                                                                    "rawValue": "science"
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    "annotation": "@Enum"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "registeredSince",
+                                    "type": {
+                                        "scalar": "Date"
+                                    }
+                                },
+                                {
+                                    "name": "badge",
+                                    "type": {
+                                        "enum": {
+                                            "typeName": {
+                                                "name": "UserBadge",
+                                                "defined-in": "qonectiq"
+                                            },
+                                            "rawValueType": "string",
+                                            "cases": [
+                                                {
+                                                    "name": "newbie",
+                                                    "rawValue": "newbie"
+                                                },
+                                                {
+                                                    "name": "explorer",
+                                                    "rawValue": "explorer"
+                                                },
+                                                {
+                                                    "name": "achiever",
+                                                    "rawValue": "achiever"
+                                                },
+                                                {
+                                                    "name": "worldSaver",
+                                                    "rawValue": "worldSaver"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "errors": [
+                        {
+                            "code": 401,
+                            "message": "Unauthorized"
+                        },
+                        {
+                            "code": 403,
+                            "message": "Forbidden"
+                        },
+                        {
+                            "code": 404,
+                            "message": "Not found"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Internal server error"
+                        }
+                    ]
+                }
+            },
+            "default-value": "none",
+            "breaking": false,
+            "solvable": true
+        },
+        {
+            "element": {
+                "endpoint": "getCategoryWithID",
+                "target": "resource-path"
+            },
+            "change-type": "value-update",
+            "from": {
+                "element": "/v1/categories"
+            },
+            "to": {
+                "element": "/v2/category"
+            },
+            "breaking": true,
+            "solvable": true
+        },
+        {
+            "element": {
+                "endpoint": "getCategoryWithID",
+                "target": "path-parameter"
+            },
+            "change-type": "parameter-change",
+            "parameter-target": "kind",
+            "target-id": "id",
+            "from": {
+                "element": "path"
+            },
+            "to": {
+                "element": "lightweight"
+            },
+            "breaking": true,
+            "solvable": true
+        },
+        {
+            "element": {
+                "endpoint": "updateEventWithID",
+                "target": "resource-path"
+            },
+            "change-type": "value-update",
+            "from": {
+                "element": "/v1/events/{eventID}"
+            },
+            "to": {
+                "element": "/v2/events/{eventIdentifier}"
+            },
+            "breaking": true,
+            "solvable": true
+        },
+        {
+            "element": {
+                "endpoint": "updateEventWithID",
+                "target": "path-parameter"
+            },
+            "change-type": "rename",
+            "from": {
+                "string-value": "eventID"
+            },
+            "to": {
+                "string-value": "eventIdentifier"
+            },
+            "breaking": true,
+            "solvable": true,
+            "provider-support": {
+                "hint": "If 'ApodiniCompare' categorized this change incorrectly, replace the value true of the field rename-is-valid with false, so that 'ApodiniMigrator' does not trait this change element as a rename. If set to false, the element in 'from' will be trated as a deletion, and the element in 'to' will be trated as an addition",
+                "rename-is-valid": true,
+                "warning": "The field rename-is-valid expects a value of JSON type 'boolean'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            }
+        },
+        {
+            "element": {
+                "endpoint": "addReviewToEvent",
+                "target": "query-parameter"
+            },
+            "change-type": "addition",
+            "added-value": {
+                "element": {
+                    "name": "displayName",
+                    "type": {
+                        "scalar": "Bool"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "optional"
+                }
+            },
+            "default-value": "none",
+            "breaking": false,
+            "solvable": true,
+            "provider-support": {
+                "hint": "If 'ApodiniCompare' categorized this change incorrectly, replace the value _ of the field element-id with the corresponding name or id of the element in the 'old' version, so that 'ApodiniMigrator' traits this change element as a rename. Note that an adjustment to this change object, requires a corresponding adjustment to the deletion change targeting the same element",
+                "renamed-from": {
+                    "element-id": "_"
+                },
+                "warning": "The field element-id expects a value of JSON type 'string'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            }
+        },
+        {
+            "element": {
+                "endpoint": "getEventsOfCategory",
+                "target": "query-parameter"
+            },
+            "change-type": "rename",
+            "from": {
+                "string-value": "group"
+            },
+            "to": {
+                "string-value": "groupEvent"
+            },
+            "breaking": true,
+            "solvable": true,
+            "provider-support": {
+                "hint": "If 'ApodiniCompare' categorized this change incorrectly, replace the value true of the field rename-is-valid with false, so that 'ApodiniMigrator' does not trait this change element as a rename. If set to false, the element in 'from' will be trated as a deletion, and the element in 'to' will be trated as an addition",
+                "rename-is-valid": true,
+                "warning": "The field rename-is-valid expects a value of JSON type 'boolean'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            }
+        },
+        {
+            "element": {
+                "endpoint": "getCategoriesOfGroup",
+                "target": "resource-path"
+            },
+            "change-type": "value-update",
+            "from": {
+                "element": "/v1/categories/group"
+            },
+            "to": {
+                "element": "/v2/group-categories"
+            },
+            "breaking": true,
+            "solvable": true
+        },
+        {
+            "element": {
+                "endpoint": "getCategoriesOfGroup",
+                "target": "path-parameter"
+            },
+            "change-type": "rename",
+            "from": {
+                "string-value": "group"
+            },
+            "to": {
+                "string-value": "groupCategory"
+            },
+            "breaking": true,
+            "solvable": true,
+            "provider-support": {
+                "hint": "If 'ApodiniCompare' categorized this change incorrectly, replace the value true of the field rename-is-valid with false, so that 'ApodiniMigrator' does not trait this change element as a rename. If set to false, the element in 'from' will be trated as a deletion, and the element in 'to' will be trated as an addition",
+                "rename-is-valid": true,
+                "warning": "The field rename-is-valid expects a value of JSON type 'boolean'. Wrong input might invalidate the provider support or even the entire Migration Guide!"
+            }
+        }
+    ],
+    "scripts": {
+        "0": "function convert(number) {\n    let parsed = JSON.parse(number)\n    return JSON.stringify(parsed.toString())\n}",
+        "1": "function convert(string) {\n    let parsed = parseInt(JSON.parse(string))\n    return JSON.stringify(isNaN(parsed) ? 0 : parsed)\n}"
+    },
+    "json-values": {
+        "2": "0",
+        "1": "false",
+        "0": "\"available\""
+    },
+    "updated-json-representations": {
+        "Event": "{\n\"category\" : {\n\"group\" : \"marketing\",\n\"id\" : null,\n\"title\" : \"\"\n},\n\"date\" : 648986400,\n\"duration\" : \"\",\n\"id\" : null,\n\"imagePath\" : \"https://github.com/Apodini/ApodiniMigrator.git\",\n\"maxParticipants\" : 0,\n\"organizer\" : {\n\"id\" : null\n},\n\"reviews\" : [],\n\"summary\" : \"\",\n\"tags\" : [],\n\"title\" : \"\"\n}",
+        "EventCategory": "{\n\"group\" : \"marketing\",\n\"id\" : null,\n\"title\" : \"\"\n}",
+        "Review": "{\n\"content\" : \"\",\n\"displayReviewerName\" : false,\n\"event\" : {\n\"id\" : null\n},\n\"id\" : null,\n\"rating\" : \"outstanding\",\n\"reviewer\" : {\n\"id\" : null\n},\n\"summary\" : \"\",\n\"title\" : \"\"\n}"
+    }
+}

@@ -67,7 +67,7 @@ struct DefaultObjectFile: ObjectSwiftFile {
         if properties.isEmpty {
             let content =
             """
-            \(fileHeader())
+            \(fileHeader(annotation: annotationComment))
             \(MARKComment(.initializer))
             public init() {}
             }
@@ -76,7 +76,7 @@ struct DefaultObjectFile: ObjectSwiftFile {
         } else {
             let content =
                 """
-                \(fileHeader())
+                \(fileHeader(annotation: annotationComment))
                 \(MARKComment(.codingKeys))
                 \(codingKeysEnum.render())
                 

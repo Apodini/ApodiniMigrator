@@ -100,7 +100,7 @@ public struct UpdateChange: Change {
         self.element = element
         self.from = .stringValue(from)
         self.to = .stringValue(to)
-        targetID = nil
+        targetID = .init(from)
         self.necessityValue = nil
         convertFromTo = nil
         convertToFrom = nil

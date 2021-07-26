@@ -83,14 +83,14 @@ protocol ObjectSwiftFile: SwiftFile {}
 /// ObjectSwiftFile extension
 extension ObjectSwiftFile {
     /// File header including file comment, foundation import and the signature of object declaration
-    func fileHeader() -> String {
+    func fileHeader(annotation: String = "") -> String {
         """
         \(fileComment)
 
         \(Import(.foundation).render())
         
         \(MARKComment(.model))
-        \(kind.signature) \(typeNameString): Codable {
+        \(annotation)\(kind.signature) \(typeNameString): Codable {
         """
     }
 }

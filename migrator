@@ -17,14 +17,18 @@ end
 
 def command(action:)
     base = "swift run migrator"
-    target = "./CLIOutput"
+    target = "/Users/eld/Desktop/QONECTIQ"
+    packageName = "QONECTIQ"
+    oldAPI = "api_v1.0.0.json"
+    newAPI = "api_v2.0.0.json"
+
     case action
     when ACTION::MIGRATE
-        return "#{base} migrate -t=#{target} -d=#{target}/delta_document.json -m=#{target}/migration_guide.json -p=ExampleACD"
+        return "#{base} migrate -t=#{target} -d=#{target}/#{oldAPI} -m=#{target}/migration_guide.json -p=#{packageName}"
     when ACTION::GENERATE
-        return "#{base} generate -d=#{target}/delta_document.json -p=ExampleACD -t=#{target}"
+        return "#{base} generate -d=#{target}/#{oldAPI} -p=#{packageName} -t=#{target}"
     when ACTION::COMPARE
-        return "#{base} compare -o=#{target}/delta_document.json -n=#{target}/delta_document_updated.json -m=#{target}"
+        return "#{base} compare -o=#{target}/#{oldAPI} -n=#{target}/#{newAPI} -m=#{target}"
     else
         puts "Usage: #{$0} | Use one of the following commands: <generate> or <compare>. After generating the migration guide with the <compare> command, the library can be migrated via <migrate>"
         exit 0
