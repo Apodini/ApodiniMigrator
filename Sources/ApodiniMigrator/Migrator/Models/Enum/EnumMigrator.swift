@@ -93,7 +93,7 @@ struct EnumMigrator: SwiftFile {
             )
         } else if notPresentInNewVersion {
             annotation = GenericComment(
-                comment: "@available(*, deprecated, message: \("This enum is not used in the new version anymore!".doubleQuoted))"
+                comment: "@available(*, message: \("This enum is not used in the new version anymore!".doubleQuoted))"
             )
         }
         
