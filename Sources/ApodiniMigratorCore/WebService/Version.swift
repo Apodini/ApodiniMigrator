@@ -55,7 +55,7 @@ public struct Version: Value {
     /// Encodes self into the given encoder
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode("\(prefix)_\(major).\(minor).\(patch)")
+        try container.encode(string)
     }
     
     /// Initializes self from the given decoder
@@ -84,6 +84,10 @@ public struct Version: Value {
     /// Default version
     public static var `default`: Version {
         .init()
+    }
+    
+    public var string: String {
+        "\(prefix)_\(major).\(minor).\(patch)"
     }
 }
 

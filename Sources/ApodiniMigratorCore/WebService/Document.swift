@@ -124,6 +124,7 @@ public struct Document: Value {
     
     /// Exports json representation of self at the specified path
     public func export(at path: String) throws {
-        try Path(path).write(json)
+        let fileName = "api_\(metaData.version.string.without("_")).json"
+        try (Path(path) + fileName).write(json)
     }
 }
