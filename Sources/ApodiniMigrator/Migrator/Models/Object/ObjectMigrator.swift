@@ -86,11 +86,11 @@ struct ObjectMigrator: ObjectSwiftFile {
         var annotation: Annotation?
         if let unsupportedChange = unsupportedChange {
             annotation = GenericComment(
-                comment: "@available(*, unavailable, message: \(unsupportedChange.description.doubleQuoted))" + .lineBreak
+                comment: "@available(*, unavailable, message: \(unsupportedChange.description.doubleQuoted))"
             )
         } else if notPresentInNewVersion {
             annotation = GenericComment(
-                comment: "@available(*, deprecated, message: \"This model is not used in the new version anymore!\")" + .lineBreak
+                comment: "@available(*, deprecated, message: \"This model is not used in the new version anymore!\")"
             )
         }
         

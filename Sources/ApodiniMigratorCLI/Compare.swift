@@ -41,7 +41,7 @@ struct Compare: ParsableCommand {
             let migrationGuideFileName = "migration_guide"
             let migrationGuide = MigrationGuide(for: oldDocument, rhs: newDocument)
             migrationGuide.write(at: migrationGuidePath.asPath, fileName: migrationGuideFileName)
-            logger.info("Migration guide was generated successfully at \(migrationGuidePath)/\(migrationGuideFileName).json.")
+            logger.info("\(migrationGuideFileName).json was generated successfully.")
         } catch {
             logger.error("Migration guide generation failed with error: \(error)")
         }

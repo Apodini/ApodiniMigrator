@@ -28,12 +28,12 @@ struct Generate: ParsableCommand {
         let migrator = ApodiniMigrator.Migrator.self
         let logger = migrator.logger
         
-        logger.info("Starting generation of package \(packageName) at \(targetDirectory)")
+        logger.info("Starting generation of package \(packageName)")
         
         do {
             let generator = try migrator.init(packageName: packageName, packagePath: targetDirectory, documentPath: documentPath, migrationGuide: .empty)
             try generator.migrate()
-            logger.info("Package \(packageName) was generated successfully. You can open the package via \(targetDirectory)/\(packageName)/Package.swift")
+            logger.info("Package \(packageName) was generated successfully. You can open the package via \(packageName)/Package.swift")
         } catch {
             logger.error("Package generation failed with error: \(error)")
         }
