@@ -45,7 +45,11 @@ public struct Endpoint: Value, DeltaIdentifiable {
         errors: [ErrorCode]
     ) {
         self.handlerName = handlerName
-        self.deltaIdentifier = .init(deltaIdentifier)
+        var identifier = deltaIdentifier
+        if !identifier.split(string: ".").compactMap { Int($0) }.isEmpty {
+            identifier = handlerName.lowerFirst
+        }
+        self.deltaIdentifier = .init(identifier)
         self.operation = operation
         self.path = .init(absolutePath)
         self.parameters = Self.wrappContentParameters(from: parameters, with: handlerName)
