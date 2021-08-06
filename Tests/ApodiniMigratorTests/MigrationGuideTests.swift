@@ -8,7 +8,7 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
     let packagePath: Path = .desktop
     
     func testPackageMigration() throws {
-        guard packagePath.exists, !skipFileReadingTests else {
+        guard isEldisMacbook(), !skipFileReadingTests else {
             return
         }
         
@@ -24,10 +24,16 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
     }
     
     func testProjectFilesUpdater() throws {
+        guard isEldisMacbook() else {
+            return
+        }
         try ProjectFilesUpdater.run()
     }
     
     func testEnumDelete() throws {
+        guard isEldisMacbook() else {
+            return
+        }
         struct User {
             let name: String
             let id: UUID
@@ -46,7 +52,7 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
     }
     
     func testMigrationGuide() throws {
-        guard Path.desktop.exists, !skipFileReadingTests else {
+        guard isEldisMacbook(), !skipFileReadingTests else {
             return
         }
         
