@@ -45,6 +45,11 @@ public struct Document: Value {
     /// Endpoints
     public var endpoints: [Endpoint]
     
+    /// Name of the file, constructed as `api_{version}`
+    public var fileName: String {
+        "api_\(metaData.version.string.without("_"))"
+    }
+    
     /// Initializes an empty document
     public init() {
         id = .init()
@@ -124,7 +129,6 @@ public struct Document: Value {
     
     /// Exports string representation of self at the specified path with the specified output format
     public func export(at path: String, outputFormat: OutputFormat) throws {
-        let fileName = "api_\(metaData.version.string.without("_"))"
         try write(at: Path(path), outputFormat: outputFormat, fileName: fileName)
     }
 }
