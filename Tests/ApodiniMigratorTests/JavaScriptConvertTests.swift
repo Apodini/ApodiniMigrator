@@ -251,7 +251,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         guard isEldisMacbook() else {
             return
         }
-        try JSPrimitiveScript.allCombinations().write(at: Path.desktop, fileName: "all_combinations")
+        try JSPrimitiveScript.allCombinations().write(at: Path.desktop.string, fileName: "all_combinations")
     }
     
     
@@ -328,8 +328,8 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         
         let jsBuilder = JSScriptBuilder(from: try TypeInformation(type: User.self), to: try TypeInformation(type: UserNew.self))
-        try jsBuilder.convertFromTo.write(at: Path.desktop, fileName: "user_to_userNew")
-        try jsBuilder.convertToFrom.write(at: Path.desktop, fileName: "userNew_to_user")
+        try jsBuilder.convertFromTo.write(at: Path.desktop.string, fileName: "user_to_userNew")
+        try jsBuilder.convertToFrom.write(at: Path.desktop.string, fileName: "userNew_to_user")
         
         let newUser = UserNew(ident: .init(), name: "I am new user")
         let user = try User.from(newUser, script: jsBuilder.convertToFrom)

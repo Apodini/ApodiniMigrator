@@ -126,9 +126,4 @@ public struct Document: Value {
         .fileRenderableTypes()
         .sorted(by: \.typeName)
     }
-    
-    /// Exports string representation of self at the specified path with the specified output format
-    public func export(at path: String, outputFormat: OutputFormat) throws {
-        try write(at: Path(path), outputFormat: outputFormat, fileName: fileName)
-    }
 }

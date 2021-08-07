@@ -39,8 +39,13 @@ public extension Encodable {
     }
     
     /// Writes self at the specified path with the defined format
-    func write(at path: Path, outputFormat: OutputFormat = .json, fileName: String? = nil) throws {
-        try (path + "\(fileName ?? String(describing: Self.self)).\(outputFormat.rawValue)").write(outputFormat.string(of: self))
+    @discardableResult
+    func write(at path: String, outputFormat: OutputFormat = .json, fileName: String? = nil) throws -> String {
+        let location = path.asPath
+        try location.mkpath()
+        let filePath = location + "\(fileName ?? String(describing: Self.self)).\(outputFormat.rawValue)"
+        try filePath.write(outputFormat.string(of: self))
+        return filePath.absolute().string
     }
 }
 

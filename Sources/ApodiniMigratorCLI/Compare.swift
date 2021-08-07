@@ -27,12 +27,6 @@ struct Compare: ParsableCommand {
     @Option(name: .shortAndLong, help: "Output format of the migration guide, either JSON or YAML. JSON by default")
     var format: OutputFormat = .json
     
-    func validate() throws {
-        guard migrationGuidePath.asPath.isDirectory else {
-            throw ValidationError("The specified path to persist the migration guide is not a directory")
-        }
-    }
-    
     func run() throws {
         let migrator = ApodiniMigrator.Migrator.self
         let logger = migrator.logger
@@ -41,8 +35,8 @@ struct Compare: ParsableCommand {
         do {
             let migrationGuideFileName = "migration_guide"
             let migrationGuide = try MigrationGuide.from(oldDocumentPath.asPath, newDocumentPath.asPath)
-            try migrationGuide.write(at: migrationGuidePath.asPath, outputFormat: format, fileName: migrationGuideFileName)
-            logger.info("\(migrationGuideFileName).\(format) was generated successfully.")
+            let filePath = try migrationGuide.write(at: migrationGuidePath, outputFormat: format, fileName: migrationGuideFileName)
+            logger.info("Migration guide was generated successfully at \(filePath).")
         } catch {
             logger.error("Migration guide generation failed with error: \(error)")
         }
