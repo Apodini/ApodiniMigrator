@@ -2,7 +2,7 @@
 //  EnumMigrator.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -89,7 +89,7 @@ struct EnumMigrator: SwiftFile {
         
         if let unsupportedChange = unsupportedChange {
             annotation = GenericComment(
-                comment: "@available(*, unavailable, message: \(unsupportedChange.description.doubleQuoted))"
+                comment: "@available(*, deprecated, message: \(unsupportedChange.description.doubleQuoted))"
             )
         } else if notPresentInNewVersion {
             annotation = GenericComment(

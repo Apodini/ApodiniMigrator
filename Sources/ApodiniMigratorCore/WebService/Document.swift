@@ -2,7 +2,7 @@
 //  Document.swift
 //  ApodiniMigratorCore
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -122,9 +122,9 @@ public struct Document: Value {
         .sorted(by: \.typeName)
     }
     
-    /// Exports json representation of self at the specified path
-    public func export(at path: String) throws {
-        let fileName = "api_\(metaData.version.string.without("_")).json"
-        try (Path(path) + fileName).write(json)
+    /// Exports string representation of self at the specified path with the specified output format
+    public func export(at path: String, outputFormat: OutputFormat) throws {
+        let fileName = "api_\(metaData.version.string.without("_"))"
+        try write(at: Path(path), outputFormat: outputFormat, fileName: fileName)
     }
 }

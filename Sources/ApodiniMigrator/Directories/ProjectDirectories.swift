@@ -2,7 +2,7 @@
 //  ProjectDirectories.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -90,6 +90,7 @@ public struct ProjectDirectories {
     
     /// Creates empty directories of the package
     public func build() throws {
+        try? root.delete()
         
         try allDirectories.forEach { try $0.mkpath() }
     }

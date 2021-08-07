@@ -2,12 +2,13 @@
 //  Decodable+Extension.swift
 //  ApodiniMigratorShared
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation
 import PathKit
+@_implementationOnly import Yams
 
 public extension Decodable {
     /// Initializes self from data
@@ -26,7 +27,14 @@ public extension Decodable {
     
     /// Initializes self from the content of path
     static func decode(from path: Path) throws -> Self {
-        try decode(from: try path.read() as Data)
+        guard path.is(.json) || path.is(.yaml) else {
+            throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "`ApodiniMigrator` only supports decoding of files in either json or yaml format"))
+        }
+        let data: Data = try path.read()
+        if path.is(.yaml) {
+            return try YAMLDecoder().decode(from: data)
+        }
+        return try decode(from: data)
     }
 }
 

@@ -2,7 +2,7 @@
 //  Generate.swift
 //  ApodiniMigratorCLI
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -12,7 +12,7 @@ import ApodiniMigrator
 
 struct Generate: ParsableCommand {
     static var configuration = CommandConfiguration(
-        abstract: "A utility to generate a client library out of a delta document"
+        abstract: "A utility to generate a client library out of a API document"
     )
     
     @Option(name: .shortAndLong, help: "Name of the package")
@@ -21,7 +21,7 @@ struct Generate: ParsableCommand {
     @Option(name: .shortAndLong, help: "Output path of the package (without package name)")
     var targetDirectory: String
     
-    @Option(name: .shortAndLong, help: "Path where the delta_document.json file is located, e.g. /path/to/delta_document.json")
+    @Option(name: .shortAndLong, help: "Path where the api_vX.Y.Z file is located, e.g. /path/to/api_v1.0.0.json")
     var documentPath: String
     
     func run() throws {

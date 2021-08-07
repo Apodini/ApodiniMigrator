@@ -2,7 +2,7 @@
 //  Change.swift
 //  ApodiniMigratorCompare
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -37,14 +37,9 @@ public extension Change {
 
 
 // MARK: - Array
-extension Array where Element == Change {
+public extension Array where Element == Change {
     /// Returns all changes of a `DeltaIdentifiable` instance
     func of<D: DeltaIdentifiable>(_ deltaIdentifiable: D) -> [Change] {
         filter { $0.elementID == deltaIdentifiable.deltaIdentifier }
-    }
-    
-    /// Returns all parameter changes of the specified `endpoint`
-    func parameterChanges(of endpoint: Endpoint) -> [UpdateChange] {
-        (of(endpoint).filter { $0.type == .parameterChange } as? [UpdateChange]) ?? []
     }
 }

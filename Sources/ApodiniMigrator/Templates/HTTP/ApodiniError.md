@@ -15,6 +15,11 @@ public struct ApodiniError: Error {
         self.code = code
         self.message = message
     }
+    
+    /// `ApodiniError` for deleted endpoint
+    public static func deletedEndpoint() -> ApodiniError {
+        .init(code: 404, message: "This endpoint is not available in the new version anymore")
+    }
 }
 
 /// Array extension for `ApodiniError` support

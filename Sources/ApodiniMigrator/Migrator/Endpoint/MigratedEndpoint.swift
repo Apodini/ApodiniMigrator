@@ -2,7 +2,7 @@
 //  MigratedEndpoint.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -61,12 +61,12 @@ class MigratedEndpoint {
         return .lineBreak + input.joined(separator: ",\(String.lineBreak)") + .lineBreak
     }
     
-    /// Returns the `@available(*, unavailable, message:)` annotation in case that the endpoint has been deleted in the new version
+    /// Returns the `@available(*, deprecated, message:)` annotation in case that the endpoint has been deleted in the new version
     private func unavailableComment() -> String {
         guard unavailable else {
             return ""
         }
-        return "@available(*, unavailable, message: \("This endpoint is not available in the new version anymore. Calling this method results in a fatal error!".doubleQuoted))" + .lineBreak
+        return "@available(*, deprecated, message: \("This endpoint is not available in the new version anymore. Calling this method results in a failing promise!".doubleQuoted))" + .lineBreak
     }
     
     /// Returns the set value for `parameter` that should be used inside of the method body, considering necessity and convert changes
@@ -106,7 +106,7 @@ class MigratedEndpoint {
     /// Returns the endpoint method with unavailable comment and a fatalError body
     func unavailableBody() -> String {
         var body = signature()
-        body += .lineBreak + "fatalError(\("This endpoint is not available in the new version anymore".doubleQuoted))" + .lineBreak + "}"
+        body += .lineBreak + "Future { $0(.failure(ApodiniError.deletedEndpoint())) }.eraseToAnyPublisher()" + .lineBreak + "}"
         return body
     }
     

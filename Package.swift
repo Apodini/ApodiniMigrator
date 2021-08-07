@@ -42,7 +42,8 @@ let package = Package(
         .package(url: "https://github.com/kylef/PathKit.git", .exact("0.9.2")),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "0.3.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
-        .package(url: "https://github.com/omochi/FineJSON.git", .exact("1.14.0"))
+        .package(url: "https://github.com/omochi/FineJSON.git", .exact("1.14.0")),
+        .package(url: "https://github.com/jpsim/Yams.git", from: "4.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -51,7 +52,8 @@ let package = Package(
             name: "ApodiniMigratorCore",
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
-                .product(name: "Runtime", package: "Runtime")
+                .product(name: "Runtime", package: "Runtime"),
+                .product(name: "Yams", package: "Yams")
             ]),
         .executableTarget(
             name: "ApodiniMigratorCLI",
@@ -91,7 +93,8 @@ let package = Package(
             name: "ApodiniMigratorShared",
             dependencies: [
                 .product(name: "PathKit", package: "PathKit"),
-                .product(name: "FineJSON", package: "FineJSON")
+                .product(name: "FineJSON", package: "FineJSON"),
+                .product(name: "Yams", package: "Yams")
             ]
         ),
         

@@ -2,7 +2,7 @@
 //  EndpointFile.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -15,11 +15,13 @@ class EndpointFile: SwiftFile {
     /// Kind of the file, always extension
     let kind: Kind = .extension
     /// Endpoints that are rendered in the file (same nested response type)
-    let endpoints: [Endpoint]
+    private let endpoints: [Endpoint]
     /// All changes of the migration guide that belong to the `endpoints`
-    let changes: [Change]
+    private let changes: [Change]
     /// Array of endpoints that have been migrated from `EndpointMethodMigrator`, property gets appended with new migrated endpoints inside of `methodBody(for:)`
-    var migratedEndpoints: [MigratedEndpoint] = []
+    private(set) var migratedEndpoints: [MigratedEndpoint] = []
+    /// Imports of the file
+    private var imports = Import(.foundation)
     
     /// File comment that will be rendered for `self`
     var endpointFileComment: FileHeaderComment {
@@ -36,11 +38,15 @@ class EndpointFile: SwiftFile {
             return lhs.response.typeString < rhs.response.typeString
         }
         self.changes = changes
+        
+        if changes.contains(where: { $0.type == .deletion && $0.element.target == EndpointTarget.`self`.rawValue }) {
+            imports.insert(.combine)
+        }
     }
     
     /// Renders the migrated method for `endpoint`
     private func methodBody(for endpoint: Endpoint) -> String {
-        let endpointMigrator = EndpointMethodMigrator(endpoint, changes: changes.filter { $0.elementID == endpoint.deltaIdentifier })
+        let endpointMigrator = EndpointMethodMigrator(endpoint, changes: changes.of(endpoint))
         migratedEndpoints.append(endpointMigrator.migratedEndpoint)
         return endpointMigrator.render()
     }
@@ -50,7 +56,7 @@ class EndpointFile: SwiftFile {
         """
         \(endpointFileComment.render())
         
-        \(Import(.foundation).render())
+        \(imports.render())
         
         \(MARKComment(.endpoints))
         \(kind.signature) \(typeInformation.typeName.name) {

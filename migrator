@@ -28,7 +28,7 @@ def command(action:)
     when ACTION::GENERATE
         return "#{base} generate -d=#{target}/#{oldAPI} -p=#{packageName} -t=#{target}"
     when ACTION::COMPARE
-        return "#{base} compare -o=#{target}/#{oldAPI} -n=#{target}/#{newAPI} -m=#{target}"
+        return "#{base} compare -o #{target}/#{oldAPI} -n #{target}/#{newAPI} -m #{target} -f json"
     else
         puts "Usage: #{$0} | Use one of the following commands: <generate> or <compare>. After generating the migration guide with the <compare> command, the library can be migrated via <migrate>"
         exit 0

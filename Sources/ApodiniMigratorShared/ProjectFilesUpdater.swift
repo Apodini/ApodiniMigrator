@@ -2,7 +2,7 @@
 //  ProjectFilesUpdater.swift
 //  ApodiniMigratorShared
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -13,7 +13,7 @@ enum ProjectFilesUpdater {
     private static let today: Date = {
         Date()
     }()
-    private static var active = false
+    private static var active = true
     private static func fileComment(from path: Path) -> [String] {
         let fileName = path.lastComponent
         var target = path.parent()
@@ -41,6 +41,7 @@ enum ProjectFilesUpdater {
         }
         
         #if Xcode
+        //        var current = Path("/Users/eld/Desktop/ws2021/master_thesis/validation/Sources")
         var current = Path(#file)
         
         while current.lastComponent != "Sources" {

@@ -2,7 +2,7 @@
 //  APIFile.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -24,9 +24,6 @@ struct APIFile: SwiftFile {
 
     /// Renders the wrapper method for the `migratedEndpoint`
     private func method(for migratedEndpoint: MigratedEndpoint) -> String {
-        if migratedEndpoint.unavailable {
-            return migratedEndpoint.unavailableBody()
-        }
         let endpoint = migratedEndpoint.endpoint
         let nestedType = endpoint.response.nestedType.typeName.name
         var bodyInput = migratedEndpoint.parameters.map { "\($0.oldName): \($0.oldName)" }

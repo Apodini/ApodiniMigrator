@@ -2,7 +2,7 @@
 //  ModelsComparator.swift
 //  ApodiniMigratorCompare
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -35,7 +35,7 @@ struct ModelsComparator: Comparator {
             let relaxedMatching: TypeInformation
             
             func contains(_ id: DeltaIdentifier) -> Bool {
-                candidate.deltaIdentifier == id || relaxedMatching.deltaIdentifier == id
+                [candidate, relaxedMatching].identifiers().contains(id)
             }
         }
         

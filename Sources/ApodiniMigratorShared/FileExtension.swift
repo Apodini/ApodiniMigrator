@@ -2,7 +2,7 @@
 //  FileExtension.swift
 //  ApodiniMigratorShared
 //
-//  Created by Eldi Cano on 29.06.21.
+//  Created by Eldi Cano on 07.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -15,6 +15,8 @@ public enum FileExtension: CustomStringConvertible {
     case markdown
     /// JSON
     case json
+    /// YAML
+    case yaml
     /// Swift
     case swift
     /// Text
@@ -27,6 +29,7 @@ public enum FileExtension: CustomStringConvertible {
         switch self {
         case .markdown: return "md"
         case .json: return "json"
+        case .yaml: return "yaml"
         case .swift: return "swift"
         case .text: return "txt"
         case let .other(value): return value
