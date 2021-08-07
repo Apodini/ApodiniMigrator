@@ -248,6 +248,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testPersist() throws {
+        guard isEldisMacbook() else {
+            return
+        }
         try JSPrimitiveScript.allCombinations().write(at: Path.desktop, fileName: "all_combinations")
     }
     
@@ -310,6 +313,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testcomplexTypes() throws {
+        guard isEldisMacbook() else {
+            return
+        }
         struct User: Codable {
             let id: UUID
             let name: String
