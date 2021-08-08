@@ -31,9 +31,14 @@ public struct TypeName: Value {
     /// Initializes `self` out of `Any.Type`
     public init(_ type: Any.Type) {
         var components = String(reflecting: type).split(character: ".")
-        let name = String(describing: type)
+        var name = String(describing: type)
         
         if components.last == name {
+            components = components.dropLast()
+        }
+        
+        while components.count > 1, let last = components.last {
+            name = "\(last)\(name)"
             components = components.dropLast()
         }
         
