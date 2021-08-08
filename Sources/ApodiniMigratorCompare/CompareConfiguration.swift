@@ -22,7 +22,7 @@ public struct CompareConfiguration: Value {
     
     public static var `default`: CompareConfiguration {
         .init(
-            includeProviderSupport: true,
+            includeProviderSupport: false,
             allowEndpointIdentifierUpdate: false,
             allowTypeRename: false
         )

@@ -87,7 +87,7 @@ struct EndpointsComparator: Comparator {
             changes.add(
                 AddChange(
                     element: .for(endpoint: addition, target: .`self`),
-                    added: .element(addition),
+                    added: .element(addition.referencedTypes()),
                     defaultValue: .none,
                     breaking: false,
                     solvable: true,

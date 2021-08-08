@@ -31,13 +31,29 @@ public struct TestFileTemplate: Renderable {
         self.encoderConfiguration = encoderConfiguration
     }
     
+    private func dereference(_ model: TypeInformation) -> TypeInformation {
+        switch model {
+        case .scalar, .enum: return model
+        case let .repeated(element): return .repeated(element: dereference(element))
+        case let .dictionary(key, value): return .dictionary(key: key, value: dereference(value))
+        case let .optional(wrappedValue): return .optional(wrappedValue: dereference(wrappedValue))
+        case let .object(name, properties):
+            return .object(name: name, properties: properties.map { .init(name: $0.name, type: dereference($0.type), annotation: $0.annotation) })
+        case let .reference(key):
+            if let type = models.first(where: { $0.typeName.name == key.rawValue }) {
+                return dereference(type)
+            }
+            fatalError("Something went fundamentally wrong. Did not find the corresponding model of the reference with key: \(key.rawValue)")
+        }
+    }
+    
     private func method(for model: TypeInformation) -> String {
         let typeName = model.typeName.name
         let jsonString: String
         if let jsonValue = objectJSONs[typeName] {
             jsonString = jsonValue.rawValue
         } else {
-            jsonString = JSONStringBuilder.jsonString(model, with: encoderConfiguration)
+            jsonString = JSONStringBuilder.jsonString(dereference(model), with: encoderConfiguration)
         }
         
         let returnValue =

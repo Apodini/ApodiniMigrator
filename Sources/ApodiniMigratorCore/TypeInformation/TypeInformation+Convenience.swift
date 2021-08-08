@@ -158,14 +158,14 @@ public extension TypeInformation {
         }
     }
     
-    /// Nested type of this type information
-    var nestedType: TypeInformation {
+    /// Nested type string of this type information
+    var nestedTypeString: String {
         switch self {
-        case .scalar, .enum, .object: return self
-        case let .repeated(element): return element.nestedType
-        case let .dictionary(_, value): return value.nestedType
-        case let .optional(wrappedValue): return wrappedValue.unwrapped.nestedType
-        default: fatalError("Attempted to request nestedType from a reference")
+        case .scalar, .enum, .object: return typeString
+        case let .repeated(element): return element.nestedTypeString
+        case let .dictionary(_, value): return value.nestedTypeString
+        case let .optional(wrappedValue): return wrappedValue.unwrapped.nestedTypeString
+        case let .reference(referenceKey): return referenceKey.rawValue
         }
     }
     
@@ -284,6 +284,41 @@ public extension TypeInformation {
         case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue.withProperties(properties))
         case let .object(name, _): return .object(name: name, properties: properties)
         default: return self
+        }
+    }
+    
+    /// Returns a version of self as a reference
+    func asReference() -> TypeInformation {
+        switch self {
+        case .scalar: return self
+        case let .repeated(element):
+            return .repeated(element: element.asReference())
+        case let .dictionary(key, value):
+            return .dictionary(key: key, value: value.asReference())
+        case let .optional(wrappedValue):
+            return .optional(wrappedValue: wrappedValue.asReference())
+        case .enum, .object:
+            return .reference(.init(typeName.name))
+        case .reference: fatalError("Attempted to reference a reference")
+        }
+    }
+    
+    /// If a object, types of object properties are changed to references
+    func referencedProperties() -> TypeInformation {
+        switch self {
+        case .scalar, .enum: return self
+        case let .repeated(element):
+            return .repeated(element: element.referencedProperties())
+        case let .dictionary(key, value):
+            return .dictionary(key: key, value: value.referencedProperties())
+        case let .optional(wrappedValue):
+            return .optional(wrappedValue: wrappedValue.referencedProperties())
+        case let .object(typeName, properties):
+            return .object(
+                name: typeName,
+                properties: properties.map { $0.referencedType() }
+            )
+        case .reference: fatalError("Attempted to reference a reference")
         }
     }
     

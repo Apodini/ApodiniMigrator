@@ -72,8 +72,8 @@ struct ParameterComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element,
-                    from: .element(reference(lhsType)),
-                    to: .element(reference(rhsType)),
+                    from: .element(lhsType.asReference()),
+                    to: .element(rhsType.asReference()),
                     targetID: targetID,
                     convertFromTo: changes.store(script: jsScriptBuilder.convertFromTo),
                     convertionWarning: jsScriptBuilder.hint,

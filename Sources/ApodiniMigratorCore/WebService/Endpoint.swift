@@ -74,6 +74,14 @@ public struct Endpoint: Value, DeltaIdentifiable {
             return param
         }
     }
+    
+    /// Returns a version of self where occurrencies of type informations (response or parameters) are references
+    public func referencedTypes() -> Endpoint {
+        var retValue = self
+        var typesStore = TypesStore()
+        retValue.reference(in: &typesStore)
+        return retValue
+    }
 }
 
 private extension Endpoint {

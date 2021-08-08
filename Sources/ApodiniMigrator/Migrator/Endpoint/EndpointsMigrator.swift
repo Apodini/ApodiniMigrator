@@ -24,8 +24,8 @@ struct EndpointsMigrator {
     /// Triggers the migrated rendering of all endpoints of the client library and rendering of the `API.swift` file
     func migrate() throws {
         // Grouping the endpoints based on their nested response type
-        let endpointGroups = allEndpoints.reduce(into: [TypeInformation: Set<Endpoint>]()) { result, current in
-            let nestedResponseType = current.response.nestedType
+        let endpointGroups = allEndpoints.reduce(into: [String: Set<Endpoint>]()) { result, current in
+            let nestedResponseType = current.response.nestedTypeString
             result[nestedResponseType, default: []].insert(current)
         }
         
@@ -36,8 +36,8 @@ struct EndpointsMigrator {
             let endpoints = Array(group.value)
             let endpointIds = endpoints.identifiers()
             let groupChanges = endpointChanges.filter { endpointIds.contains($0.elementID) }
-            let fileName = group.key.typeName.name + Self.fileSuffix
-            let endpointFile = EndpointFile(typeInformation: group.key, endpoints: endpoints, changes: groupChanges)
+            let fileName = group.key + Self.fileSuffix
+            let endpointFile = EndpointFile(typeInformation: .reference(.init(group.key)), endpoints: endpoints, changes: groupChanges)
             // triggeres migration of endpoints, rendering of file, and stores the migratedEndpoints in `endpointFile.migratedEndpoints`
             try endpointFile.write(at: endpointsPath, alternativeFileName: fileName)
             migratedEndpoints.append(contentsOf: endpointFile.migratedEndpoints)

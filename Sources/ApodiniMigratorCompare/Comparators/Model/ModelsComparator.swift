@@ -85,7 +85,7 @@ struct ModelsComparator: Comparator {
             changes.add(
                 AddChange(
                     element: addition.isObject ? .for(object: addition, target: .`self`) : .for(enum: addition, target: .`self`),
-                    added: .element(addition),
+                    added: .element(addition.referencedProperties()),
                     defaultValue: .none,
                     breaking: false,
                     solvable: true,

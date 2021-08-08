@@ -21,20 +21,19 @@ public struct TypeProperty: Value {
         type.isOptional ? .optional : .required
     }
     
-    init(name: String, type: TypeInformation, annotation: String? = nil) {
+    public init(name: String, type: TypeInformation, annotation: String? = nil) {
         self.name = name
         self.type = type
         self.annotation = annotation
     }
     
-    public init(name: String, type: TypeInformation) {
-        self.name = name
-        self.type = type
-        self.annotation = nil
-    }
-    
     public static func == (lhs: TypeProperty, rhs: TypeProperty) -> Bool {
         lhs.name == rhs.name && lhs.type == rhs.type
+    }
+    
+    /// Returns a version of self where the type is a reference
+    public func referencedType() -> TypeProperty {
+        .init(name: name, type: type.asReference(), annotation: annotation)
     }
 }
 

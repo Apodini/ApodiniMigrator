@@ -89,7 +89,7 @@ struct ParametersComparator: Comparator {
             changes.add(
                 AddChange(
                     element: element(.target(for: addition)),
-                    added: .element(addition),
+                    added: .element(addition.referencedType()),
                     defaultValue: defaultValue ?? .none,
                     breaking: isRequired,
                     solvable: true,

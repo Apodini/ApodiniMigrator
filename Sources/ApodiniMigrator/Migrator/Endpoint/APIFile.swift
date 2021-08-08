@@ -25,7 +25,7 @@ struct APIFile: SwiftFile {
     /// Renders the wrapper method for the `migratedEndpoint`
     private func method(for migratedEndpoint: MigratedEndpoint) -> String {
         let endpoint = migratedEndpoint.endpoint
-        let nestedType = endpoint.response.nestedType.typeName.name
+        let nestedType = endpoint.response.nestedTypeString
         var bodyInput = migratedEndpoint.parameters.map { "\($0.oldName): \($0.oldName)" }
         bodyInput.append(contentsOf: DefaultEndpointInput.allCases.map { $0.keyValue })
         let body =

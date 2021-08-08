@@ -94,6 +94,16 @@ public struct Parameter: Value {
     static func wrappedContentParameterTypeName(from handlerName: String) -> TypeName {
         .init(name: handlerName.without("Handler") + "WrappedContent")
     }
+    
+    /// Returns a version of self where the typeInformation is a reference if a complex object or enum
+    public func referencedType() -> Parameter {
+        .init(
+            name: name,
+            typeInformation: typeInformation.asReference(),
+            parameterType: parameterType,
+            isRequired: necessity == .required
+        )
+    }
 }
 
 extension Parameter: DeltaIdentifiable {
