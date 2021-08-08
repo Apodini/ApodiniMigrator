@@ -82,8 +82,8 @@ struct JSObjectScript { // TODO consider property renames for json string
         }
         
         for unmatchedFrom in unmatched(of: .from) {
-            if let relaxedMatching = unmatchedFrom.mostSimilarWithSelf(in: unmatched(of: .to), limit: 0.7) {
-                process(fromProperty: unmatchedFrom, toProperty: relaxedMatching, ignoreNames: true)
+            if let relaxedMatching = unmatchedFrom.mostSimilarWithSelf(in: unmatched(of: .to)) {
+                process(fromProperty: unmatchedFrom, toProperty: relaxedMatching.element, ignoreNames: true)
             }
         }
     }

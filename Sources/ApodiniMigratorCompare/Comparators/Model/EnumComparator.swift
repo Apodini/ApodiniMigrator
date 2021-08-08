@@ -94,22 +94,23 @@ private struct EnumCasesComparator: Comparator {
         assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
         
         for candidate in removalCandidates {
-            if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates) {
-                relaxedMatchings += relaxedMatching.deltaIdentifier
+            if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates.filter { !relaxedMatchings.contains($0.deltaIdentifier) }) {
+                relaxedMatchings += relaxedMatching.element.deltaIdentifier
                 relaxedMatchings += candidate.deltaIdentifier
                 
                 changes.add(
                     UpdateChange(
                         element: element(.case),
                         from: candidate.name,
-                        to: relaxedMatching.name,
+                        to: relaxedMatching.element.name,
+                        similarity: relaxedMatching.similarity,
                         breaking: false,
                         solvable: true,
                         includeProviderSupport: includeProviderSupport
                     )
                 )
                 
-                compare(lhs: candidate, rhs: relaxedMatching)
+                compare(lhs: candidate, rhs: relaxedMatching.element)
             }
         }
         

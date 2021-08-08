@@ -45,18 +45,20 @@ struct ModelsComparator: Comparator {
         
         if allowTypeRename {
             for candidate in removalCandidates {
-                if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates) {
+                let unmatched = additionCandidates.filter { addition in pairs.allSatisfy({ !$0.contains(addition.deltaIdentifier) }) }
+                if let relaxedMatching = candidate.mostSimilarWithSelf(in: unmatched) {
                     changes.add(
                         UpdateChange(
                             element: candidate.isObject ? .for(object: candidate, target: .typeName) : .for(enum: candidate, target: .typeName),
                             from: candidate.deltaIdentifier.rawValue,
-                            to: relaxedMatching.deltaIdentifier.rawValue,
+                            to: relaxedMatching.element.deltaIdentifier.rawValue,
+                            similarity: relaxedMatching.similarity,
                             breaking: false,
                             solvable: true,
                             includeProviderSupport: includeProviderSupport
                         )
                     )
-                    pairs.insert(.init(candidate: candidate, relaxedMatching: relaxedMatching))
+                    pairs.insert(.init(candidate: candidate, relaxedMatching: relaxedMatching.element))
                 }
             }
             

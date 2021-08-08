@@ -27,6 +27,7 @@ public struct UpdateChange: Change {
         case targetID = "target-id"
         case from
         case to
+        case similarity = "similarity-score"
         case necessityValue = "necessity-value"
         case convertFromTo = "convert-from-to-script-id"
         case convertToFrom = "convert-to-from-script-id"
@@ -44,6 +45,8 @@ public struct UpdateChange: Change {
     public let from: ChangeValue
     /// New value of the target
     public let to: ChangeValue
+    /// Similarity score from 0 to 1 for renamings
+    public let similarity: Double?
     /// Optional id of the target
     public let targetID: DeltaIdentifier?
     /// A json id in case that the necessity of a property or a parameter changed
@@ -77,6 +80,7 @@ public struct UpdateChange: Change {
         self.from = from
         self.to = to
         self.targetID = targetID
+        self.similarity = nil
         self.necessityValue = necessityValue
         convertFromTo = nil
         convertToFrom = nil
@@ -93,6 +97,7 @@ public struct UpdateChange: Change {
         element: ChangeElement,
         from: String,
         to: String,
+        similarity: Double?,
         breaking: Bool,
         solvable: Bool,
         includeProviderSupport: Bool
@@ -100,6 +105,7 @@ public struct UpdateChange: Change {
         self.element = element
         self.from = .stringValue(from)
         self.to = .stringValue(to)
+        self.similarity = similarity
         targetID = .init(from)
         self.necessityValue = nil
         convertFromTo = nil
@@ -125,6 +131,7 @@ public struct UpdateChange: Change {
         self.element = element
         self.from = from
         self.to = to
+        self.similarity = nil
         self.targetID = nil
         self.necessityValue = nil
         self.convertFromTo = nil
@@ -152,6 +159,7 @@ public struct UpdateChange: Change {
         self.element = element
         self.from = from
         self.to = to
+        self.similarity = nil
         self.targetID = targetID
         self.necessityValue = nil
         self.convertFromTo = convertFromTo
@@ -180,6 +188,7 @@ public struct UpdateChange: Change {
         self.element = element
         self.from = from
         self.to = to
+        self.similarity = nil
         self.targetID = targetID
         self.necessityValue = necessityValue
         self.convertFromTo = convertFromTo
