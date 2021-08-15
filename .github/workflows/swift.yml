@@ -33,28 +33,13 @@ jobs:
    - name: Test
      run: swift test
    - name: Debug Build & Test
-      if: matrix.configuration == 'debug'
-      run: swift test -c debug --enable-code-coverage -Xswiftc -DCOVERAGE
-      env:
-        ENABLE_DEPLOYMENT_PROVIDER_TESTS: YES
-    - name: Convert coverage report
-      if: matrix.configuration == 'debug'
-      run: xcrun llvm-cov export -format="lcov" .build/debug/ApodiniMigratorPackageTests.xctest/Contents/MacOS/ApodiniMigratorPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
- #linux:
- #  container:
- #    image: swift:${{ matrix.linux }}
- #  runs-on: ubuntu-latest
- #  strategy:
- #    matrix:
- #      linux: [latest, xenial, focal, amazonlinux2, centos8]
- #  steps:
- #  - uses: fwal/setup-swift@v1
- #  - uses: actions/checkout@v2
- #  - name: Check Swift version
- #    run: swift --version
- #  - name: Build
- #    run: swift build
- #  - name: Test
- #    run: swift test --enable-test-discovery --sanitize=thread
+     if: matrix.configuration == 'debug'
+     run: swift test -c debug --enable-code-coverage -Xswiftc -DCOVERAGE
+     env:
+       ENABLE_DEPLOYMENT_PROVIDER_TESTS: YES
+   - name: Convert coverage report
+     if: matrix.configuration == 'debug'
+     run: xcrun llvm-cov export -format="lcov" .build/debug/ApodiniMigratorPackageTests.xctest/Contents/MacOS/ApodiniMigratorPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+   - name: Upload coverage to Codecov
+     uses: codecov/codecov-action@v1
+ 
