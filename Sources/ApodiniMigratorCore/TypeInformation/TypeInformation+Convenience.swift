@@ -152,9 +152,7 @@ public extension TypeInformation {
         case let .repeated(element): return "[\(element.typeString)]"
         case let .dictionary(key, value): return "[\(key.description): \(value.typeString)]"
         case let .optional(wrappedValue): return wrappedValue.typeString + "?"
-        case let .enum(name, _, _): return name.name
-        case let .object(name, _): return name.name
-        case .reference: return typeName.name
+        case .enum, .object, .reference: return typeName.name
         }
     }
     
@@ -169,11 +167,6 @@ public extension TypeInformation {
         }
     }
     
-    /// Returns the `objectProperties` by a boolean keypath
-    func filterProperties(_ keyPath: KeyPath<TypeInformation, Bool>) -> [TypeProperty] {
-        objectProperties.filter { $0.type[keyPath: keyPath] }
-    }
-    
     /// Indicate whether `self` has the same root type with other `typeInformation`
     func sameType(with typeInformation: TypeInformation) -> Bool {
         rootType == typeInformation.rootType
@@ -185,14 +178,6 @@ public extension TypeInformation {
             return wrapped.unwrapped
         }
         return self
-    }
-    
-    /// Recursively returns the element of the repeated types (also unwrapped)
-    var repeatedElement: TypeInformation? {
-        if case let .repeated(element) = self {
-            return element.repeatedElement?.unwrapped
-        }
-        return nil
     }
     
     /// Returns the dictionary key if `self` is `.dictionary`
@@ -276,17 +261,6 @@ public extension TypeInformation {
         allTypes().filter { $0[keyPath: keyPath] }
     }
     
-    /// If `nestedType` is an object, replaces existing properties with `properties`, otherwise returns self
-    func withProperties(_ properties: [TypeProperty]) -> TypeInformation {
-        switch self {
-        case let .repeated(element): return .repeated(element: element.withProperties(properties))
-        case let .dictionary(key, value): return .dictionary(key: key, value: value.withProperties(properties))
-        case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue.withProperties(properties))
-        case let .object(name, _): return .object(name: name, properties: properties)
-        default: return self
-        }
-    }
-    
     /// Returns a version of self as a reference
     func asReference() -> TypeInformation {
         switch self {
@@ -301,6 +275,11 @@ public extension TypeInformation {
             return .reference(.init(typeName.name))
         case .reference: fatalError("Attempted to reference a reference")
         }
+    }
+    
+    /// Returns the property with name `named`
+    func property(_ named: String) -> TypeProperty? {
+        objectProperties.first { $0.name == named }
     }
     
     /// If a object, types of object properties are changed to references
@@ -379,12 +358,9 @@ public extension TypeInformation {
         filter(\.isEnumOrObject)
     }
     
+    /// Returns an enum with string raw value with the given name and cases
     static func `enum`(name: TypeName, cases: [EnumCase]) -> TypeInformation {
         .enum(name: name, rawValueType: .string, cases: cases)
-    }
-    
-    static func `enum`<R: RawRepresentable>(model: R.Type, cases: [EnumCase]) -> TypeInformation {
-        .enum(name: .init(R.self), rawValueType: .init(R.self), cases: cases)
     }
 }
 

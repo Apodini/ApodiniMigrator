@@ -9,7 +9,7 @@
 import Foundation
 
 /// Defines the CRUD operation of a given endpoint
-public enum Operation: String, CaseIterable, CustomStringConvertible, Value {
+public enum Operation: String, CaseIterable, Value {
     /// The associated endpoint is used for a `create` operation
     case create
     /// The associated endpoint is used for a `read` operation
@@ -18,9 +18,4 @@ public enum Operation: String, CaseIterable, CustomStringConvertible, Value {
     case update
     /// The associated endpoint is used for a `delete` operation
     case delete
-
-    /// A textual description of `self`
-    public var description: String {
-        rawValue
-    }
 }

@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents distinct cases of FluentKit (version: 1.12.0) property wrappers
-public enum FluentPropertyType: String, Value {
+public enum FluentPropertyType: String, Value, CaseIterable {
     /// @Enum
     case enumProperty
     /// @OptionalEnum
@@ -54,7 +54,7 @@ public enum FluentPropertyType: String, Value {
         self = instance
     }
     
-    /// Indicates whether the type of the property is get-only. Such fluent properties represent some kind of relationship amoung db tables
+    /// Indicates whether the type of the property is get-only. Such fluent properties represent some kind of relationship among db tables
     public var isGetOnly: Bool {
         [.childrenProperty, .optionalChildProperty, .optionalParentProperty, .parentProperty, .siblingsProperty].contains(self)
     }
