@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// A `ReferenceKey` uniquely identifies a `typeInformation` stored in `TypesStore`
+/// A `ReferenceKey` uniquely identifies a `typeInformation` from the name of the type
 public struct ReferenceKey: Value, RawRepresentable {
     /// Raw value
     public let rawValue: String

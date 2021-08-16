@@ -8,8 +8,6 @@
 
 import Foundation
 
-/** Version from Apodini */
-
 /// A `Version` can be  used to specify the version of a Web API using semantic versioning
 public struct Version: Value {
     /// Default values for a `Version`
@@ -23,7 +21,6 @@ public struct Version: Value {
         /// The default major patch
         public static let patch: UInt = 0
     }
-    
     
     /// The version prefix
     public let prefix: String
@@ -86,11 +83,13 @@ public struct Version: Value {
         .init()
     }
     
+    /// String representation of `self`, e.g. `v_1.0.1`, used for encoding and decoding an instance
     public var string: String {
         "\(prefix)_\(major).\(minor).\(patch)"
     }
 }
 
+// MARK: - CustomStringConvertible
 extension Version: CustomStringConvertible {
     /// String representation of the version
     public var description: String {

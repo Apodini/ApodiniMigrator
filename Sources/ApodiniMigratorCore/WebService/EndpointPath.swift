@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents distinct cases of a path component
-public enum PathComponent: CustomStringConvertible, Value {
+enum PathComponent: CustomStringConvertible, Value {
     /// A string path component
     case string(String)
     /// A path parameter path component
@@ -23,6 +23,7 @@ public enum PathComponent: CustomStringConvertible, Value {
         }
     }
     
+    /// Indicates whether the path component is a parameter
     var isParameter: Bool {
         if case .parameter = self {
             return true
@@ -30,10 +31,15 @@ public enum PathComponent: CustomStringConvertible, Value {
         return false
     }
     
+    /// Indicates whether the path component is a string
     var isString: Bool {
-        !isParameter
+        if case .string = self {
+            return true
+        }
+        return false
     }
     
+    /// Initializes `self` out of a string value
     init(stringValue: String) {
         self = stringValue.isPathParameterComponent ? .parameter(stringValue.dropCurlyBrackets) : .string(stringValue)
     }
@@ -57,7 +63,7 @@ public enum PathComponent: CustomStringConvertible, Value {
 }
 
 /// A typealias for a dictionary with Int keys and PathComponent values
-public typealias Components = [Int: PathComponent]
+typealias Components = [Int: PathComponent]
 
 /// Represents an endpoint path
 public struct EndpointPath: Value, CustomStringConvertible {
@@ -123,15 +129,19 @@ public struct EndpointPath: Value, CustomStringConvertible {
     }
 }
 
+// MARK: - String
 private extension String {
+    /// Indicates whether self is surrounded by curly brackets
     var isPathParameterComponent: Bool {
         first == "{" && last == "}"
     }
     
+    /// Returns a version of self without surrounding curly brackets
     var dropCurlyBrackets: String {
         without("{").without("}")
     }
     
+    /// Returns a version of self with surrounding curly brackets
     var asPathParameterComponent: String {
         isPathParameterComponent ? self : "{" + self + "}"
     }

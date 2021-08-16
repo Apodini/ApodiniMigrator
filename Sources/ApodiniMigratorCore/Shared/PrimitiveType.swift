@@ -8,14 +8,22 @@
 
 import Foundation
 
+/// Represents distinct cases of scalar types (JSON values)
 public enum ScalarType: String, RawRepresentable, CaseIterable, Value {
+    /// Null
     case null
+    /// Boolean
     case bool
+    /// String
     case string
+    /// Number
     case number
+    /// Unsigned number
     case unsignedNumber
+    /// Float
     case float
     
+    /// A representing primitive type of `self`
     public var representation: PrimitiveType {
         switch self {
         case .null: return .null

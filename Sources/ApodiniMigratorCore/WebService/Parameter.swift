@@ -8,8 +8,6 @@
 
 import Foundation
 
-/** ParameterType from Apodini*/
-
 /// Categorization needed for certain interface exporters (e.g., HTTP-based).
 public enum ParameterType: String, Value {
     /// Lightweight parameters are any parameters which are
@@ -23,8 +21,6 @@ public enum ParameterType: String, Value {
     /// Such parameters have a matching parameter in the `[EndpointPath]`.
     /// Such parameters are required to conform to `LosslessStringConvertible`.
     case path
-    /// Parameters contained in the HTTP headers of a request.
-    case header
 }
 
 extension ParameterType: CustomStringConvertible {
@@ -34,12 +30,11 @@ extension ParameterType: CustomStringConvertible {
     }
 }
 
-/** Necessity from Apodini*/
+/// Represents distinct cases of necessities for parameters or properties of an object
 public enum Necessity: String, Value {
     /// `.required` necessity describes parameters or properties which require a value in any case.
     case required
     /// `.optional` necessity describes parameters or properties which do not necessarily require a value.
-    /// This does not necessarily translate to `nil` being a valid value.
     case optional
 }
 
@@ -51,7 +46,6 @@ public struct Parameter: Value {
     public let name: String
     /// The reference of the `typeInformation` of the parameter
     public var typeInformation: TypeInformation
-    
     /// Parameter type
     public let parameterType: ParameterType
     

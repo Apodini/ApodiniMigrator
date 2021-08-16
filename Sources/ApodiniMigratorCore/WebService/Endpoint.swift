@@ -53,7 +53,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.operation = operation
         self.path = .init(absolutePath)
         self.parameters = Self.wrappContentParameters(from: parameters, with: handlerName)
-        self.response = response //.replaceEmptyIfNeeded()
+        self.response = response
         self.errors = errors
     }
     
@@ -97,20 +97,21 @@ private extension Endpoint {
         case 1:
             contentParameter = contentParameters.first
         default:
-            var typeInformation = TypeInformation.object(
+            let typeInformation = TypeInformation.object(
                 name: Parameter.wrappedContentParameterTypeName(from: handlerName),
-                properties: contentParameters.map { TypeProperty(name: $0.name, type: $0.typeInformation) }
+                properties: contentParameters.map {
+                    TypeProperty(
+                        name: $0.name,
+                        type: $0.necessity == .optional ? $0.typeInformation.asOptional : $0.typeInformation
+                    )
+                }
             )
-            
-            if contentParameters.allSatisfy({ $0.typeInformation.isOptional }) {
-                typeInformation = typeInformation.asOptional
-            }
             
             contentParameter = .init(
                 name: Parameter.wrappedContentParameter,
                 typeInformation: typeInformation,
                 parameterType: .content,
-                isRequired: contentParameters.allSatisfy { $0.necessity == .required }
+                isRequired: contentParameters.contains(where: { $0.necessity == .required })
             )
         }
         
@@ -121,18 +122,5 @@ private extension Endpoint {
         }
         
         return result
-    }
-}
-
-// MARK: - TypeInformation: Apodini.Empty
-fileprivate extension TypeInformation {
-    static let apodiniEmpty: TypeInformation = .object(name: .init(name: "Empty", definedIn: "Apodini"), properties: [])
-    static let statusEnum: TypeInformation = .enum(
-        name: .init(name: "Status", definedIn: "Apodini"),
-        cases: [.init("ok"), .init("created"), .init("noContent")]
-    )
-    
-    func replaceEmptyIfNeeded() -> TypeInformation {
-        self == Self.apodiniEmpty ? Self.statusEnum : self
     }
 }

@@ -31,13 +31,9 @@ public extension TypeInformation {
 
 // MARK: - TypeInformation internal
 extension TypeInformation {
-    /// Returns a typeInformation instance from `type`, however does not include properties of any object encountered from the root type
-    static func withoutProperties(for type: Any.Type) throws -> TypeInformation {
-        try .init(for: type, includeObjectProperties: false)
-    }
     
     /// Initializes a typeinformation instance from `type`. `includeObjectProperties` flag that indicates whether to include object properties or not
-    private init(for type: Any.Type, includeObjectProperties: Bool = true) throws {
+    private init(for type: Any.Type) throws {
         if let type = type as? TypeInformationPrimitiveConstructor.Type {
             self = type.construct()
         } else if let type = type as? TypeInformationComplexConstructor.Type {
@@ -51,7 +47,7 @@ extension TypeInformation {
                 }
                 self = .enum(name: typeInfo.typeName, cases: typeInfo.cases.map { .case($0.name) })
             } else if [.struct, .class].contains(typeInfo.kind) {
-                let properties: [TypeProperty] = !includeObjectProperties ? [] : try typeInfo.properties()
+                let properties: [TypeProperty] = try typeInfo.properties()
                     .compactMap {
                         do {
                             if let fluentProperty = $0.fluentPropertyType {

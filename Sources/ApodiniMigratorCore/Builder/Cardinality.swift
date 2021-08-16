@@ -8,12 +8,18 @@
 
 import Foundation
 
+/// Represents different cardinalities of type
 enum Cardinality {
+    /// An exactly one cardinality
     case exactlyOne(Any.Type)
+    /// A repeated cardinality
     case repeated(Any.Type)
+    /// An optional cardinality
     case optional(Any.Type)
+    /// A dictionary
     case dictionary(key: Any.Type, value: Any.Type)
     
+    /// Returns the nested type in self
     var nestedType: Any.Type {
         switch self {
         case let .exactlyOne(type):
@@ -27,6 +33,7 @@ enum Cardinality {
         }
     }
     
+    /// Indicates whether self is .exactlyOne
     var isExactlyOne: Bool {
         if case .exactlyOne = self {
             return true
@@ -34,6 +41,7 @@ enum Cardinality {
         return false
     }
     
+    /// Indicates whether self is .isRepeated
     var isRepeated: Bool {
         if case .repeated = self {
             return true
@@ -41,6 +49,7 @@ enum Cardinality {
         return false
     }
     
+    /// Indicates whether self is .isOptional
     var isOptional: Bool {
         if case .optional = self {
             return true
@@ -48,6 +57,7 @@ enum Cardinality {
         return false
     }
     
+    /// Indicates whether self is .isDictionary
     var isDictionary: Bool {
         if case .dictionary = self {
             return true
@@ -55,6 +65,8 @@ enum Cardinality {
         return false
     }
     
+    /// Returns the representing primitive type information `self` or nil if not a primitive
+    /// - Throws if a dictionary key is not primitive
     func primitive() throws -> TypeInformation? {
         switch self {
         case let .exactlyOne(type):
@@ -84,6 +96,7 @@ enum Cardinality {
 
 // MARK: - CustomStringConvertible + CustomDebugStringConvertible
 extension Cardinality: CustomStringConvertible, CustomDebugStringConvertible {
+    /// A textual representation of self
     public var debugDescription: String {
         switch self {
         case .exactlyOne(let type):
@@ -97,6 +110,7 @@ extension Cardinality: CustomStringConvertible, CustomDebugStringConvertible {
         }
     }
     
+    /// A textual representation of self
     public var description: String {
         debugDescription
     }

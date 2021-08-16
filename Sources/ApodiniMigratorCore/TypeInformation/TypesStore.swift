@@ -12,19 +12,19 @@ import Foundation
 /// Provided with a reference from `TypeStore`, the instance of `typeInformation`
 /// can be constructed without information-loss via `construct(from:)`
 /// The lifecycle of a Typestore is limited only during encoding and decoding of `Document`
-public struct TypesStore {
+struct TypesStore {
     /// Stored references of enums and objects
     /// Properties of objects are recursively stored
-    public var storage: [String: TypeInformation]
+    var storage: [String: TypeInformation]
     
     /// Initializes a store with an empty storage
-    public init() {
+    init() {
         storage = [:]
     }
     
     /// Stores an enum or object type by its type name, and returns the reference
     /// If attempting to store a non referencable type, the operation is ignored and the input type is returned directly
-    public mutating func store(_ type: TypeInformation) -> TypeInformation {
+    mutating func store(_ type: TypeInformation) -> TypeInformation {
         guard type.isReferencable else {
             return type
         }
@@ -46,7 +46,7 @@ public struct TypesStore {
     }
     
     /// Constructs a type from a reference
-    public mutating func construct(from reference: TypeInformation) -> TypeInformation {
+    mutating func construct(from reference: TypeInformation) -> TypeInformation {
         guard let referenceKey = reference.referenceKey, var stored = storage[referenceKey.rawValue] else {
             return reference
         }

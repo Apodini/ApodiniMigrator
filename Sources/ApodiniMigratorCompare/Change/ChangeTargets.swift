@@ -20,8 +20,6 @@ public enum EndpointTarget: String, Value {
     case pathParameter = "path-parameter"
     /// Content parameter target
     case contentParameter = "content-parameter"
-    /// Header parameter target
-    case headerParameter = "header-parameter"
     /// Path target
     case resourcePath = "resource-path"
     /// Operation target
@@ -37,7 +35,6 @@ public enum EndpointTarget: String, Value {
         case .lightweight: return .queryParameter
         case .content: return .contentParameter
         case .path: return .pathParameter
-        case .header: return .headerParameter
         }
     }
 }

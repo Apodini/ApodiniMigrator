@@ -13,7 +13,7 @@ enum ProjectFilesUpdater {
     private static let today: Date = {
         Date()
     }()
-    private static var active = true
+    private static var active = false
     private static func fileComment(from path: Path) -> [String] {
         let fileName = path.lastComponent
         var target = path.parent()

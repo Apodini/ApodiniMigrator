@@ -83,6 +83,7 @@ public struct TypeName: Value {
 
 // MARK: - DeltaIdentifiable
 extension TypeName: DeltaIdentifiable {
+    /// DeltaIdentifier of the type name initialized from the `name`
     public var deltaIdentifier: DeltaIdentifier { .init(name) }
 }
 

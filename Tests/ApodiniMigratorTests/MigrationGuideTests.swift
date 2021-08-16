@@ -4,7 +4,7 @@ import XCTest
 @testable import ApodiniMigratorCompare
 
 final class MigrationGuideTests: ApodiniMigratorXCTestCase {
-    let document = Path.desktop + "delta_document.json"
+    let document = Path.desktop + "api_qonectiq1.0.0.json"
     let packagePath: Path = .desktop
     
     func testPackageMigration() throws {
@@ -56,8 +56,8 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
             return
         }
         
-        let doc = Path.desktop + "delta_document.json"
-        let doc2 = Path.desktop + "delta_document_updated.json"
+        let doc = Path.desktop + "api_qonectiq1.0.0.json"
+        let doc2 = Path.desktop + "api_qonectiq2.0.0.json"
         
         let migrationGuide = try MigrationGuide.from(doc, doc2)
         try (Path.desktop + "migration_guide.json").write(migrationGuide.json)
