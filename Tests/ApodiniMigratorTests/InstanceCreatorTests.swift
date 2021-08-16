@@ -4,10 +4,6 @@ import XCTest
 @testable import ApodiniMigratorClientSupport
 @testable import Runtime
 
-func isEldisMacbook() -> Bool {
-    Path.desktop.exists
-}
-
 final class InstanceCreatorTests: ApodiniMigratorXCTestCase {
     func testNoAssociatedValuesforEnumAllowed() throws {
         XCTAssertThrowsError(try TypeInformation.of(TypeInformation.self, with: RuntimeBuilder.self))

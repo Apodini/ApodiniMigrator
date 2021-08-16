@@ -75,19 +75,7 @@ let package = Package(
                 .product(name: "Logging", package: "swift-log")
             ],
             resources: [
-                .process("Templates/Package.md"),
-                .process("Templates/Readme.md"),
-                .process("Templates/HTTP/ApodiniError.md"),
-                .process("Templates/HTTP/HTTPAuthorization.md"),
-                .process("Templates/HTTP/HTTPHeaders.md"),
-                .process("Templates/HTTP/HTTPMethod.md"),
-                .process("Templates/HTTP/Parameters.md"),
-                .process("Templates/Networking/Handler.md"),
-                .process("Templates/Networking/NetworkingService.md"),
-                .process("Templates/Utils/Utils.md"),
-                .process("Templates/Tests/TestFile.md"),
-                .process("Templates/Tests/XCTestManifests.md"),
-                .process("Templates/Tests/LinuxMain.md")
+                .process("Templates")
             ]),
         .target(
             name: "ApodiniMigratorShared",
@@ -111,6 +99,10 @@ let package = Package(
                 "ApodiniMigrator",
                 "ApodiniMigratorCompare",
                 "ApodiniMigratorClientSupport"
-            ])
+            ],
+            resources: [
+                .process("Resources")
+            ]
+        )
     ]
 )
