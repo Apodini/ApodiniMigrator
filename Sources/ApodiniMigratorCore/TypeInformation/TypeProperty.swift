@@ -49,14 +49,3 @@ extension TypeProperty: DeltaIdentifiable {
     /// DeltaIdentifier of the property initialized from the `name`
     public var deltaIdentifier: DeltaIdentifier { .init(name) }
 }
-
-// MARK: - Convenience
-extension TypeProperty {
-    static func property(_ name: String, type: TypeInformation) -> TypeProperty {
-        .init(name: name, type: type)
-    }
-    
-    static func fluentProperty(_ name: String, type: TypeInformation, annotation: String) -> TypeProperty {
-        .init(name: name, type: type, annotation: annotation)
-    }
-}

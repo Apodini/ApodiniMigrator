@@ -38,7 +38,7 @@ public struct Document: Value {
     }
     
     /// Id of the document
-    public var id: UUID
+    public let id: UUID
     
     /// Metadata
     public var metaData: MetaData

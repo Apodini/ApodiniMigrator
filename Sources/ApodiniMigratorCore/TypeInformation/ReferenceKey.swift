@@ -23,11 +23,6 @@ public struct ReferenceKey: Value, RawRepresentable {
         self.init(rawValue: rawValue)
     }
     
-    /// Initializes self from a RawRepresentable instance with string raw value
-    public init<R: RawRepresentable>(_ rawRepresentable: R) where R.RawValue == String {
-        self.rawValue = rawRepresentable.rawValue
-    }
-
     /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         rawValue = try decoder.singleValueContainer().decode(String.self)
@@ -38,14 +33,6 @@ public struct ReferenceKey: Value, RawRepresentable {
         var container = encoder.singleValueContainer()
         try container.encode(rawValue)
     }
-}
-
-// MARK: - CustomStringConvertible + CustomDebugStringConvertible
-extension ReferenceKey: CustomStringConvertible, CustomDebugStringConvertible {
-    /// String description of self
-    public var description: String { rawValue }
-    /// String description of self
-    public var debugDescription: String { rawValue }
 }
 
 // MARK: - Hashable

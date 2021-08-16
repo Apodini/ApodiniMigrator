@@ -22,7 +22,7 @@ extension TestTypes {
         let car: Car
     }
     
-    enum Direction: String, Codable {
+    enum Direction: String, Codable, Hashable {
         case left
         case right
     }
@@ -41,7 +41,7 @@ extension TestTypes {
         let id: UUID
         let licence: UInt?
         let url: URL
-        let directions: [UUID: Direction]
+        let directions: [UUID: Int]
         let car: Car
     }
     
@@ -60,6 +60,11 @@ extension TestTypes {
         let shops: [Shop]
         let cars: [String: Car]
         let otherCars: [Car]
+    }
+    
+    struct Generic<V1, V2> {
+        let value1: V1
+        let value2: V2
     }
     
 }

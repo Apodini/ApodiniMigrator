@@ -11,14 +11,6 @@ import Foundation
 /// A builder protocol where `Result` is `TypeInformation`
 public protocol TypeInformationBuilder: Builder where Input == Any.Type, Result == TypeInformation {}
 
-// MARK: - TypeInformationBuilder
-public extension TypeInformationBuilder {
-    /// Builds a typeinformation instance with `Self`
-    static func result(of input: Input) throws -> Result {
-        try Self(input).build()
-    }
-}
-
 // MARK: - TypeInformation
 public extension TypeInformation {
     /// Returns a `TypeInformation` instance built with `builderType`

@@ -51,8 +51,8 @@ extension TypeInformation {
                     .compactMap {
                         do {
                             if let fluentProperty = $0.fluentPropertyType {
-                                return .fluentProperty(
-                                    $0.name,
+                                return .init(
+                                    name: $0.name,
                                     type: try .fluentProperty($0),
                                     annotation: fluentProperty.description
                                 )
@@ -66,7 +66,7 @@ extension TypeInformation {
                                 )
                             }
                             
-                            return .property($0.name, type: try .init(for: $0.type))
+                            return .init(name: $0.name, type: try .init(for: $0.type))
                         } catch {
                             if knownRuntimeError(error) {
                                 return nil
@@ -117,7 +117,7 @@ extension TypeInformation {
         
         let customIDObject: TypeInformation = .object(
             name: .init(name: String(describing: nestedPropertyType) + "ID"),
-            properties: [.property("id", type: .optional(wrappedValue: try .init(for: idType)))]
+            properties: [.init(name: "id", type: .optional(wrappedValue: try .init(for: idType)))]
         )
         
         return property.fluentPropertyType == .optionalParentProperty

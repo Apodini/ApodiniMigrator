@@ -23,13 +23,6 @@ public enum ParameterType: String, Value {
     case path
 }
 
-extension ParameterType: CustomStringConvertible {
-    /// A string representation of self
-    public var description: String {
-        rawValue
-    }
-}
-
 /// Represents distinct cases of necessities for parameters or properties of an object
 public enum Necessity: String, Value {
     /// `.required` necessity describes parameters or properties which require a value in any case.

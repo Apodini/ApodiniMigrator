@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents distinct cases of a path component
-enum PathComponent: CustomStringConvertible, Value {
+fileprivate enum PathComponent: CustomStringConvertible {
     /// A string path component
     case string(String)
     /// A path parameter path component
@@ -23,47 +23,14 @@ enum PathComponent: CustomStringConvertible, Value {
         }
     }
     
-    /// Indicates whether the path component is a parameter
-    var isParameter: Bool {
-        if case .parameter = self {
-            return true
-        }
-        return false
-    }
-    
-    /// Indicates whether the path component is a string
-    var isString: Bool {
-        if case .string = self {
-            return true
-        }
-        return false
-    }
-    
     /// Initializes `self` out of a string value
     init(stringValue: String) {
         self = stringValue.isPathParameterComponent ? .parameter(stringValue.dropCurlyBrackets) : .string(stringValue)
     }
-    
-    /// :nodoc:
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(description)
-    }
-    
-    /// Creates a new instance by decoding from the given decoder.
-    public init(from decoder: Decoder) throws {
-        self = Self(stringValue: try decoder.singleValueContainer().decode(String.self))
-    }
-    
-    /// Encodes this value into the given encoder.
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        
-        try container.encode(description)
-    }
 }
 
 /// A typealias for a dictionary with Int keys and PathComponent values
-typealias Components = [Int: PathComponent]
+fileprivate typealias Components = [Int: PathComponent]
 
 /// Represents an endpoint path
 public struct EndpointPath: Value, CustomStringConvertible {
@@ -71,7 +38,7 @@ public struct EndpointPath: Value, CustomStringConvertible {
     private static let separator = "/"
     
     /// Components of the path
-    let components: Components
+    fileprivate let components: Components
     
     /// String representation of the path
     public var description: String {

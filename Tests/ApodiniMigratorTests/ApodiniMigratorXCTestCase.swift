@@ -18,7 +18,7 @@ class ApodiniMigratorXCTestCase: XCTestCase {
         preconditionFailure("Expression threw an error")
     }
     
-    func XCTAssertThrows<T>(_ expression: @autoclosure () throws -> T) throws {
+    func XCTAssertThrows<T>(_ expression: @autoclosure () throws -> T) {
         let expectation = XCTestExpectation(description: "Expression did throw")
         do {
             _ = try expression()

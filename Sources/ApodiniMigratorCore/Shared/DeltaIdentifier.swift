@@ -29,11 +29,6 @@ public struct DeltaIdentifier: Value, RawRepresentable {
         self.init(rawValue: rawValue)
     }
     
-    /// Initializes self from a RawRepresentable instance with string raw value
-    public init<R: RawRepresentable>(_ rawRepresentable: R) where R.RawValue == String {
-        self.rawValue = rawRepresentable.rawValue
-    }
-
     /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         rawValue = try decoder.singleValueContainer().decode(String.self)

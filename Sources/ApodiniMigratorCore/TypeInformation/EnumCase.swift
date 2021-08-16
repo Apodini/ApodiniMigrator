@@ -19,16 +19,6 @@ public enum RawValueType: String, Value, CustomStringConvertible {
     public var description: String {
         rawValue.upperFirst
     }
-    
-    /// Initializes an instance out of a `RawRepresentable` type
-    init<R: RawRepresentable>(_ rawRepresentable: R.Type) {
-        let rawValueTypeString = String(describing: R.RawValue.self)
-        if let rawValueType = Self(rawValue: rawValueTypeString.lowerFirst) {
-            self = rawValueType
-        } else {
-            fatalError("\(R.RawValue.self) is currently not supported")
-        }
-    }
 }
 
 /// Represents a case of an enumeration

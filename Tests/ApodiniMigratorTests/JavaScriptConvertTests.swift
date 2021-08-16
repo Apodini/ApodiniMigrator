@@ -115,19 +115,6 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssert(EndpointPath(string1) == EndpointPath(string2))
     }
     
-    func testMultipleContentParameters() {
-        let param1 = Parameter(name: "one", typeInformation: .scalar(.string), parameterType: .content, isRequired: false)
-        let param2 = Parameter(name: "two", typeInformation: .scalar(.string), parameterType: .content, isRequired: false)
-        let endpoint = Endpoint(handlerName: "Handler", deltaIdentifier: "helloHandler", operation: .create, absolutePath: "/hello", parameters: [param1, param2], response: .scalar(.string), errors: [])
-        
-        
-        let parameters = endpoint.parameters
-        let first = parameters.first
-        XCTAssertTrue(parameters.count == 1)
-        XCTAssertTrue(first?.name == Parameter.wrappedContentParameter)
-        XCTAssertTrue(first?.necessity == .optional)
-    }
-    
     func testIntString() throws {
         let script = JSPrimitiveScript.stringNumber
         

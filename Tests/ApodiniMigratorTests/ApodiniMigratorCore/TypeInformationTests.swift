@@ -22,6 +22,7 @@ final class TypeInformationTests: ApodiniMigratorXCTestCase {
         XCTAssert(user.dictionaryValue == nil)
         XCTAssertEqual(user.nestedTypeString, "\(TestTypes.self)User")
         XCTAssertEqual(user.nestedTypeString.without("\(TestTypes.self)"), "User")
+        XCTAssertEqual(user.typeName.absoluteName, "ApodiniMigratorTests/TestTypesUser")
         XCTAssertEqual(user.property("otherCars")?.type.nestedTypeString.without("\(TestTypes.self)"), "Car")
         XCTAssert(user.property("url")?.type.objectProperties.isEmpty == true)
         XCTAssert(user.enumCases.isEmpty)
@@ -65,6 +66,56 @@ final class TypeInformationTests: ApodiniMigratorXCTestCase {
         XCTAssertNotEqual(userReference, directionReference)
     }
     
+    func testPrimitiveTypes() throws {
+        let int = try TypeInformation.of(Int.self, with: RuntimeBuilder.self)
+        let arrayInt = try TypeInformation.of([Int].self, with: RuntimeBuilder.self)
+        let bool = try TypeInformation(value: false)
+        
+        XCTAssertEqual(int, .scalar(.int))
+        XCTAssertEqual(arrayInt, .repeated(element: int))
+        XCTAssertEqual(bool, .scalar(.bool))
+        
+        let nonValidScalar = TypeInformation.scalar(.bool).json.with("", insteadOf: "Bool")
+        XCTAssertThrows(try TypeInformation.decode(from: nonValidScalar))
+        
+        let null = try XCTUnwrap(PrimitiveType(Null.self))
+        XCTAssert(null.debugDescription == "\(null.swiftType)")
+        XCTAssert(null.scalarType == .null)
+        
+        let primitiveTypes: [Any.Type] = [
+            Null.self,
+            Bool.self,
+            Int.self,
+            Int8.self,
+            Int16.self,
+            Int32.self,
+            Int64.self,
+            UInt.self,
+            UInt8.self,
+            UInt16.self,
+            UInt32.self,
+            UInt64.self,
+            String.self,
+            Double.self,
+            Float.self,
+            URL.self,
+            UUID.self,
+            Date.self,
+            Data.self
+        ]
+        
+        try primitiveTypes.forEach {
+            let type = try XCTUnwrap(PrimitiveType($0))
+            _ = type.swiftType.init(.default)
+            XCTAssertNoThrow(try TypeInformation(type: $0))
+        }
+        
+        XCTAssert([Int: String].default == [0: ""])
+        XCTAssert(String?.default == "")
+        XCTAssert(Set<String>.default == [""])
+        XCTAssert([URL].default == [.default])
+    }
+    
     func testTypeInformationConvenience() throws {
         let car = try TypeInformation(type: TestTypes.Car.self)
         let shop = try TypeInformation(type: TestTypes.Shop.self)
@@ -77,6 +128,15 @@ final class TypeInformationTests: ApodiniMigratorXCTestCase {
         XCTAssert(someStruct.asOptional.referencedProperties().isOptional)
         XCTAssert(shopRepeated.objectType == shop)
         XCTAssert(car.isContained(in: shop))
+    }
+    
+    func testThrowingNonPrimitiveDictionaryKey() throws {
+        XCTAssertThrows(try TypeInformation(type: [TestTypes.Direction: Int].self))
+    }
+    
+    func testGenericType() throws {
+        let typeInformation = XCTAssertNoThrowWithResult(try TypeInformation.of(TestTypes.Generic<Int, String>.self, with: RuntimeBuilder.self))
+        XCTAssert(typeInformation.typeName.genericTypeNames.equalsIgnoringOrder(to: ["SwiftInt", "SwiftString"]))
     }
     
     /// testing recursive storing and reconstructing in `TypesStore`

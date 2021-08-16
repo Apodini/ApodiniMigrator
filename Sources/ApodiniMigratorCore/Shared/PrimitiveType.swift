@@ -161,8 +161,8 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, Value {
     /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        if let pritimitveType = Self(rawValue: try container.decode(String.self).lowercased()) {
-            self = pritimitveType
+        if let pritimitiveType = Self(rawValue: try container.decode(String.self).lowercased()) {
+            self = pritimitiveType
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode \(Self.self)")
         }
@@ -186,9 +186,4 @@ extension PrimitiveType: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String { String(describing: swiftType) }
     /// Textual representation of an instance
     public var debugDescription: String { description }
-}
-
-/// Indicates whether `type` represents one of the cases of `PrimitiveType`
-public func isSupportedPrimitiveType(_ type: Any.Type) -> Bool {
-    PrimitiveType(type) != nil
 }

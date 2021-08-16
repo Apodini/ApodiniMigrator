@@ -67,12 +67,15 @@ public struct Version: Value {
         if
             let prefix = prefix,
             let numbers = numbers,
-            numbers.count == 3
+            numbers.count == 3,
+            let major = UInt(numbers[0]),
+            let minor = UInt(numbers[1]),
+            let patch = UInt(numbers[2])
         {
             self.prefix = prefix
-            self.major = UInt(numbers[0]) ?? 0
-            self.minor = UInt(numbers[1]) ?? 0
-            self.patch = UInt(numbers[2]) ?? 0
+            self.major =  major
+            self.minor = minor
+            self.patch = patch
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode \(Self.self)")
         }

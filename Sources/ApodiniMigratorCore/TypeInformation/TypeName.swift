@@ -51,7 +51,7 @@ public struct TypeName: Value {
         self.name = name.with("Of", insteadOf: "<").with("And", insteadOf: ", ").without(">")
         self.definedIn = definedIn
         if let openingBrackedIndex = name.firstIndex(of: "<"), let closingBracketIndex = name.firstIndex(of: ">") {
-            genericTypeNames = String(name[openingBrackedIndex ..< closingBracketIndex]).split(string: ", ")
+            genericTypeNames = String(name[name.index(after: openingBrackedIndex) ..< closingBracketIndex]).split(string: ", ")
         } else {
             genericTypeNames = []
         }
