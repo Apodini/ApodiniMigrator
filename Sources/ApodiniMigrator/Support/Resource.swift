@@ -45,10 +45,6 @@ extension Resource {
     var path: Path {
         fileURL.path.asPath
     }
-    
-    func instance<D: Decodable>() throws -> D {
-        try D.decode(from: fileURL)
-    }
 }
 
 /// Default public implementations
@@ -68,5 +64,9 @@ public extension Resource {
     /// raw data content of the file
     func data() throws -> Data {
         try Data(contentsOf: fileURL)
+    }
+    
+    func instance<D: Decodable>() throws -> D {
+        try D.decode(from: try data())
     }
 }

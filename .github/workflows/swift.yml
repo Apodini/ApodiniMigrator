@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - release
+      - feature/testing
   pull_request:
     branches:
       - develop
@@ -32,12 +33,13 @@ jobs:
      run: swift build
    - name: Test
      run: swift test
-   - name: Debug Build & Test
-     if: matrix.configuration == 'debug'
-     run: swift test -c debug --enable-code-coverage -Xswiftc -DCOVERAGE
-   - name: Convert coverage report
-     if: matrix.configuration == 'debug'
-     run: xcrun llvm-cov export -format="lcov" .build/debug/ApodiniMigratorPackageTests.xctest/Contents/MacOS/ApodiniMigratorPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
-   - name: Upload coverage to Codecov
-     uses: codecov/codecov-action@v1
+
+#- name: Debug Build & Test
+#  if: matrix.configuration == 'debug'
+#  run: swift test -c debug --enable-code-coverage -Xswiftc -DCOVERAGE
+#- name: Convert coverage report
+#  if: matrix.configuration == 'debug'
+#  run: xcrun llvm-cov export -format="lcov" .build/debug/ApodiniMigratorPackageTests.xctest/Contents/MacOS/ApodiniMigratorPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+#- name: Upload coverage to Codecov
+#  uses: codecov/codecov-action@v1
  

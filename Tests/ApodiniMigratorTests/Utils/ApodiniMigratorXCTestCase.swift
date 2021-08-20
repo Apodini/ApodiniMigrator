@@ -9,23 +9,28 @@ import XCTest
 import PathKit
 
 class ApodiniMigratorXCTestCase: XCTestCase {
-    static let testDirectory = "./migrator"
-    static var testDirectoryPath: Path {
+    let testDirectory = "./migrator"
+    var testDirectoryPath: Path {
         testDirectory.asPath
+    }
+    
+    private func testTestDirectoryCreated() throws {
+        XCTAssert(testDirectoryPath.exists)
+        XCTAssert(try testDirectoryPath.children().isEmpty)
     }
     
     override func setUpWithError() throws {
         try super.setUpWithError()
         
-        if !Self.testDirectoryPath.exists {
-            try Self.testDirectoryPath.mkpath()
+        if !testDirectoryPath.exists {
+            try testDirectoryPath.mkpath()
         }
     }
     
     override func tearDownWithError() throws {
         try super.tearDownWithError()
         
-        try Self.testDirectoryPath.delete()
+        try testDirectoryPath.delete()
     }
     
     func XCTAssertNoThrowWithResult<T>(_ expression: @autoclosure () throws -> T) -> T {
@@ -45,6 +50,14 @@ class ApodiniMigratorXCTestCase: XCTestCase {
             XCTFail("Expression did not throw")
         } catch {
             expectation.fulfill()
+        }
+    }
+    
+    func firstNonEqualLine(lhs: String, _ rhs: String, function: StaticString = #function, file: StaticString = #file, line: UInt = #line) {
+        for (lhsLine, rhsLine) in zip(lhs.lines(), rhs.lines()) where lhsLine != rhsLine {
+            print("Lhs line: \(lhsLine)")
+            print("Rhs line: \(rhsLine)")
+            fatalError("Found non-equal line in \(function)", file: file, line: line)
         }
     }
     

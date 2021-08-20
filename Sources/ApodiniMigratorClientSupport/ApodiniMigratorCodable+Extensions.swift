@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ApodiniMigratorCore
 @_implementationOnly import JavaScriptCore
 // swiftlint:disable line_length function_parameter_count
 /// ApodiniMigratorCodable extension
@@ -19,11 +20,6 @@ public extension ApodiniMigratorCodable {
     /// A function that creates an instance of type `Self` from a valid json string
     static func instance(from jsonValue: JSONValue) throws -> Self {
         try Self.decoder.decode(Self.self, from: jsonValue.rawValue.data())
-    }
-    
-    /// A function that creates an instance of type `Self` from data
-    static func instance(from data: Data) throws -> Self {
-        try Self.decoder.decode(Self.self, from: data)
     }
     
     /// Creates an instance of type `Self`, out of an `ApodiniMigratorEncodable` value
@@ -82,16 +78,14 @@ fileprivate extension ApodiniMigratorCodable {
         
         let result = context?.objectForKeyedSubscript(functionName)?.call(withArguments: jsonArgs)?.toString()
         
-        guard let data = result?.data(using: .utf8) else {
-//            return try defaultValue() /// TODO adjust
-            fatalError("failed")
+        guard let data = result?.data() else {
+            return try defaultValue()
         }
         
         do {
             return try Self.decode(from: data)
         } catch {
-            // return try defaultValue()
-            fatalError("\(error)")
+            return try defaultValue()
         }
     }
 }
@@ -170,56 +164,11 @@ public extension ApodiniMigratorCodable {
     static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, script: JSScript) throws -> Self {
         try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js()], script: script)
     }
-    
-    /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
-    /// - Note: See documentation for the single argument function:
-    /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: JSScript) throws -> Self
-    /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, script: JSScript) throws -> Self {
-        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js()], script: script)
-    }
-    
-    /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
-    /// - Note: See documentation for the single argument function:
-    /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: JSScript) throws -> Self
-    /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, arg7: E7, script: JSScript) throws -> Self {
-        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js(), arg7.js()], script: script)
-    }
-    
-    /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
-    /// - Note: See documentation for the single argument function:
-    /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: JSScript) throws -> Self
-    /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, arg7: E7, arg8: E8, script: JSScript) throws -> Self {
-        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js(), arg7.js(), arg8.js()], script: script)
-    }
-    
-    /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
-    /// - Note: See documentation for the single argument function:
-    /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: JSScript) throws -> Self
-    /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable, E9: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, arg7: E7, arg8: E8, arg9: E9, script: JSScript) throws -> Self {
-        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js(), arg7.js(), arg8.js(), arg9.js()], script: script)
-    }
-    
-    /// Creates an instance of type `Self`, by means of the `value` properties of `argX`
-    /// - Note: See documentation for the single argument function:
-    /// ```swift
-    /// static func fromValue<E: ApodiniMigratorEncodable>(_ arg: E, script: JSScript) throws -> Self
-    /// ```
-    static func fromValues<E1: ApodiniMigratorEncodable, E2: ApodiniMigratorEncodable, E3: ApodiniMigratorEncodable, E4: ApodiniMigratorEncodable, E5: ApodiniMigratorEncodable, E6: ApodiniMigratorEncodable, E7: ApodiniMigratorEncodable, E8: ApodiniMigratorEncodable, E9: ApodiniMigratorEncodable, E10: ApodiniMigratorEncodable>(_ arg1: E1, _ arg2: E2, _ arg3: E3, arg4: E4, arg5: E5, arg6: E6, arg7: E7, arg8: E8, arg9: E9, arg10: E10, script: JSScript) throws -> Self {
-        try initialize(from: [arg1.js(), arg2.js(), arg3.js(), arg4.js(), arg5.js(), arg6.js(), arg7.js(), arg8.js(), arg9.js(), arg10.js()], script: script)
-    }
 }
 
 extension ApodiniMigratorEncodable {
-    func js() -> String {
-        let data = (try? Self.encoder.encode(self)) ?? Data()
+    func js() throws -> String {
+        let data = try Self.encoder.encode(self)
         return String(decoding: data, as: UTF8.self)
     }
 }
@@ -233,22 +182,6 @@ fileprivate extension String {
             return String(dropFunction[dropFunction.startIndex ..< idx])
         }
         return self // the invalidity of the script is handled by creating defaultValue for Decodable type
-    }
-    
-    /// A function to be applied on js scripts to retrieve the names of the input arguments
-    func args() -> [String] {
-        if
-            let openingBracketIndex = firstIndex(of: "("),
-            let closingBracketIndex = firstIndex(of: ")")
-        {
-            guard openingBracketIndex <= closingBracketIndex else {
-                return []
-            }
-            
-            let args = String(self[openingBracketIndex ..< closingBracketIndex].dropFirst())
-            return args.split(string: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-        }
-        return []
     }
 }
 // swiftlint:enable line_length function_parameter_count

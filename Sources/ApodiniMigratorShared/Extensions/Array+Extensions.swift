@@ -8,6 +8,13 @@
 
 import Foundation
 
+public extension Collection {
+    /// Indicates whether the collection is not empty
+    var isNotEmpty: Bool {
+        !isEmpty
+    }
+}
+
 public extension Array where Element: Hashable {
     /// Unique elements contained in self
     func unique() -> Self {

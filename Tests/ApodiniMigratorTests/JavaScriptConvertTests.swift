@@ -5,7 +5,7 @@ import XCTest
 @testable import ApodiniMigratorCompare
 @testable import Runtime
 
-extension ApodiniMigratorCodable {
+fileprivate extension ApodiniMigratorCodable {
     static var encoder: JSONEncoder {
         .init()
     }
@@ -33,10 +33,7 @@ extension Data: Codable {
     }
 }
 
-
-let skipFileReadingTests = false
-
-typealias Codable = ApodiniMigratorCodable
+fileprivate typealias Codable = ApodiniMigratorCodable
 
 final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     func testDecodableExample() throws {
@@ -50,7 +47,16 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
             let name: String
         }
         
-        let student = Student(name: "John", matrNr: UUID())
+        let studentScript: JSScript =
+        """
+        function convert(name, matrNr) {
+            let parsedName = JSON.parse(name)
+            let parsedMatrNr = JSON.parse(matrNr)
+            return JSON.stringify({ 'name' : parsedName, 'matrNr' : parsedMatrNr })
+        }
+        """
+        
+        let student = try Student.fromValues("John", UUID(), script: studentScript)
         let studentToDeveloperScript =
         """
         function convert(object) {
@@ -75,20 +81,20 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssert(student == initialStudent)
     }
     
-    struct Student: Codable, Equatable {
+    fileprivate struct Student: Codable, Equatable {
         let name: String
         let matrNr: UUID
         let dog: Dog
         let number: Int
     }
     
-    struct Dog: Codable, Equatable {
+    fileprivate struct Dog: Codable, Equatable {
         let name: String
     }
     
     
     func testMultipleArguments() throws {
-        let constructScript =
+        let constructScript: JSScript =
         """
         function convert(name, matrNr, dog) {
             let parsedName = JSON.parse(name)
@@ -98,15 +104,73 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         """
         
-        let student = try Student.fromValues("John", UUID(), Dog(name: "Dog"), script: JSScript(constructScript))
+        let student1 = try Student.fromValues("John", UUID(), Dog(name: "Dog"), script: constructScript)
+        
+        XCTAssert(student1.dog.name == "Dog")
+        XCTAssert(student1.name == "John")
+        XCTAssert(student1.number == 42)
         
         
-        XCTAssert(student.dog.name == "Dog")
-        XCTAssert(student.name == "John")
-        XCTAssert(student.number == 42)
+        let script: JSScript =
+        """
+        function convert(name, matrNr, dog, number) {
+            let parsedName = JSON.parse(name)
+            let parsedMatrNr = JSON.parse(matrNr)
+            let parsedDog = JSON.parse(dog)
+            let parsedNumber = JSON.parse(number)
+            return JSON.stringify({ 'name' : parsedName, 'matrNr' : parsedMatrNr, 'dog' : parsedDog, 'number': parsedNumber })
+        }
+        """
+        let id = UUID()
+        let student2 = try Student.fromValues("Student2", id, Dog(name: "Dog"), arg4: 1234, script: script)
+        XCTAssert(student2.dog.name == "Dog")
+        XCTAssert(student2.name == "Student2")
+        XCTAssert(student2.number == 1234)
+        XCTAssert(student2.matrNr == id)
+        
+        let script5: JSScript =
+        """
+        function convert(arg1, arg2, arg3, arg4, arg5) {
+            let parsedOne = JSON.parse(arg1)
+            let parsedTwo = JSON.parse(arg2)
+            let parsedThree = JSON.parse(arg3)
+            let parsedFour = JSON.parse(arg4)
+            let parsedFive = JSON.parse(arg5)
+            return JSON.stringify({ 'name' : parsedOne + parsedTwo + parsedThree + parsedFour + parsedFive })
+        }
+        """
+        
+        let dog = XCTAssertNoThrowWithResult(try Dog.fromValues("I ", "am ", "not ", arg4: "a ", arg5: "dog!", script: script5))
+        XCTAssert(dog.name == "I am not a dog!")
+        
     }
     
-    
+    func testInvalidScript() throws {
+        let script: JSScript =
+        """
+        Hello World
+        """
+        let student = XCTAssertNoThrowWithResult(try Student.from(0, script: script))
+        
+        XCTAssert(student.dog.name == "")
+        XCTAssert(student.name == "")
+        XCTAssert(student.number == 0)
+        
+        let invalidConvert: JSScript =
+        """
+        function convert(name, matrNr, dog) {
+            let parsedName = JSON.parse(name)
+            let parsedMatrNr = JSON.parse(matrNr)
+            let parsedDog = JSON.parse(dog)
+            return JSON.stringify({ 'name' : parsedName, 'matrikelNummer' : parsedMatrNr, 'dog' : parsedDog, 'number': 42 })
+        }
+        """
+        let secondStudent = try Student.fromValues("John", UUID(), Dog(name: "Dog"), script: invalidConvert)
+        
+        XCTAssert(secondStudent.dog.name == "")
+        XCTAssert(secondStudent.name == "")
+        XCTAssert(secondStudent.number == 0)
+    }
     
     func testIntString() throws {
         let script = JSPrimitiveScript.stringNumber
@@ -228,7 +292,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testPersist() throws {
-        try JSPrimitiveScript.allCombinations().write(at: Self.testDirectory, fileName: "all_combinations")
+        try JSPrimitiveScript.allCombinations().write(at: testDirectory, fileName: "all_combinations")
     }
     
     
@@ -302,8 +366,8 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         
         let jsBuilder = JSScriptBuilder(from: try TypeInformation(type: User.self), to: try TypeInformation(type: UserNew.self))
-        try jsBuilder.convertFromTo.write(at: Self.testDirectory, fileName: "user_to_userNew")
-        try jsBuilder.convertToFrom.write(at: Self.testDirectory, fileName: "userNew_to_user")
+        try jsBuilder.convertFromTo.write(at: testDirectory, fileName: "user_to_userNew")
+        try jsBuilder.convertToFrom.write(at: testDirectory, fileName: "userNew_to_user")
         
         let newUser = UserNew(ident: .init(), name: "I am new user")
         let user = try User.from(newUser, script: jsBuilder.convertToFrom)

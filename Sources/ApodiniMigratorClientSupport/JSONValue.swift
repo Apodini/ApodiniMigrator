@@ -10,7 +10,7 @@ import Foundation
 import ApodiniMigratorCore
 
 /// A `JSONValue` object that holds the string json of a certain encodable instance at rawValue property
-public struct JSONValue: Value, RawRepresentable {
+public struct JSONValue: Codable, RawRepresentable {
     /// Raw value
     public let rawValue: String
 
@@ -44,26 +44,10 @@ extension JSONValue: ExpressibleByStringLiteral {
     }
 }
 
-// MARK: - CustomStringConvertible + CustomDebugStringConvertible
-extension JSONValue: CustomStringConvertible, CustomDebugStringConvertible {
-    /// String description of self
-    public var description: String { rawValue }
-    /// String description of self
-    public var debugDescription: String { rawValue }
-}
-
-// MARK: - Hashable
-public extension JSONValue {
-    /// :nodoc:
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
-    }
-}
-
 // MARK: - Equatable
-public extension JSONValue {
+extension JSONValue: Equatable {
     /// :nodoc:
-    static func == (lhs: JSONValue, rhs: JSONValue) -> Bool {
+    public static func == (lhs: JSONValue, rhs: JSONValue) -> Bool {
         lhs.rawValue == rhs.rawValue
     }
 }

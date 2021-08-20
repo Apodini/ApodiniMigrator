@@ -44,14 +44,6 @@ extension JSScript: ExpressibleByStringLiteral {
     }
 }
 
-// MARK: - CustomStringConvertible + CustomDebugStringConvertible
-extension JSScript: CustomStringConvertible, CustomDebugStringConvertible {
-    /// String description of self
-    public var description: String { rawValue }
-    /// String description of self
-    public var debugDescription: String { rawValue }
-}
-
 // MARK: - Hashable
 public extension JSScript {
     /// :nodoc:

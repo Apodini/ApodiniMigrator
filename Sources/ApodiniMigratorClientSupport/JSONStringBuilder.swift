@@ -17,12 +17,7 @@ public struct JSONStringBuilder {
     /// `JSONEncoder` used to encode the value of the type
     private let encoder: JSONEncoder
     
-    /// Initializes `self` with an `ApodiniMigratorCodable` type
-    init<C: ApodiniMigratorCodable>(_ type: C.Type) throws {
-        self.typeInformation = try TypeInformation(type: C.self)
-        self.encoder = C.encoder
-    }
-    
+    /// Initializes `self` with an `Any` type and a JSONEncoder
     init(_ type: Any.Type, encoder: JSONEncoder = .init()) throws {
         self.init(try TypeInformation(type: type), encoder: encoder)
     }
@@ -44,12 +39,6 @@ public struct JSONStringBuilder {
         [.string, .int].contains(primitiveType)
     }
 
-    /// Returns the right format for keys of the dictionary
-    private func dictionaryKey(_ primitiveType: PrimitiveType) -> String {
-        let jsonString = primitiveType.swiftType.jsonString
-        return primitiveType == .int ? jsonString.doubleQuoted : jsonString
-    }
-    
     /// Builds and returns a valid JSON string from the `typeInformation`
     private func build() -> String {
         switch typeInformation {
@@ -82,42 +71,9 @@ public struct JSONStringBuilder {
         Self(typeInformation, with: encoderConfiguration).build()
     }
     
-    static func string<C: ApodiniMigratorCodable>(_ type: C.Type) throws -> String {
-        try instance(C.self).jsonString(with: C.encoder)
-    }
-    
     /// Initializes an instance out of a `ApodiniMigratorCodable` type.
     static func instance<C: ApodiniMigratorCodable>(_ type: C.Type) throws -> C {
-        try decode(C.self, from: try Self(C.self, encoder: C.encoder).build())
-    }
-    
-    /// Initializes an `ApodiniMigratorCodable` instance out of a `typeInformation`
-    static func instance<C: ApodiniMigratorCodable>(_ typeInformation: TypeInformation, _ type: C.Type) throws -> C {
-        try decode(C.self, from: Self(typeInformation, encoder: C.encoder).build())
-    }
-    
-    /// Creates an instance of type `D` out of a typeInformation object
-    static func instance<D: Decodable>(_ typeInformation: TypeInformation, _ type: D.Type) throws -> D {
-        try D.decode(from: Self(typeInformation).build())
-    }
-    
-    /// Creates an instance of type `D` out of the type
-    static func instance<D: Decodable>(_ type: D.Type, with encoder: JSONEncoder = .init()) throws -> D {
-        try D.decode(from: Self(try TypeInformation(type: type), encoder: encoder).build())
-    }
-    
-    /// Decodes type from data
-    static func decode<D: ApodiniMigratorDecodable>(_ type: D.Type, from data: Data) throws -> D {
-        try D.decoder.decode(D.self, from: data)
-    }
-    
-    /// Decodes type from string content
-    static func decode<C: ApodiniMigratorDecodable>(_ type: C.Type, from string: String) throws -> C {
-        try C.decoder.decode(C.self, from: string.data())
-    }
-    
-    static func decode<D: ApodiniMigratorDecodable>(_ type: D.Type, at path: Path) throws -> D {
-        try D.decoder.decode(D.self, from: try path.read())
+        try C.decode(from: try Self(C.self, encoder: C.encoder).build())
     }
 }
 

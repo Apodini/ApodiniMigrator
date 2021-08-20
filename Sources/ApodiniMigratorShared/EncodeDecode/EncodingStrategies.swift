@@ -79,6 +79,7 @@ public struct EncoderConfiguration: Codable, Hashable {
 /// JSONEncoder extension
 public extension JSONEncoder {
     /// Configures `self` with the properties of `EncoderConfiguration`
+    @discardableResult
     func configured(with configuration: EncoderConfiguration) -> JSONEncoder {
         dateEncodingStrategy = configuration.dateEncodingStrategy.toJSONEncoderStrategy
         dataEncodingStrategy = configuration.dataEncodingStrategy.toJSONEncoderStrategy

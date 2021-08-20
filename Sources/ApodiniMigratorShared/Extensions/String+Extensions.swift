@@ -10,6 +10,12 @@ import Foundation
 import PathKit
 
 public extension String {
+    
+    /// Indicates whether self is not empty
+    var isNotEmpty: Bool {
+        !isEmpty
+    }
+    
     /// Line break
     static var lineBreak: String {
         "\n"
@@ -70,7 +76,7 @@ public extension String {
     ///      - ignoreEmptyComponents: flag whether empty components should be ignored, `false` by default
     /// - Returns: the array of string components
     func split(string: String, ignoreEmptyComponents: Bool = false) -> [String] {
-        components(separatedBy: string).filter { ignoreEmptyComponents ? !$0.isEmpty : true }
+        components(separatedBy: string).filter { ignoreEmptyComponents ? $0.isNotEmpty : true }
     }
     
     /// Returns the lines of a string

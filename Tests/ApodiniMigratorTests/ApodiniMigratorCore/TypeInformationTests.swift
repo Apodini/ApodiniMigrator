@@ -130,8 +130,13 @@ final class TypeInformationTests: ApodiniMigratorXCTestCase {
         XCTAssert(car.isContained(in: shop))
     }
     
-    func testThrowingNonPrimitiveDictionaryKey() throws {
+    func testThrowing() throws {
         XCTAssertThrows(try TypeInformation(type: [TestTypes.Direction: Int].self))
+        enum TestEnum {
+            case int(Int)
+            case string(String)
+        }
+        XCTAssertThrows(try TypeInformation(type: TestEnum.self))
     }
     
     func testGenericType() throws {

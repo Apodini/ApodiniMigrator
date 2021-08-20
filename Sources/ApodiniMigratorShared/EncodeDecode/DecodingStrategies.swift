@@ -80,6 +80,7 @@ public struct DecoderConfiguration: Codable, Hashable {
 /// JSONDecoder extension
 public extension JSONDecoder {
     /// Configures `self` with the properties of `DecoderConfiguration`
+    @discardableResult
     func configured(with configuration: DecoderConfiguration) -> JSONDecoder {
         dateDecodingStrategy = configuration.dateDecodingStrategy.toJSONDecoderStrategy
         dataDecodingStrategy = configuration.dataDecodingStrategy.toJSONDecoderStrategy
