@@ -35,7 +35,20 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
         
         let endpoint = Endpoint(handlerName: "TestHandler", deltaIdentifier: "sayHelloWorld", operation: .read, absolutePath: "/v1/hello", parameters: [], response: .scalar(.string), errors: [.init(code: 404, message: "Could not say hello")])
         
+        let change = DeleteChange(
+            element: .endpoint(endpoint.deltaIdentifier, target: .`self`),
+            deleted: .none,
+            fallbackValue: .none,
+            breaking: true,
+            solvable: false,
+            includeProviderSupport: false)
         _ = EndpointFile(typeInformation: .scalar(.string), endpoints: [endpoint], changes: [DeleteChange(element: .endpoint(endpoint.deltaIdentifier, target: .`self`), deleted: .none, fallbackValue: .none, breaking: true, solvable: false, includeProviderSupport: false)])
+        let migrator = EndpointMethodMigrator(
+            endpoint,
+            changes: [change]
+        )
+        
+        try (Path(#file).parent() + "Resources/ExpectedOutputs" + "deletedSayHelloWorld.md").write(migrator.render().indentationFormatted())
     }
     
     func testMigrationGuide() throws {

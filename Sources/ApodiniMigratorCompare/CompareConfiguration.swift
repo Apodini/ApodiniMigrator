@@ -27,4 +27,12 @@ public struct CompareConfiguration: Value {
             allowTypeRename: false
         )
     }
+    
+    public static var active: CompareConfiguration {
+        .init(
+            includeProviderSupport: true,
+            allowEndpointIdentifierUpdate: true,
+            allowTypeRename: true
+        )
+    }
 }

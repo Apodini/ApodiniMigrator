@@ -29,6 +29,13 @@ public struct MetaData: Value {
         encoderConfiguration = .default
         decoderConfiguration = .default
     }
+    
+    init(serverPath: String, version: Version, encoderConfiguration: EncoderConfiguration, decoderConfiguration: DecoderConfiguration) {
+        self.serverPath = serverPath
+        self.version = version
+        self.encoderConfiguration = encoderConfiguration
+        self.decoderConfiguration = decoderConfiguration
+    }
 }
 
 public struct Document: Value {

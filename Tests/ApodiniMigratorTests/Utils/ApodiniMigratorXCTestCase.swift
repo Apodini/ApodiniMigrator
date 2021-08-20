@@ -7,8 +7,11 @@
 
 import XCTest
 import PathKit
+@testable import ApodiniMigratorCompare
 
 class ApodiniMigratorXCTestCase: XCTestCase {
+    var node = ChangeContextNode()
+    
     let testDirectory = "./migrator"
     var testDirectoryPath: Path {
         testDirectory.asPath
@@ -30,6 +33,7 @@ class ApodiniMigratorXCTestCase: XCTestCase {
     override func tearDownWithError() throws {
         try super.tearDownWithError()
         
+        node = ChangeContextNode()
         try testDirectoryPath.delete()
     }
     
