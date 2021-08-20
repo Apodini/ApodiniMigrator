@@ -35,7 +35,7 @@ extension Resource {
     
     /// url of the file
     var fileURL: URL {
-        guard let fileURL = bundle.url(forResource: name, withExtension: fileExtension.description) else {
+        guard let fileURL = bundle.url(forResource: fileName, withExtension: nil) else {
             fatalError("Resource \(name) not found")
         }
         
@@ -44,11 +44,6 @@ extension Resource {
     
     var path: Path {
         fileURL.path.asPath
-    }
-    
-    /// replaces the `content()` ocurrencies of `target` with `replacement`
-    func replaceOccurrencies(of target: String, with replacement: String) -> String {
-        content().replacingOccurrences(of: target, with: replacement)
     }
     
     func instance<D: Decodable>() throws -> D {

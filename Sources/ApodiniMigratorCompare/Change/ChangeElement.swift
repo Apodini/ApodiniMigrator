@@ -131,6 +131,11 @@ public extension ChangeElement {
         type == .object
     }
     
+    /// Indicates whether `self` is an `.enum` or `.object` change element
+    var isModel: Bool {
+        [.enum, .object].contains(type)
+    }
+    
     /// Indicates whether `self` is an `.networking` change element
     var isNetworking: Bool {
         type == .networking

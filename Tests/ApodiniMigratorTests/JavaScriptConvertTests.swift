@@ -106,14 +106,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssert(student.number == 42)
     }
     
-    func testEndpointPath() throws {
-        let string = "/v1/{some}/users/{id}"
-        let string1 = "/v1/{s}/users/{idsdad}"
-        let string2 = "/v2/{s}/users/{idsdad}" // still considered equal, change is delegated to networking due to version change
-  
-        XCTAssert(EndpointPath(string) != EndpointPath(string1))
-        XCTAssert(EndpointPath(string1) == EndpointPath(string2))
-    }
+    
     
     func testIntString() throws {
         let script = JSPrimitiveScript.stringNumber

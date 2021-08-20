@@ -77,6 +77,7 @@ public extension String {
     func lines() -> [String] {
         split(string: .lineBreak)
     }
+    
     /// Returns lines of self separated by `\n`, and trimming whitespace characters
     func sanitizedLines() -> [String] {
         // splitting the string, empty lines are mapped into empty string array elements
@@ -96,6 +97,11 @@ public extension String {
     /// Replaces occurrencies of `target` with `replacement`
     func with(_ replacement: String, insteadOf target: String) -> String {
         replacingOccurrences(of: target, with: replacement)
+    }
+    
+    /// Returns encoded data of `self`
+    func data(_ encoding: Encoding = .utf8) -> Data {
+        data(using: encoding) ?? .init()
     }
 }
 

@@ -18,7 +18,7 @@ public extension ApodiniMigratorCodable {
     
     /// A function that creates an instance of type `Self` from a valid json string
     static func instance(from jsonValue: JSONValue) throws -> Self {
-        try Self.decoder.decode(Self.self, from: jsonValue.rawValue.data(using: .utf8) ?? Data())
+        try Self.decoder.decode(Self.self, from: jsonValue.rawValue.data())
     }
     
     /// A function that creates an instance of type `Self` from data

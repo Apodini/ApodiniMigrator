@@ -41,8 +41,6 @@ struct ModelsComparator: Comparator {
         
         var pairs: Set<MatchedPairs> = []
         
-        assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
-        
         if allowTypeRename {
             for candidate in removalCandidates {
                 let unmatched = additionCandidates.filter { addition in pairs.allSatisfy({ !$0.contains(addition.deltaIdentifier) }) }

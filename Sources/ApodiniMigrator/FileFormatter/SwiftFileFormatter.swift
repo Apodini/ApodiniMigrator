@@ -36,11 +36,3 @@ public extension String {
         formatted(with: IndentationFormatter.self)
     }
 }
-
-public extension Path {
-    /// Returns a formatted version of the string content of the path by a formatterType
-    func formatted<S: SwiftFileFormatter>(with formatterType: S.Type) throws {
-        var formatter = formatterType.init()
-        return try formatter.format(self)
-    }
-}

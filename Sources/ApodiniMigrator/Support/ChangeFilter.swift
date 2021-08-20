@@ -21,7 +21,7 @@ struct ChangeFilter {
     init(_ migrationGuide: MigrationGuide) {
         let changes = migrationGuide.changes
         endpointChanges = changes.filter { $0.element.isEndpoint }
-        modelChanges = changes.filter { [.enum, .object].contains($0.element.type) }
+        modelChanges = changes.filter { $0.element.isModel }
         networkingChanges = changes.filter { $0.element.isNetworking }
     }
     

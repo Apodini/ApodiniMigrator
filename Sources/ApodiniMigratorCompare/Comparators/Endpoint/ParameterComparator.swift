@@ -13,13 +13,10 @@ struct ParameterComparator: Comparator {
     let rhs: Parameter
     let changes: ChangeContextNode
     let configuration: EncoderConfiguration
-    var lhsEndpoint: Endpoint?
+    let lhsEndpoint: Endpoint
     
     private var element: ChangeElement {
-        guard let lhsEndpoint = lhsEndpoint else {
-            fatalError("Endpoint of `lhs` parameter not injected")
-        }
-        return .for(endpoint: lhsEndpoint, target: .target(for: lhs))
+        .for(endpoint: lhsEndpoint, target: .target(for: lhs))
     }
     
     private var targetID: DeltaIdentifier {

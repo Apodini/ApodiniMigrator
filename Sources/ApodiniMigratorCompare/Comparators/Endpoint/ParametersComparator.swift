@@ -44,8 +44,6 @@ struct ParametersComparator: Comparator {
     private func handle(removalCandidates: [Parameter], additionCandidates: [Parameter]) {
         var relaxedMatchings: Set<DeltaIdentifier> = []
         
-        assert(Set(removalCandidates.identifiers()).isDisjoint(with: additionCandidates.identifiers()), "Encoutered removal and addition candidates with same id")
-        
         for candidate in removalCandidates {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates.filter { !relaxedMatchings.contains($0.deltaIdentifier) }) {
                 relaxedMatchings += relaxedMatching.element.deltaIdentifier

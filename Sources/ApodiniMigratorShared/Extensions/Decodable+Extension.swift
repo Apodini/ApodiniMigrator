@@ -22,7 +22,7 @@ public extension Decodable {
     
     /// Initializes self from string
     static func decode(from string: String) throws -> Self {
-        try decode(from: string.data(using: .utf8) ?? Data())
+        try decode(from: string.data())
     }
     
     /// Initializes self from the content of path

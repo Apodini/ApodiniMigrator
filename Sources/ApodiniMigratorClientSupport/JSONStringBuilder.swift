@@ -113,7 +113,7 @@ public struct JSONStringBuilder {
     
     /// Decodes type from string content
     static func decode<C: ApodiniMigratorDecodable>(_ type: C.Type, from string: String) throws -> C {
-        try C.decoder.decode(C.self, from: string.data(using: .utf8) ?? Data())
+        try C.decoder.decode(C.self, from: string.data())
     }
     
     static func decode<D: ApodiniMigratorDecodable>(_ type: D.Type, at path: Path) throws -> D {

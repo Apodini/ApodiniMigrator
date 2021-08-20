@@ -54,7 +54,7 @@ final class TypeInformationTests: ApodiniMigratorXCTestCase {
         XCTAssert(!user.sameType(with: direction))
         XCTAssertEqual(user.description, user.debugDescription)
         
-        let data = user.description.data(using: .utf8) ?? Data()
+        let data = user.description.data()
         
         let userFromData = try TypeInformation.decode(from: data)
         XCTAssertEqual(user, userFromData)

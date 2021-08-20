@@ -9,9 +9,6 @@
 import Foundation
 
 public extension Set {
-    /// An empty set
-    static var empty: Self { [] }
-    
     /// Returns an array version of self
     var asArray: [Element] {
         Array(self)
