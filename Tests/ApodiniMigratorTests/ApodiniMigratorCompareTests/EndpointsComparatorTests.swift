@@ -1,7 +1,6 @@
 import XCTest
 @testable import ApodiniMigratorCore
 @testable import ApodiniMigratorCompare
-@testable import ApodiniMigratorClientSupport
 
 final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
     private let lhs = Endpoint(

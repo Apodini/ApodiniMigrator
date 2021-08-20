@@ -1,7 +1,6 @@
 import XCTest
 @testable import ApodiniMigratorCore
 @testable import ApodiniMigratorCompare
-@testable import ApodiniMigratorClientSupport
 
 final class MetaDataComparatorTests: ApodiniMigratorXCTestCase {
     func testServerPathChanged() throws {
@@ -12,26 +11,34 @@ final class MetaDataComparatorTests: ApodiniMigratorXCTestCase {
         comparator.compare()
         
         XCTAssert(node.changes.count == 1)
-        let serverPathChange = try XCTUnwrap(node.changes.first)
-        XCTAssert(serverPathChange is UpdateChange)
+        let serverPathChange = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(serverPathChange.breaking)
         XCTAssert(serverPathChange.solvable)
         XCTAssert(serverPathChange.element == .networking(target: .serverPath))
+        if case let .stringValue(value) = serverPathChange.to {
+            XCTAssert(value == "www.updated.com/v1")
+        } else {
+            XCTFail("Change did not store the updated server path")
+        }
     }
     
     func testVersionChanged() throws {
         let lhs = MetaData(serverPath: "www.test.com", version: .default, encoderConfiguration: .default, decoderConfiguration: .default)
-        let rhs = MetaData(serverPath: "www.test.com", version: .init(prefix: "api", major: 1, minor: 0, patch: 0), encoderConfiguration: .default, decoderConfiguration: .default)
+        let rhs = MetaData(serverPath: "www.test.com", version: .init(prefix: "api", major: 2, minor: 0, patch: 0), encoderConfiguration: .default, decoderConfiguration: .default)
         
         let comparator = MetaDataComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         comparator.compare()
         
         XCTAssert(node.changes.count == 1)
-        let serverPathChange = try XCTUnwrap(node.changes.first)
-        XCTAssert(serverPathChange is UpdateChange)
+        let serverPathChange = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(serverPathChange.breaking)
         XCTAssert(serverPathChange.solvable)
         XCTAssert(serverPathChange.element == .networking(target: .serverPath))
+        if case let .stringValue(value) = serverPathChange.to {
+            XCTAssert(value == "www.test.com/api2")
+        } else {
+            XCTFail("Change did not store the updated server path")
+        }
     }
     
     func testEncoderConfigurationChanged() throws {
