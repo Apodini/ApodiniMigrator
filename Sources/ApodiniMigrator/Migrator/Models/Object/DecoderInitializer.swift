@@ -41,7 +41,6 @@ struct DecoderInitializer: Renderable {
             if case let .json(id) = deletedProperty.fallbackValue {
                 valueString = "try \(property.type.typeString).instance(from: \(id))"
             } else {
-                assert(deletedProperty.fallbackValue.isNone && property.necessity == .optional, "Migration guide did not provide a default value for the deleted property: \(name)")
                 valueString = "nil"
             }
             return "\(name) = \(valueString)"

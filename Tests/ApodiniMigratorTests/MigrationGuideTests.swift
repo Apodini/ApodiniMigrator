@@ -22,6 +22,11 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
         try ProjectFilesUpdater.run()
     }
     
+    func testMigrationGuideThrowing() throws {
+        XCTAssertThrows(try MigrationGuide.from(Path(#file), .init(.endpoints)))
+        XCTAssertThrows(try MigrationGuide.from("", ""))
+    }
+    
     func testEnumDelete() throws {
         struct User {
             let name: String
@@ -59,5 +64,6 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
 
         let decoded = try MigrationGuide.decode(from: testDirectoryPath + "migration_guide.json")
         XCTAssert(decoded == migrationGuide)
+        XCTAssert(decoded != .empty)
     }
 }

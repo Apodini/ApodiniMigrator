@@ -45,7 +45,6 @@ struct ObjectInitializer: Renderable {
             if case let .json(id) = defaultValue {
                 defaultValueString = "try! \(typeString).instance(from: \(id))"
             } else {
-                assert(defaultValue.isNone && property.necessity == .optional, "Migration guide did not provide a json id for a non-optional property: \(property.name)")
                 defaultValueString = "nil"
             }
             typeString += " = \(defaultValueString)"

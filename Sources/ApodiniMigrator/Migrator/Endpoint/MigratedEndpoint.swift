@@ -47,7 +47,6 @@ class MigratedEndpoint {
                 if case let .json(id) = defaultValue {
                     defaultValueString = "try! \(typeString).instance(from: \(id))"
                 } else {
-                    assert(defaultValue.isNone && parameter.necessity == .optional, "Migration guide did not provide a default value for the required added parameter: \(parameter.newName)")
                     defaultValueString = "nil"
                 }
                 parameterSignature += " = \(defaultValueString)"

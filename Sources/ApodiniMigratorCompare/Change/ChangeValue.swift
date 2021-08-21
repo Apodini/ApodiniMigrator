@@ -61,57 +61,9 @@ public enum ChangeValue: Value {
         }
     }
     
-    /// Returns the `AnyCodableElement` if `self` is `.element`, otherwise `nil`
-    public var element: AnyCodableElement? {
-        if case let .element(element) = self {
-            return element
-        }
-        return nil
-    }
-    
-    /// Indicates whether `self` is `.none`
-    public var isNone: Bool {
-        if case .none = self {
-            return true
-        }
-        return false
-    }
-    
-    /// Indicates whether `self` is `.element`
-    public var isElement: Bool {
-        if case .element = self {
-            return true
-        }
-        return false
-    }
-    
-    /// Indicates whether `self` is `.elementID`
-    public var isElementID: Bool {
-        if case .elementID = self {
-            return true
-        }
-        return false
-    }
-    
-    /// Indicates whether `self` is `.string`
-    public var isString: Bool {
-        if case .stringValue = self {
-            return true
-        }
-        return false
-    }
-    
-    /// Indicates whether `self` is `.json`
-    public var isJSON: Bool {
-        if case .json = self {
-            return true
-        }
-        return false
-    }
-    
     /// Encodes `self` into the given encoder
     public func encode(to encoder: Encoder) throws {
-        if isNone, let value = value {
+        if case .none = self, let value = value {
             var singleValueContainer = encoder.singleValueContainer()
             return try singleValueContainer.encode(value)
         }
