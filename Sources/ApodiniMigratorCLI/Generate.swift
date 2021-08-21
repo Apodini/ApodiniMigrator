@@ -31,7 +31,12 @@ struct Generate: ParsableCommand {
         logger.info("Starting generation of package \(packageName)")
         
         do {
-            let generator = try migrator.init(packageName: packageName, packagePath: targetDirectory, documentPath: documentPath, migrationGuide: .empty)
+            let generator = try migrator.init(
+                packageName: packageName,
+                packagePath: targetDirectory,
+                documentPath: documentPath,
+                migrationGuide: .empty
+            )
             try generator.migrate()
             logger.info("Package \(packageName) was generated successfully. You can open the package via \(packageName)/Package.swift")
         } catch {

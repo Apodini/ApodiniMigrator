@@ -33,7 +33,7 @@ extension Data: Codable {
     }
 }
 
-fileprivate typealias Codable = ApodiniMigratorCodable
+private typealias Codable = ApodiniMigratorCodable
 
 final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     func testDecodableExample() throws {
@@ -142,7 +142,6 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         
         let dog = XCTAssertNoThrowWithResult(try Dog.fromValues("I ", "am ", "not ", arg4: "a ", arg5: "dog!", script: script5))
         XCTAssert(dog.name == "I am not a dog!")
-        
     }
     
     func testInvalidScript() throws {

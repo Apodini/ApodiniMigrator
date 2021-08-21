@@ -78,6 +78,7 @@ public enum PrimitiveType: String, RawRepresentable, CaseIterable, Value {
     case data
     
     /// Initializes `self` out of an `Any.Type` if `type` corresponds to one of `PrimitiveType` cases, otherwise returns nil
+    // swiftlint:disable:next cyclomatic_complexity
     public init?(_ type: Any.Type) {
         if type == Null.self || type == NSNull.self {
             self = .null

@@ -23,7 +23,12 @@ struct DocumentComparator: Comparator {
         let metaDataComparator = MetaDataComparator(lhs: lhs.metaData, rhs: rhs.metaData, changes: changes, configuration: configuration)
         metaDataComparator.compare()
         
-        let modelsComparator = ModelsComparator(lhs: lhs.allModels(), rhs: changes.set(rhsModels: rhs.allModels()), changes: changes, configuration: configuration)
+        let modelsComparator = ModelsComparator(
+            lhs: lhs.allModels(),
+            rhs: changes.set(rhsModels: rhs.allModels()),
+            changes: changes,
+            configuration: configuration
+        )
         modelsComparator.compare()
         
         let endpointsComparator = EndpointsComparator(lhs: lhs.endpoints, rhs: rhs.endpoints, changes: changes, configuration: configuration)

@@ -3,7 +3,6 @@ import XCTest
 @testable import ApodiniMigratorClientSupport
 
 final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
-    
     func testFluentProperties() throws {
         try FluentPropertyType.allCases.forEach { property in
             let json = property.json
@@ -51,8 +50,8 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
     }
     
     func testWrappedContentParameters() throws {
-        let param1: Parameter = Parameter(name: "first", typeInformation: .scalar(.string), parameterType: .content, isRequired: true)
-        let param2: Parameter = Parameter(name: "second", typeInformation: .scalar(.int), parameterType: .content, isRequired: false)
+        let param1 = Parameter(name: "first", typeInformation: .scalar(.string), parameterType: .content, isRequired: true)
+        let param2 = Parameter(name: "second", typeInformation: .scalar(.int), parameterType: .content, isRequired: false)
         
         let endpoint = Endpoint(
             handlerName: "someHandler",

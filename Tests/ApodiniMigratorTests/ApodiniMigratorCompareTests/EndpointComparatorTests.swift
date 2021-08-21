@@ -29,10 +29,8 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
             .init(name: "first", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
             .init(name: "second", typeInformation: .scalar(.uuid), parameterType: .path, isRequired: true),
-            // swiftlint:disable:next force_try
             .init(name: "third", typeInformation: try! TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
         ],
-        // swiftlint:disable:next force_try
         response: try! TypeInformation(type: LHSResponse.self),
         errors: []
     )
@@ -105,8 +103,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
                 .init(name: "first", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
                 .init(name: "second", typeInformation: .scalar(.uuid), parameterType: .path, isRequired: true),
-                // swiftlint:disable:next force_try
-                .init(name: "third", typeInformation: try! TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
+                .init(name: "third", typeInformation: try TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
             ],
             response: lhs.response,
             errors: lhs.errors
@@ -139,7 +136,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.operation,
             absolutePath: lhs.path.description,
-            parameters: lhs.parameters.filter { $0.name != "first"},
+            parameters: lhs.parameters.filter { $0.name != "first" },
             response: lhs.response,
             errors: lhs.errors
         )
@@ -169,8 +166,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
                 .init(name: "firstParam", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
                 .init(name: "second", typeInformation: .scalar(.uuid), parameterType: .path, isRequired: true),
-                // swiftlint:disable:next force_try
-                .init(name: "third", typeInformation: try TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true),
+                .init(name: "third", typeInformation: try TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
             ],
             response: lhs.response,
             errors: lhs.errors
@@ -200,8 +196,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
                 .init(name: "first", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
                 .init(name: "second", typeInformation: .scalar(.uuid), parameterType: .path, isRequired: true),
-                // swiftlint:disable:next force_try
-                .init(name: "third", typeInformation: try! TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
+                .init(name: "third", typeInformation: try TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
             ],
             response: lhs.response,
             errors: lhs.errors
@@ -233,8 +228,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
                 .init(name: "first", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
                 .init(name: "second", typeInformation: .scalar(.uuid), parameterType: .lightweight, isRequired: true),
-                // swiftlint:disable:next force_try
-                .init(name: "third", typeInformation: try! TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
+                .init(name: "third", typeInformation: try TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
             ],
             response: lhs.response,
             errors: lhs.errors
@@ -266,8 +260,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
                 .init(name: "first", typeInformation: .scalar(.bool), parameterType: .lightweight, isRequired: true),
                 .init(name: "second", typeInformation: .scalar(.uuid), parameterType: .path, isRequired: true),
-                // swiftlint:disable:next force_try
-                .init(name: "third", typeInformation: try! TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
+                .init(name: "third", typeInformation: try TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
             ],
             response: lhs.response,
             errors: lhs.errors
@@ -298,7 +291,6 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             operation: .read,
             absolutePath: lhs.path.description,
             parameters: lhs.parameters,
-            // swiftlint:disable:next force_try
             response: try TypeInformation(type: RHSResponse.self),
             errors: lhs.errors
         )
@@ -323,3 +315,20 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         }
     }
 }
+/*
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+  - .build
+  - TestWebService/.build
+  - .swiftpm
+  # We ignore all files with @_functionBuilder/@resultBuilder as long as we support 5.3: https://github.com/Apodini/Apodini/runs/2525316261?check_suite_focus=true
+  - Sources/Apodini/Components/Path/PathComponentBuilder.swift
+  - Sources/Apodini/Components/ComponentBuilder.swift
+  - Sources/Apodini/Configurations/ConfigurationBuilder.swift
+  - Sources/Apodini/Relationships/RelationshipIdentificationBuilder.swift
+  - Sources/Apodini/Metadata/ResultBuilder/MetadataBuilder.swift
+  - Sources/Apodini/Metadata/ResultBuilder/ComponentMetadataBuilder.swift
+  - Sources/Apodini/Metadata/ResultBuilder/ContentMetadataBuilder.swift
+  - Sources/Apodini/Metadata/ResultBuilder/RestrictedMetadataBlockBuilder.swift
+  - Sources/ApodiniGRPC/GRPCDependentStaticConfigurationBuilder.swift
+  - Sources/ApodiniREST/RESTDependentStaticConfigurationBuilder.swift
+*/

@@ -49,6 +49,7 @@ extension EnumCase: DeltaIdentifiable {
 }
 
 public extension EnumCase {
+    /// Returns an enum case with named `name`
     static func `case`(_ name: String) -> EnumCase {
         .init(name)
     }

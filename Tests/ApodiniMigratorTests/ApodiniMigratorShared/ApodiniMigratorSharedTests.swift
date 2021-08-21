@@ -3,7 +3,6 @@ import XCTest
 @testable import ApodiniMigratorClientSupport
 
 final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
-    
     func testYAMLandJSON() throws {
         for format in [OutputFormat.yaml, .json] {
             let document: Document = XCTAssertNoThrowWithResult(try Documents.v1.instance())
@@ -148,7 +147,6 @@ final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
         XCTAssert(replaced.filter { $0 == 6 }.isEmpty )
         numbers.replacingOccurrences(of: 6, with: 9)
         XCTAssert(numbers == replaced)
-        
     }
 }
 
@@ -211,6 +209,3 @@ extension JSONEncoder.DataEncodingStrategy: Equatable {
         }
     }
 }
-
-
-

@@ -10,7 +10,6 @@ import Foundation
 import PathKit
 
 public extension String {
-    
     /// Indicates whether self is not empty
     var isNotEmpty: Bool {
         !isEmpty

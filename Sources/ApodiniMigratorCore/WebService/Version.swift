@@ -73,7 +73,7 @@ public struct Version: Value {
             let patch = UInt(numbers[2])
         {
             self.prefix = prefix
-            self.major =  major
+            self.major = major
             self.minor = minor
             self.patch = patch
         } else {

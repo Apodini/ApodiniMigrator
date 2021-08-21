@@ -36,12 +36,13 @@ extension Resource {
     /// url of the file
     var fileURL: URL {
         guard let fileURL = bundle.url(forResource: fileName, withExtension: nil) else {
-            fatalError("Resource \(name) not found")
+            fatalError("Resource \(fileName) not found")
         }
         
         return fileURL
     }
     
+    /// path of the resource file
     var path: Path {
         fileURL.path.asPath
     }
@@ -66,6 +67,7 @@ public extension Resource {
         try Data(contentsOf: fileURL)
     }
     
+    /// Returns the decoded instance of the resource file
     func instance<D: Decodable>() throws -> D {
         try D.decode(from: try data())
     }

@@ -99,7 +99,12 @@ final class ChangeContextNode: Codable {
     /// For every compare between two models of different versions, this function is called to register potentially updated json representation of an object
     func store(rhs: TypeInformation, encoderConfiguration: EncoderConfiguration) {
         let propertyTargets = [ObjectTarget.property, .necessity].map { $0.rawValue }
-        if changes.contains(where: { $0.breaking && $0.element.isObject && $0.elementID == rhs.deltaIdentifier && propertyTargets.contains($0.element.target) }) {
+        if changes.contains(where: {
+                                $0.breaking
+                                    && $0.element.isObject
+                                    && $0.elementID == rhs.deltaIdentifier
+                                    && propertyTargets.contains($0.element.target)
+        }) {
             objectJSONs[rhs.typeName.name] = .init(JSONStringBuilder.jsonString(rhs, with: encoderConfiguration))
         }
     }

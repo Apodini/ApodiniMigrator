@@ -4,7 +4,6 @@ import XCTest
 @testable import ApodiniMigratorCompare
 
 final class MigrationGuideTests: ApodiniMigratorXCTestCase {
-    
     func testPackageMigration() throws {
         let mig = try MigrationGuide.decode(from: try Documents.migrationGuide.data())
         let migrator = XCTAssertNoThrowWithResult(try Migrator(

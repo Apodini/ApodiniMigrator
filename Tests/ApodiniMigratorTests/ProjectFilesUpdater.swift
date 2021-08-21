@@ -53,7 +53,7 @@ enum ProjectFilesUpdater {
             if content.contains("Created by Eldi Cano on") {
                 var lines = content.lines()
                 var lastCommentIndex = 0
-                while lines[lastCommentIndex].starts(with: "//"){
+                while lines[lastCommentIndex].starts(with: "//") {
                     lastCommentIndex += 1
                 }
                 lines.replaceSubrange(0 ..< lastCommentIndex, with: fileComment(from: child))

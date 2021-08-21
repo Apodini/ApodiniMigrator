@@ -24,9 +24,14 @@ public extension Decodable {
     /// Initializes self from the content of path
     static func decode(from path: Path) throws -> Self {
         guard path.is(.json) || path.is(.yaml) else {
-            throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "`ApodiniMigrator` only supports decoding of files in either json or yaml format"))
+            throw DecodingError.dataCorrupted(
+                .init(
+                    codingPath: [],
+                    debugDescription: "`ApodiniMigrator` only supports decoding of files in either json or yaml format"
+                )
+            )
         }
-        let data: Data = try path.read()
+        let data = try path.read() as Data
         if path.is(.yaml) {
             return try YAMLDecoder().decode(from: data)
         }

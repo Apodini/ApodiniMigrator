@@ -122,16 +122,27 @@ public struct MigrationGuide: Codable {
         )
     }
     
-    public static func from(_ lhsDocumentPath: Path, _ rhsDocumentPath: Path, compareConfiguration: CompareConfiguration = .default) throws -> MigrationGuide {
+    /// Returns the migration guide by comparing documents at the specified paths
+    public static func from(
+        _ lhsDocumentPath: Path,
+        _ rhsDocumentPath: Path,
+        compareConfiguration: CompareConfiguration = .default
+    ) throws -> MigrationGuide {
         .init(for: try .decode(from: lhsDocumentPath), rhs: try .decode(from: rhsDocumentPath), compareConfiguration: compareConfiguration)
     }
     
-    public static func from(_ lhsDocumentPath: String, _ rhsDocumentPath: String, compareConfiguration: CompareConfiguration = .default) throws -> MigrationGuide {
-        .init(for: try .decode(from: Path(lhsDocumentPath)), rhs: try .decode(from: Path(rhsDocumentPath)), compareConfiguration: compareConfiguration)
+    /// Returns the migration guide by comparing documents at the specified paths
+    public static func from(
+        _ lhsDocumentPath: String,
+        _ rhsDocumentPath: String,
+        compareConfiguration: CompareConfiguration = .default
+    ) throws -> MigrationGuide {
+        try .from(lhsDocumentPath.asPath, rhsDocumentPath.asPath, compareConfiguration: compareConfiguration)
     }
 }
 
 extension MigrationGuide: Equatable {
+    /// :nodoc:
     public static func == (lhs: MigrationGuide, rhs: MigrationGuide) -> Bool {
         var mutableLhs = lhs
         var mutableRhs = rhs
@@ -143,6 +154,9 @@ extension MigrationGuide: Equatable {
         mutableRhs.jsonValues = [:]
         mutableRhs.objectJSONs = [:]
         
-        return mutableLhs.json == mutableRhs.json && lhs.scripts == rhs.scripts && lhs.jsonValues == rhs.jsonValues && lhs.objectJSONs == rhs.objectJSONs
+        return mutableLhs.json == mutableRhs.json
+            && lhs.scripts == rhs.scripts
+            && lhs.jsonValues == rhs.jsonValues
+            && lhs.objectJSONs == rhs.objectJSONs
     }
 }

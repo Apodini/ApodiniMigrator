@@ -83,7 +83,6 @@ struct InstanceCreator {
         }
     }
     
-    // TODO remove / used for test case
     static var testValue: Any?
     
     /// Handles potential property wrapper property. Initializes the wrappedValue of the property wrapper
@@ -117,6 +116,7 @@ struct InstanceCreator {
 
 // MARK: - Dictionary init
 extension InstanceCreator {
+    // swiftlint:disable:next cyclomatic_complexity
     static func dictionaryInstance(for key: PrimitiveType, and valueType: Any.Type) throws -> Any {
         let valueInstance = try Self(for: valueType).instance
         switch key {

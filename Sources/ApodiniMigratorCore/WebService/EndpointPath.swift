@@ -9,13 +9,14 @@
 import Foundation
 
 /// Represents distinct cases of a path component
-fileprivate enum PathComponent: CustomStringConvertible {
+private enum PathComponent: CustomStringConvertible {
     /// A string path component
     case string(String)
     /// A path parameter path component
     case parameter(String)
     
     /// String representation of self
+    // swiftlint:disable:next lower_acl_than_parent
     public var description: String {
         switch self {
         case let .string(value): return value
@@ -30,7 +31,7 @@ fileprivate enum PathComponent: CustomStringConvertible {
 }
 
 /// A typealias for a dictionary with Int keys and PathComponent values
-fileprivate typealias Components = [Int: PathComponent]
+private typealias Components = [Int: PathComponent]
 
 /// Represents an endpoint path
 public struct EndpointPath: Value, CustomStringConvertible {
@@ -38,7 +39,7 @@ public struct EndpointPath: Value, CustomStringConvertible {
     private static let separator = "/"
     
     /// Components of the path
-    fileprivate let components: Components
+    private let components: Components
     
     /// String representation of the path
     public var description: String {

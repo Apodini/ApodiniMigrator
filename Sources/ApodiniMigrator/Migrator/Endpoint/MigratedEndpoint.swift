@@ -97,7 +97,7 @@ class MigratedEndpoint {
     func resourcePath(replaceBrackets: Bool = true) -> String {
         var resourcePath = path.resourcePath
         
-        for pathParameter in activeParameters.filter({ $0.kind == .path }) { // TODO consider convert?
+        for pathParameter in activeParameters.filter({ $0.kind == .path }) {
             resourcePath = resourcePath.with("{\(pathParameter.oldName)}", insteadOf: "{\(pathParameter.newName)}")
         }
         return replaceBrackets ? resourcePath.with("\\(", insteadOf: "{").with(")", insteadOf: "}") : resourcePath

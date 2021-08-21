@@ -34,7 +34,13 @@ struct ParametersComparator: Comparator {
         for matched in matchedIds {
             if let lhs = lhsParameters.firstMatch(on: \.deltaIdentifier, with: matched),
                 let rhs = rhsParameters.firstMatch(on: \.deltaIdentifier, with: matched) {
-                let parameterComparator = ParameterComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration, lhsEndpoint: self.lhs)
+                let parameterComparator = ParameterComparator(
+                    lhs: lhs,
+                    rhs: rhs,
+                    changes: changes,
+                    configuration: configuration,
+                    lhsEndpoint: self.lhs
+                )
                 parameterComparator.compare()
             }
         }
@@ -60,7 +66,13 @@ struct ParametersComparator: Comparator {
                         includeProviderSupport: includeProviderSupport
                     )
                 )
-                let parameterComparator = ParameterComparator(lhs: candidate, rhs: relaxedMatching.element, changes: changes, configuration: configuration, lhsEndpoint: self.lhs)
+                let parameterComparator = ParameterComparator(
+                    lhs: candidate,
+                    rhs: relaxedMatching.element,
+                    changes: changes,
+                    configuration: configuration,
+                    lhsEndpoint: self.lhs
+                )
                 parameterComparator.compare()
             }
         }

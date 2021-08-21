@@ -31,7 +31,6 @@ public extension TypeInformation {
 
 // MARK: - TypeInformation internal
 extension TypeInformation {
-    
     /// Initializes a typeinformation instance from `type`. `includeObjectProperties` flag that indicates whether to include object properties or not
     private init(for type: Any.Type) throws {
         if let type = type as? TypeInformationPrimitiveConstructor.Type {
@@ -43,7 +42,9 @@ extension TypeInformation {
         
             if typeInfo.kind == .enum {
                 guard typeInfo.numberOfPayloadEnumCases == 0 else {
-                    throw TypeInformationError.enumCaseWithAssociatedValue(message: "Construction of enums with associated values is currently not supported")
+                    throw TypeInformationError.enumCaseWithAssociatedValue(
+                        message: "Construction of enums with associated values is currently not supported"
+                    )
                 }
                 self = .enum(name: typeInfo.typeName, cases: typeInfo.cases.map { .case($0.name) })
             } else if [.struct, .class].contains(typeInfo.kind) {

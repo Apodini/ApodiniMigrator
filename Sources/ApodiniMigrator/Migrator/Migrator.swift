@@ -14,6 +14,8 @@ public struct Migrator {
     enum MigratorError: Error {
         case incompatible(message: String)
     }
+    
+    /// Migrator logger labeled `org.apodini.migrator`
     public static let logger: Logger = {
         .init(label: "org.apodini.migrator")
     }()

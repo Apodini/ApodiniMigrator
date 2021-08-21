@@ -167,13 +167,3 @@ public enum ChangeValue: Value {
         }
     }
 }
-
-public extension Decodable {
-    // TODO review
-    static func decode(from changeValue: ChangeValue) throws -> Self {
-        guard changeValue.isJSON, let value = changeValue.value else {
-            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Can't decode from a `ChangeValue` that is not json"))
-        }
-        return try Self.decode(from: value)
-    }
-}

@@ -10,7 +10,7 @@ import Foundation
 import ApodiniMigratorCore
 import ApodiniMigratorClientSupport
 
-struct JSScriptBuilder { /// TODO add new jsonstring builder that considers renamings, additions and deletion of properties
+struct JSScriptBuilder {
     private let from: TypeInformation
     private let to: TypeInformation
     private let changes: ChangeContextNode

@@ -51,6 +51,7 @@ struct ObjectMigrator: ObjectSwiftFile {
     
     /// Initializes a new instance out of an object type information, kind of the file and the changes related to the object
     init(_ typeInformation: TypeInformation, kind: Kind = .struct, changes: [Change]) {
+        // swiftlint:disable:next line_length
         precondition([.struct, .class].contains(kind) && typeInformation.isObject, "Can't initialize an ObjectMigrator with a non object type information or file other than struct or class")
         self.typeInformation = typeInformation
         self.oldProperties = typeInformation.objectProperties

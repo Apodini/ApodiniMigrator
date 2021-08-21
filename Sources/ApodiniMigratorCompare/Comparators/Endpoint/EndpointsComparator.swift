@@ -45,7 +45,7 @@ struct EndpointsComparator: Comparator {
         
         if allowEndpointIdentifierUpdate {
             for candidate in removalCandidates {
-                let unmatched = additionCandidates.filter { addition in pairs.allSatisfy({ !$0.contains(addition.deltaIdentifier) }) }
+                let unmatched = additionCandidates.filter { added in pairs.allSatisfy { !$0.contains(added.deltaIdentifier) } }
                 if let relaxedMatching = candidate.mostSimilarWithSelf(in: unmatched, useRawValueDistance: false) {
                     changes.add(
                         UpdateChange(
@@ -64,7 +64,12 @@ struct EndpointsComparator: Comparator {
             }
             
             pairs.forEach {
-                let endpointComparator = EndpointComparator(lhs: $0.candidate, rhs: $0.relaxedMatching, changes: changes, configuration: configuration)
+                let endpointComparator = EndpointComparator(
+                    lhs: $0.candidate,
+                    rhs: $0.relaxedMatching,
+                    changes: changes,
+                    configuration: configuration
+                )
                 endpointComparator.compare()
             }
         }

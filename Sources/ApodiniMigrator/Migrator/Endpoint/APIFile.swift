@@ -38,7 +38,7 @@ struct APIFile: SwiftFile {
     }
 
     /// Renders the content of the file
-    public func render() -> String {
+    func render() -> String {
         """
         \(fileComment)
 

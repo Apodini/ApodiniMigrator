@@ -3,7 +3,6 @@ import XCTest
 @testable import ApodiniMigratorClientSupport
 
 final class TypeInformationTests: ApodiniMigratorXCTestCase {
-    
     func testUserTypeInformation() throws {
         let user = XCTAssertNoThrowWithResult(try TypeInformation.of(TestTypes.User.self, with: RuntimeBuilder.self))
         

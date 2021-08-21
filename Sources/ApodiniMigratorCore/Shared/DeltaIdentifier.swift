@@ -42,6 +42,7 @@ public struct DeltaIdentifier: Value, RawRepresentable {
 }
 
 public extension Array where Element: DeltaIdentifiable {
+    /// Returns the mapped identifiers of the elements
     func identifiers() -> [DeltaIdentifier] {
         map { $0.deltaIdentifier }
     }

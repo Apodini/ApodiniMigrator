@@ -35,7 +35,11 @@ struct EncodingMethod: Renderable {
             anyCodable.typed(Necessity.self) == .required,
             case let .json(id) = necessityValue {
             return "try container.encode(\(name) ?? (try \(property.type.unwrapped.typeString).instance(from: \(id))), forKey: .\(name))"
-        } else if let change = convertChanges.firstMatch(on: \.targetID, with: id), case let .element(anyCodable) = change.to, let scriptID = change.convertFromTo {
+        } else if
+            let change = convertChanges.firstMatch(on: \.targetID, with: id),
+            case let .element(anyCodable) = change.to,
+            let scriptID = change.convertFromTo
+        {
             let newType = anyCodable.typed(TypeInformation.self)
             let encodeMethod = "encode\(newType.isOptional ? "IfPresent" : "")"
             return "try container.\(encodeMethod)(try \(newType.typeString).from(\(name), script: \(scriptID)), forKey: .\(name))"

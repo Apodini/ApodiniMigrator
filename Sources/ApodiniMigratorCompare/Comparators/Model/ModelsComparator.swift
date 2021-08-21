@@ -43,7 +43,7 @@ struct ModelsComparator: Comparator {
         
         if allowTypeRename {
             for candidate in removalCandidates {
-                let unmatched = additionCandidates.filter { addition in pairs.allSatisfy({ !$0.contains(addition.deltaIdentifier) }) }
+                let unmatched = additionCandidates.filter { addition in pairs.allSatisfy { !$0.contains(addition.deltaIdentifier) } }
                 if let relaxedMatching = candidate.mostSimilarWithSelf(in: unmatched) {
                     changes.add(
                         UpdateChange(

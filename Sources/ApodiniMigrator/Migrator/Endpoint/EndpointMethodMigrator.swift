@@ -55,7 +55,9 @@ class EndpointMethodMigrator: Renderable {
     
     /// Checks changes whether the operation has changed, if that is the case, returns the `operation` of the new version, otherwise the `operation` of `endpoint`
     private func operation() -> ApodiniMigratorCore.Operation {
-        if let operationChange = endpointChanges.first(where: { $0.element.target == target(.operation) }) as? UpdateChange, case let .element(anyCodable) = operationChange.to {
+        if
+            let operationChange = endpointChanges.first(where: { $0.element.target == target(.operation) }) as? UpdateChange,
+            case let .element(anyCodable) = operationChange.to {
             return anyCodable.typed(ApodiniMigratorCore.Operation.self)
         }
         return endpoint.operation
@@ -63,7 +65,9 @@ class EndpointMethodMigrator: Renderable {
     
     /// Checks whether the `path` has changed, if that is the case the new path is returned, otherwise the `path` of `endpoint`
     private func path() -> EndpointPath {
-        if let pathChange = endpointChanges.first(where: { $0.element.target == target(.resourcePath) }) as? UpdateChange, case let .element(anyCodable) = pathChange.to {
+        if
+            let pathChange = endpointChanges.first(where: { $0.element.target == target(.resourcePath) }) as? UpdateChange,
+            case let .element(anyCodable) = pathChange.to {
             return anyCodable.typed(EndpointPath.self)
         }
         return endpoint.path
@@ -118,15 +122,23 @@ class EndpointMethodMigrator: Renderable {
 // MARK: - EndpointMethodMigrator
 fileprivate extension EndpointMethodMigrator {
     /// Returns the migrated endpoints of `endpoint` by means of `endpointChanges`, by taking into account all changes that target paramaters
+    // swiftlint:disable:next function_body_length
     static func migratedParameters(of endpoint: Endpoint, with endpointChanges: [Change]) -> [MigratedParameter] {
         var parameters: [MigratedParameter] = []
         let parameterTargets = [EndpointTarget.queryParameter, .pathParameter, .contentParameter].map { $0.rawValue }
         
         // First registering additions and deletions
         for change in endpointChanges where parameterTargets.contains(change.element.target) && [.addition, .deletion].contains(change.type) {
-            if let addChange = change as? AddChange, case let .element(anyCodable) = addChange.added {
+            if
+                let addChange = change as? AddChange,
+                case let .element(anyCodable) = addChange.added
+            {
                 parameters.append(.addedParameter(anyCodable.typed(Parameter.self), defaultValue: addChange.defaultValue))
-            } else if let deleteChange = change as? DeleteChange, case let .elementID(id) = deleteChange.deleted, let oldParameter = endpoint.parameters.firstMatch(on: \.deltaIdentifier, with: id) {
+            } else if
+                let deleteChange = change as? DeleteChange,
+                case let .elementID(id) = deleteChange.deleted,
+                let oldParameter = endpoint.parameters.firstMatch(on: \.deltaIdentifier, with: id)
+            {
                 parameters.append(.deletedParameter(oldParameter))
             }
         }
@@ -159,7 +171,11 @@ fileprivate extension EndpointMethodMigrator {
                         continue
                     }
                     
-                    if updateChange.parameterTarget == .typeInformation, let convertFromTo = updateChange.convertFromTo, case let .element(anyCodable) = updateChange.to {
+                    if
+                        updateChange.parameterTarget == .typeInformation,
+                        let convertFromTo = updateChange.convertFromTo,
+                        case let .element(anyCodable) = updateChange.to
+                    {
                         convertFromToJSONId = convertFromTo
                         newType = anyCodable.typed(TypeInformation.self)
                         assert(necessityValueJSONId == nil, "Provided a convert method for a parameter that already has a necessity value")

@@ -107,6 +107,7 @@ public extension ChangeElement {
         }
     }
     
+    /// Type of the change element
     var type: ElementType {
         switch self {
         case .endpoint: return .endpoint

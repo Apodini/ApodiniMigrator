@@ -30,7 +30,7 @@ private enum PropertyType: String {
     }
 }
 
-struct JSObjectScript { // TODO consider property renames for json string
+struct JSObjectScript {
     /// Old type
     private let from: TypeInformation
     /// NewType

@@ -64,7 +64,11 @@ struct EnumMigrator: SwiftFile {
         var retValue: [EnumCase] = []
         
         for change in changes where change.element.target == EnumTarget.case.rawValue {
-            if let deleteChange = change as? DeleteChange, case let .elementID(id) = deleteChange.deleted, let deletedCase = typeInformation.enumCases.firstMatch(on: \.deltaIdentifier, with: id) {
+            if
+                let deleteChange = change as? DeleteChange,
+                case let .elementID(id) = deleteChange.deleted,
+                let deletedCase = typeInformation.enumCases.firstMatch(on: \.deltaIdentifier, with: id)
+            {
                 retValue.append(deletedCase)
             }
         }

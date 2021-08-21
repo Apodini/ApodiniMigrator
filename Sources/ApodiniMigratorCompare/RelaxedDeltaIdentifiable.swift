@@ -48,7 +48,10 @@ extension RelaxedDeltaIdentifiable {
             return similarity < limit ? nil : DeltaSimilarity(similarity: similarity, identifier: currentId)
         }
         .max()
-        if let matched = array.first(where: { (self ?= $0) && $0.deltaIdentifier == (useRawValueDistance ? similarity?.identifier : $0.deltaIdentifier) }) {
+        if let matched = array.first(where: {
+                                        (self ?= $0)
+                                            && $0.deltaIdentifier == (useRawValueDistance ? similarity?.identifier : $0.deltaIdentifier)
+        }) {
             return (similarity?.similarity, matched)
         }
         return nil
