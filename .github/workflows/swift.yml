@@ -54,35 +54,36 @@ jobs:
       run: xcrun llvm-cov export -format="lcov" .build/debug/ApodiniMigratorPackageTests.xctest/Contents/MacOS/ApodiniMigratorPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
-    - name: Test Generating Docs
-      run: |
-          xcodebuild docbuild -scheme ApodiniMigrator -destination platform=macOS,arch=x86_64 -derivedDataPath ./.xcodebuild
-          cp -r $(find ./.xcodebuild -type d -name '*.doccarchive') ./ApodiniMigrator.doccarchive
-          echo "The DocC archive can be found at ./ApodiniMigrator.doccarchive"
-  linux:
-    name: Linux ${{ matrix.linux }} ${{ matrix.configuration }}
-    container:
-      image: swiftlang/swift:nightly-5.5-${{ matrix.linux }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        linux: [bionic, focal, amazonlinux2, centos8]
-        configuration: [debug, release, release_testing]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
-      with:
-        path: .build
-        key: ${{ runner.os }}-${{matrix.linux}}-spm-${{ hashFiles('Package.resolved') }}
-    - name: Check Swift version
-      run: swift --version
-    - name: Release Build
-      if: matrix.configuration == 'release'
-      run: swift build -c release
-    - name: Release Build & Test
-      if: matrix.configuration == 'release_testing'
-      run: swift test -c release -Xswiftc -enable-testing
-    - name: Debug Build & Test
-      if: matrix.configuration == 'debug'
-      run: swift test -c debug
+#    - name: Test Generating Docs
+#      run: |
+#          xcodebuild docbuild -scheme ApodiniMigrator -destination platform=macOS,arch=x86_64 #-derivedDataPath ./.xcodebuild
+#          cp -r $(find ./.xcodebuild -type d -name '*.doccarchive') ./ApodiniMigrator.doccarchive
+#          echo "The DocC archive can be found at ./ApodiniMigrator.doccarchive"
+#  linux:
+#    name: Linux ${{ matrix.linux }} ${{ matrix.configuration }}
+#    container:
+#      image: swiftlang/swift:nightly-5.5-${{ matrix.linux }}
+#    runs-on: ubuntu-latest
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        linux: [bionic, focal, amazonlinux2, centos8]
+#        configuration: [debug, release, release_testing]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: actions/cache@v2
+#      with:
+#        path: .build
+#        key: ${{ runner.os }}-${{matrix.linux}}-spm-${{ hashFiles('Package.resolved') }}
+#    - name: Check Swift version
+#      run: swift --version
+#    - name: Release Build
+#      if: matrix.configuration == 'release'
+#      run: swift build -c release
+#    - name: Release Build & Test
+#      if: matrix.configuration == 'release_testing'
+#      run: swift test -c release -Xswiftc -enable-testing
+#    - name: Debug Build & Test
+#      if: matrix.configuration == 'debug'
+#      run: swift test -c debug
+#
