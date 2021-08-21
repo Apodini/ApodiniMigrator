@@ -47,8 +47,8 @@ enum ProjectFilesUpdater {
         while current.lastComponent != "Sources" {
             current = current.parent()
         }
-        
-        for child in current.recursiveSwiftFiles() {
+        let swiftFiles = try current.recursiveSwiftFiles()
+        for child in swiftFiles {
             let content: String = try child.read()
             if content.contains("Created by Eldi Cano on") {
                 var lines = content.lines()

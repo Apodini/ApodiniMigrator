@@ -15,8 +15,8 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
         ))
         
         XCTAssertNoThrow(try migrator.migrate())
-        XCTAssert(testDirectoryPath.recursiveSwiftFiles().isNotEmpty)
-        XCTAssert((testDirectoryPath + "nonexisting").recursiveSwiftFiles().isEmpty)
+        XCTAssert(try testDirectoryPath.recursiveSwiftFiles().isNotEmpty)
+        XCTAssert(try (testDirectoryPath + "nonexisting").recursiveSwiftFiles().isEmpty)
     }
     
     func testProjectFilesUpdater() throws {

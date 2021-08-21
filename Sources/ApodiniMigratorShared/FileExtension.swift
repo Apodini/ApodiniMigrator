@@ -51,10 +51,10 @@ public extension Path {
     }
     
     /// Returns all swift files in `self` and in subdirectories of `self`
-    func recursiveSwiftFiles() -> [Path] {
+    func recursiveSwiftFiles() throws -> [Path] {
         guard isDirectory else {
             return []
         }
-        return (try? recursiveChildren().filter { $0.is(.swift) }) ?? []
+        return try recursiveChildren().filter { $0.is(.swift) }
     }
 }

@@ -144,17 +144,17 @@ final class TypeInformationTests: ApodiniMigratorXCTestCase {
         XCTAssert(typeInformation.typeName.genericTypeNames.equalsIgnoringOrder(to: ["SwiftInt", "SwiftString"]))
     }
     
-    /// testing recursive storing and reconstructing in `TypesStore`
     func testTypeStore() throws {
         let typeInformation = try TypeInformation(type: [Int: [UUID: TestTypes.User?????]].self)
         
         var store = TypesStore()
         
-        let reference = store.store(typeInformation) /// storing and retrieving a reference
+        let reference = store.store(typeInformation) // storing and retrieving a reference
 
-        let result = store.construct(from: reference) /// reconstructing type from the reference
+        let result = store.construct(from: reference) // reconstructing type from the reference
         
         XCTAssertEqual(result, typeInformation)
+        // TypesStore only stores complex types and enums
         XCTAssertEqual(store.store(.scalar(.string)), .scalar(.string))
     }
     

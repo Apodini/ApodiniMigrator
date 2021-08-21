@@ -353,7 +353,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssert(array.first == "hello")
     }
     
-    func testcomplexTypes() throws {
+    func testComplexTypes() throws {
         struct User: Codable {
             let id: UUID
             let name: String
