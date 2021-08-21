@@ -32,7 +32,7 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
     func testNoEndpointsChange() throws {
         let endpointsComparator = EndpointsComparator(lhs: [lhs], rhs: [lhs], changes: node, configuration: .default)
         endpointsComparator.compare()
-        XCTAssert(node.changes.isEmpty)
+        XCTAssert(node.isEmpty)
     }
     
     func testEndpointDeleted() throws {
@@ -41,6 +41,7 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssert(node.changes.count == 1)
         let deleteChange = try XCTUnwrap(node.changes.first as? DeleteChange)
         
+        XCTAssert(deleteChange.element == .endpoint(lhs.deltaIdentifier, target: .`self`))
         XCTAssert(deleteChange.breaking)
         XCTAssert(!deleteChange.solvable)
         XCTAssert(deleteChange.fallbackValue == .none)
@@ -53,6 +54,7 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssert(node.changes.count == 1)
         let addChange = try XCTUnwrap(node.changes.first as? AddChange)
         
+        XCTAssert(addChange.element == .endpoint(lhs.deltaIdentifier, target: .`self`))
         XCTAssert(!addChange.breaking)
         XCTAssert(addChange.providerSupport == .renameHint(AddChange.self))
         XCTAssert(addChange.solvable)
@@ -71,12 +73,15 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
         let renameChange = try XCTUnwrap(node.changes.first as? UpdateChange)
         
         let providerSupport = try XCTUnwrap(renameChange.providerSupport)
-        XCTAssert(providerSupport == .renameValidationHint)
+        XCTAssert(renameChange.element == .endpoint(lhs.deltaIdentifier, target: .deltaIdentifier))
+        XCTAssert(renameChange.type == .rename)
         XCTAssert(!renameChange.breaking)
         XCTAssert(renameChange.solvable)
-    
-        if case let .stringValue(value) = renameChange.to {
+        XCTAssert(providerSupport == .renameValidationHint)
+        
+        if case let .stringValue(value) = renameChange.to, let similarity = renameChange.similarity {
             XCTAssert(value == "runningTests")
+            XCTAssert(similarity > 0.5)
         } else {
             XCTFail("Rename change did not store the updated string value of the endpoint identifier")
         }

@@ -102,7 +102,7 @@ private struct EnumCasesComparator: Comparator {
                         from: candidate.name,
                         to: relaxedMatching.element.name,
                         similarity: relaxedMatching.similarity,
-                        breaking: false,
+                        breaking: true,
                         solvable: true,
                         includeProviderSupport: includeProviderSupport
                     )

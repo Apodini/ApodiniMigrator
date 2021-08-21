@@ -26,6 +26,11 @@ final class ChangeContextNode: Codable {
     /// All models that have some kind of breaking change in the new version
     private(set) var rhsModels: [TypeInformation] = []
     
+    /// Returns whether `changes` is empty
+    var isEmpty: Bool {
+        changes.isEmpty
+    }
+    
     /// Initializes `self` with empty changes
     init(compareConfiguration: CompareConfiguration? = nil) {
         changes = []

@@ -24,15 +24,6 @@ public protocol Change: Codable {
 public extension Change {
     /// Element ID of `element`
     var elementID: DeltaIdentifier { element.deltaIdentifier }
-    
-    /// Returns the typed version of `self` to a concrete `Change` implementation
-    /// - Note: results in `fatalError` if casting fails
-    func typed<C: Change>(_ type: C.Type) -> C {
-        guard let self = self as? C else {
-            fatalError("Failed to cast change to \(C.self)")
-        }
-        return self
-    }
 }
 
 

@@ -14,6 +14,7 @@ final class MetaDataComparatorTests: ApodiniMigratorXCTestCase {
         let serverPathChange = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(serverPathChange.breaking)
         XCTAssert(serverPathChange.solvable)
+        XCTAssert(serverPathChange.type == .update)
         XCTAssert(serverPathChange.element == .networking(target: .serverPath))
         if case let .stringValue(value) = serverPathChange.to {
             XCTAssert(value == "www.updated.com/v1")
@@ -31,6 +32,7 @@ final class MetaDataComparatorTests: ApodiniMigratorXCTestCase {
         
         XCTAssert(node.changes.count == 1)
         let serverPathChange = try XCTUnwrap(node.changes.first as? UpdateChange)
+        XCTAssert(serverPathChange.type == .update)
         XCTAssert(serverPathChange.breaking)
         XCTAssert(serverPathChange.solvable)
         XCTAssert(serverPathChange.element == .networking(target: .serverPath))

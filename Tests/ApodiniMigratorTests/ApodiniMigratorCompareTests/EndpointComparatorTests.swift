@@ -38,7 +38,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
     func testNoEndpointChange() throws {
         let endpointComparator = EndpointComparator(lhs: lhs, rhs: lhs, changes: node, configuration: .default)
         endpointComparator.compare()
-        XCTAssert(node.changes.isEmpty)
+        XCTAssert(node.isEmpty)
     }
     
     func testOperationChanged() throws {
@@ -98,13 +98,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.operation,
             absolutePath: lhs.path.description,
-            parameters: [
-                newParameter,
-                .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
-                .init(name: "first", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
-                .init(name: "second", typeInformation: .scalar(.uuid), parameterType: .path, isRequired: true),
-                .init(name: "third", typeInformation: try TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
-            ],
+            parameters: lhs.parameters + newParameter,
             response: lhs.response,
             errors: lhs.errors
         )
@@ -177,10 +171,12 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssert(node.changes.count == 1)
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .endpoint("test", target: .queryParameter))
+        XCTAssert(change.type == .rename)
         XCTAssert(change.breaking)
         XCTAssert(change.solvable)
-        if case let .stringValue(value) = change.to {
+        if case let .stringValue(value) = change.to, let similarity = change.similarity {
             XCTAssert(value == "firstParam")
+            XCTAssert(similarity > 0.5)
         } else {
             XCTFail("Change did not provide the updated name of the parameter")
         }
@@ -315,20 +311,3 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         }
     }
 }
-/*
-excluded: # paths to ignore during linting. Takes precedence over `included`.
-  - .build
-  - TestWebService/.build
-  - .swiftpm
-  # We ignore all files with @_functionBuilder/@resultBuilder as long as we support 5.3: https://github.com/Apodini/Apodini/runs/2525316261?check_suite_focus=true
-  - Sources/Apodini/Components/Path/PathComponentBuilder.swift
-  - Sources/Apodini/Components/ComponentBuilder.swift
-  - Sources/Apodini/Configurations/ConfigurationBuilder.swift
-  - Sources/Apodini/Relationships/RelationshipIdentificationBuilder.swift
-  - Sources/Apodini/Metadata/ResultBuilder/MetadataBuilder.swift
-  - Sources/Apodini/Metadata/ResultBuilder/ComponentMetadataBuilder.swift
-  - Sources/Apodini/Metadata/ResultBuilder/ContentMetadataBuilder.swift
-  - Sources/Apodini/Metadata/ResultBuilder/RestrictedMetadataBlockBuilder.swift
-  - Sources/ApodiniGRPC/GRPCDependentStaticConfigurationBuilder.swift
-  - Sources/ApodiniREST/RESTDependentStaticConfigurationBuilder.swift
-*/

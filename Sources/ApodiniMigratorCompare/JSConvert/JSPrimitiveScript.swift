@@ -275,10 +275,6 @@ extension JSPrimitiveScript {
         .init(from: scalarType.representation, to: scalarType.representation, convertFromTo: identityConvert, convertToFrom: identityConvert)
     }
     
-    static var identities: [JSPrimitiveScript] {
-        ScalarType.allCases.map { JSPrimitiveScript.identity(for: $0) }
-    }
-
     private static var identityConvert: String {
         """
         function convert(input) {
@@ -290,14 +286,6 @@ extension JSPrimitiveScript {
 
 // MARK: - UUID
 extension JSPrimitiveScript {
-    static func stringify(argumentName: String? = nil, with content: String) -> String {
-        """
-        function convert(\(argumentName ?? "input")) {
-            return JSON.stringify(\(content))
-        }
-        """
-    }
-    
     static func stringify(to primitiveType: PrimitiveType) -> String {
         """
         function convert(input) {

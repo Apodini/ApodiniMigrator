@@ -364,8 +364,8 @@ public extension TypeInformation {
     }
 }
 
-// MARK: - Array extensions
-public extension Array where Element == TypeInformation {
+// MARK: - Array + Value
+public extension Array where Element: Value {
     /// Appends rhs to lhs
     static func + (lhs: Self, rhs: Element) -> Self {
         var mutableLhs = lhs
@@ -384,7 +384,10 @@ public extension Array where Element == TypeInformation {
         mutableLhs.append(contentsOf: rhs)
         return mutableLhs.unique()
     }
-    
+}
+
+// MARK: - Array + TypeInformation
+public extension Array where Element == TypeInformation {
     /// Unique file renderable types contained in self
     func fileRenderableTypes() -> Self {
         flatMap { $0.fileRenderableTypes() }.unique()
