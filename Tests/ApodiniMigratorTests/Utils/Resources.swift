@@ -1,12 +1,17 @@
 //
-//  File.swift
-//  
+//  Resources.swift
+//  ApodiniMigratorTests
 //
-//  Created by Eldi Cano on 20.08.21.
+//  Created by Eldi Cano on 23.08.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation
 import ApodiniMigrator
+
+extension Resource {
+    var bundle: Bundle { .module }
+}
 
 enum Documents: String, Resource {
     case v1 = "api_qonectiq1.0.0"
@@ -16,11 +21,10 @@ enum Documents: String, Resource {
     var fileExtension: FileExtension { .json }
     
     var name: String { rawValue }
-    
-    var bundle: Bundle { .module }
 }
 
 enum OutputFiles: String, Resource {
+    // enum files
     case defaultStringEnum
     case defaultIntEnum
     case enumAddedCase
@@ -30,6 +34,7 @@ enum OutputFiles: String, Resource {
     case enumUnsupportedChange
     case enumMultipleChanges
     
+    // object files
     case defaultObjectFile
     case objectAddedProperty
     case objectDeletedProperty
@@ -41,12 +46,26 @@ enum OutputFiles: String, Resource {
     case objectDeletedChange
     case objectMultipleChange
     
+    // auxiliary
     case modelsTestFile
     case aPIFile
+    
+    // endpoint files
+    case defaultEndpointFile
+    case endpointPathChange
+    case endpointOperationChange
+    case endpointAddParameterChange
+    case endpointDeleteParameterChange
+    case endpointDeleteContentParameterChange
+    case endpointRenameParameterChange
+    case endpointParameterNecessityToRequiredChange
+    case endpointParameterKindAndPathChange
+    case endpointParameterTypeChange
+    case endpointResponseChange
+    case endpointDeletedChange
+    case endpointMultipleChanges
     
     var fileExtension: FileExtension { .markdown }
     
     var name: String { rawValue.upperFirst }
-    
-    var bundle: Bundle { .module }
 }

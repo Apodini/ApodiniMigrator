@@ -2,7 +2,7 @@
 //  Resource.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 07.08.21.
+//  Created by Eldi Cano on 23.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -70,10 +70,5 @@ public extension Resource {
     /// Returns the decoded instance of the resource file
     func instance<D: Decodable>() throws -> D {
         try D.decode(from: try data())
-    }
-    
-    /// Overrides the content of the resource with `content`
-    func write(content: String) throws {
-        try path.write(content)
     }
 }

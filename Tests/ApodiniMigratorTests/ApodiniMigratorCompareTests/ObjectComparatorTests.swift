@@ -65,7 +65,7 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssert(deleteChange.solvable)
         XCTAssert(deleteChange.providerSupport == .renameHint(DeleteChange.self))
         if case let .elementID(id) = deleteChange.deleted {
-            XCTAssert(id == .init("githubProfile"))
+            XCTAssert(id == "githubProfile")
         } else {
             XCTFail("Did not provide the id of the deleted property")
         }
@@ -90,7 +90,7 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .object(user.deltaIdentifier, target: .property))
         XCTAssert(change.type == .rename)
-        XCTAssert(change.targetID == .init("githubProfile"))
+        XCTAssert(change.targetID == "githubProfile")
         XCTAssert(change.breaking)
         XCTAssert(change.solvable)
         if case let .stringValue(value) = change.to, let similarity = change.similarity {
@@ -114,7 +114,7 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .object(user.deltaIdentifier, target: .necessity))
         XCTAssert(change.type == .update)
-        XCTAssert(change.targetID == .init("age"))
+        XCTAssert(change.targetID == "age")
         XCTAssert(change.breaking)
         XCTAssert(change.solvable)
         if case let .element(codable) = change.to {

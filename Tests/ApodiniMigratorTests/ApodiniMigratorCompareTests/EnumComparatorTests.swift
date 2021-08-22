@@ -40,7 +40,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssert(deleteChange.fallbackValue == .none)
         XCTAssert(deleteChange.providerSupport == .renameHint(DeleteChange.self))
         if case let .elementID(id) = deleteChange.deleted {
-            XCTAssert(id == .init("other"))
+            XCTAssert(id == "other")
         } else {
             XCTFail("Did not provide the id of the deleted enum case")
         }

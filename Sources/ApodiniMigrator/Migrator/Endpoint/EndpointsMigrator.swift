@@ -2,7 +2,7 @@
 //  EndpointsMigrator.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 07.08.21.
+//  Created by Eldi Cano on 23.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -37,7 +37,7 @@ struct EndpointsMigrator {
             let endpointIds = endpoints.identifiers()
             let groupChanges = endpointChanges.filter { endpointIds.contains($0.elementID) }
             let fileName = group.key + Self.fileSuffix
-            let endpointFile = EndpointFile(typeInformation: .reference(.init(group.key)), endpoints: endpoints, changes: groupChanges)
+            let endpointFile = EndpointFile(typeInformation: .reference(group.key), endpoints: endpoints, changes: groupChanges)
             // triggeres migration of endpoints, rendering of file, and stores the migratedEndpoints in `endpointFile.migratedEndpoints`
             try endpointFile.write(at: endpointsPath, alternativeFileName: fileName)
             migratedEndpoints.append(contentsOf: endpointFile.migratedEndpoints)

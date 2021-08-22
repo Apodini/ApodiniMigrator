@@ -2,7 +2,7 @@
 //  TypeInformation+Convenience.swift
 //  ApodiniMigratorCore
 //
-//  Created by Eldi Cano on 07.08.21.
+//  Created by Eldi Cano on 23.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -272,8 +272,8 @@ public extension TypeInformation {
         case let .optional(wrappedValue):
             return .optional(wrappedValue: wrappedValue.asReference())
         case .enum, .object:
-            return .reference(.init(typeName.name))
-        case .reference: fatalError("Attempted to reference a reference")
+            return .reference(typeName.name)
+        case .reference: return self
         }
     }
     
@@ -361,6 +361,10 @@ public extension TypeInformation {
     /// Returns an enum with string raw value with the given name and cases
     static func `enum`(name: TypeName, cases: [EnumCase]) -> TypeInformation {
         .enum(name: name, rawValueType: .string, cases: cases)
+    }
+    
+    static func reference(_ key: String) -> TypeInformation {
+        .reference(.init(key))
     }
 }
 

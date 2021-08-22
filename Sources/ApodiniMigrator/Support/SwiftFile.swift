@@ -2,7 +2,7 @@
 //  SwiftFile.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 07.08.21.
+//  Created by Eldi Cano on 23.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -155,7 +155,7 @@ struct Import: Renderable {
     /// One line per framwork, no empty lines in between
     func render() -> String {
         """
-        \(frameworks.map { $0.string }.lineBreaked)
+        \(frameworks.sorted(by: \.string).map { $0.string }.lineBreaked)
         """
     }
 }

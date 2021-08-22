@@ -143,7 +143,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssert(!change.breaking)
         XCTAssert(change.solvable)
         if case let .elementID(id) = change.deleted {
-            XCTAssert(id == .init("first"))
+            XCTAssert(id == "first")
         } else {
             XCTFail("Change did not provide the id of the deleted parameter")
         }
@@ -236,7 +236,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         let change = try XCTUnwrap(node.changes.first(where: { $0.element.target == EndpointTarget.pathParameter.rawValue }) as? UpdateChange)
         XCTAssert(change.element == .endpoint("test", target: .pathParameter))
         XCTAssert(change.parameterTarget == .kind)
-        XCTAssert(change.targetID == .init("second"))
+        XCTAssert(change.targetID == "second")
         XCTAssert(change.breaking)
         XCTAssert(change.solvable)
         if case let .element(codable) = change.to {
@@ -271,7 +271,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .endpoint("test", target: .queryParameter))
         XCTAssert(change.parameterTarget == .typeInformation)
-        XCTAssert(change.targetID == .init("first"))
+        XCTAssert(change.targetID == "first")
         XCTAssert(change.convertionWarning == nil)
         XCTAssert(change.breaking)
         XCTAssert(change.solvable)
@@ -306,7 +306,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssert(change.breaking)
         XCTAssert(change.solvable)
         if case let .element(codable) = change.to, let scriptID = change.convertToFrom, let script = node.scripts[scriptID] {
-            XCTAssert(codable.typed(TypeInformation.self) == .reference(.init("EndpointComparatorTestsRHSResponse")))
+            XCTAssert(codable.typed(TypeInformation.self) == .reference("EndpointComparatorTestsRHSResponse"))
             let id = UUID()
             let instance = XCTAssertNoThrowWithResult(try LHSResponse.from(RHSResponse(identifier: id, name: "someResponse"), script: script))
             XCTAssert(instance.id == id)

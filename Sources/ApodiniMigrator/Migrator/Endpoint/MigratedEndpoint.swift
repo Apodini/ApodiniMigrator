@@ -2,7 +2,7 @@
 //  MigratedEndpoint.swift
 //  ApodiniMigrator
 //
-//  Created by Eldi Cano on 07.08.21.
+//  Created by Eldi Cano on 23.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -72,7 +72,7 @@ class MigratedEndpoint {
     private func setValue(for parameter: MigratedParameter) -> String {
         let setValue: String
         if let necessityValueID = parameter.necessityValueJSONId {
-            setValue = "\(parameter.oldName) ?? (try! \(parameter.oldType.typeString).instance(from: \(necessityValueID))"
+            setValue = "\(parameter.oldName) ?? (try! \(parameter.oldType.typeString).instance(from: \(necessityValueID)))"
         } else if let convertID = parameter.convertFromTo {
             setValue = "try! \(parameter.newType.typeString).from(\(parameter.oldName), script: \(convertID))"
         } else {

@@ -35,7 +35,7 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
         
         let testFile = TestFileTemplate([object, enumeration], fileName: "TestFile", packageName: "ApodiniMigrator")
         
-        XCTFileAssertEqual(testFile, .modelsTestFile)
+        XCTMigratorAssertEqual(testFile, .modelsTestFile)
     }
     
     func testAPIFile() throws {
@@ -50,6 +50,6 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
         )
         let file = APIFile([.init(endpoint: endpoint, unavailable: false, parameters: [], path: endpoint.path)])
         
-        XCTFileAssertEqual(file, .aPIFile)
+        XCTMigratorAssertEqual(file, .aPIFile)
     }
 }

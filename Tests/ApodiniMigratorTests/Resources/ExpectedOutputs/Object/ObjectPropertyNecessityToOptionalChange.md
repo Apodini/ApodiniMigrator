@@ -65,6 +65,6 @@ public struct User: Codable {
         githubProfile = try container.decode(URL.self, forKey: .githubProfile)
         id = try container.decode(UUID.self, forKey: .id)
         isStudent = try container.decode(String.self, forKey: .isStudent)
-        name = try container.decodeIfPresent(String.self, forKey: .name) ?? (try String.instance(from: 0))
+        name = try container.decodeIfPresent(String.self, forKey: .name) ?? (try String.instance(from: 4))
     }
 }

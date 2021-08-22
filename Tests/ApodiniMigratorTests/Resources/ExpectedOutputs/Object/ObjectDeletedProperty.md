@@ -60,7 +60,7 @@ public struct User: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         age = try container.decodeIfPresent(UInt.self, forKey: .age)
-        friends = try [UUID].instance(from: 1)
+        friends = try [UUID].instance(from: 2)
         githubProfile = try container.decode(URL.self, forKey: .githubProfile)
         id = try container.decode(UUID.self, forKey: .id)
         isStudent = try container.decode(String.self, forKey: .isStudent)

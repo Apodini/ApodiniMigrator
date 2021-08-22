@@ -2,7 +2,7 @@
 //  ChangeElement.swift
 //  ApodiniMigratorCompare
 //
-//  Created by Eldi Cano on 07.08.21.
+//  Created by Eldi Cano on 23.08.21.
 //  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
@@ -93,7 +93,7 @@ public extension ChangeElement {
         case let .endpoint(deltaIdentifier, _): return deltaIdentifier
         case let .enum(deltaIdentifier, _): return deltaIdentifier
         case let .object(deltaIdentifier, _): return deltaIdentifier
-        case .networking: return .init("NetworkingService")
+        case .networking: return "NetworkingService"
         }
     }
     

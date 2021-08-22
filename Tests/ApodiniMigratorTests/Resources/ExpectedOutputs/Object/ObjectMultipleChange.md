@@ -52,7 +52,7 @@ public struct User: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(age ?? (try UInt.instance(from: 0)), forKey: .age)
+        try container.encode(age ?? (try UInt.instance(from: 3)), forKey: .age)
         try container.encode(githubProfile, forKey: .githubProfile)
         try container.encode(id, forKey: .id)
         try container.encode(try Bool.from(isStudent, script: 1), forKey: .isStudent)
@@ -65,11 +65,11 @@ public struct User: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         age = try container.decodeIfPresent(UInt.self, forKey: .age)
-        friends = try [UUID].instance(from: 1)
+        friends = try [UUID].instance(from: 2)
         githubProfile = try container.decode(URL.self, forKey: .githubProfile)
         id = try container.decode(UUID.self, forKey: .id)
         isStudent = try String.from(try container.decode(Bool.self, forKey: .isStudent), script: 2)
-        name = try container.decodeIfPresent(String.self, forKey: .name) ?? (try String.instance(from: 1))
+        name = try container.decodeIfPresent(String.self, forKey: .name) ?? (try String.instance(from: 4))
         username = try container.decode(String.self, forKey: .username)
     }
 }

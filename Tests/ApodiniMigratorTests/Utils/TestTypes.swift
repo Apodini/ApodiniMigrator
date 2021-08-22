@@ -1,8 +1,9 @@
 //
-//  File.swift
-//  
+//  TestTypes.swift
+//  ApodiniMigratorTests
 //
-//  Created by Eldi Cano on 16.08.21.
+//  Created by Eldi Cano on 23.08.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import Foundation

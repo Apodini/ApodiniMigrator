@@ -29,8 +29,8 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
     private var deletePropertyChange: DeleteChange {
         .init(
             element: .object(user.deltaIdentifier, target: .property),
-            deleted: .elementID(.init("friends")),
-            fallbackValue: .json(1),
+            deleted: .elementID("friends"),
+            fallbackValue: .json(2),
             breaking: true,
             solvable: true
         )
@@ -52,8 +52,8 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
             element: .object(user.deltaIdentifier, target: .necessity),
             from: .element(Necessity.optional),
             to: .element(Necessity.required),
-            necessityValue: .value(from: .scalar(.uint), with: .default, changes: node),
-            targetID: DeltaIdentifier("age"),
+            necessityValue: .json(3),
+            targetID: "age",
             breaking: true,
             solvable: true
         )
@@ -64,8 +64,8 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
             element: .object(user.deltaIdentifier, target: .necessity),
             from: .element(Necessity.required),
             to: .element(Necessity.optional),
-            necessityValue: .value(from: .scalar(.string), with: .default, changes: node),
-            targetID: DeltaIdentifier("name"),
+            necessityValue: .json(4),
+            targetID: "name",
             breaking: true,
             solvable: true
         )
@@ -76,7 +76,7 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
             element: .object(user.deltaIdentifier, target: .property),
             from: .element(TypeInformation.scalar(.string)),
             to: .element(TypeInformation.scalar(.bool)),
-            targetID: DeltaIdentifier("isStudent"),
+            targetID: "isStudent",
             convertFromTo: 1,
             convertToFrom: 2,
             convertionWarning: nil,
@@ -91,37 +91,37 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     func testDefaultObjectFile() {
-        XCTFileAssertEqual(DefaultObjectFile(user), .defaultObjectFile)
+        XCTMigratorAssertEqual(DefaultObjectFile(user), .defaultObjectFile)
     }
     
     func testAddedObjectProperty() throws {
         let migrator = ObjectMigrator(user, changes: [addPropertyChange])
-        XCTFileAssertEqual(migrator, .objectAddedProperty)
+        XCTMigratorAssertEqual(migrator, .objectAddedProperty)
     }
     
     func testDeletedObjectProperty() throws {
         let migrator = ObjectMigrator(user, changes: [deletePropertyChange])
-        XCTFileAssertEqual(migrator, .objectDeletedProperty)
+        XCTMigratorAssertEqual(migrator, .objectDeletedProperty)
     }
     
     func testRenamedObjectProperty() throws {
         let migrator = ObjectMigrator(user, changes: [renamedPropertyChange])
-        XCTFileAssertEqual(migrator, .objectRenamedProperty)
+        XCTMigratorAssertEqual(migrator, .objectRenamedProperty)
     }
     
     func testPropertyNecessityToRequiredChange() throws {
         let migrator = ObjectMigrator(user, changes: [propertyNecessityToRequiredChange])
-        XCTFileAssertEqual(migrator, .objectPropertyNecessityToRequiredChange)
+        XCTMigratorAssertEqual(migrator, .objectPropertyNecessityToRequiredChange)
     }
     
     func testPropertyNecessityToOptionalChange() throws {
         let migrator = ObjectMigrator(user, changes: [propertyNecessityToOptionalChange])
-        XCTFileAssertEqual(migrator, .objectPropertyNecessityToOptionalChange)
+        XCTMigratorAssertEqual(migrator, .objectPropertyNecessityToOptionalChange)
     }
     
     func testPropertyTypeChange() throws {
         let migrator = ObjectMigrator(user, changes: [propertyTypeChange])
-        XCTFileAssertEqual(migrator, .objectPropertyTypeChange)
+        XCTMigratorAssertEqual(migrator, .objectPropertyTypeChange)
     }
     
     func testMultipleObjectChanges() throws {
@@ -137,7 +137,7 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
             ]
         )
         
-        XCTFileAssertEqual(migrator, .objectMultipleChange)
+        XCTMigratorAssertEqual(migrator, .objectMultipleChange)
     }
     
     func testObjectDeleted() throws {
@@ -150,7 +150,7 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
         )
         
         let migrator = ObjectMigrator(user, changes: [deletedSelfChange])
-        XCTFileAssertEqual(migrator, .objectDeletedChange)
+        XCTMigratorAssertEqual(migrator, .objectDeletedChange)
     }
     
     func testObjectUnsupportedChange() throws {
@@ -160,7 +160,7 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
         )
         
         let migrator = ObjectMigrator(user, changes: [unsupportedChange])
-        XCTFileAssertEqual(migrator, .objectUnsupportedChange)
+        XCTMigratorAssertEqual(migrator, .objectUnsupportedChange)
     }
     
     func testTestFile() throws {
@@ -188,6 +188,6 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
         
         let testFile = TestFileTemplate([object, enumeration], fileName: "TestFile", packageName: "ApodiniMigrator")
         
-        XCTFileAssertEqual(testFile, .modelsTestFile)
+        XCTMigratorAssertEqual(testFile, .modelsTestFile)
     }
 }

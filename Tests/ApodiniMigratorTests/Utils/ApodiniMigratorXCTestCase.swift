@@ -1,8 +1,9 @@
 //
-//  File.swift
-//  
+//  ApodiniMigratorXCTestCase.swift
+//  ApodiniMigratorTests
 //
-//  Created by Eldi Cano on 03.06.21.
+//  Created by Eldi Cano on 23.08.21.
+//  Copyright © 2021 TUM LS1. All rights reserved.
 //
 
 import XCTest
@@ -66,26 +67,8 @@ class ApodiniMigratorXCTestCase: XCTestCase {
         }
     }
     
-    func XCTFileAssertEqual(_ rendarable: Renderable, _ resource: OutputFiles) {
-        XCTMigratorAssertEqual(rendarable.render(), resource)
-    }
-    
-    func XCTMigratorAssertEqual(_ expression: String, _ resource: OutputFiles, overrideResource: Bool = false) {
-        do {
-            let instanceContent = resource.content()
-//            
-//            if expression.lines().count != instanceContent.lines().count {
-//                fatalError("Different lines: \(expression.lines().count) and \(instanceContent.lines().count)")
-//            }
-            
-            if expression != instanceContent, overrideResource {
-                try resource.write(content: expression)
-            }
-            
-            XCTAssertEqual(expression.indentationFormatted(), instanceContent.indentationFormatted())
-        } catch {
-            XCTFail(error.localizedDescription)
-        }
+    func XCTMigratorAssertEqual(_ rendarable: Renderable, _ resource: OutputFiles) {
+        XCTAssertEqual(rendarable.indentationFormatted(), resource.content().indentationFormatted())
     }
     
     func canImportJavaScriptCore() -> Bool {

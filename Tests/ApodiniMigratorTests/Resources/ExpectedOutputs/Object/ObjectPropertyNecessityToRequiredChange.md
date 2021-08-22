@@ -48,7 +48,7 @@ public struct User: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(age ?? (try UInt.instance(from: 0)), forKey: .age)
+        try container.encode(age ?? (try UInt.instance(from: 3)), forKey: .age)
         try container.encode(friends, forKey: .friends)
         try container.encode(githubProfile, forKey: .githubProfile)
         try container.encode(id, forKey: .id)

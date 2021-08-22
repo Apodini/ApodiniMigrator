@@ -12,7 +12,7 @@ final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
         let documentData = XCTAssertNoThrowWithResult(try encoder.encode(documentAsAnyCodable))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: documentData))
         
-        let deltaIdentifier = DeltaIdentifier("id")
+        let deltaIdentifier: DeltaIdentifier = "id"
         let deltaIdentifierData = XCTAssertNoThrowWithResult(try encoder.encode(deltaIdentifier.asAnyCodableElement))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: deltaIdentifierData))
         
@@ -79,7 +79,7 @@ final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(int ?= customInt, false)
         XCTAssert(int ?= int)
         
-        let reference = TypeInformation.reference(.init("User"))
+        let reference = TypeInformation.reference("User")
         XCTAssert(reference.deltaIdentifier.rawValue == "User")
         XCTAssert(reference ?= .object(name: .init(name: "User"), properties: []))
     }

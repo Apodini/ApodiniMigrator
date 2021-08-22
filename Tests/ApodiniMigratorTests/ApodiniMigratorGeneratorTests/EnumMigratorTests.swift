@@ -31,7 +31,7 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
     var deleteCaseChange: DeleteChange {
         .init(
             element: .enum(enumeration.deltaIdentifier, target: .case),
-            deleted: .elementID(.init("other")),
+            deleted: .elementID("other"),
             fallbackValue: .none,
             breaking: true,
             solvable: true
@@ -56,29 +56,29 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
     
     func testDefaultStringEnumFile() throws {
         let file = DefaultEnumFile(enumeration)
-        XCTFileAssertEqual(file, .defaultStringEnum)
+        XCTMigratorAssertEqual(file, .defaultStringEnum)
     }
     
     func testDefaultIntEnumFile() throws {
         let file = DefaultEnumFile(.enum(name: enumeration.typeName, rawValueType: .int, cases: enumeration.enumCases))
-        XCTFileAssertEqual(file, .defaultIntEnum)
+        XCTMigratorAssertEqual(file, .defaultIntEnum)
     }
     
     func testEnumAddedCase() throws {
         let migrator = EnumMigrator(enum: enumeration, changes: [addCaseChange])
         
-        XCTFileAssertEqual(migrator, .enumAddedCase)
+        XCTMigratorAssertEqual(migrator, .enumAddedCase)
     }
     
     func testEnumDeletedCase() throws {
         let migrator = EnumMigrator(enum: enumeration, changes: [deleteCaseChange])
-        XCTFileAssertEqual(migrator, .enumDeletedCase)
+        XCTMigratorAssertEqual(migrator, .enumDeletedCase)
     }
     
     func testEnumRenamedCase() throws {
         
         let migrator = EnumMigrator(enum: enumeration, changes: [renameCaseChange])
-        XCTFileAssertEqual(migrator, .enumRenamedCase)
+        XCTMigratorAssertEqual(migrator, .enumRenamedCase)
     }
     
     func testEnumDeleted() throws {
@@ -91,7 +91,7 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
         )
         
         let migrator = EnumMigrator(enum: enumeration, changes: [deletedSelfChange])
-        XCTFileAssertEqual(migrator, .enumDeletedSelf)
+        XCTMigratorAssertEqual(migrator, .enumDeletedSelf)
     }
     
     func testEnumUnsupportedChange() throws {
@@ -102,11 +102,11 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
         
         let migrator = EnumMigrator(enum: enumeration, changes: [unsupportedChange])
         
-        XCTFileAssertEqual(migrator, .enumUnsupportedChange)
+        XCTMigratorAssertEqual(migrator, .enumUnsupportedChange)
     }
     
     func testEnumMultipleChanges() throws {
         let migrator = EnumMigrator(enum: enumeration, changes: [addCaseChange, deleteCaseChange, renameCaseChange])
-        XCTFileAssertEqual(migrator, .enumMultipleChanges)
+        XCTMigratorAssertEqual(migrator, .enumMultipleChanges)
     }
 }
