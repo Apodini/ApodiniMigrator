@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 protocol TypeInformationComplexConstructor {
     static func construct<T: TypeInformationBuilder>(with builderType: T.Type) throws -> TypeInformation
 }

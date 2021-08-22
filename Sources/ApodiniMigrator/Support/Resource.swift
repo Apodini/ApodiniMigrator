@@ -72,6 +72,7 @@ public extension Resource {
         try D.decode(from: try data())
     }
     
+    /// Overrides the content of the resource with `content`
     func write(content: String) throws {
         try path.write(content)
     }

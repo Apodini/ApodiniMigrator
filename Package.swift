@@ -12,7 +12,7 @@ private enum RuntimeDependency {
         switch self {
         case .enumSupport: return .package(url: "https://github.com/PSchmiedmayer/Runtime.git", .revision("b810847a466ecd1cf65e7f39e6e715734fdc672c"))
         case .mainRepo: return .package(url: "https://github.com/wickwirew/Runtime.git", from: "2.2.2")
-        case .supereg: return .package(url: "https://github.com/Supereg/Runtime.git", .branch("master"))
+        case .supereg: return .package(url: "https://github.com/Supereg/Runtime.git", from: "2.2.3")
         }
     }
 }
