@@ -65,10 +65,11 @@ class ApodiniMigratorXCTestCase: XCTestCase {
         }
     }
     
-    func isLinux() -> Bool {
-        #if os(Linux)
+    func canImportJavaScriptCore() -> Bool {
+        #if canImport(JavaScriptCore)
         return true
         #else
+        print("Test skipped because JavaScriptCore is not available in this platform")
         return false
         #endif
     }

@@ -2,7 +2,7 @@ import XCTest
 @testable import ApodiniMigratorCore
 @testable import ApodiniMigratorCompare
 
-final class AnyCodableTests: ApodiniMigratorXCTestCase {
+final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
     func testAnyCodable() throws {
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()

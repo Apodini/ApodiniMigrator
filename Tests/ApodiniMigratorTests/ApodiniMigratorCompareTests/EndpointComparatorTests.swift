@@ -247,6 +247,9 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testEndpointParameterTypeChange() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let rhs = Endpoint(
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
@@ -281,6 +284,9 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testEndpointResponseChange() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let rhs = Endpoint(
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,

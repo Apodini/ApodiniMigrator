@@ -76,11 +76,9 @@ struct JSPrimitiveScript: Value {
         var output: [JSPrimitiveScript] = []
         let nonNulls = PrimitiveType.allCases.filter { $0 != .null }
         
-        for primitiveType in nonNulls {
-            nonNulls.forEach { primitive in
-                if primitiveType != primitive {
-                    output.append(.script(from: primitiveType, to: primitive))
-                }
+        for lhs in nonNulls {
+            for rhs in nonNulls where lhs != rhs {
+                output.append(.script(from: lhs, to: rhs))
             }
         }
         

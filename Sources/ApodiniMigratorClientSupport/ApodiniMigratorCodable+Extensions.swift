@@ -8,7 +8,9 @@
 
 import Foundation
 import ApodiniMigratorCore
+#if canImport(JavaScriptCore)
 @_implementationOnly import JavaScriptCore
+#endif
 // swiftlint:disable line_length function_parameter_count
 /// ApodiniMigratorCodable extension
 public extension ApodiniMigratorCodable {
@@ -70,6 +72,7 @@ fileprivate extension ApodiniMigratorCodable {
     ///     - script: the script that will have as input the `jsonArgs` and handles the convertion
     /// - Throws: if decoding fails
     static func initialize(from jsonArgs: [String], script: JSScript) throws -> Self {
+        #if canImport(JavaScriptCore)
         let context = JSContext()
         let scriptString = script.rawValue
         let functionName = scriptString.functionName()
@@ -87,6 +90,9 @@ fileprivate extension ApodiniMigratorCodable {
         } catch {
             return try defaultValue()
         }
+        #else
+        return try defaultValue()
+        #endif
     }
 }
 

@@ -159,6 +159,9 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testPropertyTypeChange() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let updated: TypeInformation = .object(
             name: user.typeName,
             properties: user.objectProperties.filter { $0.name != "isStudent" } + .init(name: "isStudent", type: .scalar(.bool))

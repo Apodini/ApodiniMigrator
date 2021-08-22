@@ -36,7 +36,10 @@ extension Data: Codable {
 private typealias Codable = ApodiniMigratorCodable
 
 final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
-    func testDecodableExample() throws {
+    func testComplexTypeScriptConvert() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         struct Student: Codable, Equatable {
             let name: String
             let matrNr: UUID
@@ -77,7 +80,6 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         let initialStudent = try Student.from(developer, script: JSScript(developerToStudentScript))
         XCTAssert(developer.id == student.matrNr)
         XCTAssert(developer.name == student.name)
-        
         XCTAssert(student == initialStudent)
     }
     
@@ -94,6 +96,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     
     
     func testMultipleArguments() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let constructScript: JSScript =
         """
         function convert(name, matrNr, dog) {
@@ -122,9 +127,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         """
         let id = UUID()
-        let student2 = try Student.fromValues("Student2", id, Dog(name: "Dog"), arg4: 1234, script: script)
+        let student2 = try Student.fromValues("Bernd", id, Dog(name: "Dog"), arg4: 1234, script: script)
         XCTAssert(student2.dog.name == "Dog")
-        XCTAssert(student2.name == "Student2")
+        XCTAssert(student2.name == "Bernd")
         XCTAssert(student2.number == 1234)
         XCTAssert(student2.matrNr == id)
         
@@ -145,6 +150,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testInvalidScript() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script: JSScript =
         """
         Hello World
@@ -172,6 +180,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testIntString() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script = JSPrimitiveScript.stringNumber
         
         let number = try Int.from("123123", script: script.convertFromTo)
@@ -183,6 +194,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testFloatString() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script = JSPrimitiveScript.stringFloat
         
         let number = try Double.from("123123.2", script: script.convertFromTo)
@@ -194,6 +208,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testNumberUnsigned() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script = JSPrimitiveScript.numberUnsignedNumber
         
         let number = try Int.from(123123123, script: script.convertFromTo)
@@ -205,12 +222,18 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testStringify() throws {
-        let jsS = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date))
+        guard canImportJavaScriptCore() else {
+            return
+        }
+        let scriptBuilder = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date))
         
-        XCTAssertNoThrow(try String?.from(Date(), script: jsS.convertToFrom))
+        XCTAssertNoThrow(try String?.from(Date(), script: scriptBuilder.convertToFrom))
     }
     
     func testIntToFloat() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script =
         """
         function convert(int) {
@@ -224,6 +247,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testNumberFloat() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script = JSPrimitiveScript.numberFloat
         
         let number = try Int.from(2.2, script: script.convertToFrom)
@@ -233,6 +259,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testUnsignedNumberFloat() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script = JSPrimitiveScript.unsignedFloat
         
         let number = try UInt.from(2.2, script: script.convertToFrom)
@@ -244,6 +273,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testFloatToInt() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script =
         """
         function convert(float) {
@@ -255,7 +287,10 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(2, try Int.from(2.0, script: .init(script)))
     }
     
-    func testToString() throws {
+    func testFloatToString() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script =
         """
         function convert(float) {
@@ -269,6 +304,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testConvertBetweenTypeProps() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         struct User1: Codable {
             let name: String
             let id: Int
@@ -283,21 +321,28 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         """
         function convert(one) {
             let parsed = JSON.parse(one)
-            return JSON.stringify({ 'name': parsed.name, 'id': parsed.toString() })
+            return JSON.stringify({ 'name': parsed.name, 'id': parsed.id.toString() })
         }
         """
-        
-        XCTAssertNoThrow(try User2.from(User1(name: "", id: 231), script: .init(script)))
+        let user2 = XCTAssertNoThrowWithResult(try User2.from(User1(name: "user", id: 231), script: .init(script)))
+        XCTAssert(user2.name == "user")
+        XCTAssert(user2.id == "231")
     }
     
-    func testPersist() throws {
-        try JSPrimitiveScript.allCombinations().write(at: testDirectory, fileName: "all_combinations")
+    func testAllCombinations() throws {
+        let combinations = JSPrimitiveScript.allCombinations()
+        let primitives = PrimitiveType.allCases.count - 1
+        XCTAssertEqual(combinations.count, primitives * (primitives - 1))
     }
     
     
     func testUUID() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let unsignedNumber = JSPrimitiveScript.uuid(to: .uint64)
         let boolScript = JSPrimitiveScript.uuid(to: .bool)
+        let stringScript = JSPrimitiveScript.uuid(to: .string)
         
         let uuid = try UUID.from(123123123123, script: unsignedNumber.convertToFrom)
         let number = try UInt64.from(uuid, script: unsignedNumber.convertFromTo)
@@ -306,9 +351,15 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         
         XCTAssertNoThrow(try Bool.from(UUID(), script: boolScript.convertFromTo))
         XCTAssertNoThrow(try UUID.from(true, script: boolScript.convertToFrom))
+        
+        let stringUUID = XCTAssertNoThrowWithResult(try String.from(uuid, script: stringScript.convertFromTo))
+        XCTAssertNoThrow(try UUID.from(stringUUID, script: stringScript.convertToFrom))
     }
     
     func testBoolToString() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script = JSPrimitiveScript.boolString
         
         XCTAssert(false == (try Bool.from("NO", script: script.convertToFrom)))
@@ -316,6 +367,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testBoolToNumber() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script = JSPrimitiveScript.boolNumber
         
         XCTAssert(true == (try Bool.from(1, script: script.convertToFrom)))
@@ -323,16 +377,25 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testIdentity() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let js = JSPrimitiveScript.identity(for: .bool)
         
         XCTAssertNoThrow(try Double.from(Date().noon, script: js.convertToFrom))
     }
     
     func testIgonoreInput() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         XCTAssertNoThrow(try Int.from(123123123123, script: .init(JSPrimitiveScript.stringify(to: .uint))))
     }
     
     func testArbitrary() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let floatToUUID: JSPrimitiveScript = .script(from: .float, to: .uuid)
         
         XCTAssertNoThrow(try Float.from(UUID(), script: floatToUUID.convertToFrom))
@@ -340,7 +403,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testArray() throws {
-        /// exactly one to array -> JSON.stringify( to JSON.stringify([ and last index of ) -> ])
+        guard canImportJavaScriptCore() else {
+            return
+        }
         let script =
         """
         function convert(string) {
@@ -353,6 +418,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     }
     
     func testComplexTypes() throws {
+        guard canImportJavaScriptCore() else {
+            return
+        }
         struct User: Codable {
             let id: UUID
             let name: String
@@ -365,11 +433,10 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         
         let jsBuilder = JSScriptBuilder(from: try TypeInformation(type: User.self), to: try TypeInformation(type: UserNew.self))
-        try jsBuilder.convertFromTo.write(at: testDirectory, fileName: "user_to_userNew")
-        try jsBuilder.convertToFrom.write(at: testDirectory, fileName: "userNew_to_user")
         
         let newUser = UserNew(ident: .init(), name: "I am new user")
         let user = try User.from(newUser, script: jsBuilder.convertToFrom)
+        
         XCTAssert(user.id == newUser.ident)
         XCTAssert(user.name == newUser.name)
         XCTAssert(user.age == 0)
