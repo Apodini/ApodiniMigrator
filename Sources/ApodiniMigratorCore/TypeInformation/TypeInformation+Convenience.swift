@@ -363,6 +363,7 @@ public extension TypeInformation {
         .enum(name: name, rawValueType: .string, cases: cases)
     }
     
+    /// Returns a reference with the given string key
     static func reference(_ key: String) -> TypeInformation {
         .reference(.init(key))
     }
