@@ -53,7 +53,7 @@ public extension Resource {
     /// file extension
     var fileExtension: FileExtension { .markdown }
     
-    /// string content of the file
+    /// string content of the file without last empty line
     func content() -> String {
         guard let content = try? String(contentsOf: fileURL, encoding: .utf8) else {
             fatalError("Failed to read the resource")
@@ -70,5 +70,9 @@ public extension Resource {
     /// Returns the decoded instance of the resource file
     func instance<D: Decodable>() throws -> D {
         try D.decode(from: try data())
+    }
+    
+    func write(content: String) throws {
+        try path.write(content)
     }
 }

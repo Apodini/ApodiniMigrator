@@ -8,6 +8,7 @@
 import XCTest
 import PathKit
 @testable import ApodiniMigratorCompare
+@testable import ApodiniMigrator
 
 class ApodiniMigratorXCTestCase: XCTestCase {
     var node = ChangeContextNode()
@@ -62,6 +63,28 @@ class ApodiniMigratorXCTestCase: XCTestCase {
             print("Lhs line: \(lhsLine)")
             print("Rhs line: \(rhsLine)")
             fatalError("Found non-equal line in \(function)", file: file, line: line)
+        }
+    }
+    
+    func XCTFileAssertEqual(_ rendarable: Renderable, _ resource: OutputFiles) {
+        XCTMigratorAssertEqual(rendarable.render(), resource)
+    }
+    
+    func XCTMigratorAssertEqual(_ expression: String, _ resource: OutputFiles, overrideResource: Bool = false) {
+        do {
+            let instanceContent = resource.content()
+//            
+//            if expression.lines().count != instanceContent.lines().count {
+//                fatalError("Different lines: \(expression.lines().count) and \(instanceContent.lines().count)")
+//            }
+            
+            if expression != instanceContent, overrideResource {
+                try resource.write(content: expression)
+            }
+            
+            XCTAssertEqual(expression.indentationFormatted(), instanceContent.indentationFormatted())
+        } catch {
+            XCTFail(error.localizedDescription)
         }
     }
     

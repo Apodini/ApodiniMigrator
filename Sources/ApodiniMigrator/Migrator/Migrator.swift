@@ -229,7 +229,7 @@ public struct Migrator {
 }
 
 
-fileprivate extension DecoderConfiguration {
+extension DecoderConfiguration {
     var networkingDescription: String {
         """
         dateDecodingStrategy: .\(dateDecodingStrategy.rawValue),
@@ -238,7 +238,7 @@ fileprivate extension DecoderConfiguration {
     }
 }
 
-fileprivate extension EncoderConfiguration {
+extension EncoderConfiguration {
     var networkingDescription: String {
         """
         dateEncodingStrategy: .\(dateEncodingStrategy.rawValue),
@@ -247,7 +247,7 @@ fileprivate extension EncoderConfiguration {
     }
 }
 
-fileprivate extension String {
+extension String {
     func with(packageName: String) -> String {
         with(packageName, insteadOf: Template.packageName)
     }

@@ -43,7 +43,7 @@ public struct AddChange: Change {
         defaultValue: ChangeValue,
         breaking: Bool,
         solvable: Bool,
-        includeProviderSupport: Bool
+        includeProviderSupport: Bool = false
     ) {
         self.element = element
         self.added = added

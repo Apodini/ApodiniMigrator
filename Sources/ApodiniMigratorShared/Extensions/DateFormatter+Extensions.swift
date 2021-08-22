@@ -22,4 +22,15 @@ public extension Date {
         formatter.dateFormat = format.rawValue
         return formatter.string(from: self)
     }
+    
+    /// Returns a date from the given components
+    static func makeDate(year: Int, month: Int, day: Int) -> Date {
+        let components = DateComponents(year: year, month: month, day: day)
+        return Calendar.current.date(from: components) ?? Date()
+    }
+    
+    /// Date used for file header comment of test files
+    static var testsDate: Date {
+        .makeDate(year: 2020, month: 8, day: 15)
+    }
 }

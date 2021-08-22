@@ -100,7 +100,7 @@ public struct UpdateChange: Change {
         similarity: Double?,
         breaking: Bool,
         solvable: Bool,
-        includeProviderSupport: Bool
+        includeProviderSupport: Bool = false
     ) {
         self.element = element
         self.from = .stringValue(from)

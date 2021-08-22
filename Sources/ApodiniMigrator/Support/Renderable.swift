@@ -13,3 +13,11 @@ protocol Renderable {
     /// A functions that returns the string content of a `Renderable` instance
     func render() -> String
 }
+
+// MARK: -
+extension Renderable {
+    /// Returns the formatted content of `render`
+    func indentationFormatted() -> String {
+        render().indentationFormatted()
+    }
+}

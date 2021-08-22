@@ -19,3 +19,34 @@ enum Documents: String, Resource {
     
     var bundle: Bundle { .module }
 }
+
+enum OutputFiles: String, Resource {
+    case defaultStringEnum
+    case defaultIntEnum
+    case enumAddedCase
+    case enumDeletedCase
+    case enumRenamedCase
+    case enumDeletedSelf
+    case enumUnsupportedChange
+    case enumMultipleChanges
+    
+    case defaultObjectFile
+    case objectAddedProperty
+    case objectDeletedProperty
+    case objectRenamedProperty
+    case objectPropertyNecessityToRequiredChange
+    case objectPropertyNecessityToOptionalChange
+    case objectPropertyTypeChange
+    case objectUnsupportedChange
+    case objectDeletedChange
+    case objectMultipleChange
+    
+    case modelsTestFile
+    case aPIFile
+    
+    var fileExtension: FileExtension { .markdown }
+    
+    var name: String { rawValue.upperFirst }
+    
+    var bundle: Bundle { .module }
+}
