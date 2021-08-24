@@ -38,6 +38,7 @@ public extension TypeInformation {
 }
 
 public extension Array where Element == TypeInformation {
+    /// Computes the file renderable types of all the contained TypeInformation instances.
     func fileRenderableTypes() -> Self {
         flatMap { $0.fileRenderableTypes() }.unique()
     }
