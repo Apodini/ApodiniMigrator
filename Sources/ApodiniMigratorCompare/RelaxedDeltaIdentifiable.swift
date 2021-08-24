@@ -72,16 +72,31 @@ extension Parameter: RelaxedDeltaIdentifiable {
     }
 }
 
+extension EnumCase: DeltaIdentifiable {
+    /// DeltaIdentifier of `self` initialized from the `name`
+    public var deltaIdentifier: DeltaIdentifier { .init(name) }
+}
+
 extension EnumCase: RelaxedDeltaIdentifiable {
     static func ?= (lhs: EnumCase, rhs: EnumCase) -> Bool {
         true
     }
 }
 
+extension TypeProperty: DeltaIdentifiable {
+    /// DeltaIdentifier of the property initialized from the `name`
+    public var deltaIdentifier: DeltaIdentifier { .init(name) }
+}
+
 extension TypeProperty: RelaxedDeltaIdentifiable {
     static func ?= (lhs: TypeProperty, rhs: TypeProperty) -> Bool {
         true
     }
+}
+
+extension TypeName: DeltaIdentifiable {
+    /// DeltaIdentifier of the type name initialized from the `name`
+    public var deltaIdentifier: DeltaIdentifier { .init(name) }
 }
 
 extension TypeName: RelaxedDeltaIdentifiable {
@@ -101,7 +116,9 @@ extension TypeName: RelaxedDeltaIdentifiable {
         
         // If one is primitive and the other one not, returning false, otherwise string similarity of
         // complex type names to ensure that we are dealing with a rename
-        return lhsIsPrimitive != rhsIsPrimitive ? false : lhs.deltaIdentifier.distance(between: rhs.deltaIdentifier) > 0.5
+        return lhsIsPrimitive != rhsIsPrimitive
+            ? false
+            : lhs.deltaIdentifier.distance(between: rhs.deltaIdentifier) > 0.5
     }
 }
 

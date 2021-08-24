@@ -21,10 +21,10 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
         name: .init(name: "ProgLang"),
         rawValueType: .string,
         cases: [
-            .case("swift"),
-            .case("python"),
-            .case("java"),
-            .case("other")
+            .init("swift"),
+            .init("python"),
+            .init("java"),
+            .init("other")
         ]
     )
     

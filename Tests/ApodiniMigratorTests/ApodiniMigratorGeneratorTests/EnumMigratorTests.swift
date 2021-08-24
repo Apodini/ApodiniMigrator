@@ -8,13 +8,13 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
         name: .init(name: "ProgLang"),
         rawValueType: .string,
         cases: [
-            .case("swift"),
-            .case("python"),
-            .case("java"),
-            .case("objectiveC"),
-            .case("javaScript"),
-            .case("ruby"),
-            .case("other")
+            .init("swift"),
+            .init("python"),
+            .init("java"),
+            .init("objectiveC"),
+            .init("javaScript"),
+            .init("ruby"),
+            .init("other")
         ]
     )
     

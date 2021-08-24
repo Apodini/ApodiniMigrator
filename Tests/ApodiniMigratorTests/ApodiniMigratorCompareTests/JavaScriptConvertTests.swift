@@ -3,7 +3,6 @@ import XCTest
 @testable import ApodiniMigratorClientSupport
 @testable import ApodiniMigrator
 @testable import ApodiniMigratorCompare
-@testable import Runtime
 
 fileprivate extension ApodiniMigratorCodable {
     static var encoder: JSONEncoder {
@@ -382,7 +381,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         }
         let js = JSPrimitiveScript.identity(for: .bool)
         
-        XCTAssertNoThrow(try Double.from(Date().noon, script: js.convertToFrom))
+        XCTAssertNoThrow(try Double.from(Date(Default()), script: js.convertToFrom))
     }
     
     func testIgonoreInput() throws {

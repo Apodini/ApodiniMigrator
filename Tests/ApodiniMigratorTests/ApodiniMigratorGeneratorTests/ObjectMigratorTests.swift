@@ -181,8 +181,8 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
             name: .init(name: "TestEnumeration"),
             rawValueType: .string,
             cases: [
-                .case("first"),
-                .case("second")
+                .init("first"),
+                .init("second")
             ]
         )
         

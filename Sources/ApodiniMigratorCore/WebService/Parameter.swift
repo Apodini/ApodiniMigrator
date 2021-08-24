@@ -23,14 +23,6 @@ public enum ParameterType: String, Value {
     case path
 }
 
-/// Represents distinct cases of necessities for parameters or properties of an object
-public enum Necessity: String, Value {
-    /// `.required` necessity describes parameters or properties which require a value in any case.
-    case required
-    /// `.optional` necessity describes parameters or properties which do not necessarily require a value.
-    case optional
-}
-
 /// Represents a parameter of an endpoint
 public struct Parameter: Value {
     /// Adjusted name for multiple content parameter types wrapped into one object
