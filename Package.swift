@@ -3,24 +3,6 @@
 
 import PackageDescription
 
-private enum RuntimeDependency {
-    case enumSupport
-    case mainRepo
-    case supereg
-    
-    var version: Package.Dependency {
-        switch self {
-        case .enumSupport: return .package(url: "https://github.com/PSchmiedmayer/Runtime.git", .revision("b810847a466ecd1cf65e7f39e6e715734fdc672c"))
-        case .mainRepo: return .package(url: "https://github.com/wickwirew/Runtime.git", from: "2.2.2")
-        case .supereg: return .package(url: "https://github.com/Supereg/Runtime.git", from: "2.2.3")
-        }
-    }
-}
-
-private func runtime(_ type: RuntimeDependency) -> Package.Dependency {
-    type.version
-}
-
 let package = Package(
     name: "ApodiniMigrator",
     platforms: [
@@ -38,7 +20,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        runtime(.supereg),
+        .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .upToNextMinor(from: "0.1.1")),
         .package(url: "https://github.com/kylef/PathKit.git", .exact("0.9.2")),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "0.3.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
@@ -52,7 +34,7 @@ let package = Package(
             name: "ApodiniMigratorCore",
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
-                .product(name: "Runtime", package: "Runtime"),
+                .product(name: "ApodiniTypeInformation", package: "ApodiniTypeInformation"),
                 .product(name: "Yams", package: "Yams")
             ]),
         .executableTarget(

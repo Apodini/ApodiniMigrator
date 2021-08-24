@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ApodiniTypeInformation
 
 struct EnumComparator: Comparator {
     let lhs: TypeInformation

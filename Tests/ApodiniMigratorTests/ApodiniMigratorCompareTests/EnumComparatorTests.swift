@@ -7,10 +7,10 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
         name: .init(name: "ProgLang"),
         rawValueType: .string,
         cases: [
-            .case("swift"),
-            .case("python"),
-            .case("java"),
-            .case("other")
+            .init("swift"),
+            .init("python"),
+            .init("java"),
+            .init("other")
         ]
     )
     
@@ -47,7 +47,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testRenamedEnumCases() throws {
-        let cases = enumeration.enumCases.filter { $0.name != "swift" } + .case("swiftLang")
+        let cases = enumeration.enumCases.filter { $0.name != "swift" } + .init("swiftLang")
         let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .string, cases: cases)
         let enumComparator = EnumComparator(lhs: enumeration, rhs: updated, changes: node, configuration: .default)
         enumComparator.compare()
@@ -67,7 +67,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testAddedEnumCase() throws {
-        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .string, cases: enumeration.enumCases + .case("newCase"))
+        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .string, cases: enumeration.enumCases + .init("newCase"))
         let enumComparator = EnumComparator(lhs: enumeration, rhs: updated, changes: node, configuration: .default)
         enumComparator.compare()
         
@@ -79,7 +79,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssert(change.solvable)
         XCTAssert(change.providerSupport == .renameHint(AddChange.self))
         if case let .element(codable) = change.added {
-            XCTAssert(codable.typed(EnumCase.self) == .case("newCase"))
+            XCTAssert(codable.typed(EnumCase.self) == .init("newCase"))
         } else {
             XCTFail("Did not provide the added enum case")
         }

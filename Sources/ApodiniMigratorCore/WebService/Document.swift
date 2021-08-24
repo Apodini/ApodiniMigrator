@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ApodiniTypeInformation
 
 public struct MetaData: Value {
     /// Server path
