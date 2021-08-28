@@ -52,10 +52,6 @@ final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
         let parameterTypeData = XCTAssertNoThrowWithResult(try encoder.encode(parameterType.asAnyCodableElement))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: parameterTypeData))
         
-        let rawValueType = RawValueType.string
-        let rawValueTypeData = XCTAssertNoThrowWithResult(try encoder.encode(rawValueType.asAnyCodableElement))
-        XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: rawValueTypeData))
-        
         let typeProperty = TypeProperty(name: "", type: .scalar(.bool))
         let typePropertyData = XCTAssertNoThrowWithResult(try encoder.encode(typeProperty.asAnyCodableElement))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: typePropertyData))

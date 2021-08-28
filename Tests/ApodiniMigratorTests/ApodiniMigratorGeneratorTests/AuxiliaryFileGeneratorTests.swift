@@ -26,7 +26,7 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
         
         let enumeration: TypeInformation = .enum(
             name: .init(name: "TestEnumeration"),
-            rawValueType: .string,
+            rawValueType: .scalar(.string),
             cases: [
                 .init("first"),
                 .init("second")

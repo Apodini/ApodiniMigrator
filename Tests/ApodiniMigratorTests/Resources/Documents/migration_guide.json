@@ -86,7 +86,9 @@
                             "name": "HomeFeedTheme",
                             "defined-in": "QONECTIQ"
                         },
-                        "rawValueType": "string",
+                        "rawValueType": {
+                            "scalar": "String"
+                        },
                         "cases": [
                             {
                                 "name": "basic",
@@ -129,7 +131,9 @@
                             "name": "UserBadge",
                             "defined-in": "QONECTIQ"
                         },
-                        "rawValueType": "string",
+                        "rawValueType": {
+                            "scalar": "String"
+                        },
                         "cases": [
                             {
                                 "name": "newbie",

@@ -16,7 +16,7 @@ struct EnumMigrator: SwiftFile {
     /// Kind of the file, always `.enum`
     let kind: Kind = .enum
     /// RawValue type of the enum, either int or string
-    private let rawValueType: RawValueType
+    private let rawValueType: TypeInformation
     /// An unsupported change related to the enum from the migration guide,
     private let unsupportedChange: UnsupportedChange?
     /// A flag that indicates whether enum has been deleted in the new version
@@ -28,7 +28,7 @@ struct EnumMigrator: SwiftFile {
     
     /// Initializes a new instance out of an `enum` type information and its correspoinding changes
     init(`enum`: TypeInformation, changes: [Change]) {
-        guard `enum`.isEnum, let rawValueType = `enum`.rawValueType else {
+        guard `enum`.isEnum, let rawValueType = `enum`.sanitizedRawValueType else {
             fatalError("Attempted to initialize EnumMigrator with a non enum TypeInformation \(`enum`.rootType)")
         }
         typeInformation = `enum`
@@ -123,7 +123,7 @@ struct EnumMigrator: SwiftFile {
         \(Import(.foundation).render())
 
         \(MARKComment(.model))
-        \(addedCasesAnnotation)\(kind.signature) \(typeNameString): \(rawValueType), Codable, CaseIterable {
+        \(addedCasesAnnotation)\(kind.signature) \(typeNameString): \(rawValueType.nestedTypeString), Codable, CaseIterable {
         \(allCases.map { "case \($0.name)\(rawValue(for: $0))" }.lineBreaked)
 
         \(MARKComment(.deprecated))

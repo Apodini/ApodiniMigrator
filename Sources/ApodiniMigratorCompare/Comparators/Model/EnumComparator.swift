@@ -28,7 +28,7 @@ struct EnumComparator: Comparator {
             return changes.add(
                 UnsupportedChange(
                     element: element(.`self`),
-                    description: "The raw value type of this enum has changed to \(rhsRawValue.rawValue.upperFirst). ApodiniMigrator is not able to migrate this change"
+                    description: "The raw value type of this enum has changed to \(rhsRawValue.nestedTypeString). ApodiniMigrator is not able to migrate this change"
                 )
             )
         }

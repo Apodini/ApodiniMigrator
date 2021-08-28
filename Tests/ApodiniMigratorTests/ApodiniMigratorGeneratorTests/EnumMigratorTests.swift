@@ -6,7 +6,7 @@ import PathKit
 final class EnumMigratorTests: ApodiniMigratorXCTestCase {
     let enumeration: TypeInformation = .enum(
         name: .init(name: "ProgLang"),
-        rawValueType: .string,
+        rawValueType: .scalar(.string),
         cases: [
             .init("swift"),
             .init("python"),
@@ -60,7 +60,7 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     func testDefaultIntEnumFile() throws {
-        let file = DefaultEnumFile(.enum(name: enumeration.typeName, rawValueType: .int, cases: enumeration.enumCases))
+        let file = DefaultEnumFile(.enum(name: enumeration.typeName, rawValueType: .scalar(.int), cases: enumeration.enumCases))
         XCTMigratorAssertEqual(file, .defaultIntEnum)
     }
     

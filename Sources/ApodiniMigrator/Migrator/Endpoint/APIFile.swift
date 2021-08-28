@@ -11,7 +11,7 @@ import Foundation
 /// Represents the `API.swift` file of the client library
 struct APIFile: SwiftFile {
     /// TypeInformation is a caseless enum named `API`
-    let typeInformation: TypeInformation = .enum(name: .init(name: "API"), cases: [])
+    let typeInformation: TypeInformation = .enum(name: .init(name: "API"), rawValueType: nil, cases: [])
     /// Kind of the file
     let kind: Kind = .enum
     /// All migrated endpoints of the library

@@ -32,7 +32,6 @@ extension Necessity: AnyCodableElementValue {}
 extension TypeProperty: AnyCodableElementValue {}
 extension ParameterType: AnyCodableElementValue {}
 extension EnumCase: AnyCodableElementValue {}
-extension RawValueType: AnyCodableElementValue {}
 
 // MARK: - AnyCodableElement
 /// A type erasured Codable and Hashable for all model objects that can appear in different value sections of the Migration guide
@@ -82,8 +81,6 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
             try singleValueContainer.encode(value)
         } else if let value = value as? EnumCase {
             try singleValueContainer.encode(value)
-        } else if let value = value as? RawValueType {
-            try singleValueContainer.encode(value)
         } else {
             throw EncodingError.invalidValue(value, .init(codingPath: [], debugDescription: "\(Self.self) did not encode any value"))
         }
@@ -98,8 +95,6 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
         } else if let value = try? container.decode(Necessity.self) {
             self.value = value
         } else if let value = try? container.decode(ParameterType.self) {
-            self.value = value
-        } else if let value = try? container.decode(RawValueType.self) {
             self.value = value
         } else if let value = try? container.decode(ApodiniMigratorCore.Operation.self) {
             self.value = value

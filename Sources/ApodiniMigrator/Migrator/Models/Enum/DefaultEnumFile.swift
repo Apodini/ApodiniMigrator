@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ApodiniTypeInformation
 
 /// Represents an `enum` file that did not got affected by any change
 struct DefaultEnumFile: SwiftFile {
@@ -28,7 +29,7 @@ struct DefaultEnumFile: SwiftFile {
     }
     
     /// Raw value type of the enum
-    private let rawValueType: RawValueType
+    private let rawValueType: TypeInformation
     
     /// Enum cases of the `typeInformation`
     private let enumCases: [EnumCase]
@@ -52,7 +53,7 @@ struct DefaultEnumFile: SwiftFile {
     ///     - typeInformation: typeInformation to render
     ///     - annotation: an annotation on the object, e.g. if the model is not present in the new version anymore
     init(_ typeInformation: TypeInformation, annotation: Annotation? = nil) {
-        guard typeInformation.isEnum, let rawValueType = typeInformation.rawValueType else {
+        guard typeInformation.isEnum, let rawValueType = typeInformation.sanitizedRawValueType else {
             fatalError("Attempted to initialize EnumFileTemplate with a non enum TypeInformation \(typeInformation.rootType)")
         }
         
@@ -70,7 +71,7 @@ struct DefaultEnumFile: SwiftFile {
         \(Import(.foundation).render())
         
         \(MARKComment(.model))
-        \(annotationComment)\(kind.signature) \(typeNameString): \(rawValueType), Codable, CaseIterable {
+        \(annotationComment)\(kind.signature) \(typeNameString): \(rawValueType.nestedTypeString), Codable, CaseIterable {
         \(enumCases.map { "case \($0.name)" }.lineBreaked)
 
         \(MARKComment(.deprecated))
@@ -88,5 +89,18 @@ struct DefaultEnumFile: SwiftFile {
         
         \(EnumExtensions(typeInformation, rawValueType: rawValueType).render())
         """
+    }
+}
+
+extension TypeInformation {
+    var sanitizedRawValueType: TypeInformation? {
+        if isEnum {
+            if let rawValueType = rawValueType {
+                return [TypeInformation.scalar(.string), .scalar(.int)].contains(rawValueType) ? rawValueType : .scalar(.string)
+            } else {
+                return .scalar(.string)
+            }
+        }
+        return nil
     }
 }

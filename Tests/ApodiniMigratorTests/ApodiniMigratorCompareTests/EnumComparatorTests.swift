@@ -5,7 +5,7 @@ import XCTest
 final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     let enumeration: TypeInformation = .enum(
         name: .init(name: "ProgLang"),
-        rawValueType: .string,
+        rawValueType: .scalar(.string),
         cases: [
             .init("swift"),
             .init("python"),
@@ -27,7 +27,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testDeletedEnumCase() throws {
-        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .string, cases: enumeration.enumCases.filter { $0.name != "other" })
+        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .scalar(.string), cases: enumeration.enumCases.filter { $0.name != "other" })
         let enumComparator = EnumComparator(lhs: enumeration, rhs: updated, changes: node, configuration: .default)
         enumComparator.compare()
         
@@ -48,7 +48,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     
     func testRenamedEnumCases() throws {
         let cases = enumeration.enumCases.filter { $0.name != "swift" } + .init("swiftLang")
-        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .string, cases: cases)
+        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .scalar(.string), cases: cases)
         let enumComparator = EnumComparator(lhs: enumeration, rhs: updated, changes: node, configuration: .default)
         enumComparator.compare()
         
@@ -67,7 +67,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testAddedEnumCase() throws {
-        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .string, cases: enumeration.enumCases + .init("newCase"))
+        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .scalar(.string), cases: enumeration.enumCases + .init("newCase"))
         let enumComparator = EnumComparator(lhs: enumeration, rhs: updated, changes: node, configuration: .default)
         enumComparator.compare()
         
@@ -86,7 +86,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testUnsupportedRawValueTypeChange() throws {
-        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .int, cases: enumeration.enumCases)
+        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .scalar(.int), cases: enumeration.enumCases)
         let enumComparator = EnumComparator(lhs: enumeration, rhs: updated, changes: node, configuration: .default)
         enumComparator.compare()
         

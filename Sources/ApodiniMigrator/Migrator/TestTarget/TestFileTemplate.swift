@@ -37,7 +37,7 @@ public struct TestFileTemplate: Renderable {
         case let .repeated(element): return .repeated(element: dereference(element))
         case let .dictionary(key, value): return .dictionary(key: key, value: dereference(value))
         case let .optional(wrappedValue): return .optional(wrappedValue: dereference(wrappedValue))
-        case let .object(name, properties):
+        case let .object(name, properties, _):
             return .object(name: name, properties: properties.map { .init(name: $0.name, type: dereference($0.type), annotation: $0.annotation) })
         case let .reference(key):
             if let type = models.first(where: { $0.typeName.name == key.rawValue }) {

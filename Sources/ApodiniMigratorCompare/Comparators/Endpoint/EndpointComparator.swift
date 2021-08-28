@@ -54,8 +54,8 @@ struct EndpointComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.response),
-                    from: .element(lhs.response.asReference()),
-                    to: .element(rhs.response.asReference()),
+                    from: .element(lhs.response.referenced()),
+                    to: .element(rhs.response.referenced()),
                     convertToFrom: changes.store(script: jsScriptBuilder.convertToFrom),
                     convertionWarning: jsScriptBuilder.hint,
                     breaking: true,

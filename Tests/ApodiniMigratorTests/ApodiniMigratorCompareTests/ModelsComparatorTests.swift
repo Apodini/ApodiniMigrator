@@ -19,7 +19,7 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
     
     let programmingLanguages: TypeInformation = .enum(
         name: .init(name: "ProgLang"),
-        rawValueType: .string,
+        rawValueType: .scalar(.string),
         cases: [
             .init("swift"),
             .init("python"),
@@ -111,7 +111,7 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
     func testUnsupportedTypeChange() throws {
         let changedUser: TypeInformation = .enum(
             name: .init(name: "User"),
-            rawValueType: .string,
+            rawValueType: .scalar(.string),
             cases: []
         )
         let endpointsComparator = ModelsComparator(lhs: [user], rhs: [changedUser], changes: node, configuration: .default)

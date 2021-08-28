@@ -50,12 +50,12 @@ public struct JSONStringBuilder {
             return requiresCurlyBrackets(key) ? "{}" : "[]"
         case .optional:
             return "null"
-        case let .enum(_, rawValueType, cases):
-            if rawValueType == .int {
+        case let .enum(_, rawValueType, cases, _):
+            if rawValueType == .scalar(.int) {
                 return PrimitiveType.int.jsonString(with: encoder)
             }
             return cases.first?.name.doubleQuoted ?? "{}"
-        case let .object(_, properties):
+        case let .object(_, properties, _):
             let sorted = properties.sorted(by: \.name)
             return "{\(String.lineBreak)\(sorted.map { $0.name.doubleQuoted + " : \(Self($0.type, encoder: encoder).build())" }.joined(separator: ",\(String.lineBreak)"))\(String.lineBreak)}"
         default: return "{}"

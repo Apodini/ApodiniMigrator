@@ -31,7 +31,7 @@ struct ObjectCodingKeys: Renderable {
             return .init(property.name, rawValue: rawValue)
         }
         
-        codingKeysEnum = .enum(name: .init(name: "CodingKeys"), cases: allCases.sorted(by: \.name))
+        codingKeysEnum = .enum(name: .init(name: "CodingKeys"), rawValueType: .scalar(.string), cases: allCases.sorted(by: \.name))
     }
     
     /// Renders the content of the enum, in a non-formatted way

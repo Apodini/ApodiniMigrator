@@ -7,21 +7,22 @@
 //
 
 import Foundation
+import ApodiniTypeInformation
 
 struct EnumExtensions: Renderable {
     let `enum`: TypeInformation
-    let rawValueType: RawValueType
+    let rawValueType: TypeInformation
     var typeName: String {
         `enum`.typeString
     }
     
-    init(_ enum: TypeInformation, rawValueType: RawValueType) {
+    init(_ enum: TypeInformation, rawValueType: TypeInformation) {
         self.enum = `enum`
         self.rawValueType = rawValueType
     }
     
     private func initBody() -> String {
-        if rawValueType == .string {
+        if rawValueType == .scalar(.string) {
             return "self.init(rawValue: description)"
         }
         

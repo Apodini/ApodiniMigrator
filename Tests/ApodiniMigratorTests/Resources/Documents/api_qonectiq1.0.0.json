@@ -836,7 +836,9 @@
                     "name": "CategoryStatus",
                     "defined-in": "QONECTIQ"
                 },
-                "rawValueType": "string",
+                "rawValueType": {
+                    "scalar": "String"
+                },
                 "cases": [
                     {
                         "name": "available",
@@ -901,7 +903,9 @@
                     "name": "Gender",
                     "defined-in": "QONECTIQ"
                 },
-                "rawValueType": "string",
+                "rawValueType": {
+                    "scalar": "String"
+                },
                 "cases": [
                     {
                         "name": "male",
@@ -962,7 +966,9 @@
                     "name": "Rating",
                     "defined-in": "QONECTIQ"
                 },
-                "rawValueType": "string",
+                "rawValueType": {
+                    "scalar": "String"
+                },
                 "cases": [
                     {
                         "name": "outstanding",
@@ -1207,7 +1213,9 @@
                     "name": "EventCategoryGroup",
                     "defined-in": "QONECTIQ"
                 },
-                "rawValueType": "string",
+                "rawValueType": {
+                    "scalar": "String"
+                },
                 "cases": [
                     {
                         "name": "marketing",

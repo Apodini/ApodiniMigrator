@@ -874,7 +874,9 @@
                     "name": "EventCategoryGroup",
                     "defined-in": "QONECTIQ"
                 },
-                "rawValueType": "string",
+                "rawValueType": {
+                    "scalar": "String"
+                },
                 "cases": [
                     {
                         "name": "marketing",
@@ -917,7 +919,9 @@
                     "name": "HomeFeedTheme",
                     "defined-in": "QONECTIQ"
                 },
-                "rawValueType": "string",
+                "rawValueType": {
+                    "scalar": "String"
+                },
                 "cases": [
                     {
                         "name": "basic",
@@ -1042,7 +1046,9 @@
                     "name": "Rating",
                     "defined-in": "QONECTIQ"
                 },
-                "rawValueType": "string",
+                "rawValueType": {
+                    "scalar": "String"
+                },
                 "cases": [
                     {
                         "name": "outstanding",
@@ -1569,7 +1575,9 @@
                     "name": "Gender",
                     "defined-in": "QONECTIQ"
                 },
-                "rawValueType": "string",
+                "rawValueType": {
+                    "scalar": "String"
+                },
                 "cases": [
                     {
                         "name": "male",
@@ -1624,7 +1632,9 @@
                     "name": "UserBadge",
                     "defined-in": "QONECTIQ"
                 },
-                "rawValueType": "string",
+                "rawValueType": {
+                    "scalar": "String"
+                },
                 "cases": [
                     {
                         "name": "newbie",

@@ -65,8 +65,8 @@ struct ObjectComparator: Comparator {
             changes.add(
                 UpdateChange(
                     element: element(.property),
-                    from: .element(lhsType.asReference()),
-                    to: .element(rhsType.asReference()),
+                    from: .element(lhsType.referenced()),
+                    to: .element(rhsType.referenced()),
                     targetID: targetID,
                     convertFromTo: changes.store(script: jsScriptBuilder.convertFromTo),
                     convertToFrom: changes.store(script: jsScriptBuilder.convertToFrom),

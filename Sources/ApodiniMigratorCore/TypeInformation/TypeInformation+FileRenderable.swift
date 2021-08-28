@@ -35,6 +35,22 @@ public extension TypeInformation {
     func fileRenderableTypes() -> [TypeInformation] {
         filter(\.isEnumOrObject)
     }
+    
+    /// Returns the referenced version of self
+    func referenced() -> TypeInformation {
+        switch self {
+        case .scalar, .reference:
+            return self
+        case let .repeated(element):
+            return .repeated(element: element.referenced())
+        case let .dictionary(key, value):
+            return .dictionary(key: key, value: value.referenced())
+        case let .optional(wrappedValue):
+            return .optional(wrappedValue: wrappedValue.referenced())
+        case .object, .enum:
+            return .reference(typeName.absoluteName())
+        }
+    }
 }
 
 public extension Array where Element == TypeInformation {
