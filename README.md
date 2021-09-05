@@ -128,9 +128,61 @@ OPTIONS:
   -h, --help              Show help information.
 ```
 
-## Example projects
+## ApodiniMigratorExample
 
-See [Examples](https://github.com/Apodini/ApodiniMigrator)
+[ApodiniMigratorExample](https://github.com/Apodini/ApodiniMigratorExample) includes two different versions of an Apodini Web Service using `ApodiniMigrator` configuration. The corresponding documents of those versions can be found in the [ExampleDocuments](https://github.com/Apodini/ApodiniMigrator/tree/develop/Resources/ExampleDocuments) of this repository. In order to test out the functionalities of `migrator` CLI, a preconfigured Ruby script in the root of this repository can be used (see [migrator](https://github.com/Apodini/ApodiniMigrator/blob/develop/migrator))
+
+In order to generate the intermediary client library for the initial version run the script with `generate` argument:
+
+```console
+$ ./migrator generate
+info org.apodini.migrator : Starting generation of package QONECTIQ
+info org.apodini.migrator : Preparing project directories...
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/HTTP
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Utils
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Resources
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Endpoints
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Models
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Networking
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Tests
+info org.apodini.migrator : Package QONECTIQ was generated successfully. You can open the package via QONECTIQ/Package.swift
+```
+Each endpoint of the library can be accessed via the caseless enumeration `API` as follows:
+
+```swift
+API.getEventWithID(id: UUID())
+    .sink { completion in
+        if case let .failure(error) = completion {
+            print("Failed to get the event with error: \(error)")
+        }
+    } receiveValue: { event in
+        print("Received event \(event.title)")
+    }
+```
+
+Migration guide can be generated via:
+
+```console
+$ ./migrator compare
+info org.apodini.migrator : Starting generation of the migration guide...
+info org.apodini.migrator : Migration guide was generated successfully at /path/to/ApodiniMigrator/Resources/ExampleDocuments/migration_guide.json.
+```
+
+Once the migration guide has been generate, use `migrate` argument to migrate the initial library:
+
+```console
+$ ./migrator migrate
+info org.apodini.migrator : Starting migration of package QONECTIQ
+info org.apodini.migrator : Preparing project directories...
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/HTTP
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Utils
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Resources
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Endpoints
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Models
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Networking
+info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Tests
+info org.apodini.migrator : Package QONECTIQ was migrated successfully. You can open the package via QONECTIQ/Package.swift
+```
 
 ## Contributing
 Contributions to this projects are welcome. Please make sure to read the [contribution guidelines](https://github.com/Apodini/.github/blob/release/CONTRIBUTING.md) first.
