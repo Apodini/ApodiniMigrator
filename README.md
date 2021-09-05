@@ -9,9 +9,15 @@ SPDX-License-Identifier: MIT
 -->
 
 # Apodini Migrator
+[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/Apodini/ApodiniMigrator/blob/develop/LICENSES/MIT.txt)
+[![swift-version](https://img.shields.io/badge/Swift-5.5-orange.svg)](https://github.com/apple/swift)
 [![REUSE Compliance Check](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml)
 [![Build and Test](https://github.com/Apodini/ApodiniMigrator/actions/workflows/swift.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/swift.yml)
 [![codecov](https://codecov.io/gh/Apodini/ApodiniMigrator/branch/develop/graph/badge.svg?token=5MMKMPO5NR)](https://codecov.io/gh/Apodini/ApodiniMigrator)
+
+<p align="center">
+  <img width="150" src="https://github.com/Apodini/ApodiniMigrator/blob/develop/Resources/logo.png">
+</p>
 
 ## Requirements
 
