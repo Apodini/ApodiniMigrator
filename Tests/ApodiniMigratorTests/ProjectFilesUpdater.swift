@@ -1,9 +1,9 @@
 //
-//  ProjectFilesUpdater.swift
-//  ApodiniMigratorTests
+// This source file is part of the Apodini open source project
 //
-//  Created by Eldi Cano on 23.08.21.
-//  Copyright © 2021 TUM LS1. All rights reserved.
+// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+//
+// SPDX-License-Identifier: MIT
 //
 
 import Foundation
@@ -13,23 +13,17 @@ enum ProjectFilesUpdater {
     private static let today: Date = {
         Date()
     }()
-    private static var active = false
-    private static func fileComment(from path: Path) -> [String] {
-        let fileName = path.lastComponent
-        var target = path.parent()
-        
-        while target.parent().lastComponent != "Sources" {
-            target = target.parent()
-        }
+    private static var active = true
+    private static func fileComment() -> [String] {
         
         let lines =
         """
         //
-        //  \(fileName)
-        //  \(target.lastComponent)
+        // This source file is part of the Apodini open source project
         //
-        //  Created by Eldi Cano on \(Date().string(.date)).
-        //  Copyright \u{00A9} \(Date().string(.year)) TUM LS1. All rights reserved.
+        // SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+        //
+        // SPDX-License-Identifier: MIT
         //
         """.lines()
         return lines
@@ -42,9 +36,9 @@ enum ProjectFilesUpdater {
         
         #if Xcode
         //        var current = Path("/Users/eld/Desktop/ws2021/master_thesis/validation/Sources")
-        var current = Path(#file)
+        var current = Path("/Users/eldicano/Desktop/ApodiniMigrator/Tests")
         
-        while current.lastComponent != "Sources" {
+        while current.lastComponent != "Tests" {
             current = current.parent()
         }
         let swiftFiles = try current.recursiveSwiftFiles()
@@ -56,7 +50,7 @@ enum ProjectFilesUpdater {
                 while lines[lastCommentIndex].starts(with: "//") {
                     lastCommentIndex += 1
                 }
-                lines.replaceSubrange(0 ..< lastCommentIndex, with: fileComment(from: child))
+                lines.replaceSubrange(0 ..< lastCommentIndex, with: fileComment())
                 try child.write(lines.joined(separator: .lineBreak))
             }
         }

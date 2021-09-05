@@ -1,3 +1,13 @@
+<!--
+
+This source file is part of the Apodini open source project
+
+SPDX-FileCopyrightText: 2021 Paul Schmiedmayer and the project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+
+SPDX-License-Identifier: MIT
+
+-->
+
 # Apodini Migrator
 [![REUSE Compliance Check](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml)
 [![Build and Test](https://github.com/Apodini/ApodiniMigrator/actions/workflows/swift.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/swift.yml)
