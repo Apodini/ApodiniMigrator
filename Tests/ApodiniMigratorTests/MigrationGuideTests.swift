@@ -27,7 +27,7 @@ final class MigrationGuideTests: ApodiniMigratorXCTestCase {
     }
     
     func testProjectFilesUpdater() throws {
-        try ProjectFilesUpdater.run()
+        try ProjectFilesUpdater.updateMDs()
     }
     
     func testMigrationGuideThrowing() throws {

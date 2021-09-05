@@ -57,4 +57,12 @@ public extension Path {
         }
         return try recursiveChildren().filter { $0.is(.swift) }
     }
+    
+    func recursiveFiles(of extensions: FileExtension...) throws -> [Path] {
+        guard isDirectory else {
+            return []
+        }
+        let fileExtensions = extensions.map { $0.description }
+        return try recursiveChildren().filter { fileExtensions.contains($0.extension ?? "") }
+    }
 }

@@ -13,7 +13,7 @@ enum ProjectFilesUpdater {
     private static let today: Date = {
         Date()
     }()
-    private static var active = true
+    private static var active = false
     private static func fileComment() -> [String] {
         
         let lines =
@@ -27,6 +27,20 @@ enum ProjectFilesUpdater {
         //
         """.lines()
         return lines
+    }
+    
+    
+    static func updateMDs() throws {
+        guard active else {
+            return
+        }
+        let current = Path("/Users/eldicano/Desktop/ApodiniMigrator/Tests/ApodiniMigratorTests/Resources")
+        
+        let children = try current.recursiveFiles(of: .markdown, .json, .yaml)
+        for child in children {
+            let file = child.string + ".license"
+            try Path(file).write(fileComment().lineBreaked)
+        }
     }
     
     static func run() throws {
