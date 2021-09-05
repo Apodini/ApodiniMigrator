@@ -188,4 +188,4 @@ info org.apodini.migrator : Package QONECTIQ was migrated successfully. You can 
 Contributions to this projects are welcome. Please make sure to read the [contribution guidelines](https://github.com/Apodini/.github/blob/release/CONTRIBUTING.md) first.
 
 ## License
-This project is licensed under the MIT License. See [License](https://github.com/Apodini/ApodiniMigrator/blob/develop/LICENSES/MIT.txt) for more information.
+This project is licensed under the MIT License. See [License](https://github.com/Apodini/ApodiniMigrator/blob/develop/LICENSES) for more information.
