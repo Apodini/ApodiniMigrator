@@ -8,10 +8,6 @@
 
 ignore:
 - "Tests"
-- "CLIOutput"
-- "Documents"
-- "QONECTIQ"
-- "Sources/ApodiniMigratorCore/TypeInformation/Init"
 
 codecov:
   require_ci_to_pass: yes

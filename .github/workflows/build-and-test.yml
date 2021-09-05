@@ -12,7 +12,6 @@ on:
   push:
     branches:
       - develop
-      - feature/release0.1.0
   pull_request:
     branches:
       - develop
@@ -54,7 +53,7 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
     - name: Test Generating Docs
-      if: ${{ false }} #disabled
+      if: ${{ false }} # disabled
       run: |
           xcodebuild docbuild -scheme ApodiniMigrator -destination platform=macOS,arch=x86_64 #-derivedDataPath ./.xcodebuild
           cp -r $(find ./.xcodebuild -type d -name '*.doccarchive') ./ApodiniMigrator.doccarchive
