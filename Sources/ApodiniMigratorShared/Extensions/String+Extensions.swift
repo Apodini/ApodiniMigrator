@@ -99,6 +99,13 @@ public extension String {
         with("", insteadOf: string)
     }
     
+    /// Replaces occurrencies of `strings` with an empty string
+    func without(strings: String...) -> String {
+        var result = self
+        strings.forEach { result = result.without($0) }
+        return result
+    }
+    
     /// Replaces occurrencies of `target` with `replacement`
     func with(_ replacement: String, insteadOf target: String) -> String {
         replacingOccurrences(of: target, with: replacement)

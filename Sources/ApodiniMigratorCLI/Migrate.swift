@@ -41,7 +41,7 @@ struct Migrate: ParsableCommand {
                 documentPath: documentPath,
                 migrationGuide: migrationGuide
             )
-            try migrator.migrate()
+            try migrator.run()
             logger.info("Package \(packageName) was migrated successfully. You can open the package via \(packageName)/Package.swift")
         } catch {
             logger.error("Package migration failed with error: \(error)")

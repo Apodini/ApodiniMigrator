@@ -14,7 +14,7 @@ import PathKit
 class ApodiniMigratorXCTestCase: XCTestCase {
     var node = ChangeContextNode()
     
-    let testDirectory = "./migrator"
+    let testDirectory = "./\(UUID().uuidString)"
     var testDirectoryPath: Path {
         testDirectory.asPath
     }

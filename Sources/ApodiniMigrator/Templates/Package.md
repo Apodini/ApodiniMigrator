@@ -12,7 +12,7 @@ let package = Package(
             .library(name: "___PACKAGE_NAME___", targets: ["___PACKAGE_NAME___"])
     ],
     dependencies: [
-            .package(url: "https://github.com/Apodini/ApodiniMigrator.git", .branch("develop"))
+            .package(url: "https://github.com/Apodini/ApodiniMigrator.git", .upToNextMinor(from: "0.1.0"))
     ],
     targets: [
         .target(

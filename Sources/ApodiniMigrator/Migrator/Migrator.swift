@@ -47,7 +47,6 @@ public struct Migrator {
     private let objectJSONs: [String: JSONValue]
     /// Encoder configuration of the new version as calculated by the `networkingMigrator`
     private let encoderConfiguration: EncoderConfiguration
-    /// A flag to indicate whether the template empty test file should be used, or the one that handles encoding and decodin of the models (not configurable, for dev only)
     
     /// Initializes a new Migrator instance
     /// - Parameters:
@@ -55,7 +54,7 @@ public struct Migrator {
     ///    - packagePath: path of the package
     ///    - documentPath: path where the document is located
     ///    - migrationGuide: migration guide
-    public init(packageName: String, packagePath: String, documentPath: String, migrationGuide: MigrationGuide) throws {
+    public init(packageName: String, packagePath: String, documentPath: String, migrationGuide: MigrationGuide = .empty) throws {
         self.packageName = packageName.trimmingCharacters(in: .whitespaces).without("/").upperFirst
         self.packagePath = packagePath.asPath
         document = try Document.decode(from: documentPath.asPath)
@@ -101,7 +100,7 @@ public struct Migrator {
     }
     
     /// Triggeres the rendering of migrated content of the library and persists changes
-    public func migrate() throws {
+    public func run() throws {
         logger.info("Preparing project directories...")
         try directories.build()
         
