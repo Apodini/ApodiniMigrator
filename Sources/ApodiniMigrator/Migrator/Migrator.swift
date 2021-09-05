@@ -48,7 +48,6 @@ public struct Migrator {
     /// Encoder configuration of the new version as calculated by the `networkingMigrator`
     private let encoderConfiguration: EncoderConfiguration
     /// A flag to indicate whether the template empty test file should be used, or the one that handles encoding and decodin of the models (not configurable, for dev only)
-    private var useTemplateTestFile = false
     
     /// Initializes a new Migrator instance
     /// - Parameters:
@@ -188,18 +187,13 @@ public struct Migrator {
         let tests = directories.tests
         let testsTarget = directories.testsTarget
         let testFileName = packageName + "Tests" + .swift
-        let testFile = useTemplateTestFile
-            ? templateContentWithFileComment(.testFile, alternativeFileName: testFileName).with(packageName: packageName)
-            : TestFileTemplate(
-                allModels,
-                objectJSONs: objectJSONs,
-                encoderConfiguration: encoderConfiguration,
-                fileName: testFileName,
-                packageName: packageName
-            )
-            .render()
-            .indentationFormatted()
-        
+        let testFile = TestFileTemplate(
+            allModels,
+            objectJSONs: objectJSONs,
+            encoderConfiguration: encoderConfiguration,
+            fileName: testFileName,
+            packageName: packageName
+        ).render().indentationFormatted()
         
         try (testsTarget + testFileName).write(testFile)
         

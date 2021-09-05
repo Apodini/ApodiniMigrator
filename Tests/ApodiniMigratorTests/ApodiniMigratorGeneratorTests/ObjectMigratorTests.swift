@@ -170,32 +170,4 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
         let migrator = ObjectMigrator(user, changes: [unsupportedChange])
         XCTMigratorAssertEqual(migrator, .objectUnsupportedChange)
     }
-    
-    func testTestFile() throws {
-        let object: TypeInformation = .object(
-            name: .init(name: "TestObject"),
-            properties: [
-                .init(name: "prop1", type: .scalar(.bool)),
-                .init(name: "prop2", type: .scalar(.uint)),
-                .init(name: "prop3", type: .dictionary(key: .int, value: .scalar(.string))),
-                .init(name: "prop4", type: .scalar(.uint)),
-                .init(name: "prop5", type: .optional(wrappedValue: .scalar(.string))),
-                .init(name: "prop6", type: .scalar(.string))
-                
-            ]
-        )
-        
-        let enumeration: TypeInformation = .enum(
-            name: .init(name: "TestEnumeration"),
-            rawValueType: .scalar(.string),
-            cases: [
-                .init("first"),
-                .init("second")
-            ]
-        )
-        
-        let testFile = TestFileTemplate([object, enumeration], fileName: "TestFile", packageName: "ApodiniMigrator")
-        
-        XCTMigratorAssertEqual(testFile, .modelsTestFile)
-    }
 }

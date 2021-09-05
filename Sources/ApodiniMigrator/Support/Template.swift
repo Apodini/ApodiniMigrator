@@ -26,7 +26,6 @@ enum Template: String, Resource {
     case handler
     case networkingService
     case utils
-    case testFile
     case xCTestManifests
     case linuxMain
     

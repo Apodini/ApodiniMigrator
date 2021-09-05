@@ -1,0 +1,1659 @@
+{
+    "id": "F773D044-3517-49C5-8B6B-97DDC094EF84",
+    "info": {
+        "serverPath": "http://0.0.0.0:8080",
+        "version": "qonectiq_2.0.0",
+        "encoderConfiguration": {
+            "dateEncodingStrategy": "deferredToDate",
+            "dataEncodingStrategy": "base64"
+        },
+        "decoderConfiguration": {
+            "dateDecodingStrategy": "deferredToDate",
+            "dataDecodingStrategy": "base64"
+        }
+    },
+    "endpoints": [
+        {
+            "handlerName": "GetEventHandler",
+            "deltaIdentifier": "getEventWithID",
+            "operation": "read",
+            "path": "/qonectiq2/events/{id}",
+            "parameters": [
+                {
+                    "name": "id",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "path",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "Event"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "DeleteEventHandler",
+            "deltaIdentifier": "deleteEventWithID",
+            "operation": "delete",
+            "path": "/qonectiq2/events/{identifier}",
+            "parameters": [
+                {
+                    "name": "identifier",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "path",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "Event"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "UpdateEventHandler",
+            "deltaIdentifier": "updateEventWithID",
+            "operation": "update",
+            "path": "/qonectiq2/events/{eventID}",
+            "parameters": [
+                {
+                    "name": "eventID",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "path",
+                    "necessity": "required"
+                },
+                {
+                    "name": "eventMediator",
+                    "type": {
+                        "reference": "EventMediator"
+                    },
+                    "kind": "content",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "Event"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "GetParticipantsOfEventHandler",
+            "deltaIdentifier": "getParticipantsOfEventWithID",
+            "operation": "read",
+            "path": "/qonectiq2/events/{eventIdentifier}/participants",
+            "parameters": [
+                {
+                    "name": "eventIdentifier",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "path",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "repeated": {
+                    "reference": "User"
+                }
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "SearchEventsHandler",
+            "deltaIdentifier": "searchEventsWithQuery",
+            "operation": "read",
+            "path": "/qonectiq2/events/search",
+            "parameters": [
+                {
+                    "name": "searchQuery",
+                    "type": {
+                        "scalar": "String"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "repeated": {
+                    "reference": "Event"
+                }
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "GetEventsHandler",
+            "deltaIdentifier": "getAllEvents",
+            "operation": "read",
+            "path": "/qonectiq2/events",
+            "parameters": [],
+            "response": {
+                "repeated": {
+                    "reference": "Event"
+                }
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "CreateEventHandler",
+            "deltaIdentifier": "createEvent",
+            "operation": "create",
+            "path": "/qonectiq2/events",
+            "parameters": [
+                {
+                    "name": "event",
+                    "type": {
+                        "reference": "Event"
+                    },
+                    "kind": "content",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "Empty"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "CategoryEventsHandler",
+            "deltaIdentifier": "getEventsOfCategory",
+            "operation": "create",
+            "path": "/qonectiq2/events/category",
+            "parameters": [
+                {
+                    "name": "group",
+                    "type": {
+                        "reference": "EventCategoryGroup"
+                    },
+                    "kind": "content",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "repeated": {
+                    "reference": "Event"
+                }
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "CreateCategoryHandler",
+            "deltaIdentifier": "createCategory",
+            "operation": "create",
+            "path": "/qonectiq2/categories",
+            "parameters": [
+                {
+                    "name": "event",
+                    "type": {
+                        "reference": "EventCategoryMediator"
+                    },
+                    "kind": "content",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "Empty"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "GetCategoriesHandler",
+            "deltaIdentifier": "getAllCategories",
+            "operation": "read",
+            "path": "/qonectiq2/categories",
+            "parameters": [],
+            "response": {
+                "repeated": {
+                    "reference": "EventCategory"
+                }
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "GroupCategoriesHandler",
+            "deltaIdentifier": "getCategoriesOfGroup",
+            "operation": "read",
+            "path": "/qonectiq2/categories/group",
+            "parameters": [
+                {
+                    "name": "group",
+                    "type": {
+                        "reference": "EventCategoryGroup"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "repeated": {
+                    "reference": "EventCategory"
+                }
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "GetCategoryHandler",
+            "deltaIdentifier": "getCategoryWithID",
+            "operation": "read",
+            "path": "/qonectiq2/category",
+            "parameters": [
+                {
+                    "name": "id",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "EventCategory"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "HomeFeedHandler",
+            "deltaIdentifier": "getHomeFeedForUserWithID",
+            "operation": "read",
+            "path": "/qonectiq2/home/{userID}",
+            "parameters": [
+                {
+                    "name": "userID",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "path",
+                    "necessity": "required"
+                },
+                {
+                    "name": "showPreviousEvents",
+                    "type": {
+                        "scalar": "Bool"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "HomeFeed"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "ReviewsHandler",
+            "deltaIdentifier": "getReviewsOfEventWithID",
+            "operation": "read",
+            "path": "/qonectiq2/reviews",
+            "parameters": [
+                {
+                    "name": "eventID",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "required"
+                },
+                {
+                    "name": "ratingBetterThan",
+                    "type": {
+                        "reference": "Rating"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "optional"
+                }
+            ],
+            "response": {
+                "repeated": {
+                    "reference": "Review"
+                }
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "AddReviewHandler",
+            "deltaIdentifier": "addReviewToEvent",
+            "operation": "create",
+            "path": "/qonectiq2/reviews",
+            "parameters": [
+                {
+                    "name": "eventID",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "required"
+                },
+                {
+                    "name": "userID",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "required"
+                },
+                {
+                    "name": "displayName",
+                    "type": {
+                        "scalar": "Bool"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "optional"
+                },
+                {
+                    "name": "review",
+                    "type": {
+                        "reference": "ReviewForm"
+                    },
+                    "kind": "content",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "ReviewForm"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "ReviewsOfUserHandler",
+            "deltaIdentifier": "reviewsOfUserWithID",
+            "operation": "read",
+            "path": "/qonectiq2/reviews/posted-from",
+            "parameters": [
+                {
+                    "name": "userId",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "lightweight",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "repeated": {
+                    "reference": "Review"
+                }
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "GetUserHandler",
+            "deltaIdentifier": "getUserWithID",
+            "operation": "read",
+            "path": "/qonectiq2/users/{userID}",
+            "parameters": [
+                {
+                    "name": "userID",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "path",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "User"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "DeleteUserHandler",
+            "deltaIdentifier": "deleteUserWithID",
+            "operation": "delete",
+            "path": "/qonectiq2/users/{userID}",
+            "parameters": [
+                {
+                    "name": "userID",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "path",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "Empty"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "StatisticsHandler",
+            "deltaIdentifier": "statisticsOfUser",
+            "operation": "read",
+            "path": "/qonectiq2/users/{userIdentifier}/statistics",
+            "parameters": [
+                {
+                    "name": "userIdentifier",
+                    "type": {
+                        "scalar": "UUID"
+                    },
+                    "kind": "path",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "UserStatistic"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "GetAllUsersHandler",
+            "deltaIdentifier": "getAllUsers",
+            "operation": "read",
+            "path": "/qonectiq2/users",
+            "parameters": [],
+            "response": {
+                "repeated": {
+                    "reference": "User"
+                }
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "UserLoginHandler",
+            "deltaIdentifier": "login",
+            "operation": "read",
+            "path": "/qonectiq2/login",
+            "parameters": [
+                {
+                    "name": "login",
+                    "type": {
+                        "reference": "UserLogin"
+                    },
+                    "kind": "content",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "User"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        },
+        {
+            "handlerName": "UserRegisterFormHandler",
+            "deltaIdentifier": "register",
+            "operation": "create",
+            "path": "/qonectiq2/register",
+            "parameters": [
+                {
+                    "name": "userForm",
+                    "type": {
+                        "reference": "UserRegisterForm"
+                    },
+                    "kind": "content",
+                    "necessity": "required"
+                }
+            ],
+            "response": {
+                "reference": "User"
+            },
+            "errors": [
+                {
+                    "code": 401,
+                    "message": "Unauthorized"
+                },
+                {
+                    "code": 403,
+                    "message": "Forbidden"
+                },
+                {
+                    "code": 404,
+                    "message": "Not found"
+                },
+                {
+                    "code": 500,
+                    "message": "Internal server error"
+                }
+            ]
+        }
+    ],
+    "components": {
+        "Event": {
+            "object": {
+                "typeName": {
+                    "name": "Event",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "id",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "summary",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "reviews",
+                        "type": {
+                            "repeated": {
+                                "reference": "Review"
+                            }
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "type": {
+                            "scalar": "Date"
+                        }
+                    },
+                    {
+                        "name": "duration",
+                        "type": {
+                            "scalar": "UInt"
+                        }
+                    },
+                    {
+                        "name": "imagePath",
+                        "type": {
+                            "scalar": "URL"
+                        }
+                    },
+                    {
+                        "name": "maxParticipants",
+                        "type": {
+                            "scalar": "UInt"
+                        }
+                    },
+                    {
+                        "name": "organizer",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "tags",
+                        "type": {
+                            "repeated": {
+                                "scalar": "String"
+                            }
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "type": {
+                            "reference": "EventCategory"
+                        }
+                    }
+                ]
+            }
+        },
+        "EventMediator": {
+            "object": {
+                "typeName": {
+                    "name": "EventMediator",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "date",
+                        "type": {
+                            "optional": {
+                                "scalar": "Date"
+                            }
+                        }
+                    },
+                    {
+                        "name": "duration",
+                        "type": {
+                            "optional": {
+                                "scalar": "UInt"
+                            }
+                        }
+                    },
+                    {
+                        "name": "maxParticipants",
+                        "type": {
+                            "scalar": "UInt"
+                        }
+                    }
+                ]
+            }
+        },
+        "EventCategoryGroup": {
+            "enum": {
+                "typeName": {
+                    "name": "EventCategoryGroup",
+                    "defined-in": "QONECTIQV2"
+                },
+                "rawValueType": {
+                    "scalar": "String"
+                },
+                "cases": [
+                    {
+                        "name": "marketing",
+                        "rawValue": "marketing"
+                    },
+                    {
+                        "name": "blogging",
+                        "rawValue": "blogging"
+                    },
+                    {
+                        "name": "coding",
+                        "rawValue": "coding"
+                    },
+                    {
+                        "name": "cooking",
+                        "rawValue": "cooking"
+                    },
+                    {
+                        "name": "dating",
+                        "rawValue": "dating"
+                    },
+                    {
+                        "name": "travel",
+                        "rawValue": "travel"
+                    },
+                    {
+                        "name": "science",
+                        "rawValue": "science"
+                    },
+                    {
+                        "name": "entertainment",
+                        "rawValue": "entertainment"
+                    }
+                ]
+            }
+        },
+        "HomeFeedEvent": {
+            "object": {
+                "typeName": {
+                    "name": "HomeFeedEvent",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "eventID",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "secondaryTitle",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "imageURL",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "eventsCount",
+                        "type": {
+                            "scalar": "UInt"
+                        }
+                    }
+                ]
+            }
+        },
+        "HomeFeed": {
+            "object": {
+                "typeName": {
+                    "name": "HomeFeed",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "id",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "userID",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "greeting",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "subtitle",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "searchBarText",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "events",
+                        "type": {
+                            "repeated": {
+                                "reference": "HomeFeedEvent"
+                            }
+                        }
+                    },
+                    {
+                        "name": "categories",
+                        "type": {
+                            "repeated": {
+                                "reference": "HomeFeedCategory"
+                            }
+                        }
+                    },
+                    {
+                        "name": "theme",
+                        "type": {
+                            "reference": "HomeFeedTheme"
+                        }
+                    }
+                ]
+            }
+        },
+        "Review": {
+            "object": {
+                "typeName": {
+                    "name": "Review",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "id",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "content",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "eventID",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "reviewerID",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "summary",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "rating",
+                        "type": {
+                            "reference": "Rating"
+                        }
+                    },
+                    {
+                        "name": "displayReviewerName",
+                        "type": {
+                            "scalar": "Bool"
+                        }
+                    }
+                ]
+            }
+        },
+        "EventCategoryMediator": {
+            "object": {
+                "typeName": {
+                    "name": "EventCategoryMediator",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "title",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "categoryGroup",
+                        "type": {
+                            "reference": "EventCategoryGroup"
+                        }
+                    }
+                ]
+            }
+        },
+        "EventCategory": {
+            "object": {
+                "typeName": {
+                    "name": "EventCategory",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "id",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "group",
+                        "type": {
+                            "reference": "EventCategoryGroup"
+                        }
+                    }
+                ]
+            }
+        },
+        "HomeFeedCategory": {
+            "object": {
+                "typeName": {
+                    "name": "HomeFeedCategory",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "categoryID",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "imageURL",
+                        "type": {
+                            "scalar": "URL"
+                        }
+                    },
+                    {
+                        "name": "eventsAmount",
+                        "type": {
+                            "scalar": "UInt"
+                        }
+                    }
+                ]
+            }
+        },
+        "ReviewForm": {
+            "object": {
+                "typeName": {
+                    "name": "ReviewForm",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "title",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "content",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "summary",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "rating",
+                        "type": {
+                            "reference": "Rating"
+                        }
+                    }
+                ]
+            }
+        },
+        "UserStatistic": {
+            "object": {
+                "typeName": {
+                    "name": "UserStatistic",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "userID",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "participatingEventsCount",
+                        "type": {
+                            "scalar": "UInt"
+                        }
+                    },
+                    {
+                        "name": "createdEventsCount",
+                        "type": {
+                            "scalar": "UInt"
+                        }
+                    },
+                    {
+                        "name": "topCategory",
+                        "type": {
+                            "reference": "EventCategory"
+                        }
+                    },
+                    {
+                        "name": "registeredSince",
+                        "type": {
+                            "scalar": "Date"
+                        }
+                    },
+                    {
+                        "name": "badge",
+                        "type": {
+                            "reference": "UserBadge"
+                        }
+                    }
+                ]
+            }
+        },
+        "UserRegisterForm": {
+            "object": {
+                "typeName": {
+                    "name": "UserRegisterForm",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "name",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "lastname",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "birthday",
+                        "type": {
+                            "scalar": "Date"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "subscribedToNewsLetter",
+                        "type": {
+                            "scalar": "Bool"
+                        }
+                    },
+                    {
+                        "name": "preferredTheme",
+                        "type": {
+                            "reference": "HomeFeedTheme"
+                        }
+                    }
+                ]
+            }
+        },
+        "Empty": {
+            "object": {
+                "typeName": {
+                    "name": "Empty",
+                    "defined-in": "Apodini"
+                }
+            }
+        },
+        "User": {
+            "object": {
+                "typeName": {
+                    "name": "User",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "id",
+                        "type": {
+                            "scalar": "UUID"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "surname",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "birthday",
+                        "type": {
+                            "scalar": "Date"
+                        }
+                    },
+                    {
+                        "name": "subscribedToNewsLetter",
+                        "type": {
+                            "scalar": "Bool"
+                        }
+                    },
+                    {
+                        "name": "gender",
+                        "type": {
+                            "reference": "Gender"
+                        }
+                    },
+                    {
+                        "name": "reviews",
+                        "type": {
+                            "repeated": {
+                                "reference": "Review"
+                            }
+                        }
+                    },
+                    {
+                        "name": "myEvents",
+                        "type": {
+                            "repeated": {
+                                "reference": "Event"
+                            }
+                        }
+                    },
+                    {
+                        "name": "participatingEvents",
+                        "type": {
+                            "repeated": {
+                                "reference": "Event"
+                            }
+                        }
+                    },
+                    {
+                        "name": "interestedIn",
+                        "type": {
+                            "repeated": {
+                                "reference": "Event"
+                            }
+                        }
+                    },
+                    {
+                        "name": "homeFeed",
+                        "type": {
+                            "optional": {
+                                "reference": "HomeFeed"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "Gender": {
+            "enum": {
+                "typeName": {
+                    "name": "Gender",
+                    "defined-in": "QONECTIQV2"
+                },
+                "rawValueType": {
+                    "scalar": "String"
+                },
+                "cases": [
+                    {
+                        "name": "male",
+                        "rawValue": "male"
+                    },
+                    {
+                        "name": "female",
+                        "rawValue": "female"
+                    },
+                    {
+                        "name": "undefined",
+                        "rawValue": "undefined"
+                    }
+                ]
+            }
+        },
+        "UserLogin": {
+            "object": {
+                "typeName": {
+                    "name": "UserLogin",
+                    "defined-in": "QONECTIQV2"
+                },
+                "properties": [
+                    {
+                        "name": "username",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "type": {
+                            "scalar": "String"
+                        }
+                    }
+                ]
+            }
+        },
+        "Rating": {
+            "enum": {
+                "typeName": {
+                    "name": "Rating",
+                    "defined-in": "QONECTIQV2"
+                },
+                "rawValueType": {
+                    "scalar": "String"
+                },
+                "cases": [
+                    {
+                        "name": "outstanding",
+                        "rawValue": "outstanding"
+                    },
+                    {
+                        "name": "exceedsExpectation",
+                        "rawValue": "exceedsExpectation"
+                    },
+                    {
+                        "name": "meetsExpectation",
+                        "rawValue": "meetsExpectation"
+                    },
+                    {
+                        "name": "needsImprovement",
+                        "rawValue": "needsImprovement"
+                    },
+                    {
+                        "name": "terrible",
+                        "rawValue": "terrible"
+                    }
+                ]
+            }
+        },
+        "UserBadge": {
+            "enum": {
+                "typeName": {
+                    "name": "UserBadge",
+                    "defined-in": "QONECTIQV2"
+                },
+                "rawValueType": {
+                    "scalar": "String"
+                },
+                "cases": [
+                    {
+                        "name": "newbie",
+                        "rawValue": "newbie"
+                    },
+                    {
+                        "name": "explorer",
+                        "rawValue": "explorer"
+                    },
+                    {
+                        "name": "achiever",
+                        "rawValue": "achiever"
+                    },
+                    {
+                        "name": "worldSaver",
+                        "rawValue": "worldSaver"
+                    }
+                ]
+            }
+        },
+        "HomeFeedTheme": {
+            "enum": {
+                "typeName": {
+                    "name": "HomeFeedTheme",
+                    "defined-in": "QONECTIQV2"
+                },
+                "rawValueType": {
+                    "scalar": "String"
+                },
+                "cases": [
+                    {
+                        "name": "basic",
+                        "rawValue": "basic"
+                    },
+                    {
+                        "name": "classic",
+                        "rawValue": "classic"
+                    },
+                    {
+                        "name": "dark",
+                        "rawValue": "dark"
+                    },
+                    {
+                        "name": "midnight",
+                        "rawValue": "midnight"
+                    },
+                    {
+                        "name": "sunset",
+                        "rawValue": "sunset"
+                    }
+                ]
+            }
+        }
+    }
+}

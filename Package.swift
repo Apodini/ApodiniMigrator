@@ -44,19 +44,22 @@ let package = Package(
                 .target(name: "ApodiniMigratorShared"),
                 .product(name: "ApodiniTypeInformation", package: "ApodiniTypeInformation"),
                 .product(name: "Yams", package: "Yams")
-            ]),
+            ]
+        ),
         .executableTarget(
             name: "ApodiniMigratorCLI",
             dependencies: [
                 .target(name: "ApodiniMigrator"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log")
-            ]),
+            ]
+        ),
         .target(
             name: "ApodiniMigratorClientSupport",
             dependencies: [
                 .target(name: "ApodiniMigratorCore")
-            ]),
+            ]
+        ),
         .target(
             name: "ApodiniMigrator",
             dependencies: [
@@ -66,7 +69,8 @@ let package = Package(
             ],
             resources: [
                 .process("Templates")
-            ]),
+            ]
+        ),
         .target(
             name: "ApodiniMigratorShared",
             dependencies: [

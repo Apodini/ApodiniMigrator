@@ -24,19 +24,19 @@ class ACTION
 end
 
 def command(action:)
-    base = "swift run migrator"
-    target = "/Users/eld/Desktop/QONECTIQ"
+    migrator = "swift run migrator"
+    target = "./Resources"
     packageName = "QONECTIQ"
-    oldAPI = "api_v1.0.0.json"
-    newAPI = "api_v2.0.0.json"
+    oldAPI = "ExampleDocuments/api_qonectiq1.0.0.json"
+    newAPI = "ExampleDocuments/api_qonectiq2.0.0.json"
 
     case action
     when ACTION::MIGRATE
-        return "#{base} migrate -t=#{target} -d=#{target}/#{oldAPI} -m=#{target}/migration_guide.json -p=#{packageName}"
+        return "#{migrator} migrate -t=#{target} -d=#{target}/#{oldAPI} -m=#{target}/ExampleDocuments/migration_guide.json -p=#{packageName}"
     when ACTION::GENERATE
-        return "#{base} generate -d=#{target}/#{oldAPI} -p=#{packageName} -t=#{target}"
+        return "#{migrator} generate -d=#{target}/#{oldAPI} -p=#{packageName} -t=#{target}"
     when ACTION::COMPARE
-        return "#{base} compare -o #{target}/#{oldAPI} -n #{target}/#{newAPI} -m #{target} -f json"
+        return "#{migrator} compare -o #{target}/#{oldAPI} -n #{target}/#{newAPI} -m #{target}/ExampleDocuments -f json"
     else
         puts "Usage: #{$0} | Use one of the following commands: <generate> or <compare>. After generating the migration guide with the <compare> command, the library can be migrated via <migrate>"
         exit 0

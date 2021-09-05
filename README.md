@@ -14,7 +14,7 @@ SPDX-License-Identifier: MIT
   <img width="200" src="https://github.com/Apodini/ApodiniMigrator/blob/develop/Resources/logo.png">
 </p>
 
-[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/Apodini/ApodiniMigrator/blob/develop/LICENSES/MIT.txt)
+[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/Apodini/ApodiniMigrator/blob/develop/LICENSES)
 [![swift-version](https://img.shields.io/badge/Swift-5.5-orange.svg)](https://github.com/apple/swift)
 [![REUSE Compliance Check](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml)
 [![Build and Test](https://github.com/Apodini/ApodiniMigrator/actions/workflows/swift.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/swift.yml)

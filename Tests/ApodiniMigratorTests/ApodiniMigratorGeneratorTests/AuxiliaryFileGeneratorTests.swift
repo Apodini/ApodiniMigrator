@@ -41,7 +41,7 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
             ]
         )
         
-        let testFile = TestFileTemplate([object, enumeration], fileName: "TestFile", packageName: "ApodiniMigrator")
+        let testFile = TestFileTemplate([object, enumeration], fileName: "TestFile" + .swift, packageName: "ApodiniMigrator")
         
         XCTMigratorAssertEqual(testFile, .modelsTestFile)
     }

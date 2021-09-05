@@ -12,7 +12,7 @@ let package = Package(
             .library(name: "___PACKAGE_NAME___", targets: ["___PACKAGE_NAME___"])
     ],
     dependencies: [
-            .package(url: "https://github.com/Apodini/ApodiniMigrator.git", .branch("apodini-model-migrator"))
+            .package(url: "https://github.com/Apodini/ApodiniMigrator.git", .branch("develop"))
     ],
     targets: [
         .target(
@@ -21,9 +21,9 @@ let package = Package(
                 .product(name: "ApodiniMigratorClientSupport", package: "ApodiniMigrator")
             ],
             resources: [
-                .process("Resources/js-convert-scripts.json"),
-                .process("Resources/json-values.json")
-            ]),
+                .process("Resources")
+            ]
+        ),
         .testTarget(
             name: "___PACKAGE_NAME___Tests",
             dependencies: ["___PACKAGE_NAME___"])

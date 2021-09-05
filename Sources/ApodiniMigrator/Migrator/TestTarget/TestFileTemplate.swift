@@ -74,7 +74,7 @@ public struct TestFileTemplate: Renderable {
     
     public func render() -> String {
         """
-        \(FileHeaderComment(fileName: fileName + .swift).render())
+        \(FileHeaderComment(fileName: fileName).render())
         
         \(Import(.xCTest).render())
         @testable import \(packageName)
