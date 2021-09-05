@@ -1,4 +1,7 @@
 # Apodini Migrator
+[![REUSE Compliance Check](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml)
+[![Build and Test](https://github.com/Apodini/ApodiniMigrator/actions/workflows/swift.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/swift.yml)
+[![codecov](https://codecov.io/gh/Apodini/ApodiniMigrator/branch/develop/graph/badge.svg?token=5MMKMPO5NR)](https://codecov.io/gh/Apodini/ApodiniMigrator)
 
 ## Requirements
 

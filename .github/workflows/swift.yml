@@ -13,7 +13,7 @@ on:
   push:
     branches:
       - develop
-      - feature/testing
+      - feature/release0.1.0
   pull_request:
     branches:
       - develop
@@ -54,11 +54,12 @@ jobs:
       run: xcrun llvm-cov export -format="lcov" .build/debug/ApodiniMigratorPackageTests.xctest/Contents/MacOS/ApodiniMigratorPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
-#    - name: Test Generating Docs
-#      run: |
-#          xcodebuild docbuild -scheme ApodiniMigrator -destination platform=macOS,arch=x86_64 #-derivedDataPath ./.xcodebuild
-#          cp -r $(find ./.xcodebuild -type d -name '*.doccarchive') ./ApodiniMigrator.doccarchive
-#          echo "The DocC archive can be found at ./ApodiniMigrator.doccarchive"
+    - name: Test Generating Docs
+      if: ${{ false }} #disabled
+      run: |
+          xcodebuild docbuild -scheme ApodiniMigrator -destination platform=macOS,arch=x86_64 #-derivedDataPath ./.xcodebuild
+          cp -r $(find ./.xcodebuild -type d -name '*.doccarchive') ./ApodiniMigrator.doccarchive
+          echo "The DocC archive can be found at ./ApodiniMigrator.doccarchive"
   linux:
     name: Linux ${{ matrix.linux }} ${{ matrix.configuration }}
     container:
