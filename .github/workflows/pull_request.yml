@@ -18,6 +18,8 @@ jobs:
     uses: Apodini/.github/.github/workflows/build-and-test.yml@main
     with:
       packagename: ApodiniMigrator
+      usexcodebuild: false
+      xcodebuildpostfix: -Package
   reuse_action:
     name: REUSE Compliance Check
     uses: Apodini/.github/.github/workflows/reuse.yml@main
