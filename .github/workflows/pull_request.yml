@@ -17,7 +17,7 @@ jobs:
     name: Build and Test
     uses: Apodini/.github/.github/workflows/build-and-test.yml@main
     with:
-      packagename: ApodiniMigrator-Package
+      packagename: ApodiniMigrator
       usexcodebuild: false
       testdocc: false
   reuse_action:
