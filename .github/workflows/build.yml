@@ -20,4 +20,3 @@ jobs:
     uses: Apodini/.github/.github/workflows/build-and-test.yml@main
     with:
       packagename: ApodiniMigrator
-      xcodebuildpostfix: -Package
