@@ -60,6 +60,15 @@ public struct ProjectDirectories {
     public var utils: Path {
         target + DirectoryName.utils
     }
+
+
+    public var pbSwift: Path {
+        sources + DirectoryName.pb_swift
+    }
+
+    public var grpcSwift: Path {
+        sources + DirectoryName.grpc_swift
+    }
     
     /// `Tests` directory of the package
     public var tests: Path {
@@ -73,7 +82,7 @@ public struct ProjectDirectories {
     
     /// All directories of the package that contain files
     var allDirectories: [Path] {
-        [http, resources, models, endpoints, networking, utils, testsTarget]
+        [http, resources, models, endpoints, networking, utils, testsTarget, pbSwift, grpcSwift] // TODO client specific directories!!
     }
     
     /// Initializes `self` out of a `packageName` and a `packagePath`
@@ -106,6 +115,8 @@ public struct ProjectDirectories {
         case .networking: return networking
         case .utils: return utils
         case .tests: return tests
+        case .grpc_swift: return grpcSwift
+        case .pb_swift: return pbSwift
         }
     }
 }

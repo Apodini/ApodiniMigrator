@@ -43,6 +43,10 @@ enum Template: String, Resource {
         default: return .swift
         }
     }
+
+    var fileExtension: FileExtension {
+        projectFileExtension
+    }
     
     var projectFileName: String {
         name + projectFileExtension
@@ -61,5 +65,8 @@ extension Template {
     static let packageName = "___PACKAGE_NAME___"
     static let encoderConfiguration = "___encoder___configuration___"
     static let decoderConfiguration = "___decoder___configuration___"
-    static let serverPath = "___serverpath___"
+    static let serverPath = "___serverpath___" // TODO very http sepcific!!
+    static let serverProtocol = "___protocol___" // TODO https???
+    static let host = "___host___"
+    static let port = "___port___"
 }

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+// APODINI-handler: Greeter
+// APODINI-identifier: Greeter.greetName
+service Greeter {
+  rpc greetName (GreeterMessage) returns (GreetingMessage);
+}
+
+message GreeterMessage {
+  string name2 = 1;
+}
+
+message GreetingMessage {
+  string greet2 = 1;
+}

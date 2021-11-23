@@ -11,5 +11,5 @@ import Foundation
 public enum ServiceType: String, Value {
     case rest = "REST"
     case graphQL = "GraphQL"
-    case gRPC
+    case gRPC = "gRPC"
 }

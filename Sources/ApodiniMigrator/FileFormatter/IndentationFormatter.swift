@@ -53,6 +53,9 @@ public struct IndentationFormatter: SwiftFileFormatter {
     /// - Returns: If `line` starts with one closing bracket, returns a `.closing`, otherwise `nil`
     private mutating func updateStorage(with line: String) -> Bracket? {
         // ignoring comments (not considering /***/ comments though)
+        // TODO does not consider comments which start in the middle and stuff!
+        // => we can't distinguish between symbols encountering inside a String for example!!
+        // TODO try to remove the Formatter, we CAN'T cover all cases without writing a full blown parser!
         if !line.hasPrefix("//") {
             let lineBrackets = line.compactMap { Bracket($0) }
             storage += lineBrackets.reduce(0) { $0 + $1.weight }

@@ -24,6 +24,8 @@ public enum DirectoryName: String {
     case networking = "Networking"
     /// Utils
     case utils = "Utils"
+    case pb_swift = "PB.SWIFT"
+    case grpc_swift = "GRPC.SWIFT"
     /// Tests
     case tests = "Tests"
 }

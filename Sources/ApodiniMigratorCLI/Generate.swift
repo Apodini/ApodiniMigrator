@@ -23,6 +23,10 @@ struct Generate: ParsableCommand {
     
     @Option(name: .shortAndLong, help: "Path where the api_vX.Y.Z file is located, e.g. /path/to/api_v1.0.0.json")
     var documentPath: String
+
+    // TODO somehow control the type of client side library type (REST, gRPC?)
+
+    // TODO we need Task utility from Apodini! (execute protoc!)
     
     func run() throws {
         let migrator = ApodiniMigrator.Migrator.self

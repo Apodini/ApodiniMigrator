@@ -33,7 +33,8 @@ struct EncodingMethod: Renderable {
             let necessityValue = change.necessityValue,
             case let .element(anyCodable) = change.to,
             anyCodable.typed(Necessity.self) == .required,
-            case let .json(id) = necessityValue {
+            case let .json(id) = necessityValue
+        {
             return "try container.encode(\(name) ?? (try \(property.type.unwrapped.typeString).instance(from: \(id))), forKey: .\(name))"
         } else if
             let change = convertChanges.firstMatch(on: \.targetID, with: id),

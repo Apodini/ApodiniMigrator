@@ -8,6 +8,105 @@
 
 import Foundation
 import Logging
+import MigratorAPI
+
+public struct RESTMigrator: MigratorAPI.Migrator {
+    public var bundle = Bundle.module
+
+    @SharedNodeStorage
+    var apiFileMigratedEndpoints: [MigratedEndpoint]
+
+    private let document: Document
+    private let migrationGuide: MigrationGuide
+    private let changeFilter: ChangeFilter
+
+    /// Networking migrator
+    private let networkingMigrator: NetworkingMigrator
+
+    public var library: RootDirectory {
+        Sources {
+            Target(GlobalPlaceholder.$packageName) {
+                Directory("Endpoints") {
+                    EndpointsMigrator(
+                        migratedEndpointsReference: $apiFileMigratedEndpoints,
+                        allEndpoints: document.endpoints + changeFilter.addedEndpoints(),
+                        endpointChanges: changeFilter.endpointChanges
+                    )
+                }
+
+                Directory("HTTP") {
+                    ResourceFile(copy: "ApodiniError.swift")
+                    ResourceFile(copy: "HTTPAuthorization.swift")
+                    ResourceFile(copy: "HTTPHeaders.swift")
+                    ResourceFile(copy: "HTTPMethod.swift")
+                    ResourceFile(copy: "Parameters.swift")
+                }
+
+                Directory("Models") {
+                    // TODO generate
+                    Empty()
+                }
+
+                Directory("Networking") {
+                    ResourceFile(copy: "Handler.swift")
+                    ResourceFile(copy: "NetworkingService.swift")
+                        .replacing(Placeholder("serverpath"), with: networkingMigrator.serverPath())
+                        .replacing(Placeholder("encoder___configuration"), with: networkingMigrator.encoderConfiguration().networkingDescription)
+                        .replacing(Placeholder("decoder___configuration"), with: networkingMigrator.decoderConfiguration().networkingDescription)
+                }
+
+                Directory("Resources") {
+                    // TODO script generation
+                    Empty()
+                }
+
+                Directory("Utils") {
+                    ResourceFile(copy: "Utils.swift")
+                }
+
+                APIFile($apiFileMigratedEndpoints)
+            }
+                .dependency(product: "ApodiniMigratorClientSupport", of: "ApodiniMigrator")
+                // TODO resources!
+        }
+
+        Tests {
+            TestTarget(GlobalPlaceholder.$packageName, "Tests") {
+                Empty()
+                // TODO generate tests
+            }
+                .dependency(target: "TestClient") // TODO replacer!
+            // TODO removing linux main
+        }
+
+        SwiftPackageFile(swiftTools: "5.5")
+            .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.1.0\")")
+            .product(library: GlobalPlaceholder.$packageName, targets: [[GlobalPlaceholder.$packageName]]) // TODO double array
+        ReadMeFile("Readme.md")
+    }
+
+    public init(documentPath: String, migrationGuide: MigrationGuide = .empty) throws {
+        try self.document = Document.decode(from: documentPath.asPath)
+
+        if let id = migrationGuide.id, document.id != id {
+            throw Migrator.MigratorError.incompatible(
+                message:
+                """
+                Migration guide is not compatible with the provided document. Apparently another old document version, \
+                has been used to generate the migration guide!
+                """
+            )
+        }
+
+        self.migrationGuide = migrationGuide
+        self.changeFilter = ChangeFilter(migrationGuide)
+
+        networkingMigrator = NetworkingMigrator(
+            previousServerInformation: document.metaData,
+            networkingChanges: changeFilter.networkingChanges
+        )
+    }
+}
 
 /// A generator for a swift package
 public struct Migrator {
@@ -90,16 +189,15 @@ public struct Migrator {
         )
         
         networkingMigrator = .init(
-            networkingPath: directories.networking,
-            oldMetaData: document.metaData,
+            previousServerInformation: document.metaData,
             networkingChanges: changeFilter.networkingChanges
         )
         self.encoderConfiguration = networkingMigrator.encoderConfiguration()
         
         logger = Self.logger
     }
-    
-    /// Triggeres the rendering of migrated content of the library and persists changes
+
+    /// Triggers the rendering of migrated content of the library and persists changes
     public func run() throws {
         logger.info("Preparing project directories...")
         try directories.build()

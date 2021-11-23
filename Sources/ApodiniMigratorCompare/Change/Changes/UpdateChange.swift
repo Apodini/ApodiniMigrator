@@ -45,7 +45,7 @@ public struct UpdateChange: Change {
     public let from: ChangeValue
     /// New value of the target
     public let to: ChangeValue
-    /// Similarity score from 0 to 1 for renamings
+    /// Similarity score from 0 to 1 for renaming
     public let similarity: Double?
     /// Optional id of the target
     public let targetID: DeltaIdentifier?

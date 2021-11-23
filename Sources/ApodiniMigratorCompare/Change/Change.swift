@@ -15,7 +15,7 @@ public protocol Change: Codable {
     /// Type of change
     var type: ChangeType { get }
     /// Indicates whether the change is non-backward compatible
-    var breaking: Bool { get }
+    var breaking: Bool { get } // TODO if it is breaking depends on interface (e.g. necessity for grpc?)
     /// Indicates whether the change can be handled by `ApodiniMigrator`
     var solvable: Bool { get }
 }

@@ -7,19 +7,24 @@
 //
 
 import Foundation
+import MigratorAPI
 
 /// Represents the `API.swift` file of the client library
-struct APIFile: SwiftFile {
+struct APIFile: SwiftFile, GeneratedFile {
+    var fileName: [NameComponent] = ["API.swift"]
+
     /// TypeInformation is a caseless enum named `API`
     let typeInformation: TypeInformation = .enum(name: .init(name: "API"), rawValueType: nil, cases: [])
     /// Kind of the file
     let kind: Kind = .enum
     /// All migrated endpoints of the library
-    let endpoints: [MigratedEndpoint]
+    @SharedNodeReference
+    var endpoints: [MigratedEndpoint]
 
     /// Initializes a new instance out all the migrated endpoints of the library
-    init(_ endpoints: [MigratedEndpoint]) {
-        self.endpoints = endpoints.sorted()
+    init(_ migratedEndpointsReference: SharedNodeReference<[MigratedEndpoint]>) {
+        self._endpoints = migratedEndpointsReference
+        endpoints.sorted()
     }
 
     /// Renders the wrapper method for the `migratedEndpoint`
@@ -37,8 +42,7 @@ struct APIFile: SwiftFile {
         return body
     }
 
-    /// Renders the content of the file
-    func render() -> String {
+    func render(with context: MigrationContext) -> String {
         """
         \(fileComment)
 

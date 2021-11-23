@@ -18,26 +18,33 @@ let package = Package(
         .iOS(.v13)
     ],
     products: [
-        // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(name: "ApodiniMigratorCore", targets: ["ApodiniMigratorCore"]),
         .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
         .library(name: "ApodiniMigratorShared", targets: ["ApodiniMigratorShared"]),
         .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"]),
         .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"]),
-        .executable(name: "migrator", targets: ["ApodiniMigratorCLI"])
+        .executable(name: "migrator", targets: ["ApodiniMigratorCLI"]),
+
+        .executable(name: "protoc-gen-apodini-migrator", targets: ["protoc-gen-apodini-migrator"])
     ],
     dependencies: [
-        // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .upToNextMinor(from: "0.2.0")),
         .package(url: "https://github.com/kylef/PathKit.git", from: "1.0.1"),
-        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.4.0")),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.2"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/omochi/FineJSON.git", from: "1.14.0"),
-        .package(url: "https://github.com/jpsim/Yams.git", from: "4.0.0")
+        .package(url: "https://github.com/jpsim/Yams.git", from: "4.0.0"),
+
+        // gRPC
+        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.18.0")
     ],
     targets: [
-        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages this package depends on.
+        .target(name: "Utils"),
+
+        .target(name: "CodingUtils"),
+
+        .target(name: "IOUtils"),
+
         .target(
             name: "ApodiniMigratorCore",
             dependencies: [
@@ -54,15 +61,33 @@ let package = Package(
                 .product(name: "Logging", package: "swift-log")
             ]
         ),
+        .executableTarget(
+            name: "MigratorBoostrap",
+            dependencies: [
+                .target(name: "ApodiniMigrator"),
+                .target(name: "gRPCMigrator")
+            ]
+        ),
+        .executableTarget(
+            name: "protoc-gen-apodini-migrator",
+            dependencies: [
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ]
+        ),
+
+        // Target requires any interfaces required for the Client libraries!
         .target(
             name: "ApodiniMigratorClientSupport",
             dependencies: [
                 .target(name: "ApodiniMigratorCore")
             ]
         ),
+
         .target(
             name: "ApodiniMigrator",
             dependencies: [
+                .target(name: "MigratorAPI"),
                 .target(name: "ApodiniMigratorCompare"),
                 .target(name: "ApodiniMigratorClientSupport"),
                 .product(name: "Logging", package: "swift-log")
@@ -71,6 +96,27 @@ let package = Package(
                 .process("Templates")
             ]
         ),
+
+        .target(
+            name: "MigratorAPI",
+            dependencies: [
+                .target(name: "ApodiniMigratorCompare"),
+                .target(name: "ApodiniMigratorClientSupport"),
+                .product(name: "Logging", package: "swift-log")
+            ]
+        ),
+
+        .target(
+            name: "gRPCMigrator",
+            dependencies: [
+                .target(name: "MigratorAPI"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf")
+            ],
+            resources: [
+                .process("Resources")
+            ]
+        ),
+
         .target(
             name: "ApodiniMigratorShared",
             dependencies: [
@@ -79,7 +125,7 @@ let package = Package(
                 .product(name: "Yams", package: "Yams")
             ]
         ),
-        
+
         .target(
             name: "ApodiniMigratorCompare",
             dependencies: [

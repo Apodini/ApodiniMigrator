@@ -1,2 +1,2 @@
-#  Read me
+#  ___PACKAGE_NAME___
 

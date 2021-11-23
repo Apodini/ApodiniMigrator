@@ -9,8 +9,8 @@
 import Foundation
 
 struct MetaDataComparator: Comparator {
-    let lhs: MetaData
-    let rhs: MetaData
+    let lhs: ServiceInformation
+    let rhs: ServiceInformation
     let changes: ChangeContextNode
     var configuration: EncoderConfiguration
     
