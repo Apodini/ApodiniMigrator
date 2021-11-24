@@ -10,7 +10,7 @@ import Foundation
 import MigratorAPI
 
 /// An object that represents an `Type+Endpoint.swift` file in the client library
-class EndpointFile: SwiftFile, GeneratedFile {
+class EndpointFile: SwiftFile, LegacyGeneratedFile {
     let fileName: [NameComponent]
 
     @SharedNodeReference
@@ -39,6 +39,7 @@ class EndpointFile: SwiftFile, GeneratedFile {
         endpoints: [Endpoint],
         changes: [Change]
     ) {
+        _migratedEndpoints = migratedEndpointsReference
         self.fileName = [typeReference + EndpointsMigrator.fileSuffix]
 
         self.typeInformation = .reference(typeReference)

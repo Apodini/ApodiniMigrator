@@ -24,6 +24,9 @@ public struct RESTMigrator: MigratorAPI.Migrator {
     private let networkingMigrator: NetworkingMigrator
 
     public var library: RootDirectory {
+        // TODO allModels is used for the Tests generator (and ModelsMigrator below)
+        let allModels = document.allModels()
+
         Sources {
             Target(GlobalPlaceholder.$packageName) {
                 Directory("Endpoints") {
@@ -43,8 +46,11 @@ public struct RESTMigrator: MigratorAPI.Migrator {
                 }
 
                 Directory("Models") {
-                    // TODO generate
-                    Empty()
+                    ModelsMigrator(
+                        oldModels: allModels,
+                        addedModels: changeFilter.addedModels(),
+                        modelChanges: changeFilter.modelChanges
+                    )
                 }
 
                 Directory("Networking") {
@@ -131,7 +137,7 @@ public struct Migrator {
     /// Logger of the migrator
     private let logger: Logger
     /// Endpoints migrator
-    private let endpointsMigrator: EndpointsMigrator
+    // TODO removed private let endpointsMigrator: EndpointsMigrator
     /// Models migrator
     private let modelsMigrator: ModelsMigrator
     /// Networking migrator
@@ -172,17 +178,17 @@ public struct Migrator {
         self.jsonValues = migrationGuide.jsonValues
         self.objectJSONs = migrationGuide.objectJSONs
         let changeFilter: ChangeFilter = .init(migrationGuide)
-        endpointsMigrator = .init(
+        /*endpointsMigrator = .init(
             endpointsPath: directories.endpoints,
             apiFilePath: directories.target,
             allEndpoints: document.endpoints + changeFilter.addedEndpoints(),
             endpointChanges: changeFilter.endpointChanges
-        )
+        )*/
         let oldModels = document.allModels()
         let addedModels = changeFilter.addedModels()
         self.allModels = oldModels + addedModels
         modelsMigrator = .init(
-            path: directories.models,
+            // path: directories.models,
             oldModels: oldModels,
             addedModels: addedModels,
             modelChanges: changeFilter.modelChanges
@@ -211,10 +217,10 @@ public struct Migrator {
         try writeResources()
         
         log(.endpoints)
-        try endpointsMigrator.migrate()
+        // TODO removed try endpointsMigrator.migrate()
         
         log(.models)
-        try modelsMigrator.migrate()
+        // TODO removed! try modelsMigrator.migrate()
         
         try writeNetworking()
         

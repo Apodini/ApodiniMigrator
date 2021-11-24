@@ -9,7 +9,7 @@
 import Foundation
 
 /// An object to write unchanged models at a specific directory
-struct MultipleFileRenderer {
+struct MultipleFileRenderer { // TODO can be removed!
     /// Swift files
     private let files: [SwiftFile]
     

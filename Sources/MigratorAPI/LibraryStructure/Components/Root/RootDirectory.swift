@@ -5,7 +5,7 @@
 import Foundation
 import PathKit
 
-public class RootDirectory: DirectoryProtocol {
+public class RootDirectory: LibraryComposite {
     public var path: [NameComponent] = [GlobalPlaceholder.$packageName]
 
     public var content: [LibraryComponent]

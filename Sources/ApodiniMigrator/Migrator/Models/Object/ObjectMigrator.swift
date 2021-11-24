@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MigratorAPI
 
 /// A util struct that holds an added property and its corresponding default value as provided by the migration guide
 struct AddedProperty {
@@ -25,7 +26,11 @@ struct DeletedProperty {
 }
 
 /// An object that handles the migration of an object in the client library
-struct ObjectMigrator: ObjectSwiftFile {
+struct ObjectMigrator: ObjectSwiftFile, LegacyGeneratedFile {
+    var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
+        ["\(typeInformation.typeName.name).swift"]
+    }
+
     /// Type information of the object that will be migrated
     var typeInformation: TypeInformation
     /// Kind of the file, either object or struct
@@ -52,10 +57,12 @@ struct ObjectMigrator: ObjectSwiftFile {
     /// Initializes a new instance out of an object type information, kind of the file and the changes related to the object
     init(_ typeInformation: TypeInformation, kind: Kind = .struct, changes: [Change]) {
         precondition([.struct, .class].contains(kind) && typeInformation.isObject, "Can't initialize an ObjectMigrator with a non object type information or file other than struct or class")
+
         self.typeInformation = typeInformation
         self.oldProperties = typeInformation.objectProperties
         self.changes = changes
         self.kind = kind
+
         unsupportedChange = changes.first { $0.type == .unsupported } as? UnsupportedChange
         notPresentInNewVersion = changes.contains(where: { $0.type == .deletion && $0.element.target == ObjectTarget.`self`.rawValue })
         collectPropertyChanges()
@@ -80,9 +87,8 @@ struct ObjectMigrator: ObjectSwiftFile {
             }
         }
     }
-    
-    /// Renders the migrated result of the object
-    func render() -> String {
+
+    func render(with context: MigrationContext) -> String {
         var annotation: Annotation?
         if let unsupportedChange = unsupportedChange {
             annotation = GenericComment(

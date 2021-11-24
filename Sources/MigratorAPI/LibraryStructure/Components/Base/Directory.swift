@@ -5,7 +5,7 @@
 import Foundation
 import PathKit
 
-public class Directory: DirectoryProtocol {
+public class Directory: LibraryComposite {
     public let path: [NameComponent]
 
     public let content: [LibraryComponent]

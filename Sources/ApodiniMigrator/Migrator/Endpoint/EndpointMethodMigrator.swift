@@ -94,8 +94,9 @@ class EndpointMethodMigrator: Renderable {
         let responseString = self.responseString()
         let queryParametersString = migratedEndpoint.queryParametersString()
         let body =
+            // TODO access to the signature property!
         """
-        \(migratedEndpoint.signature())
+        \(migratedEndpoint.signature)
         \(queryParametersString)var headers = httpHeaders
         headers.setContentType(to: "application/json")
         

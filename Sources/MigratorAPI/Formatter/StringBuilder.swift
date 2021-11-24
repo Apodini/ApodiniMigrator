@@ -3,23 +3,83 @@
 //
 
 import Foundation
-/*
-@resultBuilder
-public enum StringBuilder {
 
+public protocol FileCodeRenderable {
+    func render() -> [String]
 }
 
-protocol StringRenderable {
-    func render() -> String
-}
-
-extension String: StringRenderable {
-    func render() {
+extension String: FileCodeRenderable {
+    /// Every String is interpreted as a single line in the resulting code file.
+    /// Therefore the render method always appends a line separator symbol.
+    public func render() -> [String] {
+        self
+            .split(separator: "\n") // TODO is this needed?
+            .map { String($0) }
     }
 }
 
-protocol StringRenderableComposite {
-    var content: [StringRenderable] { get }
+public struct Indent: FileCodeRenderable {
+    private let identString: String
+    private let content: [FileCodeRenderable]
 
+    public init(
+        with identString: String = "  ",
+        @FileCodeBuilder content: () -> [FileCodeRenderable]
+    ) {
+        self.identString = identString
+        self.content = content()
+    }
 
-}*/
+    public func render() -> [String] {
+        content
+            .map { $0.render() }
+            .flatten()
+            .map { identString + $0 }
+    }
+}
+
+@resultBuilder
+public class FileCodeBuilder {
+    public static func buildExpression<Renderable: FileCodeRenderable>(_ expression: Renderable) -> [FileCodeRenderable] {
+        [expression]
+    }
+
+    public static func buildExpression<Renderable: FileCodeRenderable>(_ expression: [Renderable]) -> [FileCodeRenderable] {
+        expression
+    }
+
+    public static func buildExpression(_ expression: Void) -> [FileCodeRenderable] {
+        []
+    }
+
+    public static func buildBlock(_ components: [FileCodeRenderable]...) -> [FileCodeRenderable] {
+        components.flatten()
+    }
+
+    public static func buildEither(first component: [FileCodeRenderable]) -> [FileCodeRenderable] {
+        component
+    }
+
+    public static func buildEither(second component: [FileCodeRenderable]) -> [FileCodeRenderable] {
+        component
+    }
+
+    public static func buildOptional(_ component: [FileCodeRenderable]?) -> [FileCodeRenderable] {
+        component ?? []
+    }
+
+    public static func buildArray(_ components: [[FileCodeRenderable]]) -> [FileCodeRenderable] {
+        components.flatten()
+    }
+}
+
+@resultBuilder
+public class FileCodeStringBuilder: FileCodeBuilder {
+    public static func buildFinalResult(_ component: [FileCodeRenderable]) -> String {
+        component
+            .map { $0.render() }
+            .flatten()
+            .joined(separator: "\n")
+            .appending("\n")
+    }
+}

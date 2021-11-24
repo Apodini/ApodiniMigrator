@@ -73,19 +73,19 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     func testEnumAddedCase() throws {
-        let migrator = EnumMigrator(enum: enumeration, changes: [addCaseChange])
+        let migrator = EnumMigrator(enumeration, changes: [addCaseChange])
         
         XCTMigratorAssertEqual(migrator, .enumAddedCase)
     }
     
     func testEnumDeletedCase() throws {
-        let migrator = EnumMigrator(enum: enumeration, changes: [deleteCaseChange])
+        let migrator = EnumMigrator(enumeration, changes: [deleteCaseChange])
         XCTMigratorAssertEqual(migrator, .enumDeletedCase)
     }
     
     func testEnumRenamedCase() throws {
         
-        let migrator = EnumMigrator(enum: enumeration, changes: [renameCaseChange])
+        let migrator = EnumMigrator(enumeration, changes: [renameCaseChange])
         XCTMigratorAssertEqual(migrator, .enumRenamedCase)
     }
     
@@ -98,7 +98,7 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
             solvable: true
         )
         
-        let migrator = EnumMigrator(enum: enumeration, changes: [deletedSelfChange])
+        let migrator = EnumMigrator(enumeration, changes: [deletedSelfChange])
         XCTMigratorAssertEqual(migrator, .enumDeletedSelf)
     }
     
@@ -108,13 +108,13 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
             description: "Unsupported change! Raw value type changed"
         )
         
-        let migrator = EnumMigrator(enum: enumeration, changes: [unsupportedChange])
+        let migrator = EnumMigrator(enumeration, changes: [unsupportedChange])
         
         XCTMigratorAssertEqual(migrator, .enumUnsupportedChange)
     }
     
     func testEnumMultipleChanges() throws {
-        let migrator = EnumMigrator(enum: enumeration, changes: [addCaseChange, deleteCaseChange, renameCaseChange])
+        let migrator = EnumMigrator(enumeration, changes: [addCaseChange, deleteCaseChange, renameCaseChange])
         XCTMigratorAssertEqual(migrator, .enumMultipleChanges)
     }
 }

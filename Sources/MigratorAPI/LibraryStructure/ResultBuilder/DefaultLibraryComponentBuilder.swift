@@ -4,6 +4,8 @@
 
 import Foundation
 
+// TODO some code duplication between all result builders
+
 @resultBuilder
 public enum DefaultLibraryComponentBuilder {
     public static func buildExpression(_ expression: LibraryNode) -> [LibraryComponent] {
@@ -16,6 +18,18 @@ public enum DefaultLibraryComponentBuilder {
 
     public static func buildBlock(_ components: [LibraryComponent]...) -> [LibraryComponent] {
         components.flatten()
+    }
+
+    public static func buildEither(first component: [LibraryComponent]) -> [LibraryComponent] {
+        component
+    }
+
+    public static func buildEither(second component: [LibraryComponent]) -> [LibraryComponent] {
+        component
+    }
+
+    public static func buildOptional(_ component: [LibraryComponent]?) -> [LibraryComponent] {
+        component ?? [Empty()]
     }
 
     public static func buildArray(_ components: [[LibraryComponent]]) -> [LibraryComponent] {

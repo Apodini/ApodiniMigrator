@@ -17,7 +17,7 @@ struct EndpointsMigrator: LibraryComposite {
     @SharedNodeReference
     var migratedEndpoints: [MigratedEndpoint]
 
-    var endpointFiles: [EndpointFile]
+    var endpointFiles: [EndpointFile] = []
 
     init(
         migratedEndpointsReference: SharedNodeReference<[MigratedEndpoint]>,

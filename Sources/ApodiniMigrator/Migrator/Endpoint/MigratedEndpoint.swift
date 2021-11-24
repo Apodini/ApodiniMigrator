@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MigratorAPI
 
 /// Represents a migrated endpoint of the client library
 class MigratedEndpoint {
@@ -56,8 +57,9 @@ class MigratedEndpoint {
         }
         
         input.append(contentsOf: DefaultEndpointInput.allCases.map { $0.signature })
-        
-        return .lineBreak + input.joined(separator: ",\(String.lineBreak)") + .lineBreak
+
+        return input
+            .joined(separator: ",\(String.lineBreak)")
     }
     
     /// Returns the `@available(*, deprecated, message:)` annotation in case that the endpoint has been deleted in the new version
@@ -80,16 +82,21 @@ class MigratedEndpoint {
         }
         return setValue
     }
-    
+
     /// Returns the signature of the endpoint method
-    func signature() -> String {
+    @FileCodeStringBuilder
+    var signature: String {
+        // TODO sanitizzte deltaIdentifier for the DOT
         let methodName = endpoint.deltaIdentifier.rawValue.lowerFirst
-        let signature =
-        """
-        \(EndpointComment(endpoint.handlerName, path: resourcePath(replaceBrackets: false)))
-        \(unavailableComment())static func \(methodName)(\(methodInput())) -> ApodiniPublisher<\(responseString)> {
-        """
-        return signature
+
+        "\(EndpointComment(endpoint.handlerName, path: resourcePath(replaceBrackets: false)))"
+        "\(unavailableComment())static func \(methodName)("
+
+        Indent {
+            methodInput()
+        }
+
+        ") -> ApodiniPublisher<\(responseString)> {"
     }
     
     /// Returns the adjusted resource path by considering potential renamings of the parameters in the new version and replacing them accordingly
@@ -104,7 +111,7 @@ class MigratedEndpoint {
     
     /// Returns the endpoint method with unavailable comment and a fatalError body
     func unavailableBody() -> String {
-        var body = signature()
+        var body = signature // TODO access to signature stringy!
         body += .lineBreak + "Future { $0(.failure(ApodiniError.deletedEndpoint())) }.eraseToAnyPublisher()" + .lineBreak + "}"
         return body
     }

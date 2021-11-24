@@ -119,7 +119,7 @@ public extension String {
 
 public extension Collection where Element == String {
     /// Joins elements with a `\n`
-    var lineBreaked: String {
+    var lineBreaked: String { // TODO "lineBroken"
         joined(separator: .lineBreak)
     }
 }

@@ -7,26 +7,24 @@
 //
 
 import Foundation
+import MigratorAPI
 
-/// An object that handles / triggeres the migrated rendering of enums and objects of the client library
-struct ModelsMigrator {
-    /// Path of `Models` folder of the client library
-    private let modelsPath: Path
+/// An object that handles / triggers the migrated rendering of enums and objects of the client library
+struct ModelsMigrator: LibraryComposite {
     /// Changed models of the client library
     private let changedModels: [TypeInformation]
     /// Unchanged models of the client library
     private let unchangedModels: [TypeInformation]
     /// All changes of the migration guide with element either an enum or an object
     private let modelChanges: [Change]
-    
+
     /// Initializer for a new instance
-    init(path: Path, oldModels: [TypeInformation], addedModels: [TypeInformation], modelChanges: [Change]) {
-        self.modelsPath = path
-        self.modelChanges = modelChanges
-        
+    init(oldModels: [TypeInformation], addedModels: [TypeInformation], modelChanges: [Change]) {
         let changedIds = modelChanges.map { $0.elementID }.unique()
+
         var unchangedModels = Set(addedModels)
         var changedModels: Set<TypeInformation> = []
+
         for old in oldModels {
             if changedIds.contains(old.deltaIdentifier) {
                 changedModels.insert(old)
@@ -34,23 +32,32 @@ struct ModelsMigrator {
                 unchangedModels.insert(old)
             }
         }
+
         self.changedModels = changedModels.asArray
         self.unchangedModels = unchangedModels.asArray
+
+        self.modelChanges = modelChanges
     }
-    
-    /// Triggeres the rendering of migrated content of model files
-    func migrate() throws {
-        let multipleFileRenderer = try MultipleFileRenderer(unchangedModels)
-        try multipleFileRenderer.write(at: modelsPath)
-        
+
+    var content: [LibraryComponent] {
+        // generate non-modified types without any special migration
+        for unchangedModelInformation in unchangedModels {
+            if unchangedModelInformation.isEnum {
+                DefaultEnumFile(unchangedModelInformation)
+            } else { // TODO else if isObject?
+                DefaultObjectFile(unchangedModelInformation)
+            }
+        }
+
         for changedModel in changedModels {
-            let changes = modelChanges.filter { $0.elementID == changedModel.deltaIdentifier }
+            let changes = modelChanges.filter { change in
+                change.elementID == changedModel.deltaIdentifier
+            }
+
             if changedModel.isEnum {
-                let enumMigrator = EnumMigrator(enum: changedModel, changes: changes)
-                try enumMigrator.write(at: modelsPath)
+                EnumMigrator(changedModel, changes: changes)
             } else if changedModel.isObject {
-                let objectMigrator = ObjectMigrator(changedModel, changes: changes)
-                try objectMigrator.write(at: modelsPath)
+                ObjectMigrator(changedModel, changes: changes)
             }
         }
     }

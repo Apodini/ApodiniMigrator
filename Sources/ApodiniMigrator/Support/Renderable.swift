@@ -14,6 +14,13 @@ protocol Renderable { // TODO remove?
     func render() -> String
 }
 
+extension Renderable {
+    // TODO removed
+    func render() -> String {
+        fatalError("func render() -> String is unsupported now")
+    }
+}
+
 // MARK: -
 extension Renderable {
     /// Returns the formatted content of `render`

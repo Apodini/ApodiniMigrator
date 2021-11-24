@@ -34,15 +34,16 @@ struct APIFile: SwiftFile, GeneratedFile {
         var bodyInput = migratedEndpoint.parameters.map { "\($0.oldName): \($0.oldName)" }
         bodyInput.append(contentsOf: DefaultEndpointInput.allCases.map { $0.keyValue })
         let body =
+            // TODO access to signature!
         """
-        \(migratedEndpoint.signature())
+        \(migratedEndpoint.signature)
         \(nestedType).\(endpoint.deltaIdentifier)(\(String.lineBreak)\(bodyInput.joined(separator: ",\(String.lineBreak)"))\(String.lineBreak))
         }
         """
         return body
     }
 
-    func render(with context: MigrationContext) -> String {
+    var fileContent: String {
         """
         \(fileComment)
 
@@ -53,8 +54,28 @@ struct APIFile: SwiftFile, GeneratedFile {
 
         \(MARKComment(.endpoints))
         \(Kind.extension.signature) \(typeNameString) {
-        \(endpoints.map { method(for: $0) }.joined(separator: .doubleLineBreak))
-        }
         """
+
+        Indent {
+            for migratedEndpoint in endpoints {
+                let endpoint = migratedEndpoint.endpoint
+                let nestedType = endpoint.response.nestedTypeString
+                var bodyInput = migratedEndpoint.parameters.map { "\($0.oldName): \($0.oldName)" }
+                bodyInput.append(contentsOf: DefaultEndpointInput.allCases.map { $0.keyValue })
+
+                migratedEndpoint.signature
+                Indent {
+                    "\(nestedType).\(endpoint.deltaIdentifier)("
+                    Indent {
+                        // TODO maybe a Join DSL statement?
+                        bodyInput.joined(separator: ",\(String.lineBreak)")
+                    }
+                    ")"
+                }
+                "}"
+            }
+        }
+
+        "}"
     }
 }

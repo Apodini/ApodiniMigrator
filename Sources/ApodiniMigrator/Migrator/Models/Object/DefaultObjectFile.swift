@@ -7,9 +7,14 @@
 //
 
 import Foundation
+import MigratorAPI
 
 /// Represents an `object` file that was not affected by any change
-struct DefaultObjectFile: ObjectSwiftFile {
+struct DefaultObjectFile: ObjectSwiftFile, LegacyGeneratedFile {
+    var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
+        ["\(typeInformation.typeName.name).swift"]
+    }
+
     /// `TypeInformation` to be rendered in this file
     let typeInformation: TypeInformation
     
@@ -61,9 +66,8 @@ struct DefaultObjectFile: ObjectSwiftFile {
         self.properties = typeInformation.objectProperties.sorted(by: \.name)
         self.annotation = annotation
     }
-    
-    /// Renders and formats the `typeInformation` in a swift file compliant way
-    func render() -> String {
+
+    func render(with context: MigrationContext) -> String {
         if properties.isEmpty {
             let content =
             """

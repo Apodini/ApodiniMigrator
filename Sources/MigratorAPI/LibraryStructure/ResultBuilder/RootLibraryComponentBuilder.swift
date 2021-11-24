@@ -24,6 +24,22 @@ public enum RootLibraryComponentBuilder {
         components.flatten()
     }
 
+    public static func buildEither(first component: [LibraryComponent]) -> [LibraryComponent] {
+        component
+    }
+
+    public static func buildEither(second component: [LibraryComponent]) -> [LibraryComponent] {
+        component
+    }
+
+    public static func buildOptional(_ component: [LibraryComponent]?) -> [LibraryComponent] {
+        component ?? [Empty()]
+    }
+
+    public static func buildArray(_ components: [[LibraryComponent]]) -> [LibraryComponent] {
+        components.flatten()
+    }
+
     public static func buildFinalResult(_ component: [LibraryComponent]) -> RootDirectory {
         RootDirectory(content: component)
     }

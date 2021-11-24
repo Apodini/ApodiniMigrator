@@ -3,8 +3,25 @@
 //
 
 import Foundation
+import MigratorAPI
 import ApodiniMigrator
 import gRPCMigrator
+
+@FileCodeStringBuilder
+var testString: String {
+    "public struct A {"
+    Indent {
+        "public init() {"
+        Indent {
+            "Hallo"
+            "print(\"Hello World\")"
+        }
+        "}"
+    }
+    "}"
+}
+
+print(testString)
 
 // let migrationGuide = try MigrationGuide.decode(from: migrationGuidePath.asPath)
 let gRPCMigrationGuide = try MigrationGuide.decode(

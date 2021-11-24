@@ -8,9 +8,14 @@
 
 import Foundation
 import ApodiniTypeInformation
+import MigratorAPI
 
 /// Represents an `enum` file that did not got affected by any change
-struct DefaultEnumFile: SwiftFile {
+struct DefaultEnumFile: SwiftFile, LegacyGeneratedFile {
+    var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
+        ["\(typeInformation.typeName.name).swift"]
+    }
+
     /// The `.enum` `typeInformation` to be rendered in this file
     let typeInformation: TypeInformation
     
@@ -28,12 +33,14 @@ struct DefaultEnumFile: SwiftFile {
         return ""
     }
     
-    /// Raw value type of the enum
-    private let rawValueType: TypeInformation
-    
     /// Enum cases of the `typeInformation`
     private let enumCases: [EnumCase]
-    
+
+    /// Raw value type of the enum
+    private let rawValueType: TypeInformation
+
+    // TODO below stuff is never initialized/changed?
+
     /// Deprecated cases
     private let deprecatedCases = EnumDeprecatedCases()
     
@@ -62,14 +69,13 @@ struct DefaultEnumFile: SwiftFile {
         self.enumCases = typeInformation.enumCases.sorted(by: \.name)
         self.rawValueType = rawValueType
     }
-    
-    /// Renders and formats the `typeInformation` in an enum swift file compliant way
-    func render() -> String {
+
+    func render(with context: MigrationContext) -> String {
         """
         \(fileComment)
-        
+
         \(Import(.foundation).render())
-        
+
         \(MARKComment(.model))
         \(annotationComment)\(kind.signature) \(typeNameString): \(rawValueType.nestedTypeString), Codable, CaseIterable {
         \(enumCases.map { "case \($0.name)" }.lineBreaked)
@@ -86,13 +92,14 @@ struct DefaultEnumFile: SwiftFile {
         \(MARKComment(.utils))
         \(encodeValueMethod.render())
         }
-        
+
         \(EnumExtensions(typeInformation, rawValueType: rawValueType).render())
         """
     }
 }
 
 extension TypeInformation {
+    // TODO placement?
     var sanitizedRawValueType: TypeInformation? {
         if isEnum {
             if let rawValueType = rawValueType {

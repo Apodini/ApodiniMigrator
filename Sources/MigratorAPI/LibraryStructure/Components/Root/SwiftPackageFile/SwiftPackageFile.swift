@@ -4,7 +4,7 @@
 
 import Foundation
 
-public class SwiftPackageFile: GeneratedFile {
+public class SwiftPackageFile: LegacyGeneratedFile {
     public var fileName: [NameComponent] = ["Package.swift"]
 
     var swiftToolsVersion: String

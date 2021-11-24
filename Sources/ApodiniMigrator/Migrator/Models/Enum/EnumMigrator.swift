@@ -8,9 +8,14 @@
 
 import Foundation
 import ApodiniMigratorCompare
+import MigratorAPI
 
 /// An object that handles the migration of an enum declaration and renders the output accordingly
-struct EnumMigrator: SwiftFile {
+struct EnumMigrator: SwiftFile, LegacyGeneratedFile {
+    var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
+        ["\(typeInformation.typeName.name).swift"]
+    }
+
     /// Type information enum that will be rendered
     let typeInformation: TypeInformation
     /// Kind of the file, always `.enum`
@@ -27,13 +32,15 @@ struct EnumMigrator: SwiftFile {
     private var rawValueUpdates: [EnumCase: EnumCase] = [:]
     
     /// Initializes a new instance out of an `enum` type information and its correspoinding changes
-    init(`enum`: TypeInformation, changes: [Change]) {
-        guard `enum`.isEnum, let rawValueType = `enum`.sanitizedRawValueType else {
-            fatalError("Attempted to initialize EnumMigrator with a non enum TypeInformation \(`enum`.rootType)")
+    init(_ typeInformation: TypeInformation, changes: [Change]) {
+        guard typeInformation.isEnum, let rawValueType = typeInformation.sanitizedRawValueType else {
+            fatalError("Attempted to initialize EnumMigrator with a non enum TypeInformation \(typeInformation.rootType)")
         }
-        typeInformation = `enum`
+
+        self.typeInformation = typeInformation
         self.rawValueType = rawValueType
         self.changes = changes
+
         unsupportedChange = changes.first { $0.type == .unsupported } as? UnsupportedChange
         notPresentInNewVersion = changes.contains(where: { $0.type == .deletion && $0.element.target == EnumTarget.`self`.rawValue })
         setRawValueUpdates()
@@ -86,9 +93,8 @@ struct EnumMigrator: SwiftFile {
             }
         }
     }
-    
-    /// Renders the migrated content of the enum
-    func render() -> String {
+
+    func render(with context: MigrationContext) -> String {
         var annotation: Annotation?
         
         if let unsupportedChange = unsupportedChange {
@@ -103,7 +109,8 @@ struct EnumMigrator: SwiftFile {
         
         if let annotation = annotation {
             let enumFileTemplate = DefaultEnumFile(typeInformation, annotation: annotation)
-            return enumFileTemplate.render()
+            // TODO this is a bit weird and doesn't quite fit into our DSL language :thinking:
+            return enumFileTemplate.render(with: context)
         }
         
         let addedCases = self.addedCases()
