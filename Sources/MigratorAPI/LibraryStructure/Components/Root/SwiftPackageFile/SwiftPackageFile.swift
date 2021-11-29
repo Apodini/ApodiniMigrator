@@ -4,11 +4,11 @@
 
 import Foundation
 
-public class SwiftPackageFile: LegacyGeneratedFile {
+public class SwiftPackageFile: GeneratedFile {
     public var fileName: [NameComponent] = ["Package.swift"]
 
     var swiftToolsVersion: String
-    // TODO platforms!
+    var platforms: [String] = []
     var products: [PackageProduct] = []
     var dependencies: [PackageDependency] = []
 
@@ -17,6 +17,12 @@ public class SwiftPackageFile: LegacyGeneratedFile {
     public init(swiftTools: String) {
         self.swiftToolsVersion = swiftTools
     }
+
+    public func platform(_ platforms: String...) -> Self {
+        self.platforms.append(contentsOf: platforms)
+        return self
+    }
+
 
     public func dependency(name: String? = nil, url: String, _ requirementString: String) -> Self {
         dependencies.append(PackageDependency(name: name, url: url, requirementString: requirementString))
@@ -39,8 +45,7 @@ public class SwiftPackageFile: LegacyGeneratedFile {
         return self
     }
 
-    public func render(with context: MigrationContext) -> String {
-        // TODO multine products/dependencies/targets don't respect indent rules!
+    public var fileContent: String {
         """
         // swift-tools-version:\(swiftToolsVersion)
         // The swift-tools-version declares the minimum version of Swift required to build this package.
@@ -48,21 +53,51 @@ public class SwiftPackageFile: LegacyGeneratedFile {
         import PackageDescription
 
         let package = Package(
-            name: "\(context.placeholderValues[GlobalPlaceholder.$packageName] ?? "ERROR")",
-            platforms: [
-                .macOS(.v12), .iOS(.v14)
-            ],
-            products: [
-                \(products.map { $0.description(with: context) }.joined(separator: ",\n        "))
-            ],
-            dependencies: [
-                \(dependencies.map { $0.description }.joined(separator: ",\n        "))
-            ],
-            targets: [
-                \(targets.map { $0.description(with: context) }.joined(separator: ",\n        "))
-            ]
-        )
-
         """
+        Indent {
+            Joined(by: ",") {
+                "name: \(GlobalPlaceholder.$packageName)"
+
+                if !platforms.isEmpty {
+                    "platforms: ["
+                    Indent {
+                        platforms.joined(separator: ",")
+                    }
+                    "]"
+                }
+
+                if !products.isEmpty {
+                    "products: ["
+                    Indent {
+                        Joined(by: ",") {
+                            products
+                        }
+                    }
+                    "]"
+                }
+
+                if !dependencies.isEmpty {
+                    "dependencies: ["
+                    Indent {
+                        Joined(by: ",") {
+                            dependencies
+                        }
+                    }
+                    "]"
+                }
+
+                if !targets.isEmpty {
+                    "targets: ["
+                    Indent {
+                        Joined(by: ",") {
+                            targets
+                        }
+                    }
+                    "]"
+                }
+            }
+        }
+
+        ")"
     }
 }

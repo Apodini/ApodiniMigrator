@@ -40,6 +40,74 @@ public struct Indent: FileCodeRenderable {
     }
 }
 
+// TODO split out stuff from file
+public struct Joined: FileCodeRenderable {
+    public enum JoinType {
+        case appendPreviousLine
+        case prependNextLine
+    }
+
+    private let separator: String
+    private let joinType: JoinType
+    private let content: [FileCodeRenderable]
+
+    public init(
+        by separator: String,
+        using joinType: JoinType = .appendPreviousLine,
+        @FileCodeBuilder content: () -> [FileCodeRenderable]
+    ) {
+        self.separator = separator
+        self.joinType = joinType
+        self.content = content()
+    }
+
+    public func render() -> [String] {
+        var lines = content
+            .map { $0.render() }
+            .filter { !$0.isEmpty }
+
+        switch joinType {
+        case .appendPreviousLine:
+            for index in lines.startIndex ..< lines.index(before: lines.endIndex) {
+                let groupedLines = lines[index]
+                precondition(!groupedLines.isEmpty)
+                let groupIndex = groupedLines.index(before: groupedLines.endIndex)
+
+                lines[index][groupIndex] = groupedLines[groupIndex] + separator
+            }
+        case .prependNextLine:
+            for index in lines.index(after: lines.startIndex) ..< lines.endIndex {
+                let groupedLines = lines[index]
+                precondition(!groupedLines.isEmpty)
+                let groupIndex = groupedLines.startIndex
+
+                lines[index][groupIndex] = separator + groupedLines[groupIndex]
+            }
+        }
+
+        return lines
+            .flatten()
+    }
+}
+
+public struct Group: FileCodeRenderable { // TODO document, only really useful in combination with the Joined operator!
+    private let content: [FileCodeRenderable]
+
+    public init(@FileCodeBuilder content: () -> [FileCodeRenderable]) {
+        self.content = content()
+    }
+
+    fileprivate init(content: [FileCodeRenderable]) {
+        self.content = content
+    }
+
+    public func render() -> [String] {
+        content
+            .map { $0.render() }
+            .flatten()
+    }
+}
+
 @resultBuilder
 public class FileCodeBuilder {
     // TODO add expression for the Renderable protocol?
@@ -53,7 +121,7 @@ public class FileCodeBuilder {
     }
 
     public static func buildExpression<Renderable: FileCodeRenderable>(_ expression: [Renderable]) -> [FileCodeRenderable] {
-        expression
+        expression // TODO Group those?
     }
 
     public static func buildExpression(_ expression: Void) -> [FileCodeRenderable] {
@@ -65,19 +133,22 @@ public class FileCodeBuilder {
     }
 
     public static func buildEither(first component: [FileCodeRenderable]) -> [FileCodeRenderable] {
-        component
+        [Group(content: component)]
     }
 
     public static func buildEither(second component: [FileCodeRenderable]) -> [FileCodeRenderable] {
-        component
+        [Group(content: component)]
     }
 
     public static func buildOptional(_ component: [FileCodeRenderable]?) -> [FileCodeRenderable] {
-        component ?? []
+        guard let component = component else {
+            return []
+        }
+        return [Group(content: component)]
     }
 
     public static func buildArray(_ components: [[FileCodeRenderable]]) -> [FileCodeRenderable] {
-        components.flatten()
+        [Group(content: components.flatten())]
     }
 }
 

@@ -106,6 +106,7 @@ public struct RESTMigrator: MigratorAPI.Migrator {
         }
 
         SwiftPackageFile(swiftTools: "5.5")
+            .platform(".macOS(.v12)", ".iOS(.v14)")
             .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.1.0\")")
             .product(library: GlobalPlaceholder.$packageName, targets: [[GlobalPlaceholder.$packageName]])
             // TODO double array ABOVE!

@@ -44,19 +44,3 @@ public extension GeneratedFile {
         try filePath.write(formattedFile(with: context), encoding: .utf8)
     }
 }
-
-
-@available(*, deprecated, message: "This protocol was replaced with `GeneratedFile`")
-public protocol LegacyGeneratedFile: LibraryNode { // TODO usages => remove!
-    var fileName: [NameComponent] { get }
-
-    func render(with context: MigrationContext) -> String
-}
-
-public extension LegacyGeneratedFile {
-    func handle(at path: Path, with context: MigrationContext) throws {
-        precondition(!fileName.isEmpty)
-        let filePath = path + fileName.description(with: context)
-        try filePath.write(render(with: context), encoding: .utf8)
-    }
-}

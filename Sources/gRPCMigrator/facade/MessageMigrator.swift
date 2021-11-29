@@ -297,11 +297,6 @@ struct MessageMigrator {
             // TODO handle necessity
         }
     }
-
-    func convert(type0: Google_Protobuf_FieldDescriptorProto.TypeEnum, type1: Google_Protobuf_FieldDescriptorProto.TypeEnum) {
-        let int: Int64 = 2
-        let int2: Int = Int(int)
-    }
 }
 
 extension PrimitiveType {

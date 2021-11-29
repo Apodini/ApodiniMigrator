@@ -4,26 +4,40 @@
 
 import Foundation
 
-struct PackageTarget {
+struct PackageTarget: RenderableBuilder {
     let type: TargetType
     let name: String
     let dependencies: [TargetDependency]
     let resources: [TargetResource]
-}
 
-extension PackageTarget {
-    func description(with context: MigrationContext) -> String { // TODO fix ident
-        """
-        .\(type.rawValue)(
-                    name: \"\(name)\",
-                    resources: [
-                        \(resources.map({ $0.description(with: context) }).joined(separator: ",\n        "))
-                    ],
-                    dependencies: [
-                        \(dependencies.map({ $0.description(with: context) }).joined(separator: ",\n         "))
-                    ]
-                )
-        """
+    var fileContent: String {
+        ".\(type.rawValue)("
+        Indent {
+            Joined(by: ",") {
+                "name: \"\(name)\""
+
+                if !dependencies.isEmpty {
+                    "dependencies: ["
+                    Indent {
+                        dependencies
+                            .map { $0.fileContent }
+                            .joined(separator: ",")
+                    }
+                    "]"
+                }
+
+                if !resources.isEmpty {
+                    "resources: ["
+                    Indent {
+                        resources
+                            .map { $0.fileContent }
+                            .joined(separator: ",")
+                    }
+                    "]"
+                }
+            }
+        }
+        ")"
     }
 }
 
@@ -40,29 +54,27 @@ public enum TargetType: String {
     case executable = "executableTarget"
 }
 
-public protocol TargetDependency {
-    func description(with context: MigrationContext) -> String
-}
+public protocol TargetDependency: RenderableBuilder {}
 
 struct LocalDependency: TargetDependency {
-    func description(with context: MigrationContext) -> String {
+    let target: [NameComponent]
+
+    var fileContent: String {
         """
-        .target(name: \"\(target.description(with: context))\")
+        .target(name: "\(target.nameString)")
         """
     }
-
-    let target: [NameComponent]
 }
 
 struct ProductDependency: TargetDependency {
-    func description(with context: MigrationContext) -> String {
-        """
-        .product(name: \"\(product.description(with: context))\", package: \"\(package.description(with: context))\")
-        """
-    }
-
     let product: [NameComponent]
     let package: [NameComponent]
+
+    var fileContent: String {
+        """
+        .product(name: "\(product.nameString)", package: "\(package.nameString)")
+        """
+    }
 }
 
 
@@ -71,15 +83,13 @@ public enum ResourceType: String {
     case copy
 }
 
-public struct TargetResource {
+public struct TargetResource: RenderableBuilder {
     let type: ResourceType
     let path: [NameComponent]
-}
 
-extension TargetResource {
-    func description(with context: MigrationContext) -> String {
+    public var fileContent: String {
         """
-        .\(type.rawValue)(\"\(path.description(with: context))\")
+        .\(type.rawValue)("\(path.nameString)")
         """
     }
 }

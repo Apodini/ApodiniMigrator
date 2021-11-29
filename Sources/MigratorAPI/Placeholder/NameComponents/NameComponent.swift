@@ -17,3 +17,9 @@ public extension Array where Element == NameComponent {
             .joined()
     }
 }
+
+extension Array where Element == NameComponent {
+    public var nameString: String {
+        self.map { $0.description }.joined()
+    }
+}

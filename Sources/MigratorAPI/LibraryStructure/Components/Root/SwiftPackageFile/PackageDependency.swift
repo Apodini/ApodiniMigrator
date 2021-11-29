@@ -4,14 +4,12 @@
 
 import Foundation
 
-struct PackageDependency {
+struct PackageDependency: RenderableBuilder {
     var name: String?
     var url: String
     var requirementString: String
-}
 
-extension PackageDependency: CustomStringConvertible {
-    var description: String {
+    var fileContent: String {
         """
         .package(\(name != nil ? "name: \"\(name ?? "")\", " : "")url: \"\(url)\", \(requirementString))
         """
