@@ -39,11 +39,13 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.18.0")
     ],
     targets: [
+        /*
         .target(name: "Utils"),
 
         .target(name: "CodingUtils"),
 
         .target(name: "IOUtils"),
+        */
 
         .target(
             name: "ApodiniMigratorCore",
