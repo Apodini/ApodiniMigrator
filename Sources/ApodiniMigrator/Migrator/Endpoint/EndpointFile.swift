@@ -10,7 +10,7 @@ import Foundation
 import MigratorAPI
 
 /// An object that represents an `Type+Endpoint.swift` file in the client library
-class EndpointFile: SwiftFile, LegacyGeneratedFile {
+class EndpointFile: GeneratedFile {
     let fileName: [NameComponent]
 
     @SharedNodeReference
@@ -27,22 +27,17 @@ class EndpointFile: SwiftFile, LegacyGeneratedFile {
     /// Imports of the file
     private var imports = Import(.foundation)
     
-    /// File comment that will be rendered for `self`
-    var endpointFileComment: FileHeaderComment {
-        .init(fileName: typeInformation.typeName.name + EndpointsMigrator.fileSuffix)
-    }
-    
     /// Initializes a new instance out of the same nested response type of `endpoints` and the `changes` that belong to those endpoints
     init(
         migratedEndpointsReference: SharedNodeReference<[MigratedEndpoint]>,
-        typeReference: String,
+        typeInformation: TypeInformation,
         endpoints: [Endpoint],
         changes: [Change]
     ) {
         _migratedEndpoints = migratedEndpointsReference
-        self.fileName = [typeReference + EndpointsMigrator.fileSuffix]
+        self.fileName = [typeInformation.typeName.name + EndpointsMigrator.fileSuffix]
+        self.typeInformation = typeInformation
 
-        self.typeInformation = .reference(typeReference)
         self.endpoints = endpoints.sorted { lhs, rhs in
             if lhs.response.typeString == rhs.response.typeString {
                 return lhs.deltaIdentifier < rhs.deltaIdentifier
@@ -55,24 +50,34 @@ class EndpointFile: SwiftFile, LegacyGeneratedFile {
             imports.insert(.combine)
         }
     }
-    
-    /// Renders the migrated method for `endpoint`
-    private func methodBody(for endpoint: Endpoint) -> String {
-        let endpointMigrator = EndpointMethodMigrator(endpoint, changes: changes.of(endpoint))
-        migratedEndpoints.append(endpointMigrator.migratedEndpoint)
-        return endpointMigrator.render()
-    }
 
-    func render(with context: MigrationContext) -> String {
-        """
-        \(endpointFileComment.render())
+    var fileContent: String {
+        FileHeaderComment()
 
-        \(imports.render())
+        imports
+        ""
 
-        \(MARKComment(.endpoints))
-        \(kind.signature) \(typeInformation.typeName.name) {
-        \(endpoints.map { methodBody(for: $0) }.joined(separator: .doubleLineBreak))
+        MARKComment(.endpoints)
+        "\(kind.signature) \(typeInformation.typeName.name) {"
+
+        Indent {
+            var first = true
+            for endpoint in endpoints {
+                if !first {
+                    ""
+                    ""
+                } else {
+                    first = false
+                }
+
+                let endpointMigrator = EndpointMethodMigrator(endpoint, changes: changes.of(endpoint))
+                migratedEndpoints.append(endpointMigrator.migratedEndpoint)
+
+                // rendering the method body
+                endpointMigrator
+            }
         }
-        """
+
+        "}"
     }
 }

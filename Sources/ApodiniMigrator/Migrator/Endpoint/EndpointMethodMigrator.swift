@@ -7,8 +7,9 @@
 //
 
 import Foundation
+import MigratorAPI
 
-class EndpointMethodMigrator: Renderable {
+class EndpointMethodMigrator: RenderableBuilder {
     /// Endpoint of old version that will be migrated
     private let endpoint: Endpoint
     /// A flag that indicates whether the endpoint has been deleted in the new version
@@ -72,51 +73,67 @@ class EndpointMethodMigrator: Renderable {
         }
         return endpoint.path
     }
-    
-    /// If response has changed, the migrator converts the return of the function to the old type by means of the `responseConvertID` saved from `responseString()`.
-    private func returnValueString() -> String {
-        var retValue = "return NetworkingService.trigger(handler)"
-        guard let convertID = responseConvertID else {
-            return retValue
+
+    @FileCodeStringBuilder
+    private var returnValueString: String {
+        "return NetworkingService.trigger(handler)"
+
+        if let convertID = responseConvertID {
+            Indent {
+                """
+                .tryMap { try \(endpoint.response.typeString).from($0, script: \(convertID)) }
+                .eraseToAnyPublisher()
+                """
+            }
         }
-        let indentationPlaceholder = Indentation.placeholder
-        retValue += .lineBreak + indentationPlaceholder + ".tryMap { try \(endpoint.response.typeString).from($0, script: \(convertID)) }" + .lineBreak
-        retValue += indentationPlaceholder + ".eraseToAnyPublisher()"
-        return retValue
     }
-    
+
     /// Renders the body of the migrated endpoint
-    func render() -> String {
-        if unavailable {
-            return migratedEndpoint.unavailableBody()
-        }
-        
-        let responseString = self.responseString()
-        let queryParametersString = migratedEndpoint.queryParametersString()
-        let body =
-            // TODO access to the signature property!
-        """
-        \(migratedEndpoint.signature)
-        \(queryParametersString)var headers = httpHeaders
-        headers.setContentType(to: "application/json")
-        
-        var errors: [ApodiniError] = []
-        \(endpoint.errors.map { "errors.addError(\($0.code), message: \($0.message.doubleQuoted))" }.lineBreaked)
+    var fileContent: String {
+        migratedEndpoint.signature
 
-        let handler = Handler<\(responseString)>(
-        path: \(migratedEndpoint.resourcePath().doubleQuoted),
-        httpMethod: .\(operation().asHTTPMethodString),
-        parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),
-        headers: headers,
-        content: \(migratedEndpoint.contentParameterString()),
-        authorization: authorization,
-        errors: errors
-        )
+        Indent {
+            if unavailable {
+                "Future { $0(.failure(ApodiniError.deletedEndpoint())) }.eraseToAnyPublisher()"
+            } else {
+                let queryParametersString = migratedEndpoint.queryParametersString()
 
-        \(returnValueString())
+                if !queryParametersString.isEmpty {
+                    queryParametersString
+                }
+
+                """
+                var headers = httpHeaders
+                headers.setContentType(to: "application/json")
+
+                var errors: [ApodiniError] = []
+                """
+                for error in endpoint.errors {
+                    "errors.addError(\(error.code), message: \"\(error.message)\")"
+                }
+
+                """
+
+                let handler = Handler<\(responseString())>(
+                """
+                Indent {
+                    """
+                    path: "\(migratedEndpoint.resourcePath())",
+                    httpMethod: .\(operation().asHTTPMethodString),
+                    parameters: \(queryParametersString.isEmpty ? "[:]" : "parameters"),
+                    headers: headers,
+                    content: \(migratedEndpoint.contentParameterString()),
+                    authorization: authorization,
+                    errors: errors
+                    """
+                }
+                ")"
+
+                ""
+                returnValueString
+            }
         }
-        """
-        return body
+        "}"
     }
 }
 

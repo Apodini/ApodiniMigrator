@@ -6,23 +6,17 @@ import Foundation
 import Logging
 import PathKit
 
-// TODO how to extend? Delegation or overwriting?
-
-
-// TODO would love a DSL based Migrator structure (based on directories)
-//  => entry is either
-//     empty directory
-//     Files From Template
-//     Some "complex" Migrator
-
-public struct MigrationContext {
+public struct MigrationContext { // TODO split out!
     public var bundle: Bundle
+    public var logger: Logger
 
     var placeholderValues: [Placeholder: String] = [:]
 }
 
 public protocol Migrator {
-    var bundle: Bundle { get } // TODO ability to access template directory!
+    var bundle: Bundle { get }
+
+    static var logger: Logger { get }
 
     // TODO rename library structure?
     @RootLibraryComponentBuilder
@@ -39,38 +33,16 @@ public extension Migrator {
             .replacingOccurrences(of: "/", with: "_")
 
         let path = Path(packagePath)
-        var context = MigrationContext(bundle: bundle)
+        var context = MigrationContext(bundle: bundle, logger: Self.logger)
         context.placeholderValues[GlobalPlaceholder.$packageName] = name
 
         try library._handle(at: path, with: context)
     }
 }
 
-// TODO move
+
+// TODO first of all "Move", but also rethink the whole thing, not really happy how it turned out tbh
 public enum GlobalPlaceholder {
     @PlaceholderDefinition(wrappedValue: Placeholder("PACKAGE_NAME"))
     public static var packageName
-}
-
-public struct Migrator2 {
-    public static let logger: Logger = {
-        .init(label: "org.apodini.migrator")
-    }()
-
-    /// The Swift Package name which is to be generated/migrated
-    private let packageName: String
-    /// Path to the package TODO what is included and what not?
-    private let packagePath: Path
-
-    // TODO some sort of API document?
-
-    /// Logger of the migrator
-    private let logger: Logger
-    // TODO individual sub Migrator (endpoints, models, networking)
-
-    // TODO allModels
-
-    // TODO scripts, and jsonValues??, objectJSONs?
-
-    // TODO encoderConfiguration?
 }

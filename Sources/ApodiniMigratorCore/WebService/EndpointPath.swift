@@ -61,7 +61,8 @@ public struct EndpointPath: Value, CustomStringConvertible {
     public init(_ string: String) {
         var components: Components = .init()
         string
-            .split(string: Self.separator, ignoreEmptyComponents: true)
+            .split(separator: "/")
+            .map { String($0) }
             .enumerated()
             .forEach { index, component in
                 components[index] = PathComponent(stringValue: component)
@@ -99,6 +100,8 @@ public struct EndpointPath: Value, CustomStringConvertible {
 
 // MARK: - String
 private extension String {
+    // TODO extension polution!
+
     /// Indicates whether self is surrounded by curly brackets
     var isPathParameterComponent: Bool {
         first == "{" && last == "}"
@@ -106,7 +109,9 @@ private extension String {
     
     /// Returns a version of self without surrounding curly brackets
     var dropCurlyBrackets: String {
-        without("{").without("}")
+        self
+            .replacingOccurrences(of: "{", with: "")
+            .replacingOccurrences(of: "}", with: "")
     }
     
     /// Returns a version of self with surrounding curly brackets

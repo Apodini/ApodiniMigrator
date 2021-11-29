@@ -15,7 +15,7 @@ final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
         
-        let document = try Documents.v1.instance() as Document
+        let document = try Documents.v1.decodedContent() as Document
         let documentAsAnyCodable = document.asAnyCodableElement
         let documentData = XCTAssertNoThrowWithResult(try encoder.encode(documentAsAnyCodable))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: documentData))

@@ -8,8 +8,9 @@
 
 import Foundation
 import ApodiniTypeInformation
+import MigratorAPI
 
-struct EnumExtensions: Renderable {
+struct EnumExtensions: RenderableBuilder {
     let `enum`: TypeInformation
     let rawValueType: TypeInformation
     var typeName: String {
@@ -20,42 +21,44 @@ struct EnumExtensions: Renderable {
         self.enum = `enum`
         self.rawValueType = rawValueType
     }
-    
-    private func initBody() -> String {
-        if rawValueType == .scalar(.string) {
-            return "self.init(rawValue: description)"
+
+    var fileContent: String {
+        MARKComment("CustomStringConvertible")
+        "\(Kind.extension.rawValue) \(typeName): CustomStringConvertible {"
+        Indent {
+            "\(GenericComment(comment: "/// Textual representation"))"
+            "public var description: String {"
+            Indent {
+                "rawValue.description"
+            }
+            "}"
         }
-        
-        let body =
-        """
-        if let rawValue = RawValue(description) {
-        self.init(rawValue: rawValue)
-        } else {
-        return nil
+        "}"
+
+        ""
+
+        MARKComment("LosslessStringConvertible")
+        "\(Kind.extension.rawValue) \(typeName): LosslessStringConvertible {"
+        Indent {
+            "\(GenericComment(comment: "/// Instantiates an instance of the conforming type from a string representation."))"
+            "public init?(_ description: String) {"
+            Indent {
+              if rawValueType == .scalar(.string) {
+                  "self.init(rawValue: description)"
+              } else {
+                  "if let rawValue = RawValue(description) {"
+                  Indent {
+                      "self.init(rawValue: rawValue)"
+                  }
+                  "} else {"
+                  Indent {
+                      "return nil"
+                  }
+                  "}"
+              }
+            }
+            "}"
         }
-        """
-        return body
-    }
-    
-    func render() -> String {
-        let body =
-            """
-            \(MARKComment("CustomStringConvertible"))
-            \(Kind.extension.rawValue) \(typeName): CustomStringConvertible {
-            \(GenericComment(comment: "/// Textual representation"))
-            public var description: String {
-            rawValue.description
-            }
-            }
-            
-            \(MARKComment("LosslessStringConvertible"))
-            \(Kind.extension.rawValue) \(typeName): LosslessStringConvertible {
-            \(GenericComment(comment: "/// Instantiates an instance of the conforming type from a string representation."))
-            public init?(_ description: String) {
-            \(initBody())
-            }
-            }
-            """
-        return body
+        "}"
     }
 }

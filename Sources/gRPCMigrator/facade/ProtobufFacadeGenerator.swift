@@ -38,8 +38,6 @@ struct ProtobufFacadeGenerator: LibraryNode {
 
         let descriptorSet = DescriptorSet(protos: request.protoFile)
         for fileName in request.fileToGenerate {
-            Swift.print(fileName)
-
             let descriptor = descriptorSet.lookupFileDescriptor(protoName: fileName)
             try print(file: descriptor, into: &generator)
 

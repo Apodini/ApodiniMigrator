@@ -45,9 +45,12 @@ public struct Endpoint: Value, DeltaIdentifiable {
         response: TypeInformation,
         errors: [ErrorCode]
     ) {
-        self.handlerName = handlerName.without(strings: ">", "<", ",")
+        self.handlerName = handlerName
+            .replacingOccurrences(of: ">", with: "")
+            .replacingOccurrences(of: "<", with: "")
+            .replacingOccurrences(of: ",", with: "")
         var identifier = deltaIdentifier
-        if !identifier.split(string: ".").compactMap({ Int($0) }).isEmpty {
+        if !identifier.split(separator: ".").compactMap({ Int($0) }).isEmpty {
             identifier = handlerName.lowerFirst
         }
         self.deltaIdentifier = .init(identifier)

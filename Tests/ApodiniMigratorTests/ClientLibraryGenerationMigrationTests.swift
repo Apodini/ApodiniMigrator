@@ -11,14 +11,12 @@ import XCTest
 
 final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     func testV1LibraryGeneration() throws {
-        let document = try Documents.v1.instance() as Document
-        let migrator = XCTAssertNoThrowWithResult(try Migrator(
-            packageName: "QONECTIQ",
-            packagePath: testDirectory,
-            documentPath: Documents.v1.path.string
+        let document = try Documents.v1.decodedContent() as Document
+        let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
+            documentPath: Documents.v1.bundlePath.string
         ))
         
-        XCTAssertNoThrow(try migrator.run())
+        XCTAssertNoThrow(try migrator.run(packageName: "QONECTIQ", packagePath: testDirectory))
         
         let swiftFiles = try testDirectoryPath.recursiveSwiftFiles().map { $0.lastComponent }
                 
@@ -36,14 +34,12 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testV2LibraryGeneration() throws {
-        let document = try Documents.v2.instance() as Document
-        let migrator = XCTAssertNoThrowWithResult(try Migrator(
-            packageName: "QONECTIQ",
-            packagePath: testDirectory,
-            documentPath: Documents.v2.path.string
+        let document = try Documents.v2.decodedContent() as Document
+        let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
+            documentPath: Documents.v2.bundlePath.string
         ))
         
-        XCTAssertNoThrow(try migrator.run())
+        XCTAssertNoThrow(try migrator.run(packageName: "QONECTIQ", packagePath: testDirectory))
         
         let swiftFiles = try testDirectoryPath.recursiveSwiftFiles().map { $0.lastComponent }
                 
@@ -61,31 +57,30 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testMigratorThrowIncompatibleMigrationGuide() throws {
-        let migrationGuide = try Documents.migrationGuide.instance() as MigrationGuide
-        XCTAssertThrows(try Migrator(packageName: "Test", packagePath: testDirectory, documentPath: Documents.v2.path.string, migrationGuide: migrationGuide))
+        let migrationGuide = try Documents.migrationGuide.decodedContent() as MigrationGuide
+        // TODO packageName: "Test", packagePath: testDirectory
+        XCTAssertThrows(try RESTMigrator(documentPath: Documents.v2.bundlePath.string, migrationGuide: migrationGuide))
     }
     
     func testPackageMigration() throws {
-        let migrationGuide = try MigrationGuide.decode(from: try Documents.migrationGuide.data())
-        let migrator = XCTAssertNoThrowWithResult(try Migrator(
-            packageName: "TestMigPackage",
-            packagePath: testDirectory,
-            documentPath: Documents.v1.path.string,
+        let migrationGuide = try MigrationGuide.decode(from: Documents.migrationGuide.content())
+        let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
+            documentPath: Documents.v1.bundlePath.string,
             migrationGuide: migrationGuide
         ))
         
-        XCTAssertNoThrow(try migrator.run())
+        XCTAssertNoThrow(try migrator.run(packageName: "TestMigPackage", packagePath: testDirectory))
         XCTAssert(try testDirectoryPath.recursiveSwiftFiles().isNotEmpty)
     }
     
     func testMigrationGuideThrowing() throws {
-        XCTAssertThrows(try MigrationGuide.from(Path(#file), .init(.endpoints)))
+        XCTAssertThrows(try MigrationGuide.from(Path(#file), .init("Endpoints")))
         XCTAssertThrows(try MigrationGuide.from("", ""))
     }
     
     func testMigrationGuideGeneration() throws {
-        let doc1 = try Documents.v1.instance() as Document
-        let doc2 = try Documents.v2.instance() as Document
+        let doc1 = try Documents.v1.decodedContent() as Document
+        let doc2 = try Documents.v2.decodedContent() as Document
         
         let migrationGuide = MigrationGuide(for: doc1, rhs: doc2)
         try (testDirectoryPath + "migration_guide.yaml").write(migrationGuide.yaml)

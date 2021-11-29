@@ -41,7 +41,7 @@ struct EndpointsMigrator: LibraryComposite {
             let groupChanges = endpointChanges.filter { endpointIds.contains($0.elementID) }
             let endpointFile = EndpointFile(
                 migratedEndpointsReference: _migratedEndpoints,
-                typeReference: group.key,
+                typeInformation: .reference(group.key),
                 endpoints: endpoints,
                 changes: groupChanges
             )

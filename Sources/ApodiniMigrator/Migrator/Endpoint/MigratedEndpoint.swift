@@ -86,16 +86,14 @@ class MigratedEndpoint {
     /// Returns the signature of the endpoint method
     @FileCodeStringBuilder
     var signature: String {
-        // TODO sanitizzte deltaIdentifier for the DOT
-        let methodName = endpoint.deltaIdentifier.rawValue.lowerFirst
+        let methodName = endpoint.deltaIdentifier.swiftSanitizedName.lowerFirst
 
-        "\(EndpointComment(endpoint.handlerName, path: resourcePath(replaceBrackets: false)))"
+        EndpointComment(endpoint.handlerName, path: resourcePath(replaceBrackets: false))
+
         "\(unavailableComment())static func \(methodName)("
-
         Indent {
             methodInput()
         }
-
         ") -> ApodiniPublisher<\(responseString)> {"
     }
     
@@ -104,16 +102,14 @@ class MigratedEndpoint {
         var resourcePath = path.resourcePath
         
         for pathParameter in activeParameters.filter({ $0.kind == .path }) {
-            resourcePath = resourcePath.with("{\(pathParameter.oldName)}", insteadOf: "{\(pathParameter.newName)}")
+            resourcePath = resourcePath
+                .replacingOccurrences(of: "{\(pathParameter.newName)}", with: "{\(pathParameter.oldName)}")
         }
-        return replaceBrackets ? resourcePath.with("\\(", insteadOf: "{").with(")", insteadOf: "}") : resourcePath
-    }
-    
-    /// Returns the endpoint method with unavailable comment and a fatalError body
-    func unavailableBody() -> String {
-        var body = signature // TODO access to signature stringy!
-        body += .lineBreak + "Future { $0(.failure(ApodiniError.deletedEndpoint())) }.eraseToAnyPublisher()" + .lineBreak + "}"
-        return body
+        return replaceBrackets
+            ? resourcePath
+                .replacingOccurrences(of: "{", with: "\\(")
+                .replacingOccurrences(of: "}", with: ")")
+            : resourcePath
     }
     
     /// Returns the query parameters string that should be rendered inside of the method body, considering only non-deleted query parameters
@@ -129,7 +125,7 @@ class MigratedEndpoint {
             body += "parameters.set(\(setValue(for: parameter)), forKey: \(parameter.newName.doubleQuoted))" + .lineBreak
         }
         
-        return body + .lineBreak
+        return body
     }
     
     /// Returns the string that should be used in the `content` field of the handler initializer inside of the endpoint method, by only considering active content parameter

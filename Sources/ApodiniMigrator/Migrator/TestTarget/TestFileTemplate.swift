@@ -9,24 +9,23 @@
 import Foundation
 import ApodiniMigratorClientSupport
 import ApodiniMigratorShared
+import MigratorAPI
 
-public struct TestFileTemplate: Renderable {
+// TODO rename
+struct TestFileTemplate: GeneratedFile {
+    let fileName: [NameComponent]
     let models: [TypeInformation]
-    let fileName: String
-    let packageName: String
     let objectJSONs: [String: JSONValue]
     let encoderConfiguration: EncoderConfiguration
     
     public init(
-        _ models: [TypeInformation],
+        name: NameComponent...,
+        models: [TypeInformation],
         objectJSONs: [String: JSONValue] = [:],
-        encoderConfiguration: EncoderConfiguration = .default,
-        fileName: String,
-        packageName: String
+        encoderConfiguration: EncoderConfiguration = .default
     ) {
+        self.fileName = name
         self.models = models.sorted(by: \.typeString)
-        self.fileName = fileName
-        self.packageName = packageName
         self.objectJSONs = objectJSONs
         self.encoderConfiguration = encoderConfiguration
     }
@@ -55,43 +54,59 @@ public struct TestFileTemplate: Renderable {
         } else {
             jsonString = JSONStringBuilder.jsonString(dereference(model), with: encoderConfiguration)
         }
-        
-        let returnValue =
-        """
-        func test\(typeName)() throws {
-        let json: JSONValue =
-        \"""
-        \(jsonString)
-        \"""
-        
-        let instance = XCTAssertNoThrowWithResult(try \(typeName).instance(from: json))
-        XCTAssertNoThrow(try \(typeName).encoder.encode(instance))
+
+
+        @FileCodeStringBuilder
+        var method: String {
+            "func test\(typeName)() throws {"
+            Indent {
+                // TODO jsonString isn't indented
+                """
+                let json: JSONValue =
+                \"""
+                \(jsonString)
+                \"""
+
+                let instance = XCTAssertNoThrowWithResult(try \(typeName).instance(from: json))
+                XCTAssertNoThrow(try \(typeName).encoder.encode(instance))
+                """
+            }
+            "}"
         }
-        """
-        
-        return returnValue
+
+        return method
     }
-    
-    public func render() -> String {
-        """
-        \(FileHeaderComment(fileName: fileName).render())
-        
-        \(Import(.xCTest).render())
-        @testable import \(packageName)
-        @testable \(Import(.apodiniMigratorClientSupport).render())
 
-        final class \(packageName)Tests: XCTestCase {
-        \(models.map { method(for: $0) }.joined(separator: .doubleLineBreak))
+    var fileContent: String {
+        FileHeaderComment()
 
-        func XCTAssertNoThrowWithResult<T>(_ expression: @autoclosure () throws -> T) -> T {
-        XCTAssertNoThrow(try expression())
-        do {
-        return try expression()
-        } catch {
-        preconditionFailure(\"Expression threw an error: \\(error.localizedDescription)\")
+        Import(.xCTest)
+        Import("\(GlobalPlaceholder.$packageName)", testable: true)
+        Import(.apodiniMigratorClientSupport, testable: true)
+        ""
+
+        "final class \(GlobalPlaceholder.$packageName)Tests: XCTestCase {"
+        Indent {
+            for model in models {
+                method(for: model)
+                ""
+            }
+
+            "func XCTAssertNoThrowWithResult<T>(_ expression: @autoclosure () throws -> T) -> T {"
+            Indent {
+                "XCTAssertNoThrow(try expression())"
+                "do {"
+                Indent {
+                    "return try expression()"
+                }
+                "} catch {"
+                Indent {
+                    "preconditionFailure(\"Expression threw an error: \\(error.localizedDescription)\")"
+                }
+                "}"
+            }
+            "}"
         }
-        }
-        }
-        """
+        "}"
     }
 }

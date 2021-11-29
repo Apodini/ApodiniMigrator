@@ -5,24 +5,49 @@
 import Foundation
 import PathKit
 
-public protocol GeneratedFile: LibraryNode {
-    var fileName: [NameComponent] { get }
-
+// TODO move
+public protocol RenderableBuilder: FileCodeRenderable {
     @FileCodeStringBuilder
-    var fileContent: String { get }
+    var fileContent: String { get } // TODO nameing?
+}
+
+public extension RenderableBuilder {
+    func render() -> [String] {
+        fileContent
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .map { String($0) }
+    }
+}
+
+public protocol GeneratedFile: LibraryNode, RenderableBuilder {
+    var fileName: [NameComponent] { get }
+}
+
+extension GeneratedFile {
+    // this method is important for testing
+    func formattedFile(with context: MigrationContext) -> String {
+        var fileContent = self.fileContent
+
+        for (placeholder, content) in context.placeholderValues {
+            // TODO code duplication to the `ResourceFile`!
+            fileContent = fileContent.replacingOccurrences(of: placeholder.description, with: content)
+        }
+
+        return fileContent.appending("\n")
+    }
 }
 
 public extension GeneratedFile {
     func handle(at path: Path, with context: MigrationContext) throws {
         precondition(!fileName.isEmpty)
         let filePath = path + fileName.description(with: context)
-        try filePath.write(fileContent, encoding: .utf8)
+        try filePath.write(formattedFile(with: context), encoding: .utf8)
     }
 }
 
 
 @available(*, deprecated, message: "This protocol was replaced with `GeneratedFile`")
-public protocol LegacyGeneratedFile: LibraryNode {
+public protocol LegacyGeneratedFile: LibraryNode { // TODO usages => remove!
     var fileName: [NameComponent] { get }
 
     func render(with context: MigrationContext) -> String

@@ -80,7 +80,7 @@ public struct Document: Value {
     
     /// Name of the file, constructed as `api_{version}`
     public var fileName: String {
-        "api_\(metaData.version.string.without("_"))"
+        "api_\(metaData.version.string.replacingOccurrences(of: "_", with: ""))"
     }
     
     /// Initializes an empty document

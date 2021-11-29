@@ -31,7 +31,7 @@ public struct DeltaIdentifier: Value, RawRepresentable {
     
     /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
-        rawValue = try decoder.singleValueContainer().decode(String.self)
+        try rawValue = decoder.singleValueContainer().decode(String.self)
     }
 
     /// Encodes self into the given encoder.

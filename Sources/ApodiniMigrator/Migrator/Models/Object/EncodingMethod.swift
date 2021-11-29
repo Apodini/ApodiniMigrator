@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import MigratorAPI
 
 /// Represents `encode(to:)` method of an Encodable object
-struct EncodingMethod: Renderable {
+struct EncodingMethod: RenderableBuilder {
     /// The properties of the object that this method belongs to (not including deleted ones)
     private let properties: [TypeProperty]
     /// Necessity changes related with the properties of the object
@@ -50,14 +51,17 @@ struct EncodingMethod: Renderable {
     }
     
     /// Renders the content of the method in a non-formatted way
-    func render() -> String {
-        """
-        public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        \(properties.map { "\(encodingLine(for: $0))" }.lineBreaked)
+    var fileContent: String {
+        "public func encode(to encoder: Encoder) throws {"
+        Indent {
+            "var container = encoder.container(keyedBy: CodingKeys.self)"
+            ""
+
+            for property in properties {
+                encodingLine(for: property)
+            }
         }
-        """
+        "}"
     }
 }
 

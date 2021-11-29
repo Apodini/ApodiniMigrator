@@ -10,6 +10,7 @@ public class TestTarget: Directory, TargetDirectory {
     }
 
     public var dependencies: [TargetDependency] = []
+    public var resources: [TargetResource] = []
 
     public override init(_ name: NameComponent..., @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
         super.init(name, _content: content())

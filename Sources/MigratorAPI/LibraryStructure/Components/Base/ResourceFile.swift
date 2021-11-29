@@ -9,12 +9,24 @@ public class ResourceFile: LibraryNode {
     let srcFileName: [NameComponent]
     let dstFilename: [NameComponent]
 
+    /// String which is to be prepended to the resulting file. Empty if not supplied.
+    let filePrefix: String
+    /// String which is to be appended to the resulting file. Empty if not supplied.
+    let fileSuffix: String
+
     var contentReplacer: [Placeholder: String] = [:]
 
-    public init(copy srcFileName: NameComponent..., to dstFileName: NameComponent...) {
+    public init(
+        copy srcFileName: NameComponent...,
+        to dstFileName: NameComponent...,
+        @FileCodeStringBuilder filePrefix: () -> String = { "" },
+        @FileCodeStringBuilder fileSuffix: () -> String = { "" }
+    ) {
         precondition(!srcFileName.isEmpty)
         self.srcFileName = srcFileName
         self.dstFilename = dstFileName.isEmpty ? srcFileName : dstFileName
+        self.filePrefix = filePrefix()
+        self.fileSuffix = fileSuffix()
     }
 
     public func replacing(_ placeholder: Placeholder, with content: String) -> Self {
@@ -36,12 +48,44 @@ public class ResourceFile: LibraryNode {
         }
 
         for (placeholder, content) in context.placeholderValues.merging(contentReplacer, uniquingKeysWith: { $1 }) {
-            // TODO save ident for multiline replacements! (for code files only?)
-            fileContent = fileContent.replacingOccurrences(of: placeholder.description, with: content)
+            // this block is basically a `fileContent.replacingOccurrences(of: placeholder.description, with: content)`
+            //  though it considers the indent of a `placeholder` and applies it to the lines of `content`
+            while let range = fileContent.range(of: placeholder.description) {
+                let indent = indent(of: fileContent, at: range)
+                let indentedContent = content
+                    .split(separator: "\n", omittingEmptySubsequences: false)
+                    .joined(separator: "\n\(indent)")
+
+                fileContent.replaceSubrange(range, with: indentedContent)
+            }
+        }
+
+        if !filePrefix.isEmpty {
+            fileContent = filePrefix + "\n" + fileContent
+        }
+        if !fileSuffix.isEmpty {
+            fileContent += "\n" + fileSuffix
         }
 
         let destinationPath = path + rawDstFileName
         try destinationPath.write(fileContent, encoding: .utf8)
+    }
+
+    private func indent(of content: String, at range: Range<String.Index>) -> String {
+        var index = content.index(before: range.lowerBound)
+
+        var indent = ""
+
+        while content[index] == " " {
+            index = content.index(before: index)
+            indent += " "
+        }
+
+        if content[index] == "\n" {
+            return indent
+        }
+
+        return ""
     }
 }
 

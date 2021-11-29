@@ -51,9 +51,10 @@ fileprivate extension Bundle {
     /// Returns the typed instance at `resource`
     func resource<D: Decodable>(_ resource: Resource) -> D {
         guard
-        ____INDENTATION____let path = path(forResource: resource.rawValue, ofType: "json"),
-        ____INDENTATION____let instance = try? D.decode(from: path.asPath)
-        else { fatalError("Resource \(resource.rawValue) is malformed") }
+            let path = path(forResource: resource.rawValue, ofType: "json"),
+            let instance = try? D.decode(from: path.asPath) else {
+            fatalError("Resource \(resource.rawValue) is malformed")
+        }
         return instance
     }
 }

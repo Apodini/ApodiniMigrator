@@ -10,6 +10,7 @@ import XCTest
 @testable import ApodiniMigrator
 @testable import ApodiniMigratorCompare
 import PathKit
+import MigratorAPI
 
 final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
     
@@ -40,8 +41,9 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
                 .init("second")
             ]
         )
-        
-        let testFile = TestFileTemplate([object, enumeration], fileName: "TestFile" + .swift, packageName: "ApodiniMigrator")
+
+        // TODO packageName: "ApodiniMigrator"!
+        let testFile = TestFileTemplate(name: "TestFile", models: [object, enumeration])
         
         XCTMigratorAssertEqual(testFile, .modelsTestFile)
     }
@@ -56,7 +58,16 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
             response: .scalar(.string),
             errors: [.init(code: 404, message: "Could not say hello")]
         )
-        let file = APIFile([.init(endpoint: endpoint, unavailable: false, parameters: [], path: endpoint.path)])
+
+        // TODO find a shorter way to do this LOL
+        @SharedNodeStorage
+        var migratedEndpoints: [MigratedEndpoint]
+        @SharedNodeReference
+        var reference: [MigratedEndpoint]
+        _reference = $migratedEndpoints
+        reference = [MigratedEndpoint(endpoint: endpoint, unavailable: false, parameters: [], path: endpoint.path)]
+
+        let file = APIFile($migratedEndpoints)
         
         XCTMigratorAssertEqual(file, .aPIFile)
     }

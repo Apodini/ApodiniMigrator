@@ -137,7 +137,7 @@ public struct MigrationGuide: Codable {
         _ rhsDocumentPath: String,
         compareConfiguration: CompareConfiguration = .default
     ) throws -> MigrationGuide {
-        try .from(lhsDocumentPath.asPath, rhsDocumentPath.asPath, compareConfiguration: compareConfiguration)
+        try .from(Path(lhsDocumentPath), Path(rhsDocumentPath), compareConfiguration: compareConfiguration)
     }
 }
 

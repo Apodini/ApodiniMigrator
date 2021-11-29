@@ -10,6 +10,7 @@ import XCTest
 @testable import ApodiniMigrator
 @testable import ApodiniMigratorCompare
 import PathKit
+import MigratorAPI
 
 final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     private let endpoint = Endpoint(
@@ -167,7 +168,15 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     private func endpointFile(changes: [Change]) -> EndpointFile {
-        .init(typeInformation: endpoint.response, endpoints: [endpoint], changes: changes)
+        // TODO find a shorter way to do this LOL
+        @SharedNodeStorage
+        var migratedEndpoints: [MigratedEndpoint]
+        @SharedNodeReference
+        var reference: [MigratedEndpoint]
+        _reference = $migratedEndpoints
+        reference = []
+
+        return .init(migratedEndpointsReference: $migratedEndpoints, typeInformation: endpoint.response, endpoints: [endpoint], changes: changes)
     }
     
     func testDefaultEndpointFile() throws {
@@ -238,9 +247,8 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     
     func testEndpointResponseChange() throws {
         let file = endpointFile(changes: [responseChange])
-        let expected = OutputFiles.endpointResponseChange.content().indentationFormatted()
 
-        XCTAssertEqual(file.indentationFormatted().sanitizedLines(), expected.sanitizedLines())
+        XCTMigratorAssertEqual(file, .endpointResponseChange)
     }
     
     func testEndpointMultipleChanges() throws {

@@ -26,7 +26,7 @@ struct DeletedProperty {
 }
 
 /// An object that handles the migration of an object in the client library
-struct ObjectMigrator: ObjectSwiftFile, LegacyGeneratedFile {
+struct ObjectMigrator: GeneratedFile {
     var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
         ["\(typeInformation.typeName.name).swift"]
     }
@@ -88,8 +88,8 @@ struct ObjectMigrator: ObjectSwiftFile, LegacyGeneratedFile {
         }
     }
 
-    func render(with context: MigrationContext) -> String {
-        var annotation: Annotation?
+    var fileContent: String {
+        var annotation: Annotation? = nil
         if let unsupportedChange = unsupportedChange {
             annotation = GenericComment(
                 comment: "@available(*, deprecated, message: \(unsupportedChange.description.doubleQuoted))"
@@ -99,47 +99,58 @@ struct ObjectMigrator: ObjectSwiftFile, LegacyGeneratedFile {
                 comment: "@available(*, deprecated, message: \"This model is not used in the new version anymore!\")"
             )
         }
-        
+
+
         if (oldProperties.isEmpty && addedProperties.isEmpty) || annotation != nil {
-            let objectFileTemplate = DefaultObjectFile(typeInformation, annotation: annotation)
-            return objectFileTemplate.render()
+            DefaultObjectFile(typeInformation, annotation: annotation)
+        } else {
+            let allProperties = (oldProperties + addedProperties.map(\.typeProperty)).sorted(by: \.name)
+
+            let objectInitializer = ObjectInitializer(oldProperties, addedProperties: addedProperties)
+            let encodingMethod = EncodingMethod(
+                allProperties.filter { !deletedProperties.map(\.id).contains($0.deltaIdentifier) },
+                necessityChanges: propertyNecessityChanges,
+                convertChanges: propertyConvertChanges
+            )
+
+            let decoderInitializer = DecoderInitializer(
+                allProperties,
+                deleted: deletedProperties,
+                necessityChanges: propertyNecessityChanges,
+                convertChanges: propertyConvertChanges
+            )
+
+
+            FileHeaderComment()
+
+            Import(.foundation)
+            ""
+
+            MARKComment(.model)
+            "\(annotation?.comment ?? "")\(kind.signature) \(typeInformation.typeName.name): Codable {"
+            Indent {
+                MARKComment(.codingKeys)
+                ObjectCodingKeys(allProperties, renameChanges: renamePropertyChanges)
+                ""
+
+                MARKComment(.properties)
+                for property in allProperties {
+                    property.propertyLine
+                }
+                ""
+
+                MARKComment(.initializer)
+                objectInitializer
+                ""
+
+                MARKComment(.encodable)
+                encodingMethod
+                ""
+
+                MARKComment(.decodable)
+                decoderInitializer
+            }
+            "}"
         }
-        
-        let allProperties = (oldProperties + addedProperties.map(\.typeProperty)).sorted(by: \.name)
-        
-        let objectInitializer = ObjectInitializer(oldProperties, addedProperties: addedProperties)
-        let encodingMethod = EncodingMethod(
-            allProperties.filter { !deletedProperties.map(\.id).contains($0.deltaIdentifier) },
-            necessityChanges: propertyNecessityChanges,
-            convertChanges: propertyConvertChanges
-        )
-        
-        let decoderInitializer = DecoderInitializer(
-            allProperties,
-            deleted: deletedProperties,
-            necessityChanges: propertyNecessityChanges,
-            convertChanges: propertyConvertChanges
-        )
-        
-        let fileContent =
-        """
-        \(fileHeader(annotation: annotation?.comment ?? ""))
-        \(MARKComment(.codingKeys))
-        \(ObjectCodingKeys(allProperties, renameChanges: renamePropertyChanges).render())
-
-        \(MARKComment(.properties))
-        \(allProperties.map { $0.propertyLine }.lineBreaked)
-        
-        \(MARKComment(.initializer))
-        \(objectInitializer.render())
-
-        \(MARKComment(.encodable))
-        \(encodingMethod.render())
-
-        \(MARKComment(.decodable))
-        \(decoderInitializer.render())
-        }
-        """
-        return fileContent
     }
 }

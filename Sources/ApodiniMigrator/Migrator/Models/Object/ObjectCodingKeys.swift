@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import MigratorAPI
 
 /// Represents the CodingKeys enum defined inside an object file
-struct ObjectCodingKeys: Renderable {
+struct ObjectCodingKeys: RenderableBuilder {
     /// An enumeration `typeInformation` of the object, name is always `CodingKeys`
     private let codingKeysEnum: TypeInformation
     
@@ -35,11 +36,13 @@ struct ObjectCodingKeys: Renderable {
     }
     
     /// Renders the content of the enum, in a non-formatted way
-    func render() -> String {
-        """
-        private enum \(codingKeysEnum.typeName.name): String, CodingKey {
-        \(enumCases.map { "case \($0.name)\($0.rawValue == $0.name ? "" : " = \($0.rawValue.doubleQuoted)")" }.lineBreaked)
+    var fileContent: String {
+        "private enum \(codingKeysEnum.typeName.name): String, CodingKey {"
+        Indent {
+            for enumCase in enumCases {
+                "case \(enumCase.name)\(enumCase.rawValue == enumCase.name ? "" : " = \"\(enumCase.rawValue)\"")"
+            }
         }
-        """
+        "}"
     }
 }

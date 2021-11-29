@@ -17,7 +17,7 @@ extension PackageTarget {
         .\(type.rawValue)(
                     name: \"\(name)\",
                     resources: [
-                        \(resources.map({ $0.description }).joined(separator: ",\n        "))
+                        \(resources.map({ $0.description(with: context) }).joined(separator: ",\n        "))
                     ],
                     dependencies: [
                         \(dependencies.map({ $0.description(with: context) }).joined(separator: ",\n         "))
@@ -29,8 +29,7 @@ extension PackageTarget {
 
 extension TargetDirectory {
     func targetDescription(with context: MigrationContext) -> PackageTarget {
-        // TODO resources
-        PackageTarget(type: type, name: path.description(with: context), dependencies: dependencies, resources: [])
+        PackageTarget(type: type, name: path.description(with: context), dependencies: dependencies, resources: resources)
     }
 }
 
@@ -58,29 +57,29 @@ struct LocalDependency: TargetDependency {
 struct ProductDependency: TargetDependency {
     func description(with context: MigrationContext) -> String {
         """
-        .product(name: \"\(product)\", package: \"\(package)\")
+        .product(name: \"\(product.description(with: context))\", package: \"\(package.description(with: context))\")
         """
     }
 
-    let product: String
-    let package: String
+    let product: [NameComponent]
+    let package: [NameComponent]
 }
 
 
-enum ResourceType: String {
+public enum ResourceType: String {
     case process
     case copy
 }
 
-struct TargetResource {
+public struct TargetResource {
     let type: ResourceType
-    let path: String
+    let path: [NameComponent]
 }
 
-extension TargetResource: CustomStringConvertible {
-    var description: String {
+extension TargetResource {
+    func description(with context: MigrationContext) -> String {
         """
-        .\(type.rawValue)(\"\(path)\")
+        .\(type.rawValue)(\"\(path.description(with: context))\")
         """
     }
 }

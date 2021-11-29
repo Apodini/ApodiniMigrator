@@ -6,11 +6,16 @@ import Foundation
 import MigratorAPI
 import ApodiniMigratorCompare
 import PathKit
+import Logging // TODO depdndency?
 
 public struct GRPCMigrator: Migrator {
     private static let DUMP_PATH = "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES/dump.pbinary"
 
     public var bundle: Bundle = Bundle.module
+
+    public static let logger: Logger = {
+        .init(label: "org.apodini.migrator.grpc")
+    }()
 
     private let protoFilePath: Path
     private let protoFile: String
@@ -94,7 +99,7 @@ public struct GRPCMigrator: Migrator {
         }
 
         SwiftPackageFile(swiftTools: "5.5")
-            .dependency(url: "https://github.com/grpc/grpc-swift.git", ".exact(\"1.4.1-async-await.3\")")
+            .dependency(url: "https://github.com/grpc/grpc-swift.git", ".exact(\"1.6.1-async-await.1\")")
             .product(library: GlobalPlaceholder.$packageName, targets: [[GlobalPlaceholder.$packageName]]) // TODO double array
 
         ReadMeFile()

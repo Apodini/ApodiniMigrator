@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import MigratorAPI
 
 /// Represents `init(from decoder: Decoder)` initializer of a Decodable object
-struct DecoderInitializer: Renderable {
+struct DecoderInitializer: RenderableBuilder {
     /// All properties of the object that this initializer belongs to
     let properties: [TypeProperty]
     /// Deleted properties of the object if any
@@ -62,14 +63,17 @@ struct DecoderInitializer: Renderable {
     }
     
     /// Renders the content of the initializer in a non-formatted way
-    func render() -> String {
-        """
-        public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        \(properties.map { "\(decodingLine(for: $0))" }.lineBreaked)
+    var fileContent: String {
+        "public init(from decoder: Decoder) throws {"
+        Indent {
+            "let container = try decoder.container(keyedBy: CodingKeys.self)"
+            ""
+
+            for property in properties {
+                decodingLine(for: property)
+            }
         }
-        """
+        "}"
     }
 }
 

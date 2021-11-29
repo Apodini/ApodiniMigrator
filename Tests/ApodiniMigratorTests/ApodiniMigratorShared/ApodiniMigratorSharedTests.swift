@@ -13,11 +13,11 @@ import XCTest
 final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
     func testYAMLandJSON() throws {
         for format in [OutputFormat.yaml, .json] {
-            let document: Document = XCTAssertNoThrowWithResult(try Documents.v1.instance())
-            let path = XCTAssertNoThrowWithResult(try document.write(at: testDirectory, outputFormat: format))
-            XCTAssertThrows(try Document.decode(from: path.asPath + "invalid"))
-            let stringContent = XCTAssertNoThrowWithResult(try path.asPath.read() as String)
-            let documentFromPath = XCTAssertNoThrowWithResult(try Document.decode(from: path.asPath))
+            let document: Document = XCTAssertNoThrowWithResult(try Documents.v1.decodedContent())
+            let path = Path(XCTAssertNoThrowWithResult(try document.write(at: testDirectory, outputFormat: format)))
+            XCTAssertThrows(try Document.decode(from: path + "invalid"))
+            let stringContent = XCTAssertNoThrowWithResult(try path.read() as String)
+            let documentFromPath = XCTAssertNoThrowWithResult(try Document.decode(from: path))
             XCTAssertEqual(document, documentFromPath)
             XCTAssert(format.string(of: document).isNotEmpty)
             XCTAssert(stringContent.isNotEmpty)
@@ -138,7 +138,7 @@ final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
         let empty = ""
         XCTAssert(empty.lowerFirst == empty)
         XCTAssert(empty.upperFirst == empty)
-        XCTAssert(empty.lines().first == empty)
+        XCTAssert(empty.components(separatedBy: "\n").first == empty)
         
         let getEventsHandler = "GetEventsHandler"
         let events = "events"

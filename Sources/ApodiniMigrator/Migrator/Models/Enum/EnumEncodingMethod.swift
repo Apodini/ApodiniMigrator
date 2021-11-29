@@ -7,17 +7,20 @@
 //
 
 import Foundation
+import MigratorAPI
 
 /// Represents `encode(to:)` method of an Enum object
-struct EnumEncodingMethod: Renderable {
+struct EnumEncodingMethod: RenderableBuilder {
     /// Renders the content of the method in a non-formatted way
-    func render() -> String {
-        """
-        public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-                
-        try container.encode(try encodableValue().rawValue)
+    var fileContent: String {
+        "public func encode(to encoder: Encoder) throws {"
+        Indent {
+            """
+            var container = encoder.singleValueContainer()
+
+            try container.encode(try encodableValue().rawValue)
+            """
         }
-        """
+        "}"
     }
 }

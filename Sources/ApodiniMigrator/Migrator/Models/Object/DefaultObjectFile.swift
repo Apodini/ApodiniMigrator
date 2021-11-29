@@ -10,7 +10,7 @@ import Foundation
 import MigratorAPI
 
 /// Represents an `object` file that was not affected by any change
-struct DefaultObjectFile: ObjectSwiftFile, LegacyGeneratedFile {
+struct DefaultObjectFile: GeneratedFile {
     var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
         ["\(typeInformation.typeName.name).swift"]
     }
@@ -67,38 +67,40 @@ struct DefaultObjectFile: ObjectSwiftFile, LegacyGeneratedFile {
         self.annotation = annotation
     }
 
-    func render(with context: MigrationContext) -> String {
-        if properties.isEmpty {
-            let content =
-            """
-            \(fileHeader(annotation: annotationComment))
-            \(MARKComment(.initializer))
-            public init() {}
-            }
-            """
-            return content
-        } else {
-            let content =
-                """
-                \(fileHeader(annotation: annotationComment))
-                \(MARKComment(.codingKeys))
-                \(codingKeysEnum.render())
-                
-                \(MARKComment(.properties))
-                \(properties.map { $0.propertyLine }.lineBreaked)
+    var fileContent: String {
+        FileHeaderComment()
 
-                \(MARKComment(.initializer))
-                \(objectInitializer.render())
-                
-                \(MARKComment(.encodable))
-                \(encodingMethod.render())
-                
-                \(MARKComment(.decodable))
-                \(decoderInitializer.render())
+        Import(.foundation)
+        ""
+
+        MARKComment(.model)
+        "\(annotationComment)\(kind.signature) \(typeInformation.typeName.name): Codable {"
+
+        Indent {
+            if properties.isEmpty {
+                MARKComment(.initializer)
+                "public init() {}"
+            } else {
+                MARKComment(.codingKeys)
+                codingKeysEnum
+                ""
+                MARKComment(.properties)
+                for property in properties {
+                    property.propertyLine
                 }
-                """
-            return content
+                ""
+                MARKComment(.initializer)
+                objectInitializer
+                ""
+                MARKComment(.encodable)
+                encodingMethod
+                ""
+                MARKComment(.decodable)
+                decoderInitializer
+            }
         }
+
+        "}"
     }
 }
 

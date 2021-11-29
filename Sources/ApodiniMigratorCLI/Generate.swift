@@ -23,24 +23,16 @@ struct Generate: ParsableCommand {
     
     @Option(name: .shortAndLong, help: "Path where the api_vX.Y.Z file is located, e.g. /path/to/api_v1.0.0.json")
     var documentPath: String
-
-    // TODO somehow control the type of client side library type (REST, gRPC?)
-
-    // TODO we need Task utility from Apodini! (execute protoc!)
     
     func run() throws {
-        let migrator = ApodiniMigrator.Migrator.self
-        let logger = migrator.logger
+        let logger = RESTMigrator.logger
         
         logger.info("Starting generation of package \(packageName)")
         
         do {
-            let generator = try migrator.init(
-                packageName: packageName,
-                packagePath: targetDirectory,
-                documentPath: documentPath
-            )
-            try generator.run()
+            let migrator = try RESTMigrator(documentPath: documentPath)
+
+            try migrator.run(packageName: packageName, packagePath: targetDirectory)
             logger.info("Package \(packageName) was generated successfully. You can open the package via \(packageName)/Package.swift")
         } catch {
             logger.error("Package generation failed with error: \(error)")

@@ -11,7 +11,7 @@ import ApodiniMigratorCompare
 import MigratorAPI
 
 /// An object that handles the migration of an enum declaration and renders the output accordingly
-struct EnumMigrator: SwiftFile, LegacyGeneratedFile {
+struct EnumMigrator: GeneratedFile {
     var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
         ["\(typeInformation.typeName.name).swift"]
     }
@@ -94,9 +94,9 @@ struct EnumMigrator: SwiftFile, LegacyGeneratedFile {
         }
     }
 
-    func render(with context: MigrationContext) -> String {
-        var annotation: Annotation?
-        
+    var fileContent: String {
+        var annotation: Annotation? = nil
+
         if let unsupportedChange = unsupportedChange {
             annotation = GenericComment(
                 comment: "@available(*, deprecated, message: \(unsupportedChange.description.doubleQuoted))"
@@ -106,48 +106,49 @@ struct EnumMigrator: SwiftFile, LegacyGeneratedFile {
                 comment: "@available(*, message: \("This enum is not used in the new version anymore!".doubleQuoted))"
             )
         }
-        
+
+
         if let annotation = annotation {
-            let enumFileTemplate = DefaultEnumFile(typeInformation, annotation: annotation)
-            // TODO this is a bit weird and doesn't quite fit into our DSL language :thinking:
-            return enumFileTemplate.render(with: context)
+            DefaultEnumFile(typeInformation, annotation: annotation)
+        } else  {
+            let addedCases = self.addedCases()
+            let allCases = (typeInformation.enumCases + addedCases).sorted(by: \.name)
+
+            var addedCasesAnnotation = ""
+
+            if !addedCases.isEmpty {
+                addedCasesAnnotation = "@available(*, message: \("This enum has been migrated with new cases. The client developer should ensure to adjust potential switch blocks of this enum".doubleQuoted))" + .lineBreak
+            }
+
+            FileHeaderComment()
+
+            Import(.foundation)
+            ""
+
+            MARKComment(.model)
+            "\(addedCasesAnnotation)\(kind.signature) \(typeInformation.typeName.name): \(rawValueType.nestedTypeString), Codable, CaseIterable {"
+            Indent {
+                for enumCase in allCases {
+                    "case \(enumCase.name)\(rawValue(for: enumCase))"
+                }
+                ""
+
+                MARKComment(.deprecated)
+                EnumDeprecatedCases(deprecated: deletedCases())
+                ""
+                MARKComment(.encodable)
+                EnumEncodingMethod()
+                ""
+                MARKComment(.decodable)
+                EnumDecoderInitializer(allCases)
+                ""
+                MARKComment(.utils)
+                EnumEncodeValueMethod()
+            }
+            "}"
+
+            ""
+            EnumExtensions(typeInformation, rawValueType: rawValueType)
         }
-        
-        let addedCases = self.addedCases()
-        let allCases = (typeInformation.enumCases + addedCases).sorted(by: \.name)
-        
-        var addedCasesAnnotation = ""
-        
-        if !addedCases.isEmpty {
-            addedCasesAnnotation = "@available(*, message: \("This enum has been migrated with new cases. The client developer should ensure to adjust potential switch blocks of this enum".doubleQuoted))" + .lineBreak
-        }
-        
-        
-        let fileContent =
-        """
-        \(fileComment)
-
-        \(Import(.foundation).render())
-
-        \(MARKComment(.model))
-        \(addedCasesAnnotation)\(kind.signature) \(typeNameString): \(rawValueType.nestedTypeString), Codable, CaseIterable {
-        \(allCases.map { "case \($0.name)\(rawValue(for: $0))" }.lineBreaked)
-
-        \(MARKComment(.deprecated))
-        \(EnumDeprecatedCases(deprecated: deletedCases()).render())
-
-        \(MARKComment(.encodable))
-        \(EnumEncodingMethod().render())
-
-        \(MARKComment(.decodable))
-        \(EnumDecoderInitializer(allCases).render())
-
-        \(MARKComment(.utils))
-        \(EnumEncodeValueMethod().render())
-        }
-        
-        \(EnumExtensions(typeInformation, rawValueType: rawValueType).render())
-        """
-        return fileContent
     }
 }

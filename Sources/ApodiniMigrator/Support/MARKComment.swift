@@ -46,7 +46,7 @@ struct MARKComment: Annotation {
     /// - Parameters:
     ///     - comment: The string that follows `// MARK: - `
     init(_ comment: String) {
-        self.comment = Self.base + comment.without(Self.base)
+        self.comment = Self.base + comment.replacingOccurrences(of: Self.base, with: "")
     }
     
     /// Initializer for a `MARKComment` instance

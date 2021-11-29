@@ -33,8 +33,6 @@ struct ProtocGenerator: LibraryNode {
             fatalError("It seems like the `protoc` compiler isn't installed!")
         }
 
-        print(path.description)
-
         var args: [String] = [
             "--\(pluginName)_out=\(path.description)",
             "--proto_path=\(protoPath)"

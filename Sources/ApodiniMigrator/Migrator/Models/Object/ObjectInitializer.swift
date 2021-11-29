@@ -7,9 +7,10 @@
 //
 
 import Foundation
+import MigratorAPI
 
 /// Represents initializer of an object
-struct ObjectInitializer: Renderable {
+struct ObjectInitializer: RenderableBuilder {
     /// All properties of the object that this initializer belongs to (including added and deleted properties
     private let properties: [TypeProperty]
     /// Dictionary of default values of the added properties of the object
@@ -27,14 +28,20 @@ struct ObjectInitializer: Renderable {
     }
     
     /// Renders the content of the initializer in a non-formatted way
-    func render() -> String {
-        """
-        public init(
-        \(properties.map { "\($0.name): \(defaultValue(for: $0))" }.joined(separator: ",\(String.lineBreak)"))
-        ) {
-        \(properties.map { "\($0.initLine)" }.lineBreaked)
+    var fileContent: String {
+        "public init("
+        Indent {
+            properties
+                .map { "\($0.name): \(defaultValue(for: $0))" }
+                .joined(separator: ",\n")
         }
-        """
+        ") {"
+        Indent {
+            for property in properties {
+                property.initLine
+            }
+        }
+        "}"
     }
     
     /// Returns the string of the type of the property appending a corresponding default value for added properties as provided in the migration guide

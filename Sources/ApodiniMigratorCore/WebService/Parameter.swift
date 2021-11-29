@@ -71,7 +71,7 @@ public struct Parameter: Value {
     }
     
     static func wrappedContentParameterTypeName(from handlerName: String) -> TypeName {
-        .init(name: handlerName.without("Handler") + "WrappedContent")
+        .init(name: handlerName.replacingOccurrences(of: "Handler", with: "") + "WrappedContent")
     }
     
     /// Returns a version of self where the typeInformation is a reference if a complex object or enum

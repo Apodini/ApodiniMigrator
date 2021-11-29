@@ -10,7 +10,7 @@ import Foundation
 import MigratorAPI
 
 /// Represents the `API.swift` file of the client library
-struct APIFile: SwiftFile, GeneratedFile {
+struct APIFile: GeneratedFile {
     var fileName: [NameComponent] = ["API.swift"]
 
     /// TypeInformation is a caseless enum named `API`
@@ -27,34 +27,18 @@ struct APIFile: SwiftFile, GeneratedFile {
         endpoints.sorted()
     }
 
-    /// Renders the wrapper method for the `migratedEndpoint`
-    private func method(for migratedEndpoint: MigratedEndpoint) -> String {
-        let endpoint = migratedEndpoint.endpoint
-        let nestedType = endpoint.response.nestedTypeString
-        var bodyInput = migratedEndpoint.parameters.map { "\($0.oldName): \($0.oldName)" }
-        bodyInput.append(contentsOf: DefaultEndpointInput.allCases.map { $0.keyValue })
-        let body =
-            // TODO access to signature!
-        """
-        \(migratedEndpoint.signature)
-        \(nestedType).\(endpoint.deltaIdentifier)(\(String.lineBreak)\(bodyInput.joined(separator: ",\(String.lineBreak)"))\(String.lineBreak))
-        }
-        """
-        return body
-    }
-
     var fileContent: String {
-        """
-        \(fileComment)
+        FileHeaderComment()
 
-        \(Import(.foundation).render())
+        Import(.foundation)
+        ""
 
-        \(MARKComment(typeNameString))
-        \(kind.signature) \(typeNameString) {}
+        MARKComment(typeInformation.typeName.name)
+        "\(kind.signature) \(typeInformation.typeName.name) {}"
+        ""
 
-        \(MARKComment(.endpoints))
-        \(Kind.extension.signature) \(typeNameString) {
-        """
+        MARKComment(.endpoints)
+        "\(Kind.extension.signature) \(typeInformation.typeName.name) {"
 
         Indent {
             for migratedEndpoint in endpoints {
@@ -64,8 +48,9 @@ struct APIFile: SwiftFile, GeneratedFile {
                 bodyInput.append(contentsOf: DefaultEndpointInput.allCases.map { $0.keyValue })
 
                 migratedEndpoint.signature
+
                 Indent {
-                    "\(nestedType).\(endpoint.deltaIdentifier)("
+                    "\(nestedType).\(endpoint.deltaIdentifier.swiftSanitizedName.lowerFirst)("
                     Indent {
                         // TODO maybe a Join DSL statement?
                         bodyInput.joined(separator: ",\(String.lineBreak)")

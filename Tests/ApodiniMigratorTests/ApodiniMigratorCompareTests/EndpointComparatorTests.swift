@@ -62,7 +62,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         
         let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         endpointComparator.compare()
-        XCTAssert(node.changes.count == 1)
+        XCTAssertEqual(node.changes.count, 1)
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .endpoint("test", target: .operation))
         XCTAssert(change.breaking)
@@ -87,7 +87,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         
         let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         endpointComparator.compare()
-        XCTAssert(node.changes.count == 1)
+        XCTAssertEqual(node.changes.count, 1)
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .endpoint("test", target: .resourcePath))
         XCTAssert(change.breaking)
@@ -113,7 +113,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         
         let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         endpointComparator.compare()
-        XCTAssert(node.changes.count == 1)
+        XCTAssertEqual(node.changes.count, 1)
         let change = try XCTUnwrap(node.changes.first as? AddChange)
         XCTAssert(change.element == .endpoint("test", target: .queryParameter))
         XCTAssert(change.breaking)
@@ -145,7 +145,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         
         let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         endpointComparator.compare()
-        XCTAssert(node.changes.count == 1)
+        XCTAssertEqual(node.changes.count, 1)
         let change = try XCTUnwrap(node.changes.first as? DeleteChange)
         XCTAssert(change.element == .endpoint("test", target: .queryParameter))
         XCTAssert(!change.breaking)
@@ -176,7 +176,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         
         let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         endpointComparator.compare()
-        XCTAssert(node.changes.count == 1)
+        XCTAssertEqual(node.changes.count, 1)
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .endpoint("test", target: .queryParameter))
         XCTAssert(change.type == .rename)
@@ -208,7 +208,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         
         let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         endpointComparator.compare()
-        XCTAssert(node.changes.count == 1)
+        XCTAssertEqual(node.changes.count, 1)
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .endpoint("test", target: .queryParameter))
         XCTAssert(change.parameterTarget == .necessity)
@@ -227,7 +227,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.operation,
-            absolutePath: lhs.path.description.without("{second}"), // removing from path as well
+            absolutePath: lhs.path.description.replacingOccurrences(of: "{second}", with: ""), // removing from path as well
             parameters: [
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
                 .init(name: "first", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
@@ -275,7 +275,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         
         let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         endpointComparator.compare()
-        XCTAssert(node.changes.count == 1)
+        XCTAssertEqual(node.changes.count, 1)
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .endpoint("test", target: .queryParameter))
         XCTAssert(change.parameterTarget == .typeInformation)
@@ -307,7 +307,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         
         let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         endpointComparator.compare()
-        XCTAssert(node.changes.count == 1)
+        XCTAssertEqual(node.changes.count, 1)
         let change = try XCTUnwrap(node.changes.first as? UpdateChange)
         XCTAssert(change.element == .endpoint("test", target: .response))
         XCTAssert(change.convertionWarning == nil)

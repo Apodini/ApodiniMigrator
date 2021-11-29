@@ -11,7 +11,7 @@ import ApodiniTypeInformation
 import MigratorAPI
 
 /// Represents an `enum` file that did not got affected by any change
-struct DefaultEnumFile: SwiftFile, LegacyGeneratedFile {
+struct DefaultEnumFile: GeneratedFile {
     var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
         ["\(typeInformation.typeName.name).swift"]
     }
@@ -70,31 +70,40 @@ struct DefaultEnumFile: SwiftFile, LegacyGeneratedFile {
         self.rawValueType = rawValueType
     }
 
-    func render(with context: MigrationContext) -> String {
+    var fileContent: String {
+        FileHeaderComment()
+
+        Import(.foundation)
+        ""
+
+        MARKComment(.model)
+        "\(annotationComment)\(kind.signature) \(typeInformation.typeName.name): \(rawValueType.nestedTypeString), Codable, CaseIterable {"
+        Indent {
+            for enumCase in enumCases {
+                "case \(enumCase.name)"
+            }
+            ""
+
+            MARKComment(.deprecated)
+            deprecatedCases
+            ""
+
+            MARKComment(.encodable)
+            enumEncodingMethod
+            ""
+
+            MARKComment(.decodable)
+            enumDecoderInitializer
+            ""
+
+            MARKComment(.utils)
+            encodeValueMethod
+        }
         """
-        \(fileComment)
-
-        \(Import(.foundation).render())
-
-        \(MARKComment(.model))
-        \(annotationComment)\(kind.signature) \(typeNameString): \(rawValueType.nestedTypeString), Codable, CaseIterable {
-        \(enumCases.map { "case \($0.name)" }.lineBreaked)
-
-        \(MARKComment(.deprecated))
-        \(deprecatedCases.render())
-
-        \(MARKComment(.encodable))
-        \(enumEncodingMethod.render())
-
-        \(MARKComment(.decodable))
-        \(enumDecoderInitializer.render())
-
-        \(MARKComment(.utils))
-        \(encodeValueMethod.render())
         }
 
-        \(EnumExtensions(typeInformation, rawValueType: rawValueType).render())
         """
+        EnumExtensions(typeInformation, rawValueType: rawValueType).render()
     }
 }
 

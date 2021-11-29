@@ -35,8 +35,16 @@ internal func shell(executableURL: URL, _ args: [String], environment: [String: 
 
     let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
     let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-    print(String(decoding: outputData, as: UTF8.self))
-    print(String(decoding: errorData, as: UTF8.self))
+
+    let output = String(decoding: outputData, as: UTF8.self)
+    let errorOutput = String(decoding: errorData, as: UTF8.self)
+
+    if !output.isEmpty {
+        print(output)
+    }
+    if !errorOutput.isEmpty {
+        print(errorOutput)
+    }
 
     process.waitUntilExit()
 }
