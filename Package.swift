@@ -78,7 +78,7 @@ let package = Package(
             ]
         ),
 
-        // Target requires any interfaces required for the Client libraries!
+        // Target providing any interfaces required for the Client libraries!
         .target(
             name: "ApodiniMigratorClientSupport",
             dependencies: [
@@ -103,7 +103,6 @@ let package = Package(
             name: "MigratorAPI",
             dependencies: [
                 .target(name: "ApodiniMigratorCompare"),
-                .target(name: "ApodiniMigratorClientSupport"),
                 .product(name: "Logging", package: "swift-log")
             ]
         ),

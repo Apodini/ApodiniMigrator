@@ -84,7 +84,7 @@ class MigratedEndpoint {
     }
 
     /// Returns the signature of the endpoint method
-    @FileCodeStringBuilder
+    @SourceCodeBuilder
     var signature: String {
         let methodName = endpoint.deltaIdentifier.swiftSanitizedName.lowerFirst
 

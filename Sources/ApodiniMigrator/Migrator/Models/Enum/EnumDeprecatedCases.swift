@@ -10,7 +10,7 @@ import Foundation
 import MigratorAPI
 
 /// Represents the deprecated cases static property on an `enum` declaration
-struct EnumDeprecatedCases: RenderableBuilder {
+struct EnumDeprecatedCases: SourceCodeRenderable {
     /// Name of the deprecated cases variable
     static let variableName = "deprecatedCases"
     /// String description of the static variable
@@ -25,7 +25,7 @@ struct EnumDeprecatedCases: RenderableBuilder {
     }
 
     /// Renders the deprecated cases static variable
-    var fileContent: String {
+    var renderableContent: String {
         "\(Self.base)[\(deprecatedCaseNames.map { ".\($0)" }.joined(separator: ", "))]"
     }
 }

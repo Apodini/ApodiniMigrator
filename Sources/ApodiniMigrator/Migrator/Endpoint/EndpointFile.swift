@@ -51,7 +51,7 @@ class EndpointFile: GeneratedFile {
         }
     }
 
-    var fileContent: String {
+    var renderableContent: String {
         FileHeaderComment()
 
         imports

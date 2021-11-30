@@ -10,13 +10,13 @@ enum PackageProductType {
     case plugin
 }
 
-struct PackageProduct: RenderableBuilder {
+struct PackageProduct: SourceCodeRenderable {
     let type: PackageProductType
     let name: [NameComponent]
     // Note: Library type for type=`.library` is unsupported right now!
     let targets: [[NameComponent]]
 
-    var fileContent: String {
+    var renderableContent: String {
         """
         .\(type)(name: "\(name.nameString)", targets: [\(
             targets.map { "\"\($0.nameString)\"" }.joined(separator: ",")

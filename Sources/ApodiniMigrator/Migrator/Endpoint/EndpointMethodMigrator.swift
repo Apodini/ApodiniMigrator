@@ -9,7 +9,7 @@
 import Foundation
 import MigratorAPI
 
-class EndpointMethodMigrator: RenderableBuilder {
+class EndpointMethodMigrator: SourceCodeRenderable {
     /// Endpoint of old version that will be migrated
     private let endpoint: Endpoint
     /// A flag that indicates whether the endpoint has been deleted in the new version
@@ -74,7 +74,7 @@ class EndpointMethodMigrator: RenderableBuilder {
         return endpoint.path
     }
 
-    @FileCodeStringBuilder
+    @SourceCodeBuilder
     private var returnValueString: String {
         "return NetworkingService.trigger(handler)"
 
@@ -89,7 +89,7 @@ class EndpointMethodMigrator: RenderableBuilder {
     }
 
     /// Renders the body of the migrated endpoint
-    var fileContent: String {
+    var renderableContent: String {
         migratedEndpoint.signature
 
         Indent {

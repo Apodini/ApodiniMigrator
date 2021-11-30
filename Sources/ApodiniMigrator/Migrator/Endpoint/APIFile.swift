@@ -27,7 +27,7 @@ struct APIFile: GeneratedFile {
         endpoints.sorted()
     }
 
-    var fileContent: String {
+    var renderableContent: String {
         FileHeaderComment()
 
         Import(.foundation)
@@ -52,8 +52,9 @@ struct APIFile: GeneratedFile {
                 Indent {
                     "\(nestedType).\(endpoint.deltaIdentifier.swiftSanitizedName.lowerFirst)("
                     Indent {
-                        // TODO maybe a Join DSL statement?
-                        bodyInput.joined(separator: ",\(String.lineBreak)")
+                        Joined(by: ",") {
+                            bodyInput
+                        }
                     }
                     ")"
                 }

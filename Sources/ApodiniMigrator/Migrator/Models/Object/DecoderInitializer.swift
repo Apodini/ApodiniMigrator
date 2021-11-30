@@ -10,7 +10,7 @@ import Foundation
 import MigratorAPI
 
 /// Represents `init(from decoder: Decoder)` initializer of a Decodable object
-struct DecoderInitializer: RenderableBuilder {
+struct DecoderInitializer: SourceCodeRenderable {
     /// All properties of the object that this initializer belongs to
     let properties: [TypeProperty]
     /// Deleted properties of the object if any
@@ -63,7 +63,7 @@ struct DecoderInitializer: RenderableBuilder {
     }
     
     /// Renders the content of the initializer in a non-formatted way
-    var fileContent: String {
+    var renderableContent: String {
         "public init(from decoder: Decoder) throws {"
         Indent {
             "let container = try decoder.container(keyedBy: CodingKeys.self)"

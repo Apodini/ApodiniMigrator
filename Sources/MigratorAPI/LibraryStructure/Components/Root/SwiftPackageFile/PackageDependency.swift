@@ -4,12 +4,12 @@
 
 import Foundation
 
-struct PackageDependency: RenderableBuilder {
+struct PackageDependency: SourceCodeRenderable {
     var name: String?
     var url: String
     var requirementString: String
 
-    var fileContent: String {
+    var renderableContent: String {
         """
         .package(\(name != nil ? "name: \"\(name ?? "")\", " : "")url: \"\(url)\", \(requirementString))
         """

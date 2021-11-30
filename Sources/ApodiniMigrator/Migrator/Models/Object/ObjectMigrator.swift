@@ -88,7 +88,7 @@ struct ObjectMigrator: GeneratedFile {
         }
     }
 
-    var fileContent: String {
+    var renderableContent: String {
         var annotation: Annotation? = nil
         if let unsupportedChange = unsupportedChange {
             annotation = GenericComment(

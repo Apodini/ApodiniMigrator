@@ -56,7 +56,7 @@ struct TestFileTemplate: GeneratedFile {
         }
 
 
-        @FileCodeStringBuilder
+        @SourceCodeBuilder
         var method: String {
             "func test\(typeName)() throws {"
             Indent {
@@ -77,7 +77,7 @@ struct TestFileTemplate: GeneratedFile {
         return method
     }
 
-    var fileContent: String {
+    var renderableContent: String {
         FileHeaderComment()
 
         Import(.xCTest)

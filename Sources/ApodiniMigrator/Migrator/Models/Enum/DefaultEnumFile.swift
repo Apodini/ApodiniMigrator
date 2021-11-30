@@ -39,8 +39,6 @@ struct DefaultEnumFile: GeneratedFile {
     /// Raw value type of the enum
     private let rawValueType: TypeInformation
 
-    // TODO below stuff is never initialized/changed?
-
     /// Deprecated cases
     private let deprecatedCases = EnumDeprecatedCases()
     
@@ -70,7 +68,7 @@ struct DefaultEnumFile: GeneratedFile {
         self.rawValueType = rawValueType
     }
 
-    var fileContent: String {
+    var renderableContent: String {
         FileHeaderComment()
 
         Import(.foundation)

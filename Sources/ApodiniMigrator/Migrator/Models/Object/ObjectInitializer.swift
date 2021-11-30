@@ -10,7 +10,7 @@ import Foundation
 import MigratorAPI
 
 /// Represents initializer of an object
-struct ObjectInitializer: RenderableBuilder {
+struct ObjectInitializer: SourceCodeRenderable {
     /// All properties of the object that this initializer belongs to (including added and deleted properties
     private let properties: [TypeProperty]
     /// Dictionary of default values of the added properties of the object
@@ -28,7 +28,7 @@ struct ObjectInitializer: RenderableBuilder {
     }
     
     /// Renders the content of the initializer in a non-formatted way
-    var fileContent: String {
+    var renderableContent: String {
         "public init("
         Indent {
             properties

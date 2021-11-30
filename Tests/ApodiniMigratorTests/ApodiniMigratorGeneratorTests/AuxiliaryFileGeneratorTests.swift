@@ -8,9 +8,9 @@
 
 import XCTest
 @testable import ApodiniMigrator
+@testable import MigratorAPI
 @testable import ApodiniMigratorCompare
 import PathKit
-import MigratorAPI
 
 final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
     

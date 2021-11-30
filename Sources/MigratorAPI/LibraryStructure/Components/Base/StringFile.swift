@@ -6,15 +6,15 @@ import Foundation
 
 public struct StringFile: GeneratedFile {
     public let fileName: [NameComponent]
-    public let fileContent: String
+    public let renderableContent: String
 
     public init(name fileName: NameComponent..., content: String) {
         self.fileName = fileName
-        self.fileContent = content
+        self.renderableContent = content
     }
 
-    public init(name fileName: NameComponent..., @FileCodeStringBuilder content: () -> String) {
+    public init(name fileName: NameComponent..., @SourceCodeBuilder content: () -> String) {
         self.fileName = fileName
-        self.fileContent = content()
+        self.renderableContent = content()
     }
 }

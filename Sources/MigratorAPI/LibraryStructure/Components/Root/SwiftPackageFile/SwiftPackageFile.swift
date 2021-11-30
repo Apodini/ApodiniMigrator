@@ -45,7 +45,7 @@ public class SwiftPackageFile: GeneratedFile {
         return self
     }
 
-    public var fileContent: String {
+    public var renderableContent: String {
         """
         // swift-tools-version:\(swiftToolsVersion)
         // The swift-tools-version declares the minimum version of Swift required to build this package.
@@ -61,7 +61,7 @@ public class SwiftPackageFile: GeneratedFile {
                 if !platforms.isEmpty {
                     "platforms: ["
                     Indent {
-                        platforms.joined(separator: ",")
+                        platforms.joined(separator: ", ")
                     }
                     "]"
                 }

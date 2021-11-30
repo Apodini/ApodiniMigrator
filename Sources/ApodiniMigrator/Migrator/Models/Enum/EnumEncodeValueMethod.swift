@@ -10,9 +10,9 @@ import Foundation
 import MigratorAPI
 
 /// Represents the `encodableValue()` util method in an enum
-struct EnumEncodeValueMethod: RenderableBuilder {
+struct EnumEncodeValueMethod: SourceCodeRenderable {
     /// Renders the content of the initializer in a non-formatted way
-    var fileContent: String {
+    var renderableContent: String {
         "private func encodableValue() throws -> Self {"
         Indent {
             "let deprecated = Self.\(EnumDeprecatedCases.variableName)"

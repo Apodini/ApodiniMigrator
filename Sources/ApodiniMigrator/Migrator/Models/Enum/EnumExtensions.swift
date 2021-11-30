@@ -10,7 +10,7 @@ import Foundation
 import ApodiniTypeInformation
 import MigratorAPI
 
-struct EnumExtensions: RenderableBuilder {
+struct EnumExtensions: SourceCodeRenderable {
     let `enum`: TypeInformation
     let rawValueType: TypeInformation
     var typeName: String {
@@ -22,7 +22,7 @@ struct EnumExtensions: RenderableBuilder {
         self.rawValueType = rawValueType
     }
 
-    var fileContent: String {
+    var renderableContent: String {
         MARKComment("CustomStringConvertible")
         "\(Kind.extension.rawValue) \(typeName): CustomStringConvertible {"
         Indent {

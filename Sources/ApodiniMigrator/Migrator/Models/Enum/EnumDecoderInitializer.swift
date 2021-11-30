@@ -10,7 +10,7 @@ import Foundation
 import MigratorAPI
 
 /// Represents the `init(from:)` initializer of an `enum`
-struct EnumDecoderInitializer: RenderableBuilder {
+struct EnumDecoderInitializer: SourceCodeRenderable {
     /// The default enum case to be set in the initializer
     let defaultCase: EnumCase
     
@@ -23,7 +23,7 @@ struct EnumDecoderInitializer: RenderableBuilder {
     }
     
     /// Renders the content of the initializer in a non-formatted way
-    var fileContent: String {
+    var renderableContent: String {
         "public init(from decoder: Decoder) throws {"
         Indent {
             "self = Self(rawValue: try decoder.singleValueContainer().decode(RawValue.self)) ?? .\(defaultCase.name)"

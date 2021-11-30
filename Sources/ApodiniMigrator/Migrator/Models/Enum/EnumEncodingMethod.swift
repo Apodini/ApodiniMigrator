@@ -10,9 +10,9 @@ import Foundation
 import MigratorAPI
 
 /// Represents `encode(to:)` method of an Enum object
-struct EnumEncodingMethod: RenderableBuilder {
+struct EnumEncodingMethod: SourceCodeRenderable {
     /// Renders the content of the method in a non-formatted way
-    var fileContent: String {
+    var renderableContent: String {
         "public func encode(to encoder: Encoder) throws {"
         Indent {
             """

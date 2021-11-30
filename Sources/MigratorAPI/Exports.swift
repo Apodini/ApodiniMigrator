@@ -3,4 +3,4 @@
 //
 
 @_exported import PathKit
-
+@_exported import ApodiniMigratorCompare

@@ -67,7 +67,7 @@ struct DefaultObjectFile: GeneratedFile {
         self.annotation = annotation
     }
 
-    var fileContent: String {
+    var renderableContent: String {
         FileHeaderComment()
 
         Import(.foundation)

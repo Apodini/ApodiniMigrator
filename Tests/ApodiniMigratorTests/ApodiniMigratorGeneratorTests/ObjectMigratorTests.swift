@@ -8,8 +8,8 @@
 
 import XCTest
 @testable import ApodiniMigrator
+@testable import MigratorAPI
 @testable import ApodiniMigratorCompare
-import PathKit
 
 final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
     private let user: TypeInformation = .object(

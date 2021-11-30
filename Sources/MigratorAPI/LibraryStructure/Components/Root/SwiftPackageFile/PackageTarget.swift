@@ -4,13 +4,13 @@
 
 import Foundation
 
-struct PackageTarget: RenderableBuilder {
+struct PackageTarget: SourceCodeRenderable {
     let type: TargetType
     let name: String
     let dependencies: [TargetDependency]
     let resources: [TargetResource]
 
-    var fileContent: String {
+    var renderableContent: String {
         ".\(type.rawValue)("
         Indent {
             Joined(by: ",") {
@@ -20,7 +20,7 @@ struct PackageTarget: RenderableBuilder {
                     "dependencies: ["
                     Indent {
                         dependencies
-                            .map { $0.fileContent }
+                            .map { $0.renderableContent }
                             .joined(separator: ",")
                     }
                     "]"
@@ -30,7 +30,7 @@ struct PackageTarget: RenderableBuilder {
                     "resources: ["
                     Indent {
                         resources
-                            .map { $0.fileContent }
+                            .map { $0.renderableContent }
                             .joined(separator: ",")
                     }
                     "]"
@@ -54,12 +54,12 @@ public enum TargetType: String {
     case executable = "executableTarget"
 }
 
-public protocol TargetDependency: RenderableBuilder {}
+public protocol TargetDependency: SourceCodeRenderable {}
 
 struct LocalDependency: TargetDependency {
     let target: [NameComponent]
 
-    var fileContent: String {
+    var renderableContent: String {
         """
         .target(name: "\(target.nameString)")
         """
@@ -70,7 +70,7 @@ struct ProductDependency: TargetDependency {
     let product: [NameComponent]
     let package: [NameComponent]
 
-    var fileContent: String {
+    var renderableContent: String {
         """
         .product(name: "\(product.nameString)", package: "\(package.nameString)")
         """
@@ -83,11 +83,11 @@ public enum ResourceType: String {
     case copy
 }
 
-public struct TargetResource: RenderableBuilder {
+public struct TargetResource: SourceCodeRenderable {
     let type: ResourceType
     let path: [NameComponent]
 
-    public var fileContent: String {
+    public var renderableContent: String {
         """
         .\(type.rawValue)("\(path.nameString)")
         """

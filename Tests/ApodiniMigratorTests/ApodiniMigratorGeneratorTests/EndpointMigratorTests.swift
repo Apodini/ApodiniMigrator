@@ -8,9 +8,8 @@
 
 import XCTest
 @testable import ApodiniMigrator
+@testable import MigratorAPI
 @testable import ApodiniMigratorCompare
-import PathKit
-import MigratorAPI
 
 final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     private let endpoint = Endpoint(

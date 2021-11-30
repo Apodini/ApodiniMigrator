@@ -9,16 +9,16 @@
 import Foundation
 
 /// A util object that serves to distribute changes to the elements that those belong to
-struct ChangeFilter {
+public struct ChangeFilter {
     /// Filtered changes where change element is an endpoint
-    let endpointChanges: [Change]
+    public let endpointChanges: [Change]
     /// Filtered changes where change element is a model (either object or enum)
-    let modelChanges: [Change]
+    public let modelChanges: [Change]
     /// Filtered changes where change element is related with `NetworkingService`
-    let networkingChanges: [Change]
+    public let networkingChanges: [Change]
     
     /// Initializes a new instance out of the migration guide
-    init(_ migrationGuide: MigrationGuide) {
+    public init(_ migrationGuide: MigrationGuide) {
         let changes = migrationGuide.changes
         endpointChanges = changes.filter { $0.element.isEndpoint }
         modelChanges = changes.filter { $0.element.isModel }
@@ -26,7 +26,7 @@ struct ChangeFilter {
     }
     
     /// Filters added models out of the model changes
-    func addedModels() -> [TypeInformation] {
+    public func addedModels() -> [TypeInformation] {
         modelChanges.compactMap { change in
             if
                 change.element.target == ObjectTarget.`self`.rawValue,
@@ -40,7 +40,7 @@ struct ChangeFilter {
     }
     
     /// Filteres added endpoints out of the endpoint changes
-    func addedEndpoints() -> [Endpoint] {
+    public func addedEndpoints() -> [Endpoint] {
         endpointChanges.compactMap { change in
             if
                 change.element.target == EndpointTarget.`self`.rawValue,

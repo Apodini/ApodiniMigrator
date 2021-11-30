@@ -5,28 +5,14 @@
 import Foundation
 import PathKit
 
-// TODO move
-public protocol RenderableBuilder: FileCodeRenderable {
-    @FileCodeStringBuilder
-    var fileContent: String { get } // TODO nameing?
-}
-
-public extension RenderableBuilder {
-    func render() -> [String] {
-        fileContent
-            .split(separator: "\n", omittingEmptySubsequences: false)
-            .map { String($0) }
-    }
-}
-
-public protocol GeneratedFile: LibraryNode, RenderableBuilder {
+public protocol GeneratedFile: LibraryNode, SourceCodeRenderable {
     var fileName: [NameComponent] { get }
 }
 
 extension GeneratedFile {
     // this method is important for testing
     func formattedFile(with context: MigrationContext) -> String {
-        var fileContent = self.fileContent
+        var fileContent = self.renderableContent
 
         for (placeholder, content) in context.placeholderValues {
             // TODO code duplication to the `ResourceFile`!

@@ -8,6 +8,7 @@
 
 import XCTest
 @testable import ApodiniMigrator
+@testable import MigratorAPI
 @testable import ApodiniMigratorCompare
 import PathKit
 

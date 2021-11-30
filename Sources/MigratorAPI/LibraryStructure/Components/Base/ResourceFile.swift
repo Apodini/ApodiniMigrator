@@ -19,8 +19,8 @@ public class ResourceFile: LibraryNode {
     public init(
         copy srcFileName: NameComponent...,
         to dstFileName: NameComponent...,
-        @FileCodeStringBuilder filePrefix: () -> String = { "" },
-        @FileCodeStringBuilder fileSuffix: () -> String = { "" }
+        @SourceCodeBuilder filePrefix: () -> String = { "" },
+        @SourceCodeBuilder fileSuffix: () -> String = { "" }
     ) {
         precondition(!srcFileName.isEmpty)
         self.srcFileName = srcFileName

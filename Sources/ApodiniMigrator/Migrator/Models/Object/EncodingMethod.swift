@@ -10,7 +10,7 @@ import Foundation
 import MigratorAPI
 
 /// Represents `encode(to:)` method of an Encodable object
-struct EncodingMethod: RenderableBuilder {
+struct EncodingMethod: SourceCodeRenderable {
     /// The properties of the object that this method belongs to (not including deleted ones)
     private let properties: [TypeProperty]
     /// Necessity changes related with the properties of the object
@@ -51,7 +51,7 @@ struct EncodingMethod: RenderableBuilder {
     }
     
     /// Renders the content of the method in a non-formatted way
-    var fileContent: String {
+    var renderableContent: String {
         "public func encode(to encoder: Encoder) throws {"
         Indent {
             "var container = encoder.container(keyedBy: CodingKeys.self)"
