@@ -9,7 +9,7 @@
 import XCTest
 import PathKit
 @testable import ApodiniMigratorCompare
-@testable import ApodiniMigrator
+@testable import RESTMigrator
 @testable import MigratorAPI
 
 class ApodiniMigratorXCTestCase: XCTestCase {

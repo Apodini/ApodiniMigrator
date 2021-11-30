@@ -19,7 +19,7 @@ let package = Package(
     ],
     products: [
         .library(name: "ApodiniMigratorCore", targets: ["ApodiniMigratorCore"]),
-        .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
+        .library(name: "RESTMigrator", targets: ["RESTMigrator"]),
         .library(name: "ApodiniMigratorShared", targets: ["ApodiniMigratorShared"]),
         .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"]),
         .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"]),
@@ -58,7 +58,7 @@ let package = Package(
         .executableTarget(
             name: "ApodiniMigratorCLI",
             dependencies: [
-                .target(name: "ApodiniMigrator"),
+                .target(name: "RESTMigrator"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log")
             ]
@@ -66,7 +66,7 @@ let package = Package(
         .executableTarget(
             name: "MigratorBoostrap",
             dependencies: [
-                .target(name: "ApodiniMigrator"),
+                .target(name: "RESTMigrator"),
                 .target(name: "gRPCMigrator")
             ]
         ),
@@ -87,7 +87,7 @@ let package = Package(
         ),
 
         .target(
-            name: "ApodiniMigrator",
+            name: "RESTMigrator",
             dependencies: [
                 .target(name: "MigratorAPI"),
                 .target(name: "ApodiniMigratorCompare"),
@@ -95,7 +95,7 @@ let package = Package(
                 .product(name: "Logging", package: "swift-log")
             ],
             resources: [
-                .process("Templates")
+                .process("Resources")
             ]
         ),
 
@@ -137,7 +137,7 @@ let package = Package(
             name: "ApodiniMigratorTests",
             dependencies: [
                 "ApodiniMigratorCore",
-                "ApodiniMigrator",
+                "RESTMigrator",
                 "ApodiniMigratorCompare",
                 "ApodiniMigratorClientSupport"
             ],

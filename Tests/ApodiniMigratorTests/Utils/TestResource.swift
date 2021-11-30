@@ -8,7 +8,7 @@
 
 import Foundation
 import XCTest
-import ApodiniMigrator
+import RESTMigrator
 
 protocol TestResource {
     var bundle: Bundle { get }

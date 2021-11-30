@@ -9,7 +9,7 @@
 import XCTest
 @testable import ApodiniMigratorCore
 @testable import ApodiniMigratorClientSupport
-@testable import ApodiniMigrator
+@testable import RESTMigrator
 @testable import ApodiniMigratorCompare
 
 fileprivate extension ApodiniMigratorCodable {

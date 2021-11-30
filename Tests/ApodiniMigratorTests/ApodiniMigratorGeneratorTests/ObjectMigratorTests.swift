@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import ApodiniMigrator
+@testable import RESTMigrator
 @testable import MigratorAPI
 @testable import ApodiniMigratorCompare
 

@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import ApodiniMigrator
+@testable import RESTMigrator
 @testable import MigratorAPI
 @testable import ApodiniMigratorCompare
 import PathKit
@@ -42,7 +42,6 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
             ]
         )
 
-        // TODO packageName: "ApodiniMigrator"!
         let testFile = TestFileTemplate(name: "TestFile", models: [object, enumeration])
         
         XCTMigratorAssertEqual(testFile, .modelsTestFile)

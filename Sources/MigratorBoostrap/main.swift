@@ -4,7 +4,7 @@
 
 import Foundation
 import MigratorAPI
-import ApodiniMigrator
+import RESTMigrator
 import gRPCMigrator
 
 // let migrationGuide = try MigrationGuide.decode(from: migrationGuidePath.asPath)

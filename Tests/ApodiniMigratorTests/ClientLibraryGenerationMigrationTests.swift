@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import ApodiniMigrator
+@testable import RESTMigrator
 
 final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     func testV1LibraryGeneration() throws {

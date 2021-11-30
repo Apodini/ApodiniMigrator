@@ -8,7 +8,7 @@
 
 import Foundation
 import ArgumentParser
-import ApodiniMigrator
+import RESTMigrator
 
 struct Generate: ParsableCommand {
     static var configuration = CommandConfiguration(
