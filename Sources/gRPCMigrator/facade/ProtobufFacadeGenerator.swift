@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 import ApodiniMigratorCompare
 import SwiftProtobuf
 import SwiftProtobufPluginLibrary

@@ -10,7 +10,7 @@ import XCTest
 import PathKit
 @testable import ApodiniMigratorCompare
 @testable import RESTMigrator
-@testable import MigratorAPI
+@testable import ApodiniMigrator
 
 class ApodiniMigratorXCTestCase: XCTestCase {
     var node = ChangeContextNode()

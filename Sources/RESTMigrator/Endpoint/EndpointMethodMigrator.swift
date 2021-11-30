@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 class EndpointMethodMigrator: SourceCodeRenderable {
     /// Endpoint of old version that will be migrated

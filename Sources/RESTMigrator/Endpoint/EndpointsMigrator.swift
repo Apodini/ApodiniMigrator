@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// An object that handles / triggers the migrated rendering of all endpoints of the client library
 struct EndpointsMigrator: LibraryComposite {

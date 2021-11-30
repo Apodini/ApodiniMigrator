@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents a migrated endpoint of the client library
 class MigratedEndpoint {

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents the `API.swift` file of the client library
 struct APIFile: GeneratedFile {

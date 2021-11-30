@@ -32,7 +32,7 @@ public struct Parameter: Value {
     /// The reference of the `typeInformation` of the parameter
     public var typeInformation: TypeInformation
     /// Parameter type
-    public let parameterType: ParameterType // TODO we encode lightweight parameter, this is not applicable for gRPC => message bodies!!
+    public let parameterType: ParameterType
     
     /// The necessity of the parameter
     public let necessity: Necessity

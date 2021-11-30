@@ -10,13 +10,13 @@ public class Directory: LibraryComposite {
 
     public let content: [LibraryComponent]
 
-    // TODO add init for "well known directory names?"
     public init(_ name: NameComponent..., @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
         precondition(!name.isEmpty)
         self.path = name
         self.content = content()
     }
 
+    // swiftlint:disable:next identifier_name
     internal init(_ name: [NameComponent], _content: [LibraryComponent]) {
         precondition(!name.isEmpty)
         self.path = name
@@ -26,6 +26,6 @@ public class Directory: LibraryComposite {
     public func handle(at path: Path, with context: MigrationContext) throws {
         let directoryPath = path + self.path.description(with: context)
 
-        try directoryPath.mkpath() // TODO investiage client situation?
+        try directoryPath.mkpath()
     }
 }

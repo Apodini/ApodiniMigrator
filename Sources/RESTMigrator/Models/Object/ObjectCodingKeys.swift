@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents the CodingKeys enum defined inside an object file
 struct ObjectCodingKeys: SourceCodeRenderable {

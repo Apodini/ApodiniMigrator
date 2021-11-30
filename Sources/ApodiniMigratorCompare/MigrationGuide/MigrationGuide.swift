@@ -31,9 +31,9 @@ public struct MigrationGuide: Codable {
     /// A textual description of the migration guide
     public let summary: String
     /// The service type the the content of the migration guide corresponds to
-    public let serviceType: ServiceType // TODO unused?
+    public let serviceType: ServiceType
     /// The specification type
-    public let specificationType: SpecificationType // TODO unused?
+    public let specificationType: SpecificationType
     /// Id of the old document from which the migration guide was generated
     public let id: UUID?
     /// Old version

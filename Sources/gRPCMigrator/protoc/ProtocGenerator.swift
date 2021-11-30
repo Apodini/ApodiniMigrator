@@ -4,7 +4,7 @@
 
 import Foundation
 import PathKit
-import MigratorAPI
+import ApodiniMigrator
 
 struct ProtocGenerator: LibraryNode {
     let pluginName: String

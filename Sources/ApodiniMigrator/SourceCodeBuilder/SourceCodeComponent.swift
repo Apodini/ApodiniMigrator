@@ -10,10 +10,9 @@ public protocol SourceCodeComponent {
 
 extension String: SourceCodeComponent {
     /// Every String is interpreted as a single line in the resulting code file.
-    /// Therefore the render method always appends a line separator symbol.
     public func render() -> [String] {
         self
-            .split(separator: "\n", omittingEmptySubsequences: false) // TODO is this needed?
+            .split(separator: "\n", omittingEmptySubsequences: false)
             .map { String($0) }
     }
 }

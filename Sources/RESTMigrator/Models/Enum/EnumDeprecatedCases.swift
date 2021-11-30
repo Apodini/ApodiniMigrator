@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents the deprecated cases static property on an `enum` declaration
 struct EnumDeprecatedCases: SourceCodeRenderable {

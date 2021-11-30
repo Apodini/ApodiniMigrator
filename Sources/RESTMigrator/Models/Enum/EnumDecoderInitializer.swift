@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents the `init(from:)` initializer of an `enum`
 struct EnumDecoderInitializer: SourceCodeRenderable {

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// An object that represents an `Type+Endpoint.swift` file in the client library
 class EndpointFile: GeneratedFile {

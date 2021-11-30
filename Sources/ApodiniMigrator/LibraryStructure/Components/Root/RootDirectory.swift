@@ -56,9 +56,7 @@ public class RootDirectory: LibraryComposite {
         try? rootPath.delete() // TODO dangerous operation (failsafes for accidential deleations?)
         try rootPath.mkpath()
 
-        packageSwift.targets.append(contentsOf: sources.targets.map({ $0.targetDescription(with: context) }))
-        packageSwift.targets.append(contentsOf: tests?.targets.map({ $0.targetDescription(with: context) }) ?? [])
+        packageSwift.targets.append(contentsOf: sources.targets.map { $0.targetDescription(with: context) })
+        packageSwift.targets.append(contentsOf: tests?.targets.map { $0.targetDescription(with: context) } ?? [])
     }
 }
-
-

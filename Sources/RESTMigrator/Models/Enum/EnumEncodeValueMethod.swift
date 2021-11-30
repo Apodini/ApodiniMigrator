@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents the `encodableValue()` util method in an enum
 struct EnumEncodeValueMethod: SourceCodeRenderable {

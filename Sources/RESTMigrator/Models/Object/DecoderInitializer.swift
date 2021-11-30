@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents `init(from decoder: Decoder)` initializer of a Decodable object
 struct DecoderInitializer: SourceCodeRenderable {

@@ -8,11 +8,11 @@
 
 import Foundation
 import ApodiniMigratorCompare
-import MigratorAPI
+import ApodiniMigrator
 
 /// An object that handles the migration of an enum declaration and renders the output accordingly
 struct EnumMigrator: GeneratedFile {
-    var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
+    var fileName: [NameComponent] {
         ["\(typeInformation.typeName.name).swift"]
     }
 
@@ -110,7 +110,7 @@ struct EnumMigrator: GeneratedFile {
 
         if let annotation = annotation {
             DefaultEnumFile(typeInformation, annotation: annotation)
-        } else  {
+        } else {
             let addedCases = self.addedCases()
             let allCases = (typeInformation.enumCases + addedCases).sorted(by: \.name)
 

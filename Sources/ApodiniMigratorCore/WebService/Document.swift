@@ -9,6 +9,7 @@
 import Foundation
 import ApodiniTypeInformation
 
+// TODO remove again?
 public struct HTTPServerConfiguration {
     enum Version {
         case http1
@@ -19,19 +20,18 @@ public struct HTTPServerConfiguration {
     var hostname: String
     var port: Int
     var version: Self.Version
-    var secure: Bool // TODO toggles SSL?
+    var secure: Bool
     // TODO other stuff like base url?
 }
 
 /// General Information about the web service.
 public struct ServiceInformation: Value {
-    // TODO severPath shouldn't be already assembled!
     /// Server path
     var serverPath: String
     /// Version
     public var version: Version
     /// Encoder configuration
-    public var encoderConfiguration: EncoderConfiguration // TODO this is exporter specific configuration!!
+    public var encoderConfiguration: EncoderConfiguration
     /// Decoder configuration
     public var decoderConfiguration: DecoderConfiguration
     
@@ -59,7 +59,7 @@ public struct Document: Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case id
-        case documentVersion = "v" // TODO that short key?
+        case documentVersion = "v" // TODO that short key?; remove again
         case metaData = "info"
         case endpoints
         case components
@@ -179,6 +179,7 @@ public struct Document: Value {
     }
 }
 
+// TODO remove again?
 public enum DocumentVersion: String, Codable {
     // TODO make this more SemVer style (e.g. allow shorter versions strings e.g. "1" => "1.0.0"
     case v1 = "1.0.0"

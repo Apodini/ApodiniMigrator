@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents `encode(to:)` method of an Enum object
 struct EnumEncodingMethod: SourceCodeRenderable {

@@ -8,11 +8,11 @@
 
 import Foundation
 import ApodiniTypeInformation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents an `enum` file that did not got affected by any change
 struct DefaultEnumFile: GeneratedFile {
-    var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
+    var fileName: [NameComponent] {
         ["\(typeInformation.typeName.name).swift"]
     }
 
@@ -106,7 +106,6 @@ struct DefaultEnumFile: GeneratedFile {
 }
 
 extension TypeInformation {
-    // TODO placement?
     var sanitizedRawValueType: TypeInformation? {
         if isEnum {
             if let rawValueType = rawValueType {

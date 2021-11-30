@@ -3,15 +3,14 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 import ApodiniMigratorCompare
-import PathKit
 import Logging // TODO depdndency?
 
 public struct GRPCMigrator: Migrator {
     private static let DUMP_PATH = "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES/dump.pbinary"
 
-    public var bundle: Bundle = Bundle.module
+    public var bundle: Bundle = .module
 
     public static let logger: Logger = {
         .init(label: "org.apodini.migrator.grpc")
@@ -22,7 +21,6 @@ public struct GRPCMigrator: Migrator {
 
     private let migrationGuide: MigrationGuide
 
-    // TODO properly source the Migration Guide!
     public init(protoFilePath: String, protoFile: String, migrationGuide: MigrationGuide) {
         // TODO support multiple proto file (non priority though)
         self.protoFilePath = Path(protoFilePath)

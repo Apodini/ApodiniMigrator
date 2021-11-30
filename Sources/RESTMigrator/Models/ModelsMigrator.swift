@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// An object that handles / triggers the migrated rendering of enums and objects of the client library
 struct ModelsMigrator: LibraryComposite {
@@ -44,15 +44,14 @@ struct ModelsMigrator: LibraryComposite {
         for unchangedModelInformation in unchangedModels {
             if unchangedModelInformation.isEnum {
                 DefaultEnumFile(unchangedModelInformation)
-            } else { // TODO else if isObject?
+            } else {
                 DefaultObjectFile(unchangedModelInformation)
             }
         }
 
         for changedModel in changedModels {
-            let changes = modelChanges.filter { change in
-                change.elementID == changedModel.deltaIdentifier
-            }
+            let changes = modelChanges
+                .filter { $0.elementID == changedModel.deltaIdentifier }
 
             if changedModel.isEnum {
                 EnumMigrator(changedModel, changes: changes)

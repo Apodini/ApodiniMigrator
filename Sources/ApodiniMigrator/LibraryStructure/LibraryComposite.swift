@@ -24,6 +24,7 @@ public extension LibraryComposite {
 }
 
 public extension LibraryComposite {
+    // swiftlint:disable:next identifier_name
     func _handle(at path: Path, with context: MigrationContext) throws {
         try handle(at: path, with: context)
 

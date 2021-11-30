@@ -39,7 +39,7 @@ public struct EndpointPath: Value, CustomStringConvertible {
     private static let separator = "/"
     
     /// Components of the path
-    private let components: Components // TODO replace this via a sortedDictionary, reduces amount of sort operations!
+    private let components: Components
     
     /// String representation of the path
     public var description: String {
@@ -49,7 +49,7 @@ public struct EndpointPath: Value, CustomStringConvertible {
     }
     
     /// Path excluding the first component which corresponds to the version of the web service
-    public var resourcePath: String { // TODO baseUrl is just matched via first path element, not very flexible!
+    public var resourcePath: String {
         components
             .filter { $0.key != 0 }
             .sorted(by: \.key)
@@ -100,8 +100,6 @@ public struct EndpointPath: Value, CustomStringConvertible {
 
 // MARK: - String
 private extension String {
-    // TODO extension polution!
-
     /// Indicates whether self is surrounded by curly brackets
     var isPathParameterComponent: Bool {
         first == "{" && last == "}"

@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 import RESTMigrator
 import gRPCMigrator
 

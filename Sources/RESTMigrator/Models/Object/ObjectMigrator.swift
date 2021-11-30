@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// A util struct that holds an added property and its corresponding default value as provided by the migration guide
 struct AddedProperty {
@@ -27,7 +27,7 @@ struct DeletedProperty {
 
 /// An object that handles the migration of an object in the client library
 struct ObjectMigrator: GeneratedFile {
-    var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
+    var fileName: [NameComponent] {
         ["\(typeInformation.typeName.name).swift"]
     }
 

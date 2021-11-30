@@ -9,10 +9,9 @@
 import Foundation
 import ApodiniMigratorClientSupport
 import ApodiniMigratorShared
-import MigratorAPI
+import ApodiniMigrator
 
-// TODO rename
-struct TestFileTemplate: GeneratedFile {
+struct ModelTestsFile: GeneratedFile {
     let fileName: [NameComponent]
     let models: [TypeInformation]
     let objectJSONs: [String: JSONValue]
@@ -51,6 +50,7 @@ struct TestFileTemplate: GeneratedFile {
         let jsonString: String
         if let jsonValue = objectJSONs[typeName] {
             jsonString = jsonValue.rawValue
+            // TODO indentation?
         } else {
             jsonString = JSONStringBuilder.jsonString(dereference(model), with: encoderConfiguration)
         }
@@ -60,7 +60,6 @@ struct TestFileTemplate: GeneratedFile {
         var method: String {
             "func test\(typeName)() throws {"
             Indent {
-                // TODO jsonString isn't indented
                 """
                 let json: JSONValue =
                 \"""

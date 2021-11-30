@@ -6,6 +6,7 @@ import Foundation
 import PathKit
 
 public protocol LibraryComponent {
+    // swiftlint:disable:next identifier_name
     func _handle(at path: Path, with context: MigrationContext) throws
 }
 

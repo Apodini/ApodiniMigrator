@@ -6,19 +6,19 @@ import Foundation
 import Logging
 import PathKit
 
-public struct MigrationContext { // TODO split out!
+public struct MigrationContext {
     public var bundle: Bundle
     public var logger: Logger
 
     var placeholderValues: [Placeholder: String] = [:]
 }
 
+
 public protocol Migrator {
     var bundle: Bundle { get }
 
     static var logger: Logger { get }
 
-    // TODO rename library structure?
     @RootLibraryComponentBuilder
     var library: RootDirectory { get }
 
@@ -27,7 +27,6 @@ public protocol Migrator {
 
 public extension Migrator {
     func run(packageName: String, packagePath: String) throws {
-        // TODO upperfirst name?
         let name = packageName
             .trimmingCharacters(in: .whitespaces)
             .replacingOccurrences(of: "/", with: "_")

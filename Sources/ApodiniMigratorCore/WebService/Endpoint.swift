@@ -13,7 +13,6 @@ public typealias EndpointInput = [Parameter]
 
 /// Represents an endpoint
 public struct Endpoint: Value, DeltaIdentifiable {
-    // TODO for now we can generate the rpcName and service name via the `handlerName` and `path`!
     /// Name of the handler
     public let handlerName: String
 
@@ -24,7 +23,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
     public let operation: Operation
 
     /// The path string of the endpoint
-    public let path: EndpointPath // TODO doesn't include the base path in generation?
+    public let path: EndpointPath
 
     /// Parameters of the endpoint
     public var parameters: EndpointInput
@@ -33,7 +32,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
     public var response: TypeInformation
     
     /// Errors
-    public let errors: [ErrorCode] // TODO errors are currently not derived with @ApodiniError!
+    public let errors: [ErrorCode]
     
     /// Initializes a new endpoint instance
     public init(

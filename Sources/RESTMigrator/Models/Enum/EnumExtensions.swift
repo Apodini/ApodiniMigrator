@@ -8,7 +8,7 @@
 
 import Foundation
 import ApodiniTypeInformation
-import MigratorAPI
+import ApodiniMigrator
 
 struct EnumExtensions: SourceCodeRenderable {
     let `enum`: TypeInformation

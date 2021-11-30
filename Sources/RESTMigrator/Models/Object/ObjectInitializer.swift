@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents initializer of an object
 struct ObjectInitializer: SourceCodeRenderable {

@@ -7,11 +7,11 @@
 //
 
 import Foundation
-import MigratorAPI
+import ApodiniMigrator
 
 /// Represents an `object` file that was not affected by any change
 struct DefaultObjectFile: GeneratedFile {
-    var fileName: [NameComponent] {  // TODO duplicates in SwiftFile!
+    var fileName: [NameComponent] {
         ["\(typeInformation.typeName.name).swift"]
     }
 

@@ -8,7 +8,7 @@
 
 import XCTest
 @testable import RESTMigrator
-@testable import MigratorAPI
+@testable import ApodiniMigrator
 @testable import ApodiniMigratorCompare
 
 final class ObjectMigratorTests: ApodiniMigratorXCTestCase {

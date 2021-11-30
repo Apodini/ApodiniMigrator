@@ -22,7 +22,9 @@ public enum TargetLibraryComponentBuilder<Target: TargetDirectory> {
         component
     }
 
-    // TODO buildOptional?
+    public static func buildOptional(_ component: [TargetDirectory]?) -> [TargetDirectory] {
+        component ?? []
+    }
 
     public static func buildArray(_ components: [[TargetDirectory]]) -> [TargetDirectory] {
         components.flatten()
