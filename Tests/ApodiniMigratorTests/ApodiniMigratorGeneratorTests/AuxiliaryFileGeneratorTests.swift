@@ -58,15 +58,8 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
             errors: [.init(code: 404, message: "Could not say hello")]
         )
 
-        // TODO find a shorter way to do this LOL
-        @SharedNodeStorage
-        var migratedEndpoints: [MigratedEndpoint]
-        @SharedNodeReference
-        var reference: [MigratedEndpoint]
-        _reference = $migratedEndpoints
-        reference = [MigratedEndpoint(endpoint: endpoint, unavailable: false, parameters: [], path: endpoint.path)]
-
-        let file = APIFile($migratedEndpoints)
+        let migratedEndpoints = [MigratedEndpoint(endpoint: endpoint, unavailable: false, parameters: [], path: endpoint.path)]
+        let file = APIFile(SharedNodeReference(with: migratedEndpoints))
         
         XCTMigratorAssertEqual(file, .aPIFile)
     }

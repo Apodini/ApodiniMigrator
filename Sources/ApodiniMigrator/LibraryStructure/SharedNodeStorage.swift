@@ -46,3 +46,10 @@ public struct SharedNodeReference<Element> {
         }
     }
 }
+
+extension SharedNodeReference {
+    /// This initializer is mainly used for testing purpose, to directly initialize a reference with a value.
+    init(with value: Element) {
+        self.storageBox = Box(value)
+    }
+}

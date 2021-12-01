@@ -20,7 +20,7 @@ public protocol SwiftProtobufWrapper: SwiftProtobufProtocols {
     subscript<T>(dynamicMember member: WritableKeyPath<Wrapped, T>) -> T { get set }
 }
 
-// MARK - @dynamicMemberLookup
+// MARK: @dynamicMemberLookup
 public extension SwiftProtobufWrapper {
     subscript<T>(dynamicMember member: KeyPath<Wrapped, T>) -> T {
         get {

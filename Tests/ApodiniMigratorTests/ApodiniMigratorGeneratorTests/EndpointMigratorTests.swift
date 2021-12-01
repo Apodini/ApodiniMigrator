@@ -167,15 +167,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     private func endpointFile(changes: [Change]) -> EndpointFile {
-        // TODO find a shorter way to do this LOL
-        @SharedNodeStorage
-        var migratedEndpoints: [MigratedEndpoint]
-        @SharedNodeReference
-        var reference: [MigratedEndpoint]
-        _reference = $migratedEndpoints
-        reference = []
-
-        return .init(migratedEndpointsReference: $migratedEndpoints, typeInformation: endpoint.response, endpoints: [endpoint], changes: changes)
+        return .init(migratedEndpointsReference: SharedNodeReference(with: []), typeInformation: endpoint.response, endpoints: [endpoint], changes: changes)
     }
     
     func testDefaultEndpointFile() throws {
