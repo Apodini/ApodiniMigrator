@@ -57,16 +57,16 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testMigratorThrowIncompatibleMigrationGuide() throws {
-        let migrationGuide = try Documents.migrationGuide.decodedContent() as MigrationGuide
-        // TODO packageName: "Test", packagePath: testDirectory
-        XCTAssertThrows(try RESTMigrator(documentPath: Documents.v2.bundlePath.string, migrationGuide: migrationGuide))
+        XCTAssertThrows(try RESTMigrator(
+            documentPath: Documents.v2.bundlePath.string,
+            migrationGuidePath: Documents.migrationGuide.bundlePath.string
+        ))
     }
     
     func testPackageMigration() throws {
-        let migrationGuide = try MigrationGuide.decode(from: Documents.migrationGuide.content())
         let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
             documentPath: Documents.v1.bundlePath.string,
-            migrationGuide: migrationGuide
+            migrationGuidePath: Documents.migrationGuide.bundlePath.string
         ))
         
         XCTAssertNoThrow(try migrator.run(packageName: "TestMigPackage", packagePath: testDirectory))
