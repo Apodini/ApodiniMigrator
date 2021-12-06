@@ -24,7 +24,7 @@ struct APIFile: GeneratedFile {
     /// Initializes a new instance out all the migrated endpoints of the library
     init(_ migratedEndpointsReference: SharedNodeReference<[MigratedEndpoint]>) {
         self._endpoints = migratedEndpointsReference
-        endpoints.sorted()
+        endpoints.sort()
     }
 
     var renderableContent: String {

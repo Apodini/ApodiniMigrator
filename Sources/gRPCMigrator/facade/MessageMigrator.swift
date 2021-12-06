@@ -51,7 +51,7 @@ struct MessageMigrator {
         self.namer = namer
 
         // TODO identifier? retrieval, uniqueness etc?
-        var identifier = DeltaIdentifier(rawValue: message.name.replacingOccurrences(of: "Message", with: ""))
+        let identifier = DeltaIdentifier(rawValue: message.name.replacingOccurrences(of: "Message", with: ""))
         self.identifier = identifier
         self.changes = modelChanges.filter({ $0.element.deltaIdentifier == identifier })
 
@@ -271,10 +271,10 @@ struct MessageMigrator {
                 forwardMigration = "\(to.swiftType)(#)!" // TODO force unwrap?
                 backwardMigration = "String(#)"
 
-            case let (.bool, _, .string, _):
+            case (.bool, _, .string, _):
                 forwardMigration = "String(#)"
                 backwardMigration = "Bool(#)!"
-            case let (.string, _, .bool, _):
+            case (.string, _, .bool, _):
                 forwardMigration = "Bool(#)!"
                 backwardMigration = "String(#)"
 

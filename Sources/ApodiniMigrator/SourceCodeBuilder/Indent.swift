@@ -5,14 +5,19 @@
 import Foundation
 
 public struct Indent: SourceCodeComponent {
-    private let identString: String
+    private let indentString: String
     private let content: [SourceCodeComponent]
 
+    public init(with indentString: String = "    ", _ content: String) {
+        self.indentString = indentString
+        self.content = [content]
+    }
+
     public init(
-        with identString: String = "    ",
+        with indentString: String = "    ",
         @SourceCodeComponentBuilder content: () -> [SourceCodeComponent]
     ) {
-        self.identString = identString
+        self.indentString = indentString
         self.content = content()
     }
 
@@ -20,6 +25,6 @@ public struct Indent: SourceCodeComponent {
         content
             .map { $0.render() }
             .flatten()
-            .map { identString + $0 }
+            .map { indentString + $0 }
     }
 }

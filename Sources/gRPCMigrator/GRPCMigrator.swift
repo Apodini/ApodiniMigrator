@@ -20,8 +20,9 @@ public struct GRPCMigrator: Migrator {
     private let protoFile: String
 
     private let migrationGuide: MigrationGuide
+    private let migrationGuidePath: String?
 
-    public init(protoFilePath: String, protoFile: String, migrationGuide: MigrationGuide) {
+    public init(protoFilePath: String, protoFile: String, migrationGuidePath: String? = nil) throws {
         // TODO support multiple proto file (non priority though)
         self.protoFilePath = Path(protoFilePath)
         self.protoFile = protoFile
@@ -30,13 +31,19 @@ public struct GRPCMigrator: Migrator {
         // TODO create generalized Migrator error thrown by below migrators!
 
         // TODO handle?
-        let scripts = migrationGuide.scripts
-        let jsonValues = migrationGuide.jsonValues
+        // let scripts = migrationGuide.scripts
+        // let jsonValues = migrationGuide.jsonValues
 
-        let changes = migrationGuide.changes
+        // let changes = migrationGuide.changes
         // let endpointChanges = changes.filter { $0.element.isEndpoint }
         // self.modelChanges = changes.filter { $0.element.isModel }
-        self.migrationGuide = migrationGuide
+        if let path = migrationGuidePath {
+            try self.migrationGuide = MigrationGuide.decode(from: Path(path))
+            self.migrationGuidePath = migrationGuidePath
+        } else {
+            self.migrationGuide = .empty
+            self.migrationGuidePath = nil
+        }
     }
 
     public var library: RootDirectory {
@@ -53,7 +60,7 @@ public struct GRPCMigrator: Migrator {
             }
                 .dependency(product: "GRPC", of: "grpc-swift")
 
-            // TODO face generator! => wee need access to the dump.pbinary
+            // TODO facade generator! => wee need access to the dump.pbinary
             Target("_PB_FACADE") {
                 ResourceFile(copy: "PBFacadeAPI.swift", to: "PBUtils.swift")
 
@@ -65,15 +72,16 @@ public struct GRPCMigrator: Migrator {
                 .dependency(target: "_PB_GENERATED")
 
 
-            Target("_GRPC_GENERATED") {
+            Target("_GRPC") {
                 ProtocGenerator(
-                    pluginName: "grpc-swift",
+                    pluginName: "grpc-migrator",
                     protoPath: protoFilePath.description,
                     protoFile: protoFile,
                     options: [
                         "Visibility": "Public",
-                        "ExperimentalAsyncClient": "true",
-                        "Server": "false"
+                        "MigrationGuide": migrationGuidePath ?? ""
+                        // "ExperimentalAsyncClient": "true",
+                        // "Server": "false"
                     ]
                 )
 
@@ -82,9 +90,6 @@ public struct GRPCMigrator: Migrator {
             }
                 .dependency(product: "GRPC", of: "grpc-swift")
 
-            Target("_GRPC_FACADE")
-                .dependency(target: "_GRPC_GENERATED")
-
 
             Target(GlobalPlaceholder.$packageName) {
                 Directory("Networking") {
@@ -92,7 +97,7 @@ public struct GRPCMigrator: Migrator {
                 }
             }
                 .dependency(target: "_PB_FACADE")
-                .dependency(target: "_GRPC_FACADE")
+                .dependency(target: "_GRPC")
                 .dependency(product: "GRPC", of: "grpc-swift")
         }
 

@@ -8,14 +8,12 @@ import RESTMigrator
 import gRPCMigrator
 
 // let migrationGuide = try MigrationGuide.decode(from: migrationGuidePath.asPath)
-let gRPCMigrationGuide = try MigrationGuide.decode(
-    from: Path("/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES/migration_guide.json")
-)
+let migrationGuidePath = "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES/migration_guide.json"
 
-let migrator = GRPCMigrator(
+let migrator = try GRPCMigrator(
     protoFilePath: "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES",
     protoFile: "webservice.proto",
-    migrationGuide: gRPCMigrationGuide
+    migrationGuidePath: migrationGuidePath
 )
 
 try migrator.run(
@@ -24,8 +22,7 @@ try migrator.run(
 )
 
 let rest = try RESTMigrator(
-    documentPath: "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES/api_v1.0.0.json",
-    migrationGuide: .empty
+    documentPath: "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES/api_v1.0.0.json"
 )
 
 try rest.run(packageName: "RestLibrary", packagePath: "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/CLIENTS")

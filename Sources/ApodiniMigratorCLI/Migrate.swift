@@ -33,10 +33,9 @@ struct Migrate: ParsableCommand {
         logger.info("Starting migration of package \(packageName)")
         
         do {
-            let migrationGuide = try MigrationGuide.decode(from: Path(migrationGuidePath))
             let migrator = try RESTMigrator(
                 documentPath: documentPath,
-                migrationGuide: migrationGuide
+                migrationGuidePath: migrationGuidePath
             )
 
             try migrator.run(packageName: packageName, packagePath: targetDirectory)

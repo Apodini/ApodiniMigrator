@@ -33,6 +33,32 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
     @SharedNodeStorage
     var apiFileMigratedEndpoints: [MigratedEndpoint]
 
+    public init(documentPath: String, migrationGuidePath: String? = nil) throws {
+        try self.document = Document.decode(from: Path(documentPath))
+
+        if let path = migrationGuidePath {
+            try self.migrationGuide = MigrationGuide.decode(from: Path(path))
+        } else {
+            self.migrationGuide = .empty
+        }
+
+        if let id = migrationGuide.id, document.id != id {
+            throw MigratorError.incompatible(
+                message:
+                """
+                Migration guide is not compatible with the provided document. Apparently another old document version, \
+                has been used to generate the migration guide!
+                """
+            )
+        }
+        self.changeFilter = ChangeFilter(migrationGuide)
+
+        networkingMigrator = NetworkingMigrator(
+            previousServerInformation: document.metaData,
+            networkingChanges: changeFilter.networkingChanges
+        )
+    }
+
     public var library: RootDirectory {
         let allModels = document.allModels()
         let encoderConfiguration = networkingMigrator.encoderConfiguration()
@@ -109,27 +135,5 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
             .product(library: GlobalPlaceholder.$packageName, targets: [[GlobalPlaceholder.$packageName]])
 
         ReadMeFile("Readme.md")
-    }
-
-    public init(documentPath: String, migrationGuide: MigrationGuide = .empty) throws {
-        try self.document = Document.decode(from: Path(documentPath))
-
-        if let id = migrationGuide.id, document.id != id {
-            throw MigratorError.incompatible(
-                message:
-                """
-                Migration guide is not compatible with the provided document. Apparently another old document version, \
-                has been used to generate the migration guide!
-                """
-            )
-        }
-
-        self.migrationGuide = migrationGuide
-        self.changeFilter = ChangeFilter(migrationGuide)
-
-        networkingMigrator = NetworkingMigrator(
-            previousServerInformation: document.metaData,
-            networkingChanges: changeFilter.networkingChanges
-        )
     }
 }

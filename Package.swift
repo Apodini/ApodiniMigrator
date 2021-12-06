@@ -25,7 +25,8 @@ let package = Package(
         .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
         .library(name: "RESTMigrator", targets: ["RESTMigrator"]),
         .library(name: "gRPCMigrator", targets: ["gRPCMigrator"]),
-        .executable(name: "migrator", targets: ["ApodiniMigratorCLI"])
+        .executable(name: "migrator", targets: ["ApodiniMigratorCLI"]),
+        .executable(name: "protoc-gen-grpc-migrator", targets: ["protoc-gen-grpc-migrator"])
     ],
     dependencies: [
         .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .upToNextMinor(from: "0.2.0")),
@@ -132,6 +133,16 @@ let package = Package(
             dependencies: [
                 .target(name: "RESTMigrator"),
                 .target(name: "gRPCMigrator")
+            ]
+        ),
+
+        .executableTarget(
+            name: "protoc-gen-grpc-migrator",
+            dependencies: [
+                .target(name: "ApodiniMigrator"), // TODO check if we need the whole thing?
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
+                .product(name: "SwiftProtobuf", package: "swift-protobuf"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
 
