@@ -9,21 +9,44 @@
 import Foundation
 
 /// A typealias of an array of `Parameter`
-public typealias EndpointInput = [Parameter]
+public typealias EndpointInput = [Parameter] // TODO remove
+
+public protocol EndpointIdentifier: RawRepresentable where Self.RawValue == String {
+    static var type: String { get }
+}
+
+public extension EndpointIdentifier {
+    static var type: String {
+        "\(Self.self)"
+    }
+}
+
+public struct AnyEndpointIdentifier: Value {
+    public let rawValue: String
+}
 
 /// Represents an endpoint
 public struct Endpoint: Value, DeltaIdentifiable {
     /// Name of the handler
-    public let handlerName: String
-
+    public let handlerName: String // TODO this is also identifier
     /// Identifier of the handler
-    public let deltaIdentifier: DeltaIdentifier
+    public let deltaIdentifier: DeltaIdentifier // TODO is this party of the identifier?
 
+    public var identifiers: [String: AnyEndpointIdentifier]
+
+    /*
     /// The operation of the endpoint
-    public let operation: Operation
+    public let operation: Operation // TODO "Identifier"
+
+    /// The communicational pattern of the endpoint.
+    public let communicationalPattern: CommunicationalPattern
 
     /// The path string of the endpoint
-    public let path: EndpointPath
+    public let path: EndpointPath // TODO identifier
+
+    // TODO gRPC identifier! (how to integrate?)
+    public var grpcIdentifier: String?
+    */
 
     /// Parameters of the endpoint
     public var parameters: EndpointInput
@@ -32,13 +55,14 @@ public struct Endpoint: Value, DeltaIdentifiable {
     public var response: TypeInformation
     
     /// Errors
-    public let errors: [ErrorCode]
+    public let errors: [ErrorCode] // TODO support parsing ApodiniErrors in the Exporter!
     
     /// Initializes a new endpoint instance
     public init(
         handlerName: String,
         deltaIdentifier: String,
         operation: Operation,
+        communicationalPattern: CommunicationalPattern,
         absolutePath: String,
         parameters: EndpointInput,
         response: TypeInformation,
@@ -48,16 +72,47 @@ public struct Endpoint: Value, DeltaIdentifiable {
             .replacingOccurrences(of: ">", with: "")
             .replacingOccurrences(of: "<", with: "")
             .replacingOccurrences(of: ",", with: "")
+
         var identifier = deltaIdentifier
+        // checks for "x.x.x." style Apodini identifiers! TODO manual match!?
         if !identifier.split(separator: ".").compactMap({ Int($0) }).isEmpty {
             identifier = handlerName.lowerFirst
+            // TODO handlerName can only be used as identifier if the component is unique throughout the whole
+            //   web service. We MUST fail if a certain Handler is used multiple times in the web service!
+            //    => we should fail in the Exporter for this!
+            //    => or use the apodini position based identifier?
         }
         self.deltaIdentifier = .init(identifier)
-        self.operation = operation
-        self.path = .init(absolutePath)
+        self.identifiers = [:]
+
         self.parameters = Self.wrappContentParameters(from: parameters, with: handlerName)
         self.response = response
         self.errors = errors
+
+        self.add(identifier: operation)
+        self.add(identifier: communicationalPattern)
+        self.add(identifier: EndpointPath(absolutePath))
+    }
+
+    public mutating func add<Identifier: EndpointIdentifier>(identifier: Identifier) {
+        self.identifiers[Identifier.type] = AnyEndpointIdentifier(rawValue: identifier.rawValue)
+    }
+
+    // TODO naming
+    public mutating func Oidentifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier? {
+        guard let rawValue = self.identifiers[Identifier.type]?.rawValue else {
+            return nil
+        }
+
+        return Identifier(rawValue: rawValue)
+    }
+
+    public mutating func identifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier {
+        guard let identifier = Oidentifier(for: Identifier.self) else {
+            fatalError("aASD") // TODO message
+        }
+
+        return identifier
     }
     
     mutating func dereference(in typeStore: inout TypesStore) {
@@ -88,6 +143,8 @@ public struct Endpoint: Value, DeltaIdentifiable {
 }
 
 private extension Endpoint {
+    // TODO this is REST specific!
+    // TODO we have something similar (Parameter Wrapping) for GRPC
     static func wrappContentParameters(from parameters: EndpointInput, with handlerName: String) -> EndpointInput {
         let contentParameters = parameters.filter { $0.parameterType == .content }
         guard !contentParameters.isEmpty else {

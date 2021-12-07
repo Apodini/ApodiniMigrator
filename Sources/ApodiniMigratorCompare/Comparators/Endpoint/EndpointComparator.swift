@@ -18,8 +18,16 @@ struct EndpointComparator: Comparator {
         func element(_ target: EndpointTarget) -> ChangeElement {
             .for(endpoint: lhs, target: target)
         }
-        
-        if lhs.path != rhs.path { // Comparing resourcePaths
+
+        if lhs.identifier(for: EndpointPath.self) != rhs.identifier(for: EndpointPath.self) { // Comparing resourcePaths
+            let pathChange: EndpointChange = .update(
+                id: lhs.deltaIdentifier,
+                updated: .identifier(
+                    type: .path,
+                    from: lhs.identifier(for: EndpointPath.self),
+                    to: rhs.identifier(for: EndpointPath.self)
+                )
+            )
             changes.add(
                 UpdateChange(
                     element: element(.resourcePath),
@@ -32,6 +40,14 @@ struct EndpointComparator: Comparator {
         }
         
         if lhs.operation != rhs.operation {
+            let operationChange: EndpointChange = .update(
+                id: lhs.deltaIdentifier,
+                updated: .identifier(
+                    type: .operation,
+                    from: lhs.identifier(for: EndpointPath.self),
+                    to: rhs.identifier(for: EndpointPath.self)
+                )
+            )
             changes.add(
                 UpdateChange(
                     element: element(.operation),
@@ -42,7 +58,8 @@ struct EndpointComparator: Comparator {
                 )
             )
         }
-        
+
+        // TODO the parameter changes must be encapsulated into a endpoint change!
         let parametersComparator = ParametersComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
         parametersComparator.compare()
         
@@ -51,6 +68,15 @@ struct EndpointComparator: Comparator {
         
         if typesNeedConvert(lhs: lhsResponse, rhs: rhsResponse) {
             let jsScriptBuilder = JSScriptBuilder(from: lhsResponse, to: rhsResponse, changes: changes, encoderConfiguration: configuration)
+            let responseChange: EndpointChange = .update(
+                id: lhs.deltaIdentifier,
+                updated: .response(
+                    from: lhs.response.referenced(),
+                    to: rhs.response.referenced(),
+                    backwardsConversion: changes.store(script: jsScriptBuilder.convertToFrom),
+                    conversionWarning: jsScriptBuilder.hint
+                )
+            )
             changes.add(
                 UpdateChange(
                     element: element(.response),

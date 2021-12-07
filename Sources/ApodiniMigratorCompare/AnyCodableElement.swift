@@ -19,7 +19,7 @@ extension AnyCodableElementValue {
 }
 
 // MARK: - AnyCodableElementValue conformance
-extension Document: AnyCodableElementValue {}
+extension APIDocument: AnyCodableElementValue {}
 extension DeltaIdentifier: AnyCodableElementValue {}
 extension Endpoint: AnyCodableElementValue {}
 extension EndpointPath: AnyCodableElementValue {}
@@ -55,7 +55,7 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
     public func encode(to encoder: Encoder) throws {
         var singleValueContainer = encoder.singleValueContainer()
         
-        if let value = value as? Document {
+        if let value = value as? APIDocument {
             try singleValueContainer.encode(value)
         } else if let value = value as? DeltaIdentifier {
             try singleValueContainer.encode(value)
@@ -90,7 +90,7 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         
-        if let value = try? container.decode(Document.self) {
+        if let value = try? container.decode(APIDocument.self) {
             self.value = value
         } else if let value = try? container.decode(Necessity.self) {
             self.value = value

@@ -9,7 +9,8 @@
 import Foundation
 
 struct ParametersComparator: Comparator {
-    let lhs: Endpoint
+    // TODO our approach decoupled change analysis from endpoints!
+    let lhs: Endpoint // TODO will not be needed anymore
     let rhs: Endpoint
     let changes: ChangeContextNode
     var configuration: EncoderConfiguration
@@ -54,7 +55,13 @@ struct ParametersComparator: Comparator {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates.filter { !relaxedMatchings.contains($0.deltaIdentifier) }) {
                 relaxedMatchings += relaxedMatching.element.deltaIdentifier
                 relaxedMatchings += candidate.deltaIdentifier
-                
+
+                let nameChange: ParameterChange = .idChange(
+                    from: candidate.deltaIdentifier,
+                    to: relaxedMatching.element.deltaIdentifier,
+                    similarity: relaxedMatching.similarity
+                )
+
                 changes.add(
                     UpdateChange(
                         element: element(.target(for: candidate)),
@@ -78,6 +85,12 @@ struct ParametersComparator: Comparator {
         }
         
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
+            let delChange: ParameterChange = .removal(
+                id: removal.deltaIdentifier,
+                breaking: false,
+                solvable: true
+            )
+
             changes.add(
                 DeleteChange(
                     element: element(.target(for: removal)),
@@ -96,7 +109,13 @@ struct ParametersComparator: Comparator {
             if isRequired {
                 defaultValue = .value(from: addition.typeInformation, with: configuration, changes: changes)
             }
-            
+
+            let addChange: ParameterChange = .addition(
+                id: addition.deltaIdentifier,
+                added: addition.referencedType(),
+                defaultValue: 0, // TODO extract json script value from above .value call!
+                breaking: isRequired
+            )
             changes.add(
                 AddChange(
                     element: element(.target(for: addition)),

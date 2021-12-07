@@ -9,7 +9,7 @@
 import Foundation
 
 /// Defines the CRUD operation of a given endpoint
-public enum Operation: String, CaseIterable, Value {
+public enum Operation: String, CaseIterable, Value, EndpointIdentifier {
     /// The associated endpoint is used for a `create` operation
     case create
     /// The associated endpoint is used for a `read` operation

@@ -16,6 +16,14 @@ struct ModelComparator: Comparator {
     
     func compare() {
         guard lhs.rootType == rhs.rootType, [TypeInformation.RootType.enum, .object].contains(lhs.rootType) else {
+            let unsupportedChange = UnsupportedModelChange.kindChange(from: lhs.rootType, to: rhs.rootType)
+
+            if lhs.isObject {
+                let change: ObjectChange = .update(id: lhs.deltaIdentifier, updated: .unsupported(change: unsupportedChange))
+            } else {
+                let change: EnumChange = .update(id: lhs.deltaIdentifier, updated: .unsupported(change: unsupportedChange))
+            }
+
             return changes.add(
                 UnsupportedChange(
                     element: lhs.isObject ? .for(object: lhs, target: .`self`) : .for(enum: lhs, target: .`self`),

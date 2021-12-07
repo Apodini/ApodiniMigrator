@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct MetaDataComparator: Comparator {
+struct ServiceInformationComparator: Comparator {
     let lhs: ServiceInformation
     let rhs: ServiceInformation
     let changes: ChangeContextNode

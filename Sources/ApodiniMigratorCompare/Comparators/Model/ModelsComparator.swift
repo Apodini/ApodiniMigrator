@@ -45,6 +45,14 @@ struct ModelsComparator: Comparator {
             for candidate in removalCandidates {
                 let unmatched = additionCandidates.filter { addition in pairs.allSatisfy { !$0.contains(addition.deltaIdentifier) } }
                 if let relaxedMatching = candidate.mostSimilarWithSelf(in: unmatched) {
+                    if candidate.isObject {
+                        let change: ObjectChange = .idChange(
+                            from: candidate.deltaIdentifier,
+                            to: relaxedMatching.element.deltaIdentifier,
+                            similarity: relaxedMatching.similarity
+                        )
+                    }
+
                     changes.add(
                         UpdateChange(
                             element: candidate.isObject ? .for(object: candidate, target: .typeName) : .for(enum: candidate, target: .typeName),
@@ -69,6 +77,17 @@ struct ModelsComparator: Comparator {
         
         let includeProviderSupport = allowTypeRename && self.includeProviderSupport
         for removal in removalCandidates where !pairs.contains(where: { $0.contains(removal.deltaIdentifier) }) {
+            if removal.isObject {
+                let change: ObjectChange = .removal(
+                    id: removal.deltaIdentifier,
+                    breaking: false // TODO isn't breaking?
+                )
+            } else {
+                let change: EnumChange = .removal(
+                    id: removal.deltaIdentifier,
+                    breaking: false
+                )
+            }
             changes.add(
                 DeleteChange(
                     element: removal.isObject ? .for(object: removal, target: .`self`) : .for(enum: removal, target: .`self`),
@@ -82,6 +101,20 @@ struct ModelsComparator: Comparator {
         }
         
         for addition in additionCandidates where !pairs.contains(where: { $0.contains(addition.deltaIdentifier) }) {
+            if addition.isObject {
+                let change: ObjectChange = .addition(
+                    id: addition.deltaIdentifier,
+                    added: addition.referencedProperties(),
+                    breaking: false // TODO isn't breaking?
+                )
+            } else {
+                let change: EnumChange = .addition(
+                    id: addition.deltaIdentifier,
+                    added: addition.referencedProperties(),
+                    breaking: false
+                )
+            }
+
             changes.add(
                 AddChange(
                     element: addition.isObject ? .for(object: addition, target: .`self`) : .for(enum: addition, target: .`self`),

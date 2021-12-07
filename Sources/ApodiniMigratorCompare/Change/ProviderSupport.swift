@@ -18,10 +18,10 @@ public struct ProviderSupport: Value {
     
     /// Textual explanation how to adjust the change object
     var hint: String
-    /// Element id if an addition change should instead be trated as a rename.
+    /// Element id if an addi<tion change should instead be treated as a rename.
     /// Property can be adjusted from the provider
     var renamedFrom: ChangeValue?
-    /// Element id if a deletion change should instead be trated as a rename
+    /// Element id if a deletion change should instead be treated as a rename
     /// Property can be adjusted from the provider
     var renamedTo: ChangeValue?
     /// Flag to indicate whether a rename change was identified correctly

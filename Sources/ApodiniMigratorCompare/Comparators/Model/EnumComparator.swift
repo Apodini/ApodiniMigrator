@@ -20,11 +20,20 @@ struct EnumComparator: Comparator {
     }
     
     func compare() {
+        // TODO also rais unsuppoprted change for differing kind! struct vs enum, like in the ObjectComparator!
         guard let lhsRawValue = lhs.rawValueType, let rhsRawValue = rhs.rawValueType else {
             return
         }
         
         if lhsRawValue != rhsRawValue {
+            // TODO we could support this one time?
+            let change: EnumChange = .update(
+                id: lhs.deltaIdentifier,
+                updated: .unsupported(
+                    change: .enumRawValue(from: lhsRawValue, to: rhsRawValue)
+                )
+            )
+
             return changes.add(
                 UnsupportedChange(
                     element: element(.`self`),
@@ -32,7 +41,8 @@ struct EnumComparator: Comparator {
                 )
             )
         }
-        
+
+        // TODO wrap changes into Enum Update Change!
         let enumCasesComparator = EnumCasesComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
         enumCasesComparator.compare()
     }
@@ -72,6 +82,14 @@ private struct EnumCasesComparator: Comparator {
     
     private func compare(lhs: EnumCase, rhs: EnumCase) {
         if lhs.rawValue != rhs.rawValue {
+            let change: EnumCaseChange = .update(
+                id: lhs.deltaIdentifier,
+                updated: .rawValueType(
+                    from: lhs.rawValue,
+                    to: rhs.rawValue
+                )
+            )
+
             changes.add(
                 UpdateChange(
                     element: element(.caseRawValue),
@@ -96,6 +114,12 @@ private struct EnumCasesComparator: Comparator {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates.filter { !relaxedMatchings.contains($0.deltaIdentifier) }) {
                 relaxedMatchings += relaxedMatching.element.deltaIdentifier
                 relaxedMatchings += candidate.deltaIdentifier
+
+                let change: EnumCaseChange = .idChange(
+                    from: candidate.deltaIdentifier,
+                    to: relaxedMatching.element.deltaIdentifier,
+                    similarity: relaxedMatching.similarity
+                )
                 
                 changes.add(
                     UpdateChange(
@@ -114,6 +138,11 @@ private struct EnumCasesComparator: Comparator {
         }
         
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
+            let change: EnumCaseChange = .removal(
+                id: removal.deltaIdentifier,
+                solvable: true
+            )
+
             changes.add(
                 DeleteChange(
                     element: element(.case),
@@ -127,6 +156,11 @@ private struct EnumCasesComparator: Comparator {
         }
         
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
+            let change: EnumCaseChange = .addition(
+                id: addition.deltaIdentifier,
+                added: addition
+            )
+
             changes.add(
                 AddChange(
                     element: element(.case),

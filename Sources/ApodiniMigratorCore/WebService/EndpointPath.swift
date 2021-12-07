@@ -34,7 +34,7 @@ private enum PathComponent: CustomStringConvertible {
 private typealias Components = [Int: PathComponent]
 
 /// Represents an endpoint path
-public struct EndpointPath: Value, CustomStringConvertible {
+public struct EndpointPath: Value, CustomStringConvertible, EndpointIdentifier {
     /// Separator of components
     private static let separator = "/"
     
@@ -47,6 +47,10 @@ public struct EndpointPath: Value, CustomStringConvertible {
             .map { "\($0.value)" }
             .joined(separator: Self.separator)
     }
+
+    public var rawValue: String {
+        description
+    }
     
     /// Path excluding the first component which corresponds to the version of the web service
     public var resourcePath: String {
@@ -55,6 +59,10 @@ public struct EndpointPath: Value, CustomStringConvertible {
             .sorted(by: \.key)
             .map { "\($0.value)" }
             .joined(separator: Self.separator)
+    }
+
+    public init(rawValue string: String) {
+        self.init(string)
     }
 
     /// Initializes an instance out of string representation of the path e.g. `/v1/users/{id}`

@@ -14,7 +14,7 @@ struct ObjectComparator: Comparator {
     let changes: ChangeContextNode
     let configuration: EncoderConfiguration
     let lhsProperties: [TypeProperty]
-    let rhsProperties: [TypeProperty]
+    let rhsProperties: [TypeProperty] // TODO split out into additional TypePropertyComparator!
     
     init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContextNode, configuration: EncoderConfiguration) {
         self.lhs = lhs
@@ -49,6 +49,17 @@ struct ObjectComparator: Comparator {
         
         if sameNestedTypes(lhs: lhsType, rhs: rhsType), lhs.necessity != rhs.necessity {
             let currentLhsType = changes.currentVersion(of: lhsType)
+
+            // TODO wrap into object change
+            let change: PropertyChange = .update(
+                id: lhs.deltaIdentifier,
+                updated: .necessity(
+                    from: lhs.necessity,
+                    to: rhs.necessity,
+                    necessityMigration: 0 // TODO use value from .value!
+                )
+            )
+
             changes.add(
                 UpdateChange(
                     element: element(.necessity),
@@ -62,14 +73,30 @@ struct ObjectComparator: Comparator {
             )
         } else if typesNeedConvert(lhs: lhsType, rhs: rhsType) {
             let jsScriptBuilder = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes, encoderConfiguration: configuration)
+
+            let forwardScript = changes.store(script: jsScriptBuilder.convertFromTo)
+            let backwardScript = changes.store(script: jsScriptBuilder.convertToFrom)
+
+            // TODO wrap into object change
+            let change: PropertyChange = .update(
+                id: lhs.deltaIdentifier,
+                updated: .type(
+                    from: lhsType.referenced(),
+                    to: rhsType.referenced(),
+                    forwardMigration: forwardScript,
+                    backwardMigration: backwardScript,
+                    conversionWarning: jsScriptBuilder.hint
+                )
+            )
+
             changes.add(
                 UpdateChange(
                     element: element(.property),
                     from: .element(lhsType.referenced()),
                     to: .element(rhsType.referenced()),
                     targetID: targetID,
-                    convertFromTo: changes.store(script: jsScriptBuilder.convertFromTo),
-                    convertToFrom: changes.store(script: jsScriptBuilder.convertToFrom),
+                    convertFromTo: forwardScript,
+                    convertToFrom: backwardScript,
                     convertionWarning: jsScriptBuilder.hint,
                     breaking: true,
                     solvable: true
@@ -85,7 +112,15 @@ struct ObjectComparator: Comparator {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates.filter { !relaxedMatchings.contains($0.deltaIdentifier) }) {
                 relaxedMatchings += relaxedMatching.element.deltaIdentifier
                 relaxedMatchings += candidate.deltaIdentifier
-                
+
+                // TODO wrap into object change
+                let change: PropertyChange = .idChange(
+                    from: candidate.deltaIdentifier,
+                    to: relaxedMatching.element.deltaIdentifier,
+                    similarity: relaxedMatching.similarity,
+                    breaking: true
+                )
+
                 changes.add(
                     UpdateChange(
                         element: element(.property),
@@ -104,6 +139,15 @@ struct ObjectComparator: Comparator {
         
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
             let wasRequired = removal.necessity == .required
+
+            // TODO wrap into object change
+            let change: PropertyChange = .removal(
+                id: removal.deltaIdentifier,
+                fallbackValue: wasRequired ? 0 : nil, // TODO script id
+                breaking: wasRequired,
+                solvable: true
+            )
+
             changes.add(
                 DeleteChange(
                     element: element(.property),
@@ -118,6 +162,16 @@ struct ObjectComparator: Comparator {
         
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
             let isRequired = addition.necessity == .required
+
+            // TODO wrap into object change
+            let change: PropertyChange = .addition(
+                id: addition.deltaIdentifier,
+                added: addition.referencedType(),
+                defaultValue: isRequired ? 0 : nil, // TODO script id
+                breaking: isRequired,
+                solvable: true
+            )
+
             changes.add(
                 AddChange(
                     element: element(.property),

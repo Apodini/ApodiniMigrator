@@ -104,7 +104,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
         document.setCoderConfigurations(.default, .default)
         XCTAssert(document.fileName == "api_test1.2.3")
         XCTAssert(!document.endpoints.isEmpty)
-        XCTAssertEqual(document.metaData.versionedServerPath, "http://127.0.0.1:8080/test1")
+        XCTAssertEqual(document.serviceInformation.versionedServerPath, "http://127.0.0.1:8080/test1")
         XCTAssert(!document.json.isEmpty)
         XCTAssert(!document.yaml.isEmpty)
     }

@@ -15,7 +15,7 @@ final class MetaDataComparatorTests: ApodiniMigratorXCTestCase {
         let lhs = ServiceInformation(serverPath: "www.test.com", version: .default, encoderConfiguration: .default, decoderConfiguration: .default)
         let rhs = ServiceInformation(serverPath: "www.updated.com", version: .default, encoderConfiguration: .default, decoderConfiguration: .default)
         
-        let comparator = MetaDataComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
+        let comparator = ServiceInformationComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         comparator.compare()
         
         XCTAssert(node.changes.count == 1)
@@ -35,7 +35,7 @@ final class MetaDataComparatorTests: ApodiniMigratorXCTestCase {
         let lhs = ServiceInformation(serverPath: "www.test.com", version: .default, encoderConfiguration: .default, decoderConfiguration: .default)
         let rhs = ServiceInformation(serverPath: "www.test.com", version: .init(prefix: "api", major: 2, minor: 0, patch: 0), encoderConfiguration: .default, decoderConfiguration: .default)
         
-        let comparator = MetaDataComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
+        let comparator = ServiceInformationComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         comparator.compare()
         
         XCTAssert(node.changes.count == 1)
@@ -56,7 +56,7 @@ final class MetaDataComparatorTests: ApodiniMigratorXCTestCase {
         let updatedConfiguration = EncoderConfiguration(dateEncodingStrategy: .millisecondsSince1970, dataEncodingStrategy: .base64)
         let rhs = ServiceInformation(serverPath: "", version: .default, encoderConfiguration: updatedConfiguration, decoderConfiguration: .default)
         
-        let comparator = MetaDataComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
+        let comparator = ServiceInformationComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         comparator.compare()
         
         XCTAssert(node.changes.count == 1)
@@ -77,7 +77,7 @@ final class MetaDataComparatorTests: ApodiniMigratorXCTestCase {
         let updatedConfiguration = DecoderConfiguration(dateDecodingStrategy: .secondsSince1970, dataDecodingStrategy: .base64)
         let rhs = ServiceInformation(serverPath: "", version: .default, encoderConfiguration: .default, decoderConfiguration: updatedConfiguration)
         
-        let comparator = MetaDataComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
+        let comparator = ServiceInformationComparator(lhs: lhs, rhs: rhs, changes: node, configuration: .default)
         comparator.compare()
         
         XCTAssert(node.changes.count == 1)

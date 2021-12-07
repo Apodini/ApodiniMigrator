@@ -9,13 +9,13 @@
 import Foundation
 
 struct DocumentComparator: Comparator {
-    let lhs: Document
-    let rhs: Document
+    let lhs: APIDocument
+    let rhs: APIDocument
     let changes: ChangeContextNode
     let configuration: EncoderConfiguration
     
     func compare() {
-        let metaDataComparator = MetaDataComparator(lhs: lhs.metaData, rhs: rhs.metaData, changes: changes, configuration: configuration)
+        let metaDataComparator = ServiceInformationComparator(lhs: lhs.serviceInformation, rhs: rhs.serviceInformation, changes: changes, configuration: configuration)
         metaDataComparator.compare()
         
         let modelsComparator = ModelsComparator(

@@ -23,7 +23,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
     // TODO incorporate logger and according logging of progress!
     // TODO logger.info("Persisting content at \(directories.path(of: directory).string.without(packagePath.string + "/"))")
 
-    private let document: Document
+    private let document: APIDocument
     private let migrationGuide: MigrationGuide
     private let changeFilter: ChangeFilter
 
@@ -34,7 +34,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
     var apiFileMigratedEndpoints: [MigratedEndpoint]
 
     public init(documentPath: String, migrationGuidePath: String? = nil) throws {
-        try self.document = Document.decode(from: Path(documentPath))
+        try self.document = APIDocument.decode(from: Path(documentPath))
 
         if let path = migrationGuidePath {
             try self.migrationGuide = MigrationGuide.decode(from: Path(path))
@@ -54,7 +54,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         self.changeFilter = ChangeFilter(migrationGuide)
 
         networkingMigrator = NetworkingMigrator(
-            previousServerInformation: document.metaData,
+            previousServerInformation: document.serviceInformation,
             networkingChanges: changeFilter.networkingChanges
         )
     }

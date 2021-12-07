@@ -47,6 +47,11 @@ struct EndpointsComparator: Comparator {
             for candidate in removalCandidates {
                 let unmatched = additionCandidates.filter { added in pairs.allSatisfy { !$0.contains(added.deltaIdentifier) } }
                 if let relaxedMatching = candidate.mostSimilarWithSelf(in: unmatched, useRawValueDistance: false) {
+                    let change: EndpointChange = .idChange(
+                        from: candidate.deltaIdentifier,
+                        to: relaxedMatching.element.deltaIdentifier,
+                        similarity: relaxedMatching.similarity
+                    )
                     changes.add(
                         UpdateChange(
                             element: .for(endpoint: candidate, target: .deltaIdentifier),
@@ -76,6 +81,9 @@ struct EndpointsComparator: Comparator {
         
         let includeProviderSupport = allowEndpointIdentifierUpdate && self.includeProviderSupport
         for removal in removalCandidates where !pairs.contains(where: { $0.contains(removal.deltaIdentifier) }) {
+            let delChange: EndpointChange = .removal(
+                id: removal.deltaIdentifier
+            )
             changes.add(
                 DeleteChange(
                     element: .for(endpoint: removal, target: .`self`),
@@ -89,6 +97,10 @@ struct EndpointsComparator: Comparator {
         }
         
         for addition in additionCandidates where !pairs.contains(where: { $0.contains(addition.deltaIdentifier) }) {
+            let addChange: EndpointChange = .addition(
+                id: addition.deltaIdentifier,
+                added: addition.referencedTypes()
+            )
             changes.add(
                 AddChange(
                     element: .for(endpoint: addition, target: .`self`),

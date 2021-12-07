@@ -11,7 +11,7 @@ import XCTest
 
 final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     func testV1LibraryGeneration() throws {
-        let document = try Documents.v1.decodedContent() as Document
+        let document = try Documents.v1.decodedContent() as APIDocument
         let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
             documentPath: Documents.v1.bundlePath.string
         ))
@@ -34,7 +34,7 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testV2LibraryGeneration() throws {
-        let document = try Documents.v2.decodedContent() as Document
+        let document = try Documents.v2.decodedContent() as APIDocument
         let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
             documentPath: Documents.v2.bundlePath.string
         ))
@@ -79,8 +79,8 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testMigrationGuideGeneration() throws {
-        let doc1 = try Documents.v1.decodedContent() as Document
-        let doc2 = try Documents.v2.decodedContent() as Document
+        let doc1 = try Documents.v1.decodedContent() as APIDocument
+        let doc2 = try Documents.v2.decodedContent() as APIDocument
         
         let migrationGuide = MigrationGuide(for: doc1, rhs: doc2)
         try (testDirectoryPath + "migration_guide.yaml").write(migrationGuide.yaml)
