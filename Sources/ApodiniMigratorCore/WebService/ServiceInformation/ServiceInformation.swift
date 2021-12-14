@@ -4,9 +4,8 @@
 
 import Foundation
 
-
 /// General Information about the web service.
-public struct ServiceInformation: Value, Swift.Hashable {
+public struct ServiceInformation: Value, Hashable {
     private enum CodingKeys: String, CodingKey {
         case version
         case http
@@ -101,5 +100,11 @@ public struct ServiceInformation: Value, Swift.Hashable {
             }
             // TODO add other exporters
         }
+    }
+}
+
+extension ServiceInformation: DeltaIdentifiable {
+    public var deltaIdentifier: DeltaIdentifier {
+        "SERVICE_INFO_ID" // there is only a single service information
     }
 }

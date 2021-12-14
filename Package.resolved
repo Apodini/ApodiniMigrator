@@ -5,9 +5,9 @@
         "package": "ApodiniTypeInformation",
         "repositoryURL": "https://github.com/Apodini/ApodiniTypeInformation.git",
         "state": {
-          "branch": null,
-          "revision": "95109a6f3cf93a828d1b0adf2cdc299e31fe5e87",
-          "version": "0.2.1"
+          "branch": "develop",
+          "revision": "af223e8e89e47805ce5052ab718c7fb863c136ae",
+          "version": null
         }
       },
       {

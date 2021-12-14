@@ -10,7 +10,6 @@ import Foundation
 import ApodiniTypeInformation
 
 public enum DocumentVersion: String, Codable {
-    // TODO make this more SemVer style (e.g. allow shorter versions strings e.g. "1" => "1.0.0"
     case v1 = "1.0.0"
     case v2 = "2.0.0"
 }
@@ -35,14 +34,26 @@ public struct APIDocument: Value {
     /// Id of the document
     public let id: UUID // TODO how do we generate the Id (and persist it in API documents)
     /// Describes the version the ``Document`` was generate with
-    public let documentVersion: DocumentVersion // TODO we don't really need this property?
+    public let documentVersion: DocumentVersion // TODO we don't really need this property STORED?
     /// Metadata
     public var serviceInformation: ServiceInformation
     /// Endpoints
-    public var endpoints: [Endpoint]
+    private var _endpoints: [Endpoint]
+    public var endpoints: [Endpoint] {
+        _endpoints // TODO best solution for dereferencing?
+            .map {
+                var endpoint = $0
+                endpoint.dereference(in: types)
+                return endpoint
+            }
+    }
 
+    public var types: TypesStore
+
+    /*
     // TODO turn into property (and maybe split up into response and parameters)
     public func allModels() -> [TypeInformation] {
+        // TODO we duplicate the TypeStore data structure!
         endpoints.reduce(into: Set<TypeInformation>()) { result, current in
                 result.insert(current.response)
                 current.parameters.forEach { parameter in
@@ -52,7 +63,7 @@ public struct APIDocument: Value {
             .asArray
             .fileRenderableTypes()
             .sorted(by: \.typeName)
-    }
+    }*/
     
     /// Name of the file, constructed as `api_{version}`
     public var fileName: String {
@@ -61,15 +72,18 @@ public struct APIDocument: Value {
     
     /// Initializes a new Apodini API document.
     public init(serviceInformation: ServiceInformation) {
-        id = .init()
-        documentVersion = .v2
+        self.id = .init()
+        self.documentVersion = .v2
         self.serviceInformation = serviceInformation
-        endpoints = []
+        self._endpoints = []
+        self.types = TypesStore()
     }
     
     /// Adds a new endpoint
     public mutating func add(endpoint: Endpoint) {
-        endpoints.append(endpoint)
+        var endpoint = endpoint
+        endpoint.reference(in: &types)
+        _endpoints.append(endpoint)
     }
 
     public mutating func add<Configuration: ExporterConfiguration>(exporter: Configuration) {
@@ -84,16 +98,8 @@ public struct APIDocument: Value {
         try container.encode(id, forKey: .id)
         try container.encode(documentVersion, forKey: .documentVersion)
         try container.encode(serviceInformation, forKey: .serviceInformation)
-
-        var typesStore = TypesStore()
-        let referencedEndpoints: [Endpoint] = endpoints.map {
-            var endpoint = $0
-            endpoint.reference(in: &typesStore)
-            return endpoint
-        }
-        
-        try container.encode(referencedEndpoints, forKey: .endpoints)
-        try container.encode(typesStore.storage, forKey: .types)
+        try container.encode(_endpoints, forKey: .endpoints)
+        try container.encode(types, forKey: .types)
     }
     
     /// Creates a new instance by decoding from the given decoder.
@@ -107,15 +113,7 @@ public struct APIDocument: Value {
 
         try id = container.decode(UUID.self, forKey: .id)
         try serviceInformation = container.decode(ServiceInformation.self, forKey: .serviceInformation)
-
-        var typesStore = TypesStore()
-        try typesStore.storage = container.decode([String: TypeInformation].self, forKey: .types)
-
-        let endpoints = try container.decode([Endpoint].self, forKey: .endpoints)
-        self.endpoints = endpoints.map {
-            var endpoint = $0
-            endpoint.dereference(in: &typesStore)
-            return endpoint
-        }
+        try _endpoints = container.decode([Endpoint].self, forKey: .endpoints)
+        try types = container.decode(TypesStore.self, forKey: .types)
     }
 }

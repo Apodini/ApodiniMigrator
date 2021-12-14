@@ -11,29 +11,30 @@ import Foundation
 struct ServiceInformationComparator: Comparator {
     let lhs: ServiceInformation
     let rhs: ServiceInformation
-    let changes: ChangeContextNode
-    var configuration: EncoderConfiguration
-    
-    func compare() {
-        func element(_ target: NetworkingTarget) -> ChangeElement {
-            .networking(target: target)
+
+    func compare(_ context: ChangeComparisonContext, _ results: inout [ServiceInformationChange]) {
+        if lhs.version.string != rhs.version.string {
+            results.append(.update(
+                id: lhs.deltaIdentifier,
+                updated: .version(from: lhs.version, to: rhs.version),
+                // while rest uses the version in the path, the path itself encodes that
+                // breaking change via the EndpointIdentifierChange
+                breaking: false
+            ))
         }
-        
-        if lhs.versionedServerPath != rhs.versionedServerPath {
-            changes.add(
-                UpdateChange(
-                    element: element(.serverPath),
-                    from: .stringValue(lhs.versionedServerPath),
-                    to: .stringValue(rhs.versionedServerPath),
-                    breaking: true,
-                    solvable: true
-                )
-            )
+
+        if lhs.http.description != rhs.http.description {
+            results.append(.update(
+                id: lhs.deltaIdentifier,
+                updated: .http(from: lhs.http, to: rhs.http)
+            ))
         }
-        
-        let lhsEncoderConfig = lhs.encoderConfiguration
+
+        // TODO exporter configuration
+        /*
+         let lhsEncoderConfig = lhs.encoderConfiguration
         let rhsEncoderConfig = rhs.encoderConfiguration
-        
+
         if lhsEncoderConfig != rhsEncoderConfig {
             changes.add(
                 UpdateChange(
@@ -45,10 +46,10 @@ struct ServiceInformationComparator: Comparator {
                 )
             )
         }
-        
+
         let lhsDecoderConfig = lhs.decoderConfiguration
         let rhsDecoderConfig = rhs.decoderConfiguration
-        
+
         if lhsDecoderConfig != rhsDecoderConfig {
             changes.add(
                 UpdateChange(
@@ -60,5 +61,6 @@ struct ServiceInformationComparator: Comparator {
                 )
             )
         }
+         */
     }
 }

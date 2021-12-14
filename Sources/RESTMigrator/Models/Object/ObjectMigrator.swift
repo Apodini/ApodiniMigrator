@@ -28,7 +28,7 @@ struct DeletedProperty {
 /// An object that handles the migration of an object in the client library
 struct ObjectMigrator: GeneratedFile {
     var fileName: [NameComponent] {
-        ["\(typeInformation.typeName.name).swift"]
+        ["\(typeInformation.typeName.mangledName).swift"] // TODO file name uniqueness!
     }
 
     /// Type information of the object that will be migrated
@@ -127,7 +127,8 @@ struct ObjectMigrator: GeneratedFile {
             ""
 
             MARKComment(.model)
-            "\(annotation?.comment ?? "")\(kind.signature) \(typeInformation.typeName.name): Codable {"
+            // TODO type name uniqueness
+            "\(annotation?.comment ?? "")\(kind.signature) \(typeInformation.typeName.mangledName): Codable {"
             Indent {
                 MARKComment(.codingKeys)
                 ObjectCodingKeys(allProperties, renameChanges: renamePropertyChanges)

@@ -8,6 +8,117 @@
 
 import Foundation
 
+final class ChangeComparisonContext {
+    var configuration: CompareConfiguration
+    /// This array contains all model definition of the update API document.
+    let latestModels: [TypeInformation]
+
+    /// All javascript convert methods created during comparison
+    var scripts: [Int: JSScript] = [:]
+    /// All json values of properties or parameter that require a default or fallback value
+    var jsonValues: [Int: JSONValue] = [:]
+    /// All json representations of objects that had some kind of breaking change in their properties
+    private(set) var objectJSONs: [String: JSONValue] = [:]
+
+    var serviceChanges: [ServiceInformationChange] = []
+    var modelChanges: [ModelChange] = []
+    var endpointChanges: [EndpointChange] = []
+
+    init(configuration: CompareConfiguration? = nil, latestModels: [TypeInformation]) {
+        self.configuration = configuration ?? .default
+        self.latestModels = latestModels
+    }
+
+
+    /// Stores the script and returns its stored index
+    func store(script: JSScript) -> Int {
+        let count = scripts.count
+        scripts[count] = script
+        return count
+    }
+
+    /// Stores the jsonValue and returns stored index
+    func store(jsonValue: JSONValue) -> Int {
+        let count = jsonValues.count
+        jsonValues[count] = jsonValue
+        return count
+    }
+}
+
+// MARK: JSScript Support
+extension ChangeComparisonContext {
+    func currentVersion(of lhs: TypeInformation) -> TypeInformation {
+        switch lhs {
+        case .scalar:
+            return lhs
+        case let .repeated(element):
+            return .repeated(element: currentVersion(of: element))
+        case let .dictionary(key, value):
+            return .dictionary(key: key, value: currentVersion(of: value))
+        case let .optional(wrappedValue):
+            return .optional(wrappedValue: wrappedValue)
+        case .enum, .object:
+            return latestModels.first(where: { $0.deltaIdentifier == lhs.deltaIdentifier })
+                    ?? lhs
+        case .reference:
+            fatalError("Encountered a reference in `\(Self.self)`")
+        }
+    }
+
+    // TODO evaluate placement! (same for above)
+    func isPairOfRenamedTypes(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
+        if !configuration.allowTypeRename {
+            return false
+        }
+
+        return modelChanges.contains(where: { change in
+            if case let .idChange(from, to, _, _, _) = change {
+                return from == lhs.deltaIdentifier && to == rhs.deltaIdentifier
+            }
+            return false
+        })
+    }
+
+    /*
+     func sameNestedTypes(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
+        if lhs.typeName.name == rhs.typeName.name {
+            return true
+        }
+        return allowTypeRename ? changes.typesAreRenamings(lhs: lhs, rhs: rhs) : false
+    }
+
+    func typesNeedConvert(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
+        let sameNestedType = sameNestedTypes(lhs: lhs, rhs: rhs)
+        return (sameNestedType && !lhs.sameType(with: rhs)) || !sameNestedType
+    }
+     */
+
+    /// For every compare between two models of different versions, this function is called to register potentially updated json representation of an object
+    func store(rhs: TypeInformation) {
+        // TODO
+        //  let propertyTargets = [ObjectTarget.property, .necessity].map { $0.rawValue }
+        //  $0.breaking
+        //                && $0.element.isObject
+        //                && $0.elementID == rhs.deltaIdentifier
+        //                && propertyTargets.contains($0.element.target)
+
+        // if in natural language: if the list of model changes contains
+        //  an property change of an object where the identifier matches with "rhs" and the change is breaking
+        if modelChanges.contains(where: { change in
+            if case let .update(id, update, breaking, _) = change,
+                breaking,
+                id == rhs.deltaIdentifier,
+                case .property = update {
+                return true
+            }
+            return false
+        }) {
+            // TODO name index! what was the intention here?
+            objectJSONs[rhs.typeName.mangledName] = .init(JSONStringBuilder.jsonString(rhs, with: configuration.encoderConfiguration))
+        }
+    }
+}
+
 /// A reference object to register changes during comparison of documents of two versions.
 /// Used internally in the migration guide generation to be passed in the DocumentComparator. Furthermore
 /// handles the logic of encoding and decoding different change types
@@ -85,65 +196,5 @@ final class ChangeContextNode: Codable {
     /// Registers `change` to `self`
     func add(_ change: Change) {
         changes.append(change)
-    }
-    
-    /// Stores the script and returns its stored index
-    func store(script: JSScript) -> Int {
-        let count = scripts.count
-        scripts[count] = script
-        return count
-    }
-    
-    /// Stores the jsonValue and returns stored index
-    func store(jsonValue: JSONValue) -> Int {
-        let count = jsonValues.count
-        jsonValues[count] = jsonValue
-        return count
-    }
-    
-    /// For every compare between two models of different versions, this function is called to register potentially updated json representation of an object
-    func store(rhs: TypeInformation, encoderConfiguration: EncoderConfiguration) {
-        let propertyTargets = [ObjectTarget.property, .necessity].map { $0.rawValue }
-        if changes.contains(where: {
-                                $0.breaking
-                                    && $0.element.isObject
-                                    && $0.elementID == rhs.deltaIdentifier
-                                    && propertyTargets.contains($0.element.target)
-        }) {
-            objectJSONs[rhs.typeName.name] = .init(JSONStringBuilder.jsonString(rhs, with: encoderConfiguration))
-        }
-    }
-    
-    func set(rhsModels: [TypeInformation]) -> [TypeInformation] {
-        self.rhsModels = rhsModels
-        return rhsModels
-    }
-    
-    func currentVersion(of lhs: TypeInformation) -> TypeInformation {
-        switch lhs {
-        case .scalar: return lhs
-        case let .repeated(element): return .repeated(element: currentVersion(of: element))
-        case let .dictionary(key, value): return .dictionary(key: key, value: currentVersion(of: value))
-        case let .optional(wrappedValue): return .optional(wrappedValue: wrappedValue)
-        case .enum, .object: return rhsModels.firstMatch(on: \.deltaIdentifier, with: lhs.deltaIdentifier) ?? lhs
-        case .reference: fatalError("Encountered a reference in `\(Self.self)`")
-        }
-    }
-    
-    func typeRenames() -> [UpdateChange] {
-        guard compareConfiguration?.allowTypeRename == true else {
-            return []
-        }
-        
-        return changes.filter { $0.type == .rename && $0.element.target == ObjectTarget.typeName.rawValue } as? [UpdateChange] ?? []
-    }
-    
-    func typesAreRenamings(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
-        typeRenames().contains(where: { rename in
-            if case let .stringValue(lhsName) = rename.from, case let .stringValue(rhsName) = rename.to {
-                return lhsName == lhs.deltaIdentifier.rawValue && rhsName == rhs.deltaIdentifier.rawValue
-            }
-            return false
-        })
     }
 }

@@ -30,7 +30,7 @@ struct EncodingMethod: SourceCodeRenderable {
         let id = property.deltaIdentifier
         let name = property.name
         if
-            let change = necessityChanges.firstMatch(on: \.targetID, with: id),
+            let change = necessityChanges.first(where: { $0.targetID == id }),
             let necessityValue = change.necessityValue,
             case let .element(anyCodable) = change.to,
             anyCodable.typed(Necessity.self) == .required,
@@ -38,7 +38,7 @@ struct EncodingMethod: SourceCodeRenderable {
         {
             return "try container.encode(\(name) ?? (try \(property.type.unwrapped.typeString).instance(from: \(id))), forKey: .\(name))"
         } else if
-            let change = convertChanges.firstMatch(on: \.targetID, with: id),
+            let change = convertChanges.first(where: { $0.targetID == id }),
             case let .element(anyCodable) = change.to,
             let scriptID = change.convertFromTo
         {

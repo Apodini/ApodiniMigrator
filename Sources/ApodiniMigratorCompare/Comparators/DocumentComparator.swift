@@ -8,25 +8,22 @@
 
 import Foundation
 
-struct DocumentComparator: Comparator {
+struct DocumentComparator {
     let lhs: APIDocument
     let rhs: APIDocument
-    let changes: ChangeContextNode
-    let configuration: EncoderConfiguration
-    
-    func compare() {
-        let metaDataComparator = ServiceInformationComparator(lhs: lhs.serviceInformation, rhs: rhs.serviceInformation, changes: changes, configuration: configuration)
-        metaDataComparator.compare()
-        
+
+    func compare(_ context: ChangeComparisonContext) {
+        let metaDataComparator = ServiceInformationComparator(lhs: lhs.serviceInformation, rhs: rhs.serviceInformation)
+        metaDataComparator.compare(context, &context.serviceChanges)
+
+        // TODO comment, models must be compared first, as js script uses it!
         let modelsComparator = ModelsComparator(
-            lhs: lhs.allModels(),
-            rhs: changes.set(rhsModels: rhs.allModels()),
-            changes: changes,
-            configuration: configuration
+            lhs: .init(lhs.types.values),
+            rhs: .init(rhs.types.values)
         )
-        modelsComparator.compare()
-        
-        let endpointsComparator = EndpointsComparator(lhs: lhs.endpoints, rhs: rhs.endpoints, changes: changes, configuration: configuration)
-        endpointsComparator.compare()
+        modelsComparator.compare(context, &context.modelChanges)
+
+        let endpointsComparator = EndpointsComparator(lhs: lhs.endpoints, rhs: rhs.endpoints)
+        endpointsComparator.compare(context, &context.endpointChanges)
     }
 }

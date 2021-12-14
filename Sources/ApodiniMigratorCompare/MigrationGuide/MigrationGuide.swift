@@ -73,8 +73,6 @@ public struct MigrationGuide: Codable {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case summary
-        case serviceType = "service-type"
-        case specificationType = "api-spec"
         case id = "document-id"
         case from
         case to
@@ -115,8 +113,6 @@ public struct MigrationGuide: Codable {
     public static var empty: MigrationGuide {
         .init(
             summary: Self.defaultSummary,
-            serviceType: .rest,
-            specificationType: .apodini,
             id: nil,
             from: .default,
             to: .default,
@@ -128,8 +124,6 @@ public struct MigrationGuide: Codable {
     /// Internal initializer of the Migration Guide
     init(
         summary: String,
-        serviceType: ServiceType,
-        specificationType: SpecificationType,
         id: UUID?,
         from: Version,
         to: Version,
@@ -137,8 +131,6 @@ public struct MigrationGuide: Codable {
         changeContextNode: ChangeContextNode
     ) {
         self.summary = summary
-        self.serviceType = serviceType
-        self.specificationType = specificationType
         self.id = id
         self.from = from
         self.to = to
@@ -151,28 +143,29 @@ public struct MigrationGuide: Codable {
     
     /// Initializes the Migration Guide out of two Documents. Documents get compared
     /// and the changes can be accessed via `changes` of the new Migration Guide instance
-    public init(for lhs: APIDocument, rhs: APIDocument, compareConfiguration: CompareConfiguration = .default) {
+    public init(for lhs: APIDocument, rhs: APIDocument, compareConfiguration: CompareConfiguration? = nil) {
+        let comparisonContext = ChangeComparisonContext(
+            configuration: compareConfiguration,
+            latestModels: Array(rhs.types.values)
+        )
+
         let changeContextNode = ChangeContextNode(compareConfiguration: compareConfiguration)
         
         let documentsComparator = DocumentComparator(
             lhs: lhs,
-            rhs: rhs,
-            changes: changeContextNode,
-            configuration: .default // TODO make this configurable
+            rhs: rhs
         )
         
         // Triggers the compare logic for all elements of both documents, and registers the changes in changeContextNode
-        documentsComparator.compare()
+        documentsComparator.compare(comparisonContext)
         
         self.init(
             summary: Self.defaultSummary,
-            serviceType: .rest,
-            specificationType: .apodini,
             id: lhs.id,
             from: lhs.serviceInformation.version,
             to: rhs.serviceInformation.version,
-            compareConfiguration: changeContextNode.compareConfiguration,
-            changeContextNode: changeContextNode
+            compareConfiguration: compareConfiguration,
+            changeContextNode: changeContextNode // TODO actually pass the new context!
         )
     }
     

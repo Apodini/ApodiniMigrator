@@ -43,12 +43,15 @@ public enum ChangeValue: Value {
     ///  and are subject to change. E.g. for a new added property of type User, the string of this case would be `{ "name": "", "id": 0 }`,
     ///  which can then be decoded in the client library accordingly
     case json(Int)
+    /*
+     TODO remove
     /// An internal convenience method to initalize `.json` case from the typeInformation of the type
     /// Encoder configuration is passed from the new version in order to encode the default values with the correct encoder configuration
     static func value(from typeInformation: TypeInformation, with configuration: EncoderConfiguration, changes: ChangeContextNode) -> ChangeValue {
         let jsonValue = JSONValue(JSONStringBuilder.jsonString(typeInformation, with: configuration))
         return .json(changes.store(jsonValue: jsonValue))
     }
+    */
     
     /// Returns the nested string value of the cases, or `nil` if `self` is `.element`
     public var value: String? {

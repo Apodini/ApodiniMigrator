@@ -13,10 +13,8 @@ import ApodiniMigrator
 struct APIFile: GeneratedFile {
     var fileName: [NameComponent] = ["API.swift"]
 
-    /// TypeInformation is a caseless enum named `API`
-    let typeInformation: TypeInformation = .enum(name: .init(name: "API"), rawValueType: nil, cases: [])
-    /// Kind of the file
-    let kind: Kind = .enum
+    private let typeName = "API"
+
     /// All migrated endpoints of the library
     @SharedNodeReference
     var endpoints: [MigratedEndpoint]
@@ -33,12 +31,12 @@ struct APIFile: GeneratedFile {
         Import(.foundation)
         ""
 
-        MARKComment(typeInformation.typeName.name)
-        "\(kind.signature) \(typeInformation.typeName.name) {}"
+        MARKComment(typeName)
+        "\(Kind.enum.signature) \(typeName) {}"
         ""
 
         MARKComment(.endpoints)
-        "\(Kind.extension.signature) \(typeInformation.typeName.name) {"
+        "\(Kind.extension.signature) \(typeName) {"
 
         Indent {
             for migratedEndpoint in endpoints {

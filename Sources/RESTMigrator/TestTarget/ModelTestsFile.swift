@@ -38,7 +38,8 @@ struct ModelTestsFile: GeneratedFile {
         case let .object(name, properties, _):
             return .object(name: name, properties: properties.map { .init(name: $0.name, type: dereference($0.type), annotation: $0.annotation) })
         case let .reference(key):
-            if let type = models.first(where: { $0.typeName.name == key.rawValue }) {
+            // TODO refernece key naming!
+            if let type = models.first(where: { $0.typeName.buildName() == key.rawValue }) {
                 return dereference(type)
             }
             fatalError("Something went fundamentally wrong. Did not find the corresponding model of the reference with key: \(key.rawValue)")
@@ -46,7 +47,7 @@ struct ModelTestsFile: GeneratedFile {
     }
     
     private func method(for model: TypeInformation) -> String {
-        let typeName = model.typeName.name
+        let typeName = model.typeName.mangledName // TOOD name not unique?
         let jsonString: String
         if let jsonValue = objectJSONs[typeName] {
             jsonString = jsonValue.rawValue

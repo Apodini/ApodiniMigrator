@@ -28,11 +28,6 @@ public extension Sequence {
         let sorted = self.sorted { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
         return increasingOrder ? sorted : sorted.reversed()
     }
-    
-    /// Returns the first matched element, where the value of the property is equal to other
-    func firstMatch<E: Equatable>(on keyPath: KeyPath<Element, E>, with other: E) -> Element? {
-        first(where: { $0[keyPath: keyPath] == other })
-    }
 }
 
 public extension Array where Element: Equatable {

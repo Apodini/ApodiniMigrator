@@ -35,8 +35,7 @@ struct JSObjectScript {
     private let from: TypeInformation
     /// NewType
     private let to: TypeInformation
-    /// TypeRenames, additional attempt to increase the matching probability
-    private let changes: ChangeContextNode
+    private let context: ChangeComparisonContext
     /// Properties of old type
     private let fromProperties: [TypeProperty]
     /// Properties of new type
@@ -48,21 +47,17 @@ struct JSObjectScript {
     /// JScript converting to to from, property holds the convert function right after initialization of the instance
     private(set) var convertToFrom: JSScript = ""
     
-    private let encoderConfiguration: EncoderConfiguration
-    
     /// Initializer of a new instance
     init(
         from: TypeInformation,
         to: TypeInformation,
-        changes: ChangeContextNode = .init(),
-        encoderConfiguration: EncoderConfiguration = .default
+        context: ChangeComparisonContext
     ) {
         self.from = from
         self.to = to
-        self.changes = changes
-        fromProperties = from.objectProperties
-        toProperties = to.objectProperties
-        self.encoderConfiguration = encoderConfiguration
+        self.context = context
+        self.fromProperties = from.objectProperties
+        self.toProperties = to.objectProperties
         
         construct()
     }
@@ -89,7 +84,7 @@ struct JSObjectScript {
     }
     
     private mutating func process(fromProperty: TypeProperty, toProperty: TypeProperty, ignoreNames: Bool = false) {
-        if propertyHasMatching(toProperty, type: .to), !fromProperty.type.sameType(with: toProperty.type) {
+        if propertyHasMatching(toProperty, type: .to), !fromProperty.type.comparingRootType(with: toProperty.type) {
             return
         }
         // from here we now that the properties have the same cardinality, e.g. both optionals or both arrays...
@@ -104,7 +99,7 @@ struct JSObjectScript {
         }
         
         // same cardinality, same name, same renamed type (e.g. User, UserNew) -> matching
-        if namesEqual, changes.typesAreRenamings(lhs: fromProperty.type, rhs: toProperty.type) {
+        if namesEqual, context.isPairOfRenamedTypes(lhs: fromProperty.type, rhs: toProperty.type) {
             return addMatching(from: fromProperty, to: toProperty)
         }
     }
@@ -138,7 +133,7 @@ struct JSObjectScript {
             if let matchedName = matchedName {
                 return "parsed\(type.inversed.rawValue).\(matchedName)"
             }
-            return JSONStringBuilder.jsonString(property.type, with: encoderConfiguration)
+            return JSONStringBuilder.jsonString(property.type, with: context.configuration.encoderConfiguration)
         }()
         return "\(property.name.singleQuoted): \(value)"
     }

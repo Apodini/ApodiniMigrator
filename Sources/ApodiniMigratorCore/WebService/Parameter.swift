@@ -45,7 +45,7 @@ public struct Parameter: Value {
     /// and the parameter type is `.content`
     public var isWrapped: Bool {
         name == Self.wrappedContentParameter
-            && typeInformation.typeName.name.hasSuffix("WrappedContent")
+            && typeInformation.typeName.mangledName.hasSuffix("WrappedContent")
             && parameterType == .content
     }
     
@@ -61,17 +61,19 @@ public struct Parameter: Value {
         self.parameterType = parameterType
         self.necessity = isRequired ? .required : .optional
     }
-    
-    mutating func dereference(in typeStore: inout TypesStore) {
-        typeInformation = typeStore.construct(from: typeInformation)
-    }
-    
+
     mutating func reference(in typeStore: inout TypesStore) {
         typeInformation = typeStore.store(typeInformation)
     }
-    
+
+    mutating func dereference(in typeStore: TypesStore) {
+        typeInformation = typeStore.construct(from: typeInformation)
+    }
+
+
     static func wrappedContentParameterTypeName(from handlerName: String) -> TypeName {
-        .init(name: handlerName.replacingOccurrences(of: "Handler", with: "") + "WrappedContent")
+        // TODO does this work?
+        TypeName(rawValue: handlerName.replacingOccurrences(of: "Handler", with: "") + "WrappedContent")
     }
     
     /// Returns a version of self where the typeInformation is a reference if a complex object or enum

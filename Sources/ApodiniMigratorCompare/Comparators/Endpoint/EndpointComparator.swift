@@ -11,83 +11,64 @@ import Foundation
 struct EndpointComparator: Comparator {
     let lhs: Endpoint
     let rhs: Endpoint
-    let changes: ChangeContextNode
-    var configuration: EncoderConfiguration
-    
-    func compare() {
+
+    func compare(_ context: ChangeComparisonContext, _ results: inout [EndpointChange]) {
         func element(_ target: EndpointTarget) -> ChangeElement {
             .for(endpoint: lhs, target: target)
         }
 
-        if lhs.identifier(for: EndpointPath.self) != rhs.identifier(for: EndpointPath.self) { // Comparing resourcePaths
-            let pathChange: EndpointChange = .update(
+        var identifierChanges: [EndpointIdentifierChange] = []
+        let identifiersComparator = IdentifiersComparator(lhs: .init(lhs.identifiers.values), rhs: .init(rhs.identifiers.values))
+        identifiersComparator.compare(context, &identifierChanges)
+        results.append(contentsOf: identifierChanges.map { change in
+            .update(
                 id: lhs.deltaIdentifier,
-                updated: .identifier(
-                    type: .path,
-                    from: lhs.identifier(for: EndpointPath.self),
-                    to: rhs.identifier(for: EndpointPath.self)
-                )
+                updated: .identifier(identifier: change),
+                breaking: change.breaking,
+                solvable: change.solvable
             )
-            changes.add(
-                UpdateChange(
-                    element: element(.resourcePath),
-                    from: .element(lhs.path),
-                    to: .element(rhs.path),
-                    breaking: true,
-                    solvable: true
-                )
-            )
-        }
-        
-        if lhs.operation != rhs.operation {
-            let operationChange: EndpointChange = .update(
+        })
+
+        if lhs.communicationalPattern != rhs.communicationalPattern {
+            results.append(.update(
                 id: lhs.deltaIdentifier,
-                updated: .identifier(
-                    type: .operation,
-                    from: lhs.identifier(for: EndpointPath.self),
-                    to: rhs.identifier(for: EndpointPath.self)
+                updated: .communicationalPattern(
+                    from: lhs.communicationalPattern,
+                    to: rhs.communicationalPattern
                 )
-            )
-            changes.add(
-                UpdateChange(
-                    element: element(.operation),
-                    from: .element(lhs.operation),
-                    to: .element(rhs.operation),
-                    breaking: true,
-                    solvable: true
-                )
-            )
+            ))
         }
 
-        // TODO the parameter changes must be encapsulated into a endpoint change!
-        let parametersComparator = ParametersComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
-        parametersComparator.compare()
-        
-        let lhsResponse = lhs.response
-        let rhsResponse = rhs.response
-        
-        if typesNeedConvert(lhs: lhsResponse, rhs: rhsResponse) {
-            let jsScriptBuilder = JSScriptBuilder(from: lhsResponse, to: rhsResponse, changes: changes, encoderConfiguration: configuration)
-            let responseChange: EndpointChange = .update(
+
+        var parameterChanges: [ParameterChange] = []
+        let parametersComparator = ParametersComparator(lhs: lhs.parameters, rhs: rhs.parameters)
+        parametersComparator.compare(context, &parameterChanges)
+        results.append(contentsOf: parameterChanges.map { change in
+            .update(
+                id: lhs.deltaIdentifier,
+                updated: .parameter(parameter: change),
+                breaking: change.breaking,
+                solvable: change.solvable
+            )
+        })
+
+
+        // by using `buildString` we exclude the target name from the comparison. We don't care about
+        // migrations happening on target level (e.g. moving models between targets).
+        if lhs.response.typeName.buildName() != rhs.response.typeName.buildName() {
+        // TODO if typesNeedConvert(lhs: lhsResponse, rhs: rhsResponse)
+            let jsScriptBuilder = JSScriptBuilder(from: lhs.response, to: rhs.response, context: context)
+            let migrationId = context.store(script: jsScriptBuilder.convertToFrom)
+
+            results.append(.update(
                 id: lhs.deltaIdentifier,
                 updated: .response(
                     from: lhs.response.referenced(),
                     to: rhs.response.referenced(),
-                    backwardsConversion: changes.store(script: jsScriptBuilder.convertToFrom),
+                    backwardsConversion: migrationId,
                     conversionWarning: jsScriptBuilder.hint
                 )
-            )
-            changes.add(
-                UpdateChange(
-                    element: element(.response),
-                    from: .element(lhs.response.referenced()),
-                    to: .element(rhs.response.referenced()),
-                    convertToFrom: changes.store(script: jsScriptBuilder.convertToFrom),
-                    convertionWarning: jsScriptBuilder.hint,
-                    breaking: true,
-                    solvable: true
-                )
-            )
+            ))
         }
     }
 }

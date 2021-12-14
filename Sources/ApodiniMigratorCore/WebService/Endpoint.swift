@@ -11,6 +11,7 @@ import Foundation
 /// A typealias of an array of `Parameter`
 public typealias EndpointInput = [Parameter] // TODO remove
 
+// TODO location!
 public protocol EndpointIdentifier: RawRepresentable where Self.RawValue == String {
     static var type: String { get }
 }
@@ -21,8 +22,13 @@ public extension EndpointIdentifier {
     }
 }
 
-public struct AnyEndpointIdentifier: Value {
-    public let rawValue: String
+public struct AnyEndpointIdentifier: Value, DeltaIdentifiable, Hashable {
+    public let id: String
+    public let value: String
+
+    public var deltaIdentifier: DeltaIdentifier {
+        DeltaIdentifier(rawValue: id)
+    }
 }
 
 /// Represents an endpoint
@@ -32,14 +38,15 @@ public struct Endpoint: Value, DeltaIdentifiable {
     /// Identifier of the handler
     public let deltaIdentifier: DeltaIdentifier // TODO is this party of the identifier?
 
+    // TODO encoding of identifier is duplicated right now!
     public var identifiers: [String: AnyEndpointIdentifier]
+
+    /// The communicational pattern of the endpoint.
+    public let communicationalPattern: CommunicationalPattern
 
     /*
     /// The operation of the endpoint
     public let operation: Operation // TODO "Identifier"
-
-    /// The communicational pattern of the endpoint.
-    public let communicationalPattern: CommunicationalPattern
 
     /// The path string of the endpoint
     public let path: EndpointPath // TODO identifier
@@ -52,7 +59,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
     public var parameters: EndpointInput
 
     /// The reference of the `typeInformation` of the response
-    public var response: TypeInformation
+    public var response: TypeInformation // TODO this is always a reference? enforce this!
     
     /// Errors
     public let errors: [ErrorCode] // TODO support parsing ApodiniErrors in the Exporter!
@@ -86,28 +93,28 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.identifiers = [:]
 
         self.parameters = Self.wrappContentParameters(from: parameters, with: handlerName)
+        self.communicationalPattern = communicationalPattern
         self.response = response
         self.errors = errors
 
         self.add(identifier: operation)
-        self.add(identifier: communicationalPattern)
         self.add(identifier: EndpointPath(absolutePath))
     }
 
     public mutating func add<Identifier: EndpointIdentifier>(identifier: Identifier) {
-        self.identifiers[Identifier.type] = AnyEndpointIdentifier(rawValue: identifier.rawValue)
+        self.identifiers[Identifier.type] = AnyEndpointIdentifier(id: Identifier.type, value: identifier.rawValue)
     }
 
     // TODO naming
-    public mutating func Oidentifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier? {
-        guard let rawValue = self.identifiers[Identifier.type]?.rawValue else {
+    public func Oidentifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier? {
+        guard let rawValue = self.identifiers[Identifier.type]?.value else {
             return nil
         }
 
         return Identifier(rawValue: rawValue)
     }
 
-    public mutating func identifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier {
+    public func identifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier {
         guard let identifier = Oidentifier(for: Identifier.self) else {
             fatalError("aASD") // TODO message
         }
@@ -115,11 +122,11 @@ public struct Endpoint: Value, DeltaIdentifiable {
         return identifier
     }
     
-    mutating func dereference(in typeStore: inout TypesStore) {
+    mutating func dereference(in typeStore: TypesStore) {
         response = typeStore.construct(from: response)
         self.parameters = parameters.map {
             var param = $0
-            param.dereference(in: &typeStore)
+            param.dereference(in: typeStore)
             return param
         }
     }

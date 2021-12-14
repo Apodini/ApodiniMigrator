@@ -32,12 +32,13 @@ struct ObjectCodingKeys: SourceCodeRenderable {
             return .init(property.name, rawValue: rawValue)
         }
         
-        codingKeysEnum = .enum(name: .init(name: "CodingKeys"), rawValueType: .scalar(.string), cases: allCases.sorted(by: \.name))
+        codingKeysEnum = .enum(name: .init(rawValue: "CodingKeys"), rawValueType: .scalar(.string), cases: allCases.sorted(by: \.name))
     }
     
     /// Renders the content of the enum, in a non-formatted way
     var renderableContent: String {
-        "private enum \(codingKeysEnum.typeName.name): String, CodingKey {"
+        // TODO type name uniqueness
+        "private enum \(codingKeysEnum.typeName.mangledName): String, CodingKey {"
         Indent {
             for enumCase in enumCases {
                 "case \(enumCase.name)\(enumCase.rawValue == enumCase.name ? "" : " = \"\(enumCase.rawValue)\"")"

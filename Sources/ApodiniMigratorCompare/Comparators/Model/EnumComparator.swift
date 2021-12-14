@@ -12,165 +12,109 @@ import ApodiniTypeInformation
 struct EnumComparator: Comparator {
     let lhs: TypeInformation
     let rhs: TypeInformation
-    let changes: ChangeContextNode
-    let configuration: EncoderConfiguration
     
     func element(_ target: EnumTarget) -> ChangeElement {
         .for(enum: lhs, target: target)
     }
-    
-    func compare() {
-        // TODO also rais unsuppoprted change for differing kind! struct vs enum, like in the ObjectComparator!
+
+    func compare(_ context: ChangeComparisonContext, _ results: inout [ModelChange]) {
         guard let lhsRawValue = lhs.rawValueType, let rhsRawValue = rhs.rawValueType else {
+            fatalError("Encountered non enum when comparing enum models")
+        }
+
+        if lhsRawValue != rhsRawValue {
+            results.append(.update(
+                id: lhs.deltaIdentifier,
+                updated: .rawValueType(
+                    from: lhsRawValue.referenced(),
+                    to: rhsRawValue.referenced()
+                ),
+                solvable: false
+            ))
+
+            // TODO
+            //  UnsupportedChange(
+            //      element: element(.`self`),
+            //      description: "The raw value type of this enum has changed to \(rhsRawValue.nestedTypeString). ApodiniMigrator is not able to migrate this change"
+            //  )
+
+            // TODO we skip the rest for now(?)
             return
         }
-        
-        if lhsRawValue != rhsRawValue {
-            // TODO we could support this one time?
-            let change: EnumChange = .update(
+
+        var enumCaseChanges: [EnumCaseChange] = []
+        let enumCasesComparator = EnumCasesComparator(lhs: lhs.enumCases, rhs: rhs.enumCases)
+        enumCasesComparator.compare(context, &enumCaseChanges)
+        results.append(contentsOf: enumCaseChanges.map { change in
+            .update(
                 id: lhs.deltaIdentifier,
-                updated: .unsupported(
-                    change: .enumRawValue(from: lhsRawValue, to: rhsRawValue)
-                )
+                updated: .case(case: change),
+                breaking: change.breaking,
+                solvable: change.solvable
             )
-
-            return changes.add(
-                UnsupportedChange(
-                    element: element(.`self`),
-                    description: "The raw value type of this enum has changed to \(rhsRawValue.nestedTypeString). ApodiniMigrator is not able to migrate this change"
-                )
-            )
-        }
-
-        // TODO wrap changes into Enum Update Change!
-        let enumCasesComparator = EnumCasesComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
-        enumCasesComparator.compare()
+        })
     }
 }
 
 
+// TODO own file!
 private struct EnumCasesComparator: Comparator {
-    let lhs: TypeInformation
-    let rhs: TypeInformation
-    let changes: ChangeContextNode
-    let configuration: EncoderConfiguration
-    let lhsCases: [EnumCase]
-    let rhsCases: [EnumCase]
-    
-    init(lhs: TypeInformation, rhs: TypeInformation, changes: ChangeContextNode, configuration: EncoderConfiguration) {
-        self.lhs = lhs
-        self.rhs = rhs
-        self.changes = changes
-        self.configuration = configuration
-        self.lhsCases = lhs.enumCases
-        self.rhsCases = rhs.enumCases
-    }
-    
-    func compare() {
-        let matchedIds = lhsCases.matchedIds(with: rhsCases)
-        let removalCandidates = lhsCases.filter { !matchedIds.contains($0.deltaIdentifier) }
-        let additionCanditates = rhsCases.filter { !matchedIds.contains($0.deltaIdentifier) }
-        handle(removalCandidates: removalCandidates, additionCandidates: additionCanditates)
-        
-        for matched in matchedIds {
-            if let lhs = lhsCases.firstMatch(on: \.deltaIdentifier, with: matched),
-               let rhs = rhsCases.firstMatch(on: \.deltaIdentifier, with: matched) {
-                compare(lhs: lhs, rhs: rhs)
-            }
-        }
-    }
-    
-    private func compare(lhs: EnumCase, rhs: EnumCase) {
-        if lhs.rawValue != rhs.rawValue {
-            let change: EnumCaseChange = .update(
-                id: lhs.deltaIdentifier,
-                updated: .rawValueType(
-                    from: lhs.rawValue,
-                    to: rhs.rawValue
-                )
-            )
+    let lhs: [EnumCase]
+    let rhs: [EnumCase]
 
-            changes.add(
-                UpdateChange(
-                    element: element(.caseRawValue),
-                    from: .element(lhs),
-                    to: .element(rhs),
-                    breaking: true,
-                    solvable: true
-                )
-            )
-        }
-    }
-    
-    private func element(_ target: EnumTarget) -> ChangeElement {
-        .for(enum: lhs, target: target)
-    }
-    
-    
-    private func handle(removalCandidates: [EnumCase], additionCandidates: [EnumCase]) {
+    func compare(_ context: ChangeComparisonContext, _ results: inout [EnumCaseChange]) {
+        let matchedIds = lhs.matchedIds(with: rhs)
+        let removalCandidates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
+        let additionCandidates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }
+
         var relaxedMatchings: Set<DeltaIdentifier> = []
-        
+
         for candidate in removalCandidates {
             if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates.filter { !relaxedMatchings.contains($0.deltaIdentifier) }) {
                 relaxedMatchings += relaxedMatching.element.deltaIdentifier
                 relaxedMatchings += candidate.deltaIdentifier
 
-                let change: EnumCaseChange = .idChange(
+                results.append(.idChange(
                     from: candidate.deltaIdentifier,
                     to: relaxedMatching.element.deltaIdentifier,
                     similarity: relaxedMatching.similarity
-                )
-                
-                changes.add(
-                    UpdateChange(
-                        element: element(.case),
-                        from: candidate.name,
-                        to: relaxedMatching.element.name,
-                        similarity: relaxedMatching.similarity,
-                        breaking: true,
-                        solvable: true,
-                        includeProviderSupport: includeProviderSupport
-                    )
-                )
-                
-                compare(lhs: candidate, rhs: relaxedMatching.element)
+                    // TODO includeProviderSupport: includeProviderSupport
+                ))
+
+                if candidate.rawValue != relaxedMatching.element.rawValue {
+                    results.append(.update(
+                        id: candidate.deltaIdentifier,
+                        updated: .rawValueType(from: candidate.rawValue, to: relaxedMatching.element.rawValue)
+                    ))
+                }
             }
         }
-        
+
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
-            let change: EnumCaseChange = .removal(
+            results.append(.removal(
                 id: removal.deltaIdentifier,
                 solvable: true
-            )
-
-            changes.add(
-                DeleteChange(
-                    element: element(.case),
-                    deleted: .id(from: removal),
-                    fallbackValue: .none,
-                    breaking: true,
-                    solvable: true,
-                    includeProviderSupport: includeProviderSupport
-                )
-            )
+                // TODO includeProviderSupport: includeProviderSupport
+            ))
         }
-        
+
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
-            let change: EnumCaseChange = .addition(
+            results.append(.addition(
                 id: addition.deltaIdentifier,
                 added: addition
-            )
-
-            changes.add(
-                AddChange(
-                    element: element(.case),
-                    added: .element(addition),
-                    defaultValue: .none,
-                    breaking: false,
-                    solvable: true,
-                    includeProviderSupport: includeProviderSupport
-                )
-            )
+                // TODO includeProviderSupport: includeProviderSupport
+            ))
+        }
+        
+        for matched in matchedIds {
+            if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
+               let rhs = rhs.first(where: { $0.deltaIdentifier == matched}),
+               lhs.rawValue != rhs.rawValue {
+                results.append(.update(
+                    id: lhs.deltaIdentifier,
+                    updated: .rawValueType(from: lhs.rawValue, to: rhs.rawValue)
+                ))
+            }
         }
     }
 }

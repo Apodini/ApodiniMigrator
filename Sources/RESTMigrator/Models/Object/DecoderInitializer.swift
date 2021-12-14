@@ -37,7 +37,7 @@ struct DecoderInitializer: SourceCodeRenderable {
     private func decodingLine(for property: TypeProperty) -> String {
         let id = property.deltaIdentifier
         let name = property.name
-        if let deletedProperty = deleted.firstMatch(on: \.id, with: id) {
+        if let deletedProperty = deleted.first(where: { $0.id == id }) {
             let valueString: String
             if case let .json(id) = deletedProperty.fallbackValue {
                 valueString = "try \(property.type.typeString).instance(from: \(id))"

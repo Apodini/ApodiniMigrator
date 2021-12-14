@@ -5,7 +5,7 @@
 import Foundation
 
 /// Defines the communicational pattern of a given endpoint.
-public enum CommunicationalPattern: String, CaseIterable, Value, EndpointIdentifier {
+public enum CommunicationalPattern: String, CaseIterable, Value {
     /// **One** client message followed by **one** service message
     case requestResponse
     /// **Any amount** of client messages followed by **one** service message

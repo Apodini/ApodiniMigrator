@@ -4,51 +4,24 @@
 
 import Foundation
 
-
-public enum ServiceInformationChange { // TODO Codable
-    // TODO version?
-    case http(
-        from: HTTPInformation,
-        to: HTTPInformation
-    )
-
-    case exporter(
-        exporter: ApodiniExporterType,
-        from: ExporterConfiguration, // TODO more granular? (e.g. encode/decode configuration?)
-        to: ExporterConfiguration
-    )
-
-    // TODO breaking/ solvable!
-}
-
-
-
 public protocol ChangeDeclaration {
-    associatedtype Element: DeltaIdentifiable // TODO can be removed?
-
-    // TODO those seem to be always Int?
-    associatedtype AdditionDefaultValue
-    associatedtype RemovalFallbackValue
-
+    associatedtype Element: DeltaIdentifiable
     associatedtype Update
 }
 
 public struct EndpointChangeDeclaration: ChangeDeclaration {
     public typealias Element = Endpoint
-
-    public typealias AdditionDefaultValue = Void // TODO void codable conformance?
-    public typealias RemovalFallbackValue = Void
-
     public typealias Update = EndpointUpdateChange
 }
 
 public enum EndpointUpdateChange {
-    // TODO identifier string representation enough?
     /// type: see ``EndpointIdentifier``
-    case identifier( // TODO might want to consider if we want to support addition/removal?
-                     type: String,
-                     from: AnyEndpointIdentifier, // TODO generify type?
-                     to: AnyEndpointIdentifier
+    case identifier(identifier: EndpointIdentifierChange)
+
+    case communicationalPattern(
+        from: CommunicationalPattern,
+        to: CommunicationalPattern
+        // TODO any kind of conversion?
     )
 
     // TODO we only have conversion in one direction!
@@ -58,7 +31,7 @@ public enum EndpointUpdateChange {
                    // TODO do we consider name changes at all (yes via `allowTypeRename` only)?
                    //   how does a `.update name change on typeInfo manifest here?)
                    from: TypeInformation,
-                   to: TypeInformation,
+                   to: TypeInformation, // TODO annotate reference or scalar
                    backwardsConversion: Int,
                    conversionWarning: String? = nil
     )
@@ -76,10 +49,6 @@ public enum EndpointUpdateChange {
 
 public struct ParameterChangeDeclaration: ChangeDeclaration {
     public typealias Element = Parameter
-
-    public typealias AdditionDefaultValue = Int // TODO json type int
-    public typealias RemovalFallbackValue = Int // TODO actually Void!
-
     public typealias Update = ParameterUpdateChange
 }
 
@@ -97,40 +66,40 @@ public enum ParameterUpdateChange {
 
     case type(
         from: TypeInformation,
-        to: TypeInformation,
+        to: TypeInformation, // TODO annotate reference or scalar
         forwardMigration: Int, // TODO single direction migration?
         conversionWarning: String?
     )
 }
 
-public struct ObjectChangeDeclaration: ChangeDeclaration {
+public struct EndpointIdentifierChangeDeclaration: ChangeDeclaration {
+    public typealias Element = AnyEndpointIdentifier
+    public typealias Update = EndpointIdentifierUpdateChange
+}
+
+public enum EndpointIdentifierUpdateChange {
+    case value(from: String, to: String)
+}
+
+public struct ModelChangeDeclaration: ChangeDeclaration {
     public typealias Element = TypeInformation
-
-    public typealias AdditionDefaultValue = Int // TODO are they (unused i think)??
-    public typealias RemovalFallbackValue = Int
-
-    public typealias Update = ObjectUpdateChange
+    public typealias Update = ModelUpdateChange
 }
 
-public enum ObjectUpdateChange {
-    case unsupported(change: UnsupportedModelChange)
+public enum ModelUpdateChange {
+    // TODO case unsupported(change: UnsupportedModelChange)
+    case rootType(from: TypeInformation.RootType, to: TypeInformation.RootType) // TODO we need the whole type description!
+
+    // object
     case property(property: PropertyChange)
-}
 
-
-
-public struct EnumChangeDeclaration: ChangeDeclaration {
-    public typealias Element = TypeInformation
-
-    public typealias AdditionDefaultValue = Int // TODO unused I think?
-    public typealias RemovalFallbackValue = Int
-
-    public typealias Update = EnumUpdateChange
-}
-
-public enum EnumUpdateChange {
-    case unsupported(change: UnsupportedModelChange)
-    case property(property: PropertyChange)
+    // enum
+    case `case`(case: EnumCaseChange)
+    case rawValueType(
+        from: TypeInformation, // TODO annotate reference or scalar
+        to: TypeInformation
+    )
+    // TODO case rawValue(value:)
 }
 
 // TODO the decision if this is supported DEPENS on the client library type!!!!
@@ -149,10 +118,6 @@ public enum UnsupportedModelChange {
 
 public struct PropertyChangeDeclaration: ChangeDeclaration {
     public typealias Element = TypeProperty
-
-    public typealias AdditionDefaultValue = Int
-    public typealias RemovalFallbackValue = Int
-
     public typealias Update = PropertyUpdateChange
 }
 
@@ -174,13 +139,7 @@ public enum PropertyUpdateChange {
 
 public struct EnumCaseChangeDeclaration: ChangeDeclaration {
     public typealias Element = EnumCase
-
-    public typealias AdditionDefaultValue = Int // TODO not needed!!
-    public typealias RemovalFallbackValue = Int
-
     public typealias Update = EnumCaseUpdateChange
-
-
 }
 
 public enum EnumCaseUpdateChange {
@@ -190,12 +149,36 @@ public enum EnumCaseUpdateChange {
     )
 }
 
+public struct ServiceInformationChangeDeclaration: ChangeDeclaration {
+    public typealias Element = ServiceInformation
+    public typealias Update = ServiceInformationUpdateChange
+}
+
+public enum ServiceInformationUpdateChange { // TODO Codable
+    case version(
+        from: Version,
+        to: Version
+    )
+
+    case http(
+        from: HTTPInformation,
+        to: HTTPInformation
+    )
+
+    case exporter(
+        exporter: ApodiniExporterType,
+        from: ExporterConfiguration, // TODO more granular? (e.g. encode/decode configuration?)
+        to: ExporterConfiguration
+    )
+}
+
 public typealias EndpointChange = ChangeEnum<EndpointChangeDeclaration>
 public typealias ParameterChange = ChangeEnum<ParameterChangeDeclaration>
-public typealias ObjectChange = ChangeEnum<ObjectChangeDeclaration>
-public typealias EnumChange = ChangeEnum<EnumChangeDeclaration>
+public typealias EndpointIdentifierChange = ChangeEnum<EndpointIdentifierChangeDeclaration>
+public typealias ModelChange = ChangeEnum<ModelChangeDeclaration>
 public typealias PropertyChange = ChangeEnum<PropertyChangeDeclaration>
 public typealias EnumCaseChange = ChangeEnum<EnumCaseChangeDeclaration>
+public typealias ServiceInformationChange = ChangeEnum<ServiceInformationChangeDeclaration>
 
 // TODO MigrationGuide should validate (after checking provider support [is this relevant?]);
 //   that for a single DeltaIdentifier, there either exists a addition, deletion or
@@ -221,7 +204,7 @@ public enum ChangeEnum<Type: ChangeDeclaration> {
     case addition(
         id: DeltaIdentifier, // TODO removable, included in element!
         added: Type.Element,
-        defaultValue: Type.AdditionDefaultValue? = nil,
+        defaultValue: Int? = nil,
         breaking: Bool = false,
         solvable: Bool = true
         // TODO addition provider support
@@ -234,7 +217,7 @@ public enum ChangeEnum<Type: ChangeDeclaration> {
     case removal(
         id: DeltaIdentifier,
         removed: Type.Element? = nil, // TODO i would go for a always include but control encode via option!
-        fallbackValue: Type.RemovalFallbackValue? = nil,
+        fallbackValue: Int? = nil,
         breaking: Bool = true,
         solvable: Bool = false
         // TODO addition provider support
@@ -252,4 +235,72 @@ public enum ChangeEnum<Type: ChangeDeclaration> {
         // TODO update provider support??? (solved in idChange?)
     )
     // TODO unsupported update?
+
+    // TODO remove those accessors?
+    var isIdChange: Bool {
+        if case .idChange = self {
+            return true
+        }
+        return false
+    }
+
+    var isAddition: Bool {
+        if case .addition = self {
+            return true
+        }
+        return false
+    }
+
+    var isRemoval: Bool {
+        if case .removal = self {
+            return true
+        }
+        return false
+    }
+
+    var isUpdate: Bool {
+        if case .update = self {
+            return true
+        }
+        return false
+    }
+
+    var id: DeltaIdentifier {
+        switch self {
+        case let .idChange(from, _, _, _, _):
+            return from
+        case let .addition(id, _, _, _, _):
+            return id
+        case let .removal(id, _, _, _, _):
+            return id
+        case let .update(id, _, _, _):
+            return id
+        }
+    }
+
+    var breaking: Bool {
+        switch self {
+        case let .idChange(_, _, _, breaking, _):
+            return breaking
+        case let .addition(_, _, _, breaking, _):
+            return breaking
+        case let .removal(_, _, _, breaking, _):
+            return breaking
+        case let .update(_, _, breaking, _):
+            return breaking
+        }
+    }
+
+    var solvable: Bool {
+        switch self {
+        case let .idChange(_, _, _, _, solvable):
+            return solvable
+        case let .addition(_, _, _, _, solvable):
+            return solvable
+        case let .removal(_, _, _, _, solvable):
+            return solvable
+        case let .update(_, _, _, solvable):
+            return solvable
+        }
+    }
 }

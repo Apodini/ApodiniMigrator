@@ -11,104 +11,49 @@ import Foundation
 struct ParameterComparator: Comparator {
     let lhs: Parameter
     let rhs: Parameter
-    let changes: ChangeContextNode
-    let configuration: EncoderConfiguration
-    let lhsEndpoint: Endpoint
-    
-    private var element: ChangeElement {
-        .for(endpoint: lhsEndpoint, target: .target(for: lhs))
-    }
-    
-    private var targetID: DeltaIdentifier {
-        lhs.deltaIdentifier
-    }
-    
-    init(lhs: Parameter, rhs: Parameter, changes: ChangeContextNode, configuration: EncoderConfiguration, lhsEndpoint: Endpoint) {
-        self.lhs = lhs
-        self.rhs = rhs
-        self.changes = changes
-        self.configuration = configuration
-        self.lhsEndpoint = lhsEndpoint
-    }
-    
-    func compare() {
+
+    func compare(_ context: ChangeComparisonContext, _ results: inout [ParameterChange]) {
         if lhs.parameterType != rhs.parameterType {
-            let change: ParameterChange = .update(
+            results.append(.update(
                 id: lhs.deltaIdentifier,
                 updated: .parameterType(
                     from: lhs.parameterType,
                     to: rhs.parameterType
                 )
-            )
-
-            changes.add(
-                UpdateChange(
-                    element: element,
-                    from: .element(lhs.parameterType),
-                    to: .element(rhs.parameterType),
-                    targetID: targetID,
-                    parameterTarget: .kind,
-                    breaking: true,
-                    solvable: true
-                )
-            )
+            ))
         }
-        
-        if sameNestedTypes(lhs: lhs.typeInformation, rhs: rhs.typeInformation), lhs.necessity != rhs.necessity, rhs.necessity == .required {
-            let change: ParameterChange = .update(
+
+        if lhs.necessity != rhs.necessity {
+            let jsonValue = JSONValue(JSONStringBuilder.jsonString(rhs.typeInformation, with: context.configuration.encoderConfiguration))
+            let jsonId = context.store(jsonValue: jsonValue)
+
+            results.append(.update(
                 id: lhs.deltaIdentifier,
                 updated: .necessity(
                     from: lhs.necessity,
                     to: rhs.necessity,
-                    necessityMigration: 0 // TODO retrive from the .value call!
+                    necessityMigration: jsonId
                 ),
                 breaking: rhs.necessity == .required
-            )
-
-            return changes.add(
-                UpdateChange(
-                    element: element,
-                    from: .element(lhs.necessity),
-                    to: .element(rhs.necessity),
-                    targetID: targetID,
-                    necessityValue: .value(from: rhs.typeInformation, with: configuration, changes: changes),
-                    parameterTarget: .necessity,
-                    breaking: rhs.necessity == .required,
-                    solvable: true
-                )
-            )
+            ))
         }
-        
-        let lhsType = lhs.typeInformation
-        let rhsType = rhs.typeInformation
-        
-        if typesNeedConvert(lhs: lhsType, rhs: rhsType) {
-            let jsScriptBuilder = JSScriptBuilder(from: lhsType, to: rhsType, changes: changes, encoderConfiguration: configuration)
-            let migrationInt = changes.store(script: jsScriptBuilder.convertFromTo)
 
-            let change: ParameterChange = .update(
+        // by using `buildString` we exclude the target name from the comparison. We don't care about
+        // migrations happening on target level (e.g. moving models between targets).
+        if lhs.typeInformation.typeName.buildName() != rhs.typeInformation.typeName.buildName() {
+        // TODO if typesNeedConvert(lhs: lhsType, rhs: rhsType) {
+            let jsScriptBuilder = JSScriptBuilder(from: lhs.typeInformation, to: rhs.typeInformation, context: context)
+            let migrationId = context.store(script: jsScriptBuilder.convertFromTo)
+
+            results.append(.update(
                 id: lhs.deltaIdentifier,
                 updated: .type(
-                    from: lhsType.referenced(),
-                    to: rhsType.referenced(),
-                    forwardMigration: migrationInt,
+                    from: lhs.typeInformation.referenced(),
+                    to: rhs.typeInformation.referenced(),
+                    forwardMigration: migrationId,
                     conversionWarning: jsScriptBuilder.hint
                 )
-            )
-
-            changes.add(
-                UpdateChange(
-                    element: element,
-                    from: .element(lhsType.referenced()),
-                    to: .element(rhsType.referenced()),
-                    targetID: targetID,
-                    convertFromTo: migrationInt,
-                    convertionWarning: jsScriptBuilder.hint,
-                    parameterTarget: .typeInformation,
-                    breaking: true,
-                    solvable: true
-                )
-            )
+            ))
         }
     }
 }
