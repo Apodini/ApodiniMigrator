@@ -22,7 +22,7 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
     
     func testTestFile() throws {
         let object: TypeInformation = .object(
-            name: .init(name: "TestObject"),
+            name: .init(rawValue: "TestObject"),
             properties: [
                 .init(name: "prop1", type: .scalar(.bool)),
                 .init(name: "prop2", type: .scalar(.uint)),

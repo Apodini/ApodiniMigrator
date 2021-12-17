@@ -13,41 +13,39 @@ import ApodiniMigrator
 struct EncodingMethod: SourceCodeRenderable {
     /// The properties of the object that this method belongs to (not including deleted ones)
     private let properties: [TypeProperty]
-    /// Necessity changes related with the properties of the object
-    private let necessityChanges: [UpdateChange]
-    /// Convert changes related with the properties of the object
-    private let convertChanges: [UpdateChange]
+    private let updateChanges: [PropertyChange.UpdateChange]
     
     /// Initializer for a new instance with non-deleted properties of the object, necessity changes and convert changes
-    init(_ properties: [TypeProperty], necessityChanges: [UpdateChange] = [], convertChanges: [UpdateChange] = []) {
+    init(properties: [TypeProperty], changes: [PropertyChange.UpdateChange] = []) {
         self.properties = properties
-        self.necessityChanges = necessityChanges
-        self.convertChanges = convertChanges
+        self.updateChanges = changes
     }
     
     /// Returns the corresponding line of the property inside of the method by considering all changes related with the property
     private func encodingLine(for property: TypeProperty) -> String {
-        let id = property.deltaIdentifier
-        let name = property.name
-        if
-            let change = necessityChanges.first(where: { $0.targetID == id }),
-            let necessityValue = change.necessityValue,
-            case let .element(anyCodable) = change.to,
-            anyCodable.typed(Necessity.self) == .required,
-            case let .json(id) = necessityValue
-        {
-            return "try container.encode(\(name) ?? (try \(property.type.unwrapped.typeString).instance(from: \(id))), forKey: .\(name))"
-        } else if
-            let change = convertChanges.first(where: { $0.targetID == id }),
-            case let .element(anyCodable) = change.to,
-            let scriptID = change.convertFromTo
-        {
-            let newType = anyCodable.typed(TypeInformation.self)
-            let encodeMethod = "encode\(newType.isOptional ? "IfPresent" : "")"
-            return "try container.\(encodeMethod)(try \(newType.typeString).from(\(name), script: \(scriptID)), forKey: .\(name))"
-        } else {
+        guard let change = updateChanges.first(where: { $0.id == property.deltaIdentifier }) else {
             return property.encodingMethodLine
         }
+
+        // I'm honestly not sure why we don't support both changes at the same time (and only one change per property)
+        // I'm just rewriting the thing and don't really have the time to fix things.
+
+        if case let .necessity(from, to, migration) = change.updated {
+            return """
+                   try container.encode(\(property.name) \
+                   ?? (try \(property.type.unwrapped.typeString)\
+                   .instance(from: \(migration))), forKey: .\(property.name))
+                   """
+        } else if case let .type(from, to, forwardMigration, backwardMigration, hint) = change.updated {
+            let encodeMethod = "encode\(to.isOptional ? "IfPresent" : "")"
+            return """
+                   try container.\(encodeMethod)(try \(to.typeString)\
+                   .from(\(property.name), script: \(forwardMigration)), forKey: .\(property.name))
+                   """
+        }
+
+        // TODO warning unsupported update!!!
+        return property.encodingMethodLine
     }
     
     /// Renders the content of the method in a non-formatted way
@@ -66,7 +64,7 @@ struct EncodingMethod: SourceCodeRenderable {
 }
 
 /// TypeProperty extension
-extension TypeProperty {
+private extension TypeProperty {
     /// The corresponding line of the property to be rendered inside `encode(to:)` method if the property is not affected by any change
     var encodingMethodLine: String {
         let encodeMethodString = "encode\(type.isOptional ? "IfPresent" : "")"

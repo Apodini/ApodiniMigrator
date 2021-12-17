@@ -17,7 +17,7 @@ class MigratedEndpoint {
     private let path: EndpointPath
     /// A flag that indicates whether the endpoint has been deleted in the new version
     let unavailable: Bool
-    /// Migrated parameters of the client libray (all added, deleted, renamed or updated parameters)
+    /// Migrated parameters of the client library (all added, deleted, renamed or updated parameters)
     let parameters: [MigratedParameter]
     
     /// Only `parameters` that have not been deleted, that should be considered in the method body
@@ -45,7 +45,7 @@ class MigratedEndpoint {
             var parameterSignature = "\(parameter.oldName): \(typeString)"
             if let defaultValue = parameter.defaultValue {
                 let defaultValueString: String
-                if case let .json(id) = defaultValue {
+                if case let id = defaultValue {
                     defaultValueString = "try! \(typeString).instance(from: \(id))"
                 } else {
                     defaultValueString = "nil"
@@ -130,7 +130,7 @@ class MigratedEndpoint {
     
     /// Returns the string that should be used in the `content` field of the handler initializer inside of the endpoint method, by only considering active content parameter
     func contentParameterString() -> String {
-        guard let contentParameter = activeParameters.firstMatch(on: \.kind, with: .content) else {
+        guard let contentParameter = activeParameters.first(where: { $0.kind == .content}) else {
             return "nil"
         }
         

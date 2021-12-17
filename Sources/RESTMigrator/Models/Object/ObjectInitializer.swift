@@ -14,15 +14,15 @@ struct ObjectInitializer: SourceCodeRenderable {
     /// All properties of the object that this initializer belongs to (including added and deleted properties
     private let properties: [TypeProperty]
     /// Dictionary of default values of the added properties of the object
-    private var defaultValues: [DeltaIdentifier: ChangeValue]
+    private var defaultValues: [DeltaIdentifier: Int?]
     
     /// Initializes a new instance out of old properties of the object and the added properties
-    init(_ properties: [TypeProperty], addedProperties: [AddedProperty] = []) {
+    init(_ properties: [TypeProperty], addedProperties: [PropertyChange.AdditionChange] = []) {
         var allProperties = properties
         defaultValues = [:]
         for added in addedProperties {
-            defaultValues[added.typeProperty.deltaIdentifier] = added.defaultValue
-            allProperties.append(added.typeProperty)
+            defaultValues[added.id] = added.defaultValue
+            allProperties.append(added.added)
         }
         self.properties = allProperties.sorted(by: \.name)
     }
@@ -47,10 +47,10 @@ struct ObjectInitializer: SourceCodeRenderable {
     /// Returns the string of the type of the property appending a corresponding default value for added properties as provided in the migration guide
     private func defaultValue(for property: TypeProperty) -> String {
         var typeString = property.type.typeString
-        if let defaultValue = defaultValues[property.deltaIdentifier] {
+        if let defaultValueEntry: Int? = defaultValues[property.deltaIdentifier] {
             let defaultValueString: String
-            if case let .json(id) = defaultValue {
-                defaultValueString = "try! \(typeString).instance(from: \(id))"
+            if let defaultValue = defaultValueEntry {
+                defaultValueString = "try! \(typeString).instance(from: \(defaultValue))"
             } else {
                 defaultValueString = "nil"
             }
@@ -61,7 +61,7 @@ struct ObjectInitializer: SourceCodeRenderable {
 }
 
 /// TypeProperty extension
-extension TypeProperty {
+private extension TypeProperty {
     /// The corresponding line of the property to be rendered inside `init`
     var initLine: String {
         "self.\(name) = \(name)"

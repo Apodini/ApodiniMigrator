@@ -18,7 +18,7 @@ struct AddedProperty {
 }
 
 /// A util struct that holds the id of a deleted property and its corresponding fallback value as provided by the migration guide
-struct DeletedProperty {
+struct DeletedProperty { // TODO remove both!
     /// Id of the property
     let id: DeltaIdentifier
     /// Fallback value
@@ -35,64 +35,69 @@ struct ObjectMigrator: GeneratedFile {
     var typeInformation: TypeInformation
     /// Kind of the file, either object or struct
     var kind: Kind
+
     /// An unsupported change related to this object if any contained in the migration guide
-    private let unsupportedChange: UnsupportedChange?
+    private var unsupportedChanges: [NewUnsupportedChange<ModelChangeDeclaration>] = []
     /// A flag that indicates whether the object is present in the new version or not
     private let notPresentInNewVersion: Bool
+
     /// All old properties of the object
-    private let oldProperties: [TypeProperty]
-    /// Changes related to the object
-    private let changes: [Change]
+    private let basedProperties: [TypeProperty]
+
+    /// Holds all renamed property changes. It maps the old property identifier to the new identifier.
+    private var renamedProperties: [PropertyChange.IdentifierChange] = []
     /// All properties that have been added in the new version
-    private var addedProperties: [AddedProperty] = []
+    private var addedProperties: [PropertyChange.AdditionChange] = []
     /// All properties that have been deleted in the new version
-    private var deletedProperties: [DeletedProperty] = []
-    /// All renaming changes of properties
-    private var renamePropertyChanges: [UpdateChange] = []
-    /// All necessity changes of properties
-    private var propertyNecessityChanges: [UpdateChange] = []
-    /// All convert changes of the properties
-    private var propertyConvertChanges: [UpdateChange] = []
+    private var removedProperties: [PropertyChange.RemovalChange] = []
+    /// All properties that have been updated in the new version (necessity or type).
+    private var updatedProperties: [PropertyChange.UpdateChange] = []
     
     /// Initializes a new instance out of an object type information, kind of the file and the changes related to the object
-    init(_ typeInformation: TypeInformation, kind: Kind = .struct, changes: [Change]) {
+    init(_ typeInformation: TypeInformation, kind: Kind = .struct, changes: [ModelChange]) {
         precondition([.struct, .class].contains(kind) && typeInformation.isObject, "Can't initialize an ObjectMigrator with a non object type information or file other than struct or class")
+        precondition(!changes.contains(where: { $0.id != typeInformation.deltaIdentifier }), "Found unrelated changes for \(typeInformation)")
 
         self.typeInformation = typeInformation
-        self.oldProperties = typeInformation.objectProperties
-        self.changes = changes
         self.kind = kind
+        self.basedProperties = typeInformation.objectProperties
 
-        unsupportedChange = changes.first { $0.type == .unsupported } as? UnsupportedChange
-        notPresentInNewVersion = changes.contains(where: { $0.type == .deletion && $0.element.target == ObjectTarget.`self`.rawValue })
-        collectPropertyChanges()
-    }
-    
-    /// Collects and stores property changes in the corresponding variables of the file
-    private mutating func collectPropertyChanges() {
-        let propertyTargets = [ObjectTarget.property, .necessity].map { $0.rawValue }
-        for change in changes where propertyTargets.contains(change.element.target) {
-            if let deleteChange = change as? DeleteChange, case let .elementID(id) = deleteChange.deleted {
-                deletedProperties.append(.init(id: id, fallbackValue: deleteChange.fallbackValue))
-            } else if let addChange = change as? AddChange, case let .element(anyCodable) = addChange.added {
-                addedProperties.append(.init(typeProperty: anyCodable.typed(TypeProperty.self), defaultValue: addChange.defaultValue))
-            } else if let updateChange = change as? UpdateChange {
-                if updateChange.type == .rename {
-                    renamePropertyChanges.append(updateChange)
-                } else if updateChange.element.target == ObjectTarget.necessity.rawValue {
-                    propertyNecessityChanges.append(updateChange)
-                } else if updateChange.type == .propertyChange {
-                    propertyConvertChanges.append(updateChange)
-                }
+        self.notPresentInNewVersion = changes.contains(where: { $0.type == .removal })
+
+        for change in changes.compactMap({ $0.modeledUpdateChange }) {
+            // first step is to check for unsupported changes and mark them as such
+            if case .rootType = change.updated {
+                let unsupportedChange = ChangeEnum(from: change)
+                    .classifyUnsupported(description: """
+                                                      ApodiniMigrator is not able to handle the migration of \(change.id). \
+                                                      Change from enum to object or vice versa is currently not supported.
+                                                      """)
+                unsupportedChanges.append(unsupportedChange)
+                continue
+            }
+
+            // now we analyze for property changes (additions, removal and updates)
+            guard case let .property(propertyChange) = change.updated else {
+                continue
+            }
+
+            if let idChange = propertyChange.modeledIdentifierChange {
+                self.renamedProperties.append(idChange)
+            } else if let propertyAddition = propertyChange.modeledAdditionChange {
+                self.addedProperties.append(propertyAddition)
+            } else if let propertyRemoval = propertyChange.modeledRemovalChange {
+                self.removedProperties.append(propertyRemoval)
+            } else if let propertyUpdate = propertyChange.modeledUpdateChange {
+                self.updatedProperties.append(propertyUpdate)
             }
         }
     }
 
     var renderableContent: String {
         var annotation: Annotation? = nil
-        if let unsupportedChange = unsupportedChange {
+        if !unsupportedChanges.isEmpty {
             annotation = GenericComment(
-                comment: "@available(*, deprecated, message: \(unsupportedChange.description.doubleQuoted))"
+                comment: "@available(*, deprecated, message: \(unsupportedChanges.map { $0.description }.joined(separator: "; ")))"
             )
         } else if notPresentInNewVersion {
             annotation = GenericComment(
@@ -101,23 +106,25 @@ struct ObjectMigrator: GeneratedFile {
         }
 
 
-        if (oldProperties.isEmpty && addedProperties.isEmpty) || annotation != nil {
+        if (basedProperties.isEmpty && addedProperties.isEmpty) || annotation != nil {
             DefaultObjectFile(typeInformation, annotation: annotation)
         } else {
-            let allProperties = (oldProperties + addedProperties.map(\.typeProperty)).sorted(by: \.name)
+            let allProperties = (basedProperties + addedProperties.map(\.added))
+                .sorted(by: \.name)
 
-            let objectInitializer = ObjectInitializer(oldProperties, addedProperties: addedProperties)
+            let objectInitializer = ObjectInitializer(basedProperties, addedProperties: addedProperties)
+
             let encodingMethod = EncodingMethod(
-                allProperties.filter { !deletedProperties.map(\.id).contains($0.deltaIdentifier) },
-                necessityChanges: propertyNecessityChanges,
-                convertChanges: propertyConvertChanges
+                properties: allProperties.filter { property in
+                    !removedProperties.contains(where: {  $0.id ==  property.deltaIdentifier })
+                },
+                changes: updatedProperties
             )
 
             let decoderInitializer = DecoderInitializer(
-                allProperties,
-                deleted: deletedProperties,
-                necessityChanges: propertyNecessityChanges,
-                convertChanges: propertyConvertChanges
+                properties: allProperties,
+                removed: removedProperties,
+                changes: updatedProperties
             )
 
 
@@ -131,7 +138,7 @@ struct ObjectMigrator: GeneratedFile {
             "\(annotation?.comment ?? "")\(kind.signature) \(typeInformation.typeName.mangledName): Codable {"
             Indent {
                 MARKComment(.codingKeys)
-                ObjectCodingKeys(allProperties, renameChanges: renamePropertyChanges)
+                ObjectCodingKeys(allProperties, renameChanges: renamedProperties)
                 ""
 
                 MARKComment(.properties)

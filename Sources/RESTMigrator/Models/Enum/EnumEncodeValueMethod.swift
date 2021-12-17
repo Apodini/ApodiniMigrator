@@ -22,6 +22,7 @@ struct EnumEncodeValueMethod: SourceCodeRenderable {
             }
             "}"
 
+            // TODO are we sending random cases?
             "if let alternativeCase = Self.allCases.first(where: { !deprecated.contains($0) }) {"
             Indent {
                 "return alternativeCase"

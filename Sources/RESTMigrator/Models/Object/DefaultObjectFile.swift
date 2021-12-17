@@ -12,7 +12,7 @@ import ApodiniMigrator
 /// Represents an `object` file that was not affected by any change
 struct DefaultObjectFile: GeneratedFile {
     var fileName: [NameComponent] {
-        ["\(typeInformation.typeName.name).swift"]
+        ["\(typeInformation.typeName.mangledName).swift"] // TODO file name uniqueness
     }
 
     /// `TypeInformation` to be rendered in this file
@@ -46,12 +46,12 @@ struct DefaultObjectFile: GeneratedFile {
     
     /// Encoding method of the object
     private var encodingMethod: EncodingMethod {
-        .init(properties)
+        .init(properties: properties)
     }
     
     /// Decoder initializer of the object
     private var decoderInitializer: DecoderInitializer {
-        .init(properties)
+        .init(properties: properties)
     }
     
     /// Initializer
@@ -74,7 +74,7 @@ struct DefaultObjectFile: GeneratedFile {
         ""
 
         MARKComment(.model)
-        "\(annotationComment)\(kind.signature) \(typeInformation.typeName.name): Codable {"
+        "\(annotationComment)\(kind.signature) \(typeInformation.typeName.mangledName): Codable {" // TODO file name uniqueness
 
         Indent {
             if properties.isEmpty {

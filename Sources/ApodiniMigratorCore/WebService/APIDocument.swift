@@ -50,6 +50,10 @@ public struct APIDocument: Value {
 
     public var types: TypesStore
 
+    public var models: [TypeInformation] {
+        Array(types.values)
+    }
+
     /*
     // TODO turn into property (and maybe split up into response and parameters)
     public func allModels() -> [TypeInformation] {

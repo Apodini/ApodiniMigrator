@@ -77,7 +77,9 @@ public struct MigrationGuide: Codable {
         case from
         case to
         case compareConfiguration = "compare-config"
-        case changeContextNode = "changes"
+        case serviceChanges
+        case modelChanges
+        case endpointChanges
         case scripts
         case jsonValues = "json-values"
         case objectJSONs = "updated-json-representations"
@@ -93,21 +95,27 @@ public struct MigrationGuide: Codable {
     /// New version
     public let to: Version
     /// Configuration used for comparison TODO detailed!
-    public let compareConfiguration: CompareConfiguration? // TODO this is imporant!
+    public let compareConfiguration: CompareConfiguration?
     /// Private change context node that holds, encodes and decodes the changes
-    private let changeContextNode: ChangeContextNode
+    // TODO private let changeContextNode: ChangeContextNode
     /// List of changes in the Migration Guide
-    public var changes: [Change] {
-        changeContextNode.changes
-    }
+    //public var changes: [Change] {
+    //    changeContextNode.changes
+    //}
+
+    // TODO those are still not encodable!
+    public let serviceChanges: [ServiceInformationChange]
+    public let modelChanges: [ModelChange]
+    public let endpointChanges: [EndpointChange]
+
+
     /// Dictionary holding all registered convert scripts which are referenced from change objects
-    public var scripts: [Int: JSScript]
+    public let scripts: [Int: JSScript]
     /// Dictionary holding all registered json values which are referenced from change objects
-    public var jsonValues: [Int: JSONValue]
-    
+    public let jsonValues: [Int: JSONValue]
     /// A property that holds json representation of models that had a breaking change on their properties, e.g. rename, addition, deletion or property type change.
     /// This property is used for test cases in the client application
-    public var objectJSONs: [String: JSONValue]
+    public let objectJSONs: [String: JSONValue]
     
     /// An empty migration guide with no changes
     public static var empty: MigrationGuide {
@@ -116,8 +124,7 @@ public struct MigrationGuide: Codable {
             id: nil,
             from: .default,
             to: .default,
-            compareConfiguration: nil,
-            changeContextNode: .init()
+            comparisonContext: ChangeComparisonContext(configuration: nil, latestModels: [])
         )
     }
     
@@ -127,45 +134,48 @@ public struct MigrationGuide: Codable {
         id: UUID?,
         from: Version,
         to: Version,
-        compareConfiguration: CompareConfiguration?,
-        changeContextNode: ChangeContextNode
+        comparisonContext: ChangeComparisonContext
     ) {
         self.summary = summary
         self.id = id
         self.from = from
         self.to = to
-        self.changeContextNode = changeContextNode
-        self.compareConfiguration = compareConfiguration
-        self.scripts = changeContextNode.scripts
-        self.jsonValues = changeContextNode.jsonValues
-        self.objectJSONs = changeContextNode.objectJSONs
+        // TODO replace with non optional stored property, but encode optional style!
+        self.compareConfiguration = comparisonContext.configuration == .default ? nil : comparisonContext.configuration
+
+        self.serviceChanges = comparisonContext.serviceChanges
+        self.modelChanges = comparisonContext.modelChanges
+        self.endpointChanges = comparisonContext.endpointChanges
+
+        self.scripts = comparisonContext.scripts
+        self.jsonValues = comparisonContext.jsonValues
+        self.objectJSONs = comparisonContext.objectJSONs
     }
     
     /// Initializes the Migration Guide out of two Documents. Documents get compared
     /// and the changes can be accessed via `changes` of the new Migration Guide instance
     public init(for lhs: APIDocument, rhs: APIDocument, compareConfiguration: CompareConfiguration? = nil) {
+        // TODO don't like how all the expensive comparison bootstrapping is but in the init!
         let comparisonContext = ChangeComparisonContext(
             configuration: compareConfiguration,
             latestModels: Array(rhs.types.values)
         )
-
-        let changeContextNode = ChangeContextNode(compareConfiguration: compareConfiguration)
         
-        let documentsComparator = DocumentComparator(
-            lhs: lhs,
-            rhs: rhs
-        )
-        
-        // Triggers the compare logic for all elements of both documents, and registers the changes in changeContextNode
+        let documentsComparator = DocumentComparator(lhs: lhs, rhs: rhs)
+        // Triggers the compare logic for all elements of both documents, and record the changes in the contex
         documentsComparator.compare(comparisonContext)
+
+        // TODO MigrationGuide should validate (after checking provider support [is this relevant?]);
+        //   that for a single DeltaIdentifier, there either exists a addition, deletion or
+        //   one or multiple updates.
+        //  => tricky as this would need to be nested!
         
         self.init(
             summary: Self.defaultSummary,
             id: lhs.id,
             from: lhs.serviceInformation.version,
             to: rhs.serviceInformation.version,
-            compareConfiguration: compareConfiguration,
-            changeContextNode: changeContextNode // TODO actually pass the new context!
+            comparisonContext: comparisonContext
         )
     }
     
@@ -193,14 +203,15 @@ extension MigrationGuide: Equatable {
     public static func == (lhs: MigrationGuide, rhs: MigrationGuide) -> Bool {
         var mutableLhs = lhs
         var mutableRhs = rhs
-        mutableLhs.scripts = [:]
+        // TODO equatable is fucked!
+        /*mutableLhs.scripts = [:]
         mutableLhs.jsonValues = [:]
         mutableLhs.objectJSONs = [:]
         
         mutableRhs.scripts = [:]
         mutableRhs.jsonValues = [:]
         mutableRhs.objectJSONs = [:]
-        
+         */
         return mutableLhs.json == mutableRhs.json
             && lhs.scripts == rhs.scripts
             && lhs.jsonValues == rhs.jsonValues

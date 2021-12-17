@@ -25,7 +25,6 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
 
     private let document: APIDocument
     private let migrationGuide: MigrationGuide
-    private let changeFilter: ChangeFilter
 
     /// Networking migrator
     private let networkingMigrator: NetworkingMigrator
@@ -51,16 +50,15 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
                 """
             )
         }
-        self.changeFilter = ChangeFilter(migrationGuide)
 
         networkingMigrator = NetworkingMigrator(
-            previousServerInformation: document.serviceInformation,
-            networkingChanges: changeFilter.networkingChanges
+            baseServiceInformation: document.serviceInformation,
+            serviceChanges: migrationGuide.serviceChanges
         )
     }
 
     public var library: RootDirectory {
-        let allModels = document.allModels()
+        let allModels = document.models // TODO document.allModels()
         let encoderConfiguration = networkingMigrator.encoderConfiguration()
         let decoderConfiguration = networkingMigrator.decoderConfiguration()
 
@@ -69,8 +67,8 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
                 Directory("Endpoints") {
                     EndpointsMigrator(
                         migratedEndpointsReference: $apiFileMigratedEndpoints,
-                        allEndpoints: document.endpoints + changeFilter.addedEndpoints(),
-                        endpointChanges: changeFilter.endpointChanges
+                        document: document,
+                        migrationGuide: migrationGuide
                     )
                 }
 
@@ -84,9 +82,8 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
 
                 Directory("Models") {
                     ModelsMigrator(
-                        oldModels: allModels,
-                        addedModels: changeFilter.addedModels(),
-                        modelChanges: changeFilter.modelChanges
+                        document: document,
+                        migrationGuide: migrationGuide
                     )
                 }
 

@@ -23,7 +23,7 @@ class EndpointFile: GeneratedFile {
     /// Endpoints that are rendered in the file (same nested response type)
     private let endpoints: [Endpoint]
     /// All changes of the migration guide that belong to the `endpoints`
-    private let changes: [Change]
+    private let changes: [EndpointChange]
     /// Imports of the file
     private var imports = Import(.foundation)
     
@@ -32,10 +32,11 @@ class EndpointFile: GeneratedFile {
         migratedEndpointsReference: SharedNodeReference<[MigratedEndpoint]>,
         typeInformation: TypeInformation,
         endpoints: [Endpoint],
-        changes: [Change]
+        changes: [EndpointChange]
     ) {
         _migratedEndpoints = migratedEndpointsReference
-        self.fileName = [typeInformation.typeName.name + EndpointsMigrator.fileSuffix]
+        // TODO file name uniqueness
+        self.fileName = [typeInformation.typeName.mangledName + EndpointsMigrator.fileSuffix]
         self.typeInformation = typeInformation
 
         self.endpoints = endpoints.sorted { lhs, rhs in
@@ -45,8 +46,8 @@ class EndpointFile: GeneratedFile {
             return lhs.response.typeString < rhs.response.typeString
         }
         self.changes = changes
-        
-        if changes.contains(where: { $0.type == .deletion && $0.element.target == EndpointTarget.`self`.rawValue }) {
+
+        if changes.contains(where: { $0.type == .removal }) {
             imports.insert(.combine)
         }
     }
@@ -58,7 +59,7 @@ class EndpointFile: GeneratedFile {
         ""
 
         MARKComment(.endpoints)
-        "\(kind.signature) \(typeInformation.typeName.name) {"
+        "\(kind.signature) \(typeInformation.typeName.mangledName) {" // TODO file name uniqueness
 
         Indent {
             var first = true
@@ -70,7 +71,10 @@ class EndpointFile: GeneratedFile {
                     first = false
                 }
 
-                let endpointMigrator = EndpointMethodMigrator(endpoint, changes: changes.of(endpoint))
+                let endpointMigrator = EndpointMethodMigrator(
+                    endpoint,
+                    changes: changes.of(base: endpoint)
+                )
                 migratedEndpoints.append(endpointMigrator.migratedEndpoint)
 
                 // rendering the method body

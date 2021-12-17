@@ -32,12 +32,6 @@ struct EnumComparator: Comparator {
                 solvable: false
             ))
 
-            // TODO
-            //  UnsupportedChange(
-            //      element: element(.`self`),
-            //      description: "The raw value type of this enum has changed to \(rhsRawValue.nestedTypeString). ApodiniMigrator is not able to migrate this change"
-            //  )
-
             // TODO we skip the rest for now(?)
             return
         }

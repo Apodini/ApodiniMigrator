@@ -12,13 +12,13 @@ struct ProtobufFacadeGenerator: LibraryNode {
     private let dumpBinaryPath: Path
     private let migrationGuide: MigrationGuide
 
-    private let modelChanges: [Change]
+    private let modelChanges: [ModelChange]
 
     init(dumpPath: String, guide: MigrationGuide) {
         self.dumpBinaryPath = Path(dumpPath)
         self.migrationGuide = guide
 
-        self.modelChanges = migrationGuide.changes.filter { $0.element.isModel }
+        self.modelChanges = migrationGuide.modelChanges
     }
 
     func handle(at path: PathKit.Path, with context: MigrationContext) throws {

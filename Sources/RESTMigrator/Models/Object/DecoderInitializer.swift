@@ -12,54 +12,56 @@ import ApodiniMigrator
 /// Represents `init(from decoder: Decoder)` initializer of a Decodable object
 struct DecoderInitializer: SourceCodeRenderable {
     /// All properties of the object that this initializer belongs to
-    let properties: [TypeProperty]
+    private let properties: [TypeProperty]
     /// Deleted properties of the object if any
-    let deleted: [DeletedProperty]
-    /// Necessity changes related to the properties of the object
-    let necessityChanges: [UpdateChange]
-    /// Convert changes related to the properties of the object
-    let convertChanges: [UpdateChange]
+    private let removed: [PropertyChange.RemovalChange]
+    private let updateChanges: [PropertyChange.UpdateChange]
     
     /// Initializer
     init(
-        _ properties: [TypeProperty],
-        deleted: [DeletedProperty] = [],
-        necessityChanges: [UpdateChange] = [],
-        convertChanges: [UpdateChange] = []
+        properties: [TypeProperty],
+        removed: [PropertyChange.RemovalChange] = [],
+        changes: [PropertyChange.UpdateChange] = []
     ) {
         self.properties = properties
-        self.deleted = deleted
-        self.necessityChanges = necessityChanges
-        self.convertChanges = convertChanges
+        self.removed = removed
+        self.updateChanges = changes
     }
     
     /// Returns the corresponding line of `property` inside of the initializer by considering potential changes of the property
     private func decodingLine(for property: TypeProperty) -> String {
-        let id = property.deltaIdentifier
-        let name = property.name
-        if let deletedProperty = deleted.first(where: { $0.id == id }) {
-            let valueString: String
-            if case let .json(id) = deletedProperty.fallbackValue {
-                valueString = "try \(property.type.typeString).instance(from: \(id))"
+        if let removalChange = removed.first(where: {  $0.id == property.deltaIdentifier }) {
+            if let fallbackValue = removalChange.fallbackValue {
+                return "\(property.name) = try \(property.type.typeString).instance(from: \(fallbackValue))"
             } else {
-                valueString = "nil"
+                return "\(property.name) = nil"
             }
-            return "\(name) = \(valueString)"
-        } else if let change = necessityChanges.firstMatch(on: \.targetID, with: id),
-                  let necessityValue = change.necessityValue,
-                  case let .element(anyCodable) = change.to,
-                  anyCodable.typed(Necessity.self) == .optional,
-                  case let .json(id) = necessityValue {
-            return "\(name) = try container.decodeIfPresent(\(property.type.typeString).self, forKey: .\(name)) ?? (try \(property.type.typeString).instance(from: \(id)))"
-        } else if let change = convertChanges.firstMatch(on: \.targetID, with: id),
-                  case let .element(anyCodable) = change.to,
-                  let scriptID = change.convertToFrom {
-            let newType = anyCodable.typed(TypeInformation.self)
-            let decodeMethod = "decode\(newType.isOptional ? "IfPresent" : "")"
-            return "\(name) = try \(property.type.typeString).from(try container.\(decodeMethod)(\(newType.typeString.dropQuestionMark).self, forKey: .\(name)), script: \(scriptID))"
-        } else {
+        }
+
+        guard let change = updateChanges.first(where: { $0.id == property.deltaIdentifier }) else {
             return property.decoderInitLine
         }
+
+        // I'm honestly not sure why we don't support both changes at the same time (and only one change per property)
+        // I'm just rewriting the thing and don't really have the time to fix things.
+
+        if case let .necessity(from, to, migration) = change.updated {
+            return """
+                   \(property.name) = try container.decodeIfPresent\
+                   (\(property.type.typeString).self, forKey: .\(property.name)) \
+                   ?? (try \(property.type.typeString).instance(from: \(migration)))
+                   """
+        } else if case let .type(from, to, forwardMigration, backwardMigration, hint) = change.updated {
+            let decodeMethod = "decode\(to.isOptional ? "IfPresent" : "")"
+            return """
+                   \(property.name) = try \(property.type.typeString).from(\
+                   try container.\(decodeMethod)(\(to.typeString.dropQuestionMark).self, forKey: .\(property.name)), script: \(backwardMigration)\
+                   )
+                   """
+        }
+
+        // TODO warning unsupported update!!!
+        return property.decoderInitLine
     }
     
     /// Renders the content of the initializer in a non-formatted way
@@ -78,7 +80,7 @@ struct DecoderInitializer: SourceCodeRenderable {
 }
 
 /// TypeProperty extension
-fileprivate extension TypeProperty {
+private extension TypeProperty {
     /// The corresponding line of the property to be rendered inside `init(from decoder: Decoder)` if no change affected the property
     var decoderInitLine: String {
         let decodeMethodString = "decode\(type.isOptional ? "IfPresent" : "")"

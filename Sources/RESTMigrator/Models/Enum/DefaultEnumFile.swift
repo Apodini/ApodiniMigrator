@@ -13,7 +13,7 @@ import ApodiniMigrator
 /// Represents an `enum` file that did not got affected by any change
 struct DefaultEnumFile: GeneratedFile {
     var fileName: [NameComponent] {
-        ["\(typeInformation.typeName.name).swift"]
+        ["\(typeInformation.typeName.mangledName).swift"] // TODO file name uniqueness
     }
 
     /// The `.enum` `typeInformation` to be rendered in this file
@@ -75,7 +75,8 @@ struct DefaultEnumFile: GeneratedFile {
         ""
 
         MARKComment(.model)
-        "\(annotationComment)\(kind.signature) \(typeInformation.typeName.name): \(rawValueType.nestedTypeString), Codable, CaseIterable {"
+        // TODO file name uniqueness
+        "\(annotationComment)\(kind.signature) \(typeInformation.typeName.mangledName): \(rawValueType.nestedTypeString), Codable, CaseIterable {"
         Indent {
             for enumCase in enumCases {
                 "case \(enumCase.name)"

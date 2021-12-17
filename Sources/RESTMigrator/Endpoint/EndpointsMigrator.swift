@@ -21,29 +21,36 @@ struct EndpointsMigrator: LibraryComposite {
 
     init(
         migratedEndpointsReference: SharedNodeReference<[MigratedEndpoint]>,
-        allEndpoints: [Endpoint],
-        endpointChanges: [Change]
+        document baseDocument: APIDocument,
+        migrationGuide: MigrationGuide
     ) {
         self._migratedEndpoints = migratedEndpointsReference
+        self.migratedEndpoints = []
 
-        migratedEndpoints = []
+        let baseEndpoints = baseDocument.endpoints
+        let addedModels = migrationGuide.endpointChanges
+            .compactMap({ $0.modeledAdditionChange })
+            .map { $0.added }
+
+        let allEndpoints = baseEndpoints + addedModels
 
         // Grouping the endpoints based on their nested response type
-        let endpointGroups = allEndpoints.reduce(into: [String: Set<Endpoint>]()) { result, current in
-            let nestedResponseType = current.response.nestedTypeString
-            result[nestedResponseType, default: []].insert(current)
+        let groupedEndpoints = allEndpoints.reduce(into: [String: [Endpoint]]()) { result, current in
+            result[current.response.nestedTypeString, default: []]
+                .append(current)
         }
 
         // Iterating through all endpoint groups, and rendering one migrated Endpoint file per group
-        for group in endpointGroups {
-            let endpoints = Array(group.value)
+        for (key, endpoints) in groupedEndpoints {
             let endpointIds = endpoints.identifiers()
-            let groupChanges = endpointChanges.filter { endpointIds.contains($0.elementID) }
+            let changes = migrationGuide.endpointChanges
+                .filter { endpointIds.contains($0.id) }
+
             let endpointFile = EndpointFile(
                 migratedEndpointsReference: _migratedEndpoints,
-                typeInformation: .reference(group.key),
+                typeInformation: .reference(key),
                 endpoints: endpoints,
-                changes: groupChanges
+                changes: changes
             )
             endpointFiles.append(endpointFile)
         }

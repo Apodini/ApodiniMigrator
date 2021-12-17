@@ -13,11 +13,11 @@ public typealias EndpointInput = [Parameter] // TODO remove
 
 // TODO location!
 public protocol EndpointIdentifier: RawRepresentable where Self.RawValue == String {
-    static var type: String { get }
+    static var identifierType: String { get }
 }
 
 public extension EndpointIdentifier {
-    static var type: String {
+    static var identifierType: String {
         "\(Self.self)"
     }
 }
@@ -28,6 +28,17 @@ public struct AnyEndpointIdentifier: Value, DeltaIdentifiable, Hashable {
 
     public var deltaIdentifier: DeltaIdentifier {
         DeltaIdentifier(rawValue: id)
+    }
+
+    public func typed<Identifier: EndpointIdentifier>(of type: Identifier.Type = Identifier.self) -> Identifier {
+        guard id == Identifier.identifierType else {
+            fatalError("Tired to cast \(self) to \(type) with non matching id \(Identifier.identifierType)!")
+        }
+
+        guard let typedValue = Identifier(rawValue: value) else {
+            fatalError("Unexpected error when creating typed version of \(Identifier.self) from \(self)!")
+        }
+        return typedValue
     }
 }
 
@@ -102,12 +113,12 @@ public struct Endpoint: Value, DeltaIdentifiable {
     }
 
     public mutating func add<Identifier: EndpointIdentifier>(identifier: Identifier) {
-        self.identifiers[Identifier.type] = AnyEndpointIdentifier(id: Identifier.type, value: identifier.rawValue)
+        self.identifiers[Identifier.identifierType] = AnyEndpointIdentifier(id: Identifier.identifierType, value: identifier.rawValue)
     }
 
     // TODO naming
     public func Oidentifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier? {
-        guard let rawValue = self.identifiers[Identifier.type]?.value else {
+        guard let rawValue = self.identifiers[Identifier.identifierType]?.value else {
             return nil
         }
 

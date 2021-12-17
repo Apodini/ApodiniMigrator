@@ -11,32 +11,40 @@ import ApodiniMigrator
 
 /// An object that handles / triggers the migrated rendering of enums and objects of the client library
 struct ModelsMigrator: LibraryComposite {
-    /// Changed models of the client library
-    private let changedModels: [TypeInformation]
-    /// Unchanged models of the client library
+    /// Unchanged models of the client library. We can directly generate those.
     private let unchangedModels: [TypeInformation]
-    /// All changes of the migration guide with element either an enum or an object
-    private let modelChanges: [Change]
 
-    /// Initializer for a new instance
-    init(oldModels: [TypeInformation], addedModels: [TypeInformation], modelChanges: [Change]) {
-        let changedIds = modelChanges.map { $0.elementID }.unique()
+    /// Changed models of the client library. Change descriptions reside in ``modelChanges``.
+    /// Models might be updated, removed or renamed.
+    private let changedModels: [TypeInformation]
+    /// All changes of the migration guide, describing changes of models saved in ``changedModels``.
+    private let modelChanges: [ModelChange]
 
-        var unchangedModels = Set(addedModels)
-        var changedModels: Set<TypeInformation> = []
+    init(document baseDocument: APIDocument, migrationGuide: MigrationGuide) {
+        let changesIds = migrationGuide.modelChanges.map { $0.id }
 
-        for old in oldModels {
-            if changedIds.contains(old.deltaIdentifier) {
-                changedModels.insert(old)
+        var unchangedModels: [TypeInformation] = []
+        var changedModels: [TypeInformation] = []
+
+        // new models are per definition unchanged
+        let addedModels: [TypeInformation] = migrationGuide.modelChanges
+            .compactMap({ $0.modeledAdditionChange })
+            .map { $0.added }
+        changedModels.append(contentsOf: addedModels)
+
+        // check if the models from the base document were changed or not
+        for model in baseDocument.models {
+            if changesIds.contains(model.deltaIdentifier) {
+                changedModels.append(model)
             } else {
-                unchangedModels.insert(old)
+                unchangedModels.append(model)
             }
         }
 
-        self.changedModels = changedModels.asArray
-        self.unchangedModels = unchangedModels.asArray
+        self.unchangedModels = unchangedModels
 
-        self.modelChanges = modelChanges
+        self.changedModels = changedModels
+        self.modelChanges = migrationGuide.modelChanges
     }
 
     var content: [LibraryComponent] {
@@ -50,8 +58,7 @@ struct ModelsMigrator: LibraryComposite {
         }
 
         for changedModel in changedModels {
-            let changes = modelChanges
-                .filter { $0.elementID == changedModel.deltaIdentifier }
+            let changes = modelChanges.of(base: changedModel)
 
             if changedModel.isEnum {
                 EnumMigrator(changedModel, changes: changes)

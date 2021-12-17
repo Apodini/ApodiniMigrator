@@ -26,8 +26,8 @@ struct MigratedParameter: Hashable {
     /// - Note: only one of the properties `convertFromTo` and `necessityValueJSONId` can be non-nil at the same type
     let convertFromTo: Int?
     /// Id of the default json value for if the parameter has been added in the new version,
-    /// If the migration guide did not provide any defaul value for the added parameter due to optional necessity, this value is equal to `-1`
-    let defaultValue: ChangeValue?
+    /// If the migration guide did not provide any default value for the added parameter due to optional necessity, this value is equal to `-1`
+    let defaultValue: Int?
     /// Id of the necessity value json id, if the necessity of the parameter changed from optional to required
     /// - Note: only one of the properties `convertFromTo` and `necessityValueJSONId` can be non-nil at the same type
     let necessityValueJSONId: Int?
@@ -35,7 +35,7 @@ struct MigratedParameter: Hashable {
     let deleted: Bool
     
     /// A convenience static function that returns an added `MigratedParameter` out of an `Parameter` of new version and a `jsonValueID`
-    static func addedParameter(_ parameter: Parameter, defaultValue: ChangeValue) -> MigratedParameter {
+    static func addedParameter(_ parameter: Parameter, defaultValue: Int?) -> MigratedParameter {
         .init(
             oldName: parameter.name,
             newName: parameter.name,

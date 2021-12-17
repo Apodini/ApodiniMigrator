@@ -9,37 +9,59 @@
 import Foundation
 import ApodiniMigratorCompare
 
+private extension HTTPInformation {
+    var urlFormatted: String {
+        // TODO assuming http for now!
+        "http://\(description)"
+    }
+}
+
 struct NetworkingMigrator {
-    let previousServerInformation: ServiceInformation
-    let networkingChanges: [Change]
-    
+    let baseServiceInformation: ServiceInformation
+    let serviceChanges: [ServiceInformationChange]
+
+    private var exporterConfiguration: RESTExporterConfiguration {
+        baseServiceInformation.exporter()
+    }
+
     func serverPath() -> String {
-        var serverPath = previousServerInformation.versionedServerPath
-        for change in networkingChanges where change.element.target == NetworkingTarget.serverPath.rawValue {
-            if let updateChange = change as? UpdateChange, case let .stringValue(newPath) = updateChange.to {
-                serverPath = newPath
+        var serverPath = baseServiceInformation.http.urlFormatted
+
+        for change in serviceChanges {
+            if case let .update(_, updated, _, _) = change,
+               case let .http(from, to) = updated {
+                serverPath = to.urlFormatted
             }
         }
+
         return serverPath
     }
     
     func encoderConfiguration() -> EncoderConfiguration {
-        var encoderConfiguration = previousServerInformation.encoderConfiguration
+        var encoderConfiguration = exporterConfiguration.encoderConfiguration
+
+        /*
+         TODO support exporter config changes!
         for change in networkingChanges where change.element.target == NetworkingTarget.encoderConfiguration.rawValue {
             if let updateChange = change as? UpdateChange, case let .element(anyCodable) = updateChange.to {
                 encoderConfiguration = anyCodable.typed(EncoderConfiguration.self)
             }
         }
+         */
         return encoderConfiguration
     }
     
     func decoderConfiguration() -> DecoderConfiguration {
-        var decoderConfiguration = previousServerInformation.decoderConfiguration
+        var decoderConfiguration = exporterConfiguration.decoderConfiguration
+
+        /*
+         TODO support exporter config changes
         for change in networkingChanges where change.element.target == NetworkingTarget.decoderConfiguration.rawValue {
             if let updateChange = change as? UpdateChange, case let .element(anyCodable) = updateChange.to {
                 decoderConfiguration = anyCodable.typed(DecoderConfiguration.self)
             }
         }
+         */
         return decoderConfiguration
     }
 }

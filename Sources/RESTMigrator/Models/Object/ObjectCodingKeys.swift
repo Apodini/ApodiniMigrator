@@ -20,15 +20,13 @@ struct ObjectCodingKeys: SourceCodeRenderable {
     }
    
     /// Initializer of the coding keys from all properties of the object and potential renaming changes
-    init(_ properties: [TypeProperty], renameChanges: [UpdateChange] = []) {
-        let renames = renameChanges.reduce(into: [String: String]()) { result, current in
-            if case let .stringValue(oldName) = current.from, case let .stringValue(newName) = current.to {
-                result[oldName] = newName
-            }
+    init(_ properties: [TypeProperty], renameChanges: [PropertyChange.IdentifierChange] = []) {
+        let renameMap = renameChanges.reduce(into: [:]) { result, value in
+            result[value.from.rawValue] = value.to.rawValue
         }
         
         let allCases: [EnumCase] = properties.map { property in
-            let rawValue = renames[property.name] ?? property.name
+            let rawValue = renameMap[property.name] ?? property.name
             return .init(property.name, rawValue: rawValue)
         }
         

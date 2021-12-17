@@ -33,11 +33,11 @@ struct IdentifiersComparator: Comparator {
 
         for matched in matchedIds {
             if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
-               let rhs = rhs.first(where: { $0.deltaIdentifier == matched}),
+               let rhs = rhs.first(where: { $0.deltaIdentifier == matched }),
                lhs.value != rhs.value {
                 results.append(.update(
                     id: lhs.deltaIdentifier,
-                    updated: .value(from: lhs.value, to: rhs.value)
+                    updated: .value(from: lhs, to: rhs)
                 ))
             }
         }

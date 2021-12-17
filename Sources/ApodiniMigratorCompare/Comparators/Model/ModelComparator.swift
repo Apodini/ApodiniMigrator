@@ -19,15 +19,10 @@ struct ModelComparator: Comparator {
         if lhs.rootType != rhs.rootType {
             results.append(.update(
                 id: lhs.deltaIdentifier,
-                updated: .rootType(from: lhs.rootType, to: rhs.rootType),
+                updated: .rootType(from: lhs.rootType, to: rhs.rootType, newModel: rhs),
                 breaking: true,
                 solvable: false
             ))
-            // TODO
-            //  UnsupportedChange(
-            //      element: lhs.isObject ? .for(object: lhs, target: .`self`) : .for(enum: lhs, target: .`self`),
-            //      description: "ApodiniMigrator is not able to handle the migration of \(lhs.typeName.name). Change from enum to object or vice versa is currently not supported"
-            //  )
 
             // we can't compare two types with different root type
             return

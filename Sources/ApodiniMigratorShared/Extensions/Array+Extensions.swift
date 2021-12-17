@@ -8,25 +8,17 @@
 
 import Foundation
 
-public extension Collection {
-    /// Indicates whether the collection is not empty
-    var isNotEmpty: Bool {
-        !isEmpty
-    }
-}
-
 public extension Array where Element: Hashable {
     /// Unique elements contained in self
-    func unique() -> Self {
+    func unique() -> Self { // TODO remove this hell!
         Set(self).asArray
     }
 }
 
 public extension Sequence {
     /// Returns a sorted version of self by a comparable element keypath
-    func sorted<C: Comparable>(by keyPath: KeyPath<Element, C>, increasingOrder: Bool = true) -> [Element] {
-        let sorted = self.sorted { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
-        return increasingOrder ? sorted : sorted.reversed()
+    func sorted<C: Comparable>(by keyPath: KeyPath<Element, C>) -> [Element] {
+        self.sorted { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
     }
 }
 

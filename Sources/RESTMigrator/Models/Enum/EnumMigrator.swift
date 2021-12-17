@@ -13,93 +13,91 @@ import ApodiniMigrator
 /// An object that handles the migration of an enum declaration and renders the output accordingly
 struct EnumMigrator: GeneratedFile {
     var fileName: [NameComponent] {
-        ["\(typeInformation.typeName.name).swift"]
+        ["\(typeInformation.typeName.mangledName).swift"] // TODO file name uniqueness
     }
 
     /// Type information enum that will be rendered
-    let typeInformation: TypeInformation
-    /// Kind of the file, always `.enum`
-    let kind: Kind = .enum
+    private let typeInformation: TypeInformation
     /// RawValue type of the enum, either int or string
     private let rawValueType: TypeInformation
-    /// An unsupported change related to the enum from the migration guide,
-    private let unsupportedChange: UnsupportedChange?
+
+
+    private var addedCases: [EnumCase] = []
+    private var removedCases: [EnumCase] = []
+    /// A dictionary holding updates of the raw values of the enum.
+    /// Mapping case identifier/name to case rawValue!
+    private var rawValueUpdates: [DeltaIdentifier: String] = [:]
+
     /// A flag that indicates whether enum has been deleted in the new version
     private let notPresentInNewVersion: Bool
-    /// All changes related to the `enum`
-    private let changes: [Change]
-    /// A dictionary holding updates of the raw values of the enum
-    private var rawValueUpdates: [EnumCase: EnumCase] = [:]
-    
-    /// Initializes a new instance out of an `enum` type information and its correspoinding changes
-    init(_ typeInformation: TypeInformation, changes: [Change]) {
+    /// An unsupported change related to the enum from the migration guide,
+    private var unsupportedChanges: [NewUnsupportedChange<ModelChangeDeclaration>] = []
+
+    /// Initializes a new instance out of an `enum` type information and its corresponding changes
+    init(_ typeInformation: TypeInformation, changes: [ModelChange]) {
+        precondition(!changes.contains(where: { $0.id != typeInformation.deltaIdentifier }), "Found unrelated changes for \(typeInformation)")
+
         guard typeInformation.isEnum, let rawValueType = typeInformation.sanitizedRawValueType else {
             fatalError("Attempted to initialize EnumMigrator with a non enum TypeInformation \(typeInformation.rootType)")
         }
 
         self.typeInformation = typeInformation
         self.rawValueType = rawValueType
-        self.changes = changes
 
-        unsupportedChange = changes.first { $0.type == .unsupported } as? UnsupportedChange
-        notPresentInNewVersion = changes.contains(where: { $0.type == .deletion && $0.element.target == EnumTarget.`self`.rawValue })
-        setRawValueUpdates()
+        notPresentInNewVersion = changes.contains(where: { $0.type == .removal })
+
+        for change in changes.compactMap({ $0.modeledUpdateChange }) {
+            // first step is to check for unsupported changes and mark them as such
+            if case .rootType = change.updated {
+                let unsupportedChange = ChangeEnum(from: change)
+                    .classifyUnsupported(description: """
+                                                      ApodiniMigrator is not able to handle the migration of \(change.id). \
+                                                      Change from enum to object or vice versa is currently not supported.
+                                                      """)
+                unsupportedChanges.append(unsupportedChange)
+                continue
+            } else if case let .rawValueType(_, to) = change.updated {
+                let unsupportedChange = ChangeEnum(from: change)
+                    .classifyUnsupported(description: """
+                                                      The raw value type of this enum has changed to \(to.nestedTypeString). \
+                                                      ApodiniMigrator is not able to migrate this change.
+                                                      """)
+                unsupportedChanges.append(unsupportedChange)
+                continue
+            }
+
+            // now we analyze for case changes (additions, removal and updates)
+            guard case let .`case`(caseChange) = change.updated else {
+                continue
+            }
+
+            if let caseAddition = caseChange.modeledAdditionChange {
+                self.addedCases.append(caseAddition.added)
+            } else if let caseRemoval = caseChange.modeledRemovalChange {
+                if let deletedCase = typeInformation.enumCases.first(where: { $0.deltaIdentifier == caseRemoval.id }) {
+                    removedCases.append(deletedCase)
+                }
+            } else if let caseUpdate = caseChange.modeledUpdateChange,
+                      case let .rawValueType(from, to) = caseUpdate.updated {
+                self.rawValueUpdates[caseUpdate.id] = to
+            }
+        }
     }
-    
+
     /// Returns the corresponding raw value of the case, considering potential updates
     private func rawValue(for case: EnumCase) -> String {
-        if let updated = rawValueUpdates[`case`] {
-            return " = \(updated.name.doubleQuoted)"
+        if let updated = rawValueUpdates[`case`.deltaIdentifier] {
+            return " = \(updated.doubleQuoted)"
         }
         return ""
-    }
-
-    /// Filters changes and returns the added cases of the enum if any
-    private func addedCases() -> [EnumCase] {
-        var retValue: [EnumCase] = []
-        
-        for change in changes where change.element.target == EnumTarget.case.rawValue {
-            if let addChange = change as? AddChange, case let .element(anyCodable) = addChange.added {
-                retValue.append(anyCodable.typed(EnumCase.self))
-            }
-        }
-        return retValue
-    }
-    
-    /// Filters changes and returns the deleted cases of the enum if any
-    private func deletedCases() -> [EnumCase] {
-        var retValue: [EnumCase] = []
-        
-        for change in changes where change.element.target == EnumTarget.case.rawValue {
-            if
-                let deleteChange = change as? DeleteChange,
-                case let .elementID(id) = deleteChange.deleted,
-                let deletedCase = typeInformation.enumCases.firstMatch(on: \.deltaIdentifier, with: id)
-            {
-                retValue.append(deletedCase)
-            }
-        }
-        return retValue
-    }
-    
-    /// Filters changes and sets the corresponding raw value updates in `rawValueUpdates` dictionary
-    private mutating func setRawValueUpdates() {
-        for change in changes where change.element.target == EnumTarget.caseRawValue.rawValue {
-            if
-                let renameChange = change as? UpdateChange,
-                case let .element(oldCase) = renameChange.from,
-                case let .element(newCase) = renameChange.to {
-                rawValueUpdates[oldCase.typed(EnumCase.self)] = newCase.typed(EnumCase.self)
-            }
-        }
     }
 
     var renderableContent: String {
         var annotation: Annotation? = nil
 
-        if let unsupportedChange = unsupportedChange {
+        if !unsupportedChanges.isEmpty {
             annotation = GenericComment(
-                comment: "@available(*, deprecated, message: \(unsupportedChange.description.doubleQuoted))"
+                comment: "@available(*, deprecated, message: \(unsupportedChanges.map { $0.description }.joined(separator: "; ")))"
             )
         } else if notPresentInNewVersion {
             annotation = GenericComment(
@@ -111,7 +109,6 @@ struct EnumMigrator: GeneratedFile {
         if let annotation = annotation {
             DefaultEnumFile(typeInformation, annotation: annotation)
         } else {
-            let addedCases = self.addedCases()
             let allCases = (typeInformation.enumCases + addedCases).sorted(by: \.name)
 
             var addedCasesAnnotation = ""
@@ -126,15 +123,17 @@ struct EnumMigrator: GeneratedFile {
             ""
 
             MARKComment(.model)
-            "\(addedCasesAnnotation)\(kind.signature) \(typeInformation.typeName.name): \(rawValueType.nestedTypeString), Codable, CaseIterable {"
+            // TODO file name uniqueness
+            "\(addedCasesAnnotation)\(Kind.enum.signature) \(typeInformation.typeName.mangledName): \(rawValueType.nestedTypeString), Codable, CaseIterable {"
             Indent {
                 for enumCase in allCases {
+                    precondition(enumCase.name == enumCase.rawValue, "Assumption about the TypeInformation framework changed!")
                     "case \(enumCase.name)\(rawValue(for: enumCase))"
                 }
                 ""
 
                 MARKComment(.deprecated)
-                EnumDeprecatedCases(deprecated: deletedCases())
+                EnumDeprecatedCases(deprecated: self.removedCases)
                 ""
                 MARKComment(.encodable)
                 EnumEncodingMethod()

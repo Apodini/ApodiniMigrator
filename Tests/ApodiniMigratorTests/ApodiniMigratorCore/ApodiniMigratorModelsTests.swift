@@ -18,6 +18,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
             handlerName: "SomeHandler",
             deltaIdentifier: "0.1.0.0.1",
             operation: .create,
+            communicationalPattern: .requestResponse,
             absolutePath: "/v1/test",
             parameters: [],
             response: .scalar(.bool),
@@ -28,6 +29,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
             handlerName: "SomeHandler",
             deltaIdentifier: "getSomeHandler",
             operation: .read,
+            communicationalPattern: .requestResponse,
             absolutePath: "/v1/test",
             parameters: [],
             response: .scalar(.bool),
@@ -46,6 +48,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
             handlerName: "someHandler",
             deltaIdentifier: "id",
             operation: .create,
+            communicationalPattern: .requestResponse,
             absolutePath: "/v1/test",
             parameters: [param1, param2],
             response: .scalar(.bool),
@@ -86,12 +89,13 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
     }
 
     func testDocument() throws {
-        var document = Document()
+        var document = APIDocument()
         document.add(
             endpoint: .init(
                 handlerName: "someHandler",
                 deltaIdentifier: "endpoint",
                 operation: .create,
+                communicationalPattern: .requestResponse,
                 absolutePath: "/test1/test",
                 parameters: [],
                 response: .scalar(.bool),

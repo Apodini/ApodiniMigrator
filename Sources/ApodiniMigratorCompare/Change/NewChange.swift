@@ -5,8 +5,8 @@
 import Foundation
 
 public protocol ChangeDeclaration {
-    associatedtype Element: DeltaIdentifiable
-    associatedtype Update
+    associatedtype Element: DeltaIdentifiable, Codable
+    associatedtype Update: Codable
 }
 
 public struct EndpointChangeDeclaration: ChangeDeclaration {
@@ -14,26 +14,22 @@ public struct EndpointChangeDeclaration: ChangeDeclaration {
     public typealias Update = EndpointUpdateChange
 }
 
-public enum EndpointUpdateChange {
+public enum EndpointUpdateChange: Codable {
     /// type: see ``EndpointIdentifier``
     case identifier(identifier: EndpointIdentifierChange)
 
     case communicationalPattern(
         from: CommunicationalPattern,
         to: CommunicationalPattern
-        // TODO any kind of conversion?
     )
 
-    // TODO we only have conversion in one direction!
-    case response( // TODO this shall only be used if the Type completly CHANGED! which
-                   //  is different to a renamed type (potentially having some other changes!)
-                   //  this would affect the ProviderSupport resolving step as well!
-                   // TODO do we consider name changes at all (yes via `allowTypeRename` only)?
-                   //   how does a `.update name change on typeInfo manifest here?)
-                   from: TypeInformation,
-                   to: TypeInformation, // TODO annotate reference or scalar
-                   backwardsConversion: Int,
-                   conversionWarning: String? = nil
+    case response(
+        // TODO checking, if this change is due to name change! (affects provider support!)
+        from: TypeInformation,
+        to: TypeInformation, // TODO annotate: reference or scalar
+        backwardsConversion: Int, // TODO we only have conversion in one direction
+        // TODO reanme "migration"
+        conversionWarning: String? = nil
     )
 
     case parameter(
@@ -52,7 +48,7 @@ public struct ParameterChangeDeclaration: ChangeDeclaration {
     public typealias Update = ParameterUpdateChange
 }
 
-public enum ParameterUpdateChange {
+public enum ParameterUpdateChange: Codable {
     case parameterType(
         from: ParameterType,
         to: ParameterType
@@ -66,7 +62,7 @@ public enum ParameterUpdateChange {
 
     case type(
         from: TypeInformation,
-        to: TypeInformation, // TODO annotate reference or scalar
+        to: TypeInformation, // TODO annotate: reference or scalar
         forwardMigration: Int, // TODO single direction migration?
         conversionWarning: String?
     )
@@ -77,8 +73,8 @@ public struct EndpointIdentifierChangeDeclaration: ChangeDeclaration {
     public typealias Update = EndpointIdentifierUpdateChange
 }
 
-public enum EndpointIdentifierUpdateChange {
-    case value(from: String, to: String)
+public enum EndpointIdentifierUpdateChange: Codable {
+    case value(from: AnyEndpointIdentifier, to: AnyEndpointIdentifier)
 }
 
 public struct ModelChangeDeclaration: ChangeDeclaration {
@@ -86,24 +82,27 @@ public struct ModelChangeDeclaration: ChangeDeclaration {
     public typealias Update = ModelUpdateChange
 }
 
-public enum ModelUpdateChange {
-    // TODO case unsupported(change: UnsupportedModelChange)
-    case rootType(from: TypeInformation.RootType, to: TypeInformation.RootType) // TODO we need the whole type description!
+public enum ModelUpdateChange: Codable {
+    // common
+    case rootType(
+        from: TypeInformation.RootType,
+        to: TypeInformation.RootType,
+        newModel: TypeInformation
+    )
 
-    // object
+    // .object
     case property(property: PropertyChange)
 
-    // enum
+    // .enum
     case `case`(case: EnumCaseChange)
     case rawValueType(
-        from: TypeInformation, // TODO annotate reference or scalar
+        from: TypeInformation, // TODO annotate: reference or scalar
         to: TypeInformation
     )
-    // TODO case rawValue(value:)
 }
 
 // TODO the decision if this is supported DEPENS on the client library type!!!!
-public enum UnsupportedModelChange {
+public enum UnsupportedModelChange { // TODO remove
     // TODO we always had a textual description for those?
     case kindChange(
         from: TypeInformation.RootType,
@@ -121,7 +120,7 @@ public struct PropertyChangeDeclaration: ChangeDeclaration {
     public typealias Update = PropertyUpdateChange
 }
 
-public enum PropertyUpdateChange {
+public enum PropertyUpdateChange: Codable {
     case necessity(
         from: Necessity,
         to: Necessity,
@@ -131,7 +130,7 @@ public enum PropertyUpdateChange {
     case type(
         from: TypeInformation,
         to: TypeInformation,
-        forwardMigration: Int, // TODO single direction migration?
+        forwardMigration: Int,
         backwardMigration: Int,
         conversionWarning: String?
     )
@@ -142,33 +141,10 @@ public struct EnumCaseChangeDeclaration: ChangeDeclaration {
     public typealias Update = EnumCaseUpdateChange
 }
 
-public enum EnumCaseUpdateChange {
+public enum EnumCaseUpdateChange: Codable {
     case rawValueType(
         from: String,
         to: String
-    )
-}
-
-public struct ServiceInformationChangeDeclaration: ChangeDeclaration {
-    public typealias Element = ServiceInformation
-    public typealias Update = ServiceInformationUpdateChange
-}
-
-public enum ServiceInformationUpdateChange { // TODO Codable
-    case version(
-        from: Version,
-        to: Version
-    )
-
-    case http(
-        from: HTTPInformation,
-        to: HTTPInformation
-    )
-
-    case exporter(
-        exporter: ApodiniExporterType,
-        from: ExporterConfiguration, // TODO more granular? (e.g. encode/decode configuration?)
-        to: ExporterConfiguration
     )
 }
 
@@ -178,16 +154,37 @@ public typealias EndpointIdentifierChange = ChangeEnum<EndpointIdentifierChangeD
 public typealias ModelChange = ChangeEnum<ModelChangeDeclaration>
 public typealias PropertyChange = ChangeEnum<PropertyChangeDeclaration>
 public typealias EnumCaseChange = ChangeEnum<EnumCaseChangeDeclaration>
-public typealias ServiceInformationChange = ChangeEnum<ServiceInformationChangeDeclaration>
 
-// TODO MigrationGuide should validate (after checking provider support [is this relevant?]);
-//   that for a single DeltaIdentifier, there either exists a addition, deletion or
-//   one or multiple updates.
-public enum ChangeEnum<Type: ChangeDeclaration> {
+public protocol AnyChange {
+    associatedtype Definition: ChangeDeclaration
+
+    var id: DeltaIdentifier { get }
+    var type: NewChangeType { get }
+
+    var breaking: Bool { get }
+    var solvable: Bool { get }
+}
+
+fileprivate extension AnyChange {
+    func typed() -> ChangeEnum<Definition> {
+        guard let change = self as? ChangeEnum<Definition> else {
+            fatalError("Encountered `AnyChange` which isn't of expected type `ChangeEnum`!")
+        }
+        return change
+    }
+}
+
+public enum NewChangeType: String, Codable { // TODO rename once migrated
+    case idChange
+    case addition
+    case removal
+    case update
+}
+
+public enum ChangeEnum<Definition: ChangeDeclaration>: AnyChange {
     // TODO provider support, addition/deletion pairs be treated as rename
     //   - update change be treated as deletion + addition
 
-    // TODO ids are always old ids, can be used to match ids (if enabled)
     /// TODO only present if `allowEndpointIdentifierUpdate` is enabled!
     case idChange(
         from: DeltaIdentifier,
@@ -197,13 +194,10 @@ public enum ChangeEnum<Type: ChangeDeclaration> {
         solvable: Bool = true
         // TODO also a provider support thingy?
     )
-    // TODO this is only a specialty for the Endpoint which has a dedicated HandlerIdentifier!!!
-    // TODO can we make this NEVER able, e.g. for Identifier changes?
-    // TODO breaking, solvable, providerSupport(?)
 
     case addition(
         id: DeltaIdentifier, // TODO removable, included in element!
-        added: Type.Element,
+        added: Definition.Element,
         defaultValue: Int? = nil,
         breaking: Bool = false,
         solvable: Bool = true
@@ -215,8 +209,8 @@ public enum ChangeEnum<Type: ChangeDeclaration> {
     /// removed: Optional a description of the element which was removed.
     ///     Typically the based element is still in the original interface description document.
     case removal(
-        id: DeltaIdentifier,
-        removed: Type.Element? = nil, // TODO i would go for a always include but control encode via option!
+        id: DeltaIdentifier, // TODO this would be duplicate if below field is required!
+        removed: Definition.Element? = nil,
         fallbackValue: Int? = nil,
         breaking: Bool = true,
         solvable: Bool = false
@@ -225,47 +219,13 @@ public enum ChangeEnum<Type: ChangeDeclaration> {
 
     case update(
         id: DeltaIdentifier,
-        updated: Type.Update, // TODO name "content", "nested"
+        updated: Definition.Update,
         breaking: Bool = true,
         solvable: Bool = true
         // TODO those are not encoded if the Update VALUE already contains those(?)
-        //   maybe we can do a flat encoding?
-
-        // TODO nested provider support
-        // TODO update provider support??? (solved in idChange?)
     )
-    // TODO unsupported update?
 
-    // TODO remove those accessors?
-    var isIdChange: Bool {
-        if case .idChange = self {
-            return true
-        }
-        return false
-    }
-
-    var isAddition: Bool {
-        if case .addition = self {
-            return true
-        }
-        return false
-    }
-
-    var isRemoval: Bool {
-        if case .removal = self {
-            return true
-        }
-        return false
-    }
-
-    var isUpdate: Bool {
-        if case .update = self {
-            return true
-        }
-        return false
-    }
-
-    var id: DeltaIdentifier {
+    public var id: DeltaIdentifier {
         switch self {
         case let .idChange(from, _, _, _, _):
             return from
@@ -278,7 +238,7 @@ public enum ChangeEnum<Type: ChangeDeclaration> {
         }
     }
 
-    var breaking: Bool {
+    public var breaking: Bool {
         switch self {
         case let .idChange(_, _, _, breaking, _):
             return breaking
@@ -291,7 +251,7 @@ public enum ChangeEnum<Type: ChangeDeclaration> {
         }
     }
 
-    var solvable: Bool {
+    public var solvable: Bool {
         switch self {
         case let .idChange(_, _, _, _, solvable):
             return solvable
@@ -301,6 +261,227 @@ public enum ChangeEnum<Type: ChangeDeclaration> {
             return solvable
         case let .update(_, _, _, solvable):
             return solvable
+        }
+    }
+}
+
+// MARK: IdChange
+public extension ChangeEnum {
+    struct IdentifierChange {
+        public let from: DeltaIdentifier
+        public let to: DeltaIdentifier
+        public let similarity: Double?
+        public let breaking: Bool
+        public let solvable: Bool
+    }
+
+    var modeledIdentifierChange: IdentifierChange? {
+        guard case let .idChange(from, to, similarity, breaking, solvable) = self else {
+            return nil
+        }
+        return IdentifierChange(from: from, to: to, similarity: similarity, breaking: breaking, solvable: solvable)
+    }
+}
+
+// MARK: AdditionChange
+public extension ChangeEnum {
+    struct AdditionChange {
+        public let id: DeltaIdentifier
+        public let added: Definition.Element
+        public let defaultValue: Int?
+        public let breaking: Bool
+        public let solvable: Bool
+    }
+
+    var modeledAdditionChange: AdditionChange? {
+        guard case let .addition(id, added, defaultValue, breaking, solvable) = self else {
+            return nil
+        }
+        return AdditionChange(id: id, added: added, defaultValue: defaultValue, breaking: breaking, solvable: solvable)
+    }
+}
+
+// MARK: RemovalChange
+public extension ChangeEnum {
+    struct RemovalChange {
+        public let id: DeltaIdentifier
+        public let removed: Definition.Element?
+        public let fallbackValue: Int?
+        public let breaking: Bool
+        public let solvable: Bool
+    }
+
+    var modeledRemovalChange: RemovalChange? {
+        guard case let .removal(id, removed, fallbackValue, breaking, solvable) = self else {
+            return nil
+        }
+        return RemovalChange(id: id, removed: removed, fallbackValue: fallbackValue, breaking: breaking, solvable: solvable)
+    }
+}
+
+// MARK: UpdateChange
+public extension ChangeEnum {
+    struct UpdateChange {
+        public let id: DeltaIdentifier
+        public let updated: Definition.Update
+        public let breaking: Bool
+        public let solvable: Bool
+    }
+
+    var modeledUpdateChange: UpdateChange? {
+        guard case let .update(id, updated, breaking, solvable) = self else {
+            return nil
+        }
+        return UpdateChange(id: id, updated: updated, breaking: breaking, solvable: solvable)
+    }
+
+    init(from model: UpdateChange) { // TODO init for everybody
+        self = .update(id: model.id, updated: model.updated, breaking: model.breaking, solvable: model.solvable)
+    }
+}
+
+// MARK: UnsupportedChange
+public struct NewUnsupportedChange<Definition: ChangeDeclaration> {
+    public let change: ChangeEnum<Definition>
+    public let description: String
+}
+
+public extension ChangeEnum {
+    func classifyUnsupported(description: String) -> NewUnsupportedChange<Definition> {
+        NewUnsupportedChange(change: self, description: description)
+    }
+}
+
+public extension Array where Element: AnyChange {
+    // TODO keep for anything?
+    internal func genericFilter<Result>(for type: NewChangeType, map: KeyPath<ChangeEnum<Element.Definition>, Result>) -> [Result] {
+        self
+            .filter({ $0.type == type })
+            .map { $0.typed()[keyPath: map] }
+    }
+
+    // TODO similar thing for the models? (e.g. EncodingMethod, DecodingMethod ...)
+    func of(base element: Element.Definition.Element) -> [Element] {
+        self.filter { $0.id == element.deltaIdentifier }
+    }
+}
+
+// MARK: ChangeType
+extension ChangeEnum {
+    public var type: NewChangeType {
+        switch self {
+        case .idChange:
+            return .idChange
+        case .addition:
+            return .addition
+        case .removal:
+            return .removal
+        case .update:
+            return .update
+        }
+    }
+}
+
+// MARK: Codable
+extension ChangeEnum: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case type
+
+        case id
+        case breaking
+        case solvable
+
+        case from
+        case to
+        case similarity
+
+        case added
+        case defaultValue
+
+        case removed
+        case fallbackValue
+
+        case updated
+
+        // TODO provider support
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        let type = try container.decode(NewChangeType.self, forKey: .type)
+
+        switch type {
+        case .idChange:
+            self = .idChange(
+                from: try container.decode(DeltaIdentifier.self, forKey: .from),
+                to: try container.decode(DeltaIdentifier.self, forKey: .to),
+                similarity: try container.decodeIfPresent(Double.self, forKey: .similarity),
+                breaking: try container.decode(Bool.self, forKey: .breaking),
+                solvable: try container.decode(Bool.self, forKey: .solvable)
+            )
+        case .addition:
+            self = .addition(
+                id: try container.decode(DeltaIdentifier.self, forKey: .id),
+                added: try container.decode(Definition.Element.self, forKey: .added),
+                defaultValue: try container.decodeIfPresent(Int.self, forKey: .defaultValue),
+                breaking: try container.decode(Bool.self, forKey: .breaking),
+                solvable: try container.decode(Bool.self, forKey: .solvable)
+            )
+        case .removal:
+            self = .removal(
+                id: try container.decode(DeltaIdentifier.self, forKey: .id),
+                removed: try container.decodeIfPresent(Definition.Element.self, forKey: .removed),
+                fallbackValue: try container.decodeIfPresent(Int.self, forKey: .fallbackValue),
+                breaking: try container.decode(Bool.self, forKey: .breaking),
+                solvable: try container.decode(Bool.self, forKey: .solvable)
+            )
+        case .update:
+            self = .update(
+                id: try container.decode(DeltaIdentifier.self, forKey: .id),
+                updated: try container.decode(Definition.Update.self, forKey: .updated),
+                breaking: try container.decode(Bool.self, forKey: .breaking),
+                solvable: try container.decode(Bool.self, forKey: .solvable)
+            )
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        switch self {
+        case let .idChange(from, to, similarity, breaking, solvable):
+            try container.encode(NewChangeType.idChange, forKey: .type)
+
+            try container.encode(from, forKey: .from)
+            try container.encode(to, forKey: .to)
+            try container.encodeIfPresent(similarity, forKey: .similarity)
+            try container.encode(breaking, forKey: .breaking)
+            try container.encode(solvable, forKey: .solvable)
+        case let .addition(id, added, defaultValue, breaking, solvable):
+            try container.encode(NewChangeType.addition, forKey: .type)
+
+            try container.encode(id, forKey: .id)
+            try container.encode(added, forKey: .added)
+            try container.encodeIfPresent(defaultValue, forKey: .added)
+            try container.encode(breaking, forKey: .breaking)
+            try container.encode(solvable, forKey: .solvable)
+        case let .removal(id, removed, fallbackValue, breaking, solvable):
+            try container.encode(NewChangeType.removal, forKey: .type)
+
+            try container.encode(id, forKey: .id)
+            try container.encodeIfPresent(removed, forKey: .removed)
+            try container.encodeIfPresent(fallbackValue, forKey: .fallbackValue)
+            try container.encode(breaking, forKey: .breaking)
+            try container.encode(solvable, forKey: .solvable)
+        case let .update(id, updated, breaking, solvable):
+            // TODO do not encode breaking/solvable if nested update?
+            try container.encode(NewChangeType.update, forKey: .type)
+
+            try container.encode(id, forKey: .id)
+            try container.encode(updated, forKey: .updated)
+            try container.encode(breaking, forKey: .breaking)
+            try container.encode(solvable, forKey: .solvable)
         }
     }
 }
