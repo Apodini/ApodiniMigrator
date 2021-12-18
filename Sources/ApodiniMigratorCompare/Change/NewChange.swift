@@ -57,7 +57,7 @@ public enum ParameterUpdateChange: Codable {
     case necessity(
         from: Necessity,
         to: Necessity,
-        necessityMigration: Int
+        necessityMigration: Int?
     )
 
     case type(

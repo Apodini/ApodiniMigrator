@@ -20,7 +20,7 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
         
         let swiftFiles = try testDirectoryPath.recursiveSwiftFiles().map { $0.lastComponent }
                 
-        let modelNames = document.allModels().map { $0.typeString + .swift }
+        let modelNames = document.models.map { $0.typeString + .swift }
         
         modelNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
@@ -43,7 +43,7 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
         
         let swiftFiles = try testDirectoryPath.recursiveSwiftFiles().map { $0.lastComponent }
                 
-        let modelNames = document.allModels().map { $0.typeString + .swift }
+        let modelNames = document.models.map { $0.typeString + .swift }
         
         modelNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
@@ -70,7 +70,7 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
         ))
         
         XCTAssertNoThrow(try migrator.run(packageName: "TestMigPackage", packagePath: testDirectory))
-        XCTAssert(try testDirectoryPath.recursiveSwiftFiles().isNotEmpty)
+        XCTAssertEqual(try testDirectoryPath.recursiveSwiftFiles().isEmpty, false)
     }
     
     func testMigrationGuideThrowing() throws {

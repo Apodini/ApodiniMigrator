@@ -12,8 +12,15 @@ public struct HTTPInformation: Value, LosslessStringConvertible {
     let hostname: String
     let port: Int
 
+    // TODO https/http
+
     // TODO e.g. add reserved paths (e.g. the apodini path?)
     // TODO http version?
+
+    public init(hostname: String, port: Int = 80) {
+        self.hostname = hostname
+        self.port = port
+    }
 
     public init?(_ description: String) { // TODO test that it works!
         guard let colonIndex = description.lastIndex(of: ":") else {

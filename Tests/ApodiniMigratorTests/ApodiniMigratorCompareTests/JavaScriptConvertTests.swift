@@ -232,7 +232,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         guard canImportJavaScriptCore() else {
             return
         }
-        let scriptBuilder = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date))
+        let scriptBuilder = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date), context: comparisonContext)
         
         XCTAssertNoThrow(try String?.from(Date(), script: scriptBuilder.convertToFrom))
     }
@@ -439,7 +439,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
             let name: String
         }
         
-        let jsBuilder = JSScriptBuilder(from: try TypeInformation(type: User.self), to: try TypeInformation(type: UserNew.self))
+        let jsBuilder = JSScriptBuilder(from: try TypeInformation(type: User.self), to: try TypeInformation(type: UserNew.self), context: comparisonContext)
         
         let newUser = UserNew(ident: .init(), name: "I am new user")
         let user = try User.from(newUser, script: jsBuilder.convertToFrom)

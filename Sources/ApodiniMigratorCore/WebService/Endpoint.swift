@@ -30,6 +30,16 @@ public struct AnyEndpointIdentifier: Value, DeltaIdentifiable, Hashable {
         DeltaIdentifier(rawValue: id)
     }
 
+    public init(id: String, value: String) {
+        self.id = id
+        self.value = value
+    }
+
+    public init<Identifier: EndpointIdentifier>(from identifier: Identifier) {
+        self.id = Identifier.identifierType
+        self.value = identifier.rawValue
+    }
+
     public func typed<Identifier: EndpointIdentifier>(of type: Identifier.Type = Identifier.self) -> Identifier {
         guard id == Identifier.identifierType else {
             fatalError("Tired to cast \(self) to \(type) with non matching id \(Identifier.identifierType)!")
@@ -113,7 +123,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
     }
 
     public mutating func add<Identifier: EndpointIdentifier>(identifier: Identifier) {
-        self.identifiers[Identifier.identifierType] = AnyEndpointIdentifier(id: Identifier.identifierType, value: identifier.rawValue)
+        self.identifiers[Identifier.identifierType] = AnyEndpointIdentifier(from: identifier)
     }
 
     // TODO naming

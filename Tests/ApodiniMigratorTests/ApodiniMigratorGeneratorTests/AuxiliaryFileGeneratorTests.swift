@@ -34,7 +34,7 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
         )
         
         let enumeration: TypeInformation = .enum(
-            name: .init(name: "TestEnumeration"),
+            name: .init(rawValue: "TestEnumeration"),
             rawValueType: .scalar(.string),
             cases: [
                 .init("first"),
@@ -52,13 +52,14 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
             handlerName: "TestHandler",
             deltaIdentifier: "sayHelloWorld",
             operation: .read,
+            communicationalPattern: .requestResponse,
             absolutePath: "/v1/hello",
             parameters: [],
             response: .scalar(.string),
             errors: [.init(code: 404, message: "Could not say hello")]
         )
 
-        let migratedEndpoints = [MigratedEndpoint(endpoint: endpoint, unavailable: false, parameters: [], path: endpoint.path)]
+        let migratedEndpoints = [MigratedEndpoint(endpoint: endpoint, unavailable: false, parameters: [], path: endpoint.identifier())]
         let file = APIFile(SharedNodeReference(with: migratedEndpoints))
         
         XCTMigratorAssertEqual(file, .aPIFile)

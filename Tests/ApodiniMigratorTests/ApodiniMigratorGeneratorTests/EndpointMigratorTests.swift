@@ -16,6 +16,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
         handlerName: "TestHandler",
         deltaIdentifier: "testEndpoint",
         operation: .read,
+        communicationalPattern: .requestResponse,
         absolutePath: "/v1/tests/{second}",
         parameters: [
             .init(name: "isDriving", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
@@ -27,134 +28,206 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
         errors: [.init(code: 404, message: "Not found")]
     )
     
-    private var pathChange: UpdateChange {
-        .init(
-            element: .endpoint(endpoint.deltaIdentifier, target: .resourcePath),
-            from: .element(endpoint.path),
-            to: .element(EndpointPath("/v1/updatedTests/{second}")),
+    private var pathChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .identifier(identifier: .update(
+                id: .init(EndpointPath.identifierType),
+                updated: .value(
+                    from: AnyEndpointIdentifier(from: endpoint.identifier(for: EndpointPath.self)),
+                    to: AnyEndpointIdentifier(from: EndpointPath(rawValue: "/v1/updatedTests/{second}"))
+                ),
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    private var operationChange: UpdateChange {
-        .init(
-            element: .endpoint(endpoint.deltaIdentifier, target: .operation),
-            from: .element(endpoint.operation),
-            to: .element(ApodiniMigratorCore.Operation.create),
+    private var operationChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .identifier(identifier: .update(
+                id: .init(Operation.identifierType),
+                updated: .value(
+                    from: AnyEndpointIdentifier(from: endpoint.identifier(for: ApodiniMigratorCore.Operation.self)),
+                    to: AnyEndpointIdentifier(from: ApodiniMigratorCore.Operation.create)
+                ),
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
 
-    private var addParameterChange: AddChange {
-        .init(
-            element: .endpoint(endpoint.deltaIdentifier, target: .queryParameter),
-            added: .element(Parameter(name: "newParameter", typeInformation: .scalar(.bool), parameterType: .lightweight, isRequired: true)),
-            defaultValue: .json(123),
+    private var addParameterChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .parameter(parameter: .addition(
+                id: "newParameter",
+                added: Parameter(name: "newParameter", typeInformation: .scalar(.bool), parameterType: .lightweight, isRequired: true),
+                defaultValue: 123,
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
   
-    private var deleteParameterChange: DeleteChange {
-        .init(
-            element: .endpoint(endpoint.deltaIdentifier, target: .queryParameter),
-            deleted: .elementID("first"),
-            fallbackValue: .none,
+    private var deleteParameterChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .parameter(parameter: .removal(
+                id: "first",
+                fallbackValue: nil,
+                breaking: false,
+                solvable: true
+            )),
             breaking: false,
             solvable: true
         )
     }
     
-    private var deleteContentParameterChange: DeleteChange {
-        .init(
-            element: .endpoint(endpoint.deltaIdentifier, target: .queryParameter),
-            deleted: .elementID("third"),
-            fallbackValue: .none,
+    private var deleteContentParameterChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .parameter(parameter: .removal(
+                id: "third",
+                fallbackValue: nil,
+                breaking: false,
+                solvable: true
+            )),
             breaking: false,
             solvable: true
         )
     }
     
-    private var renamedParameterChange: UpdateChange {
-        .init(
-            element: .endpoint(endpoint.deltaIdentifier, target: .queryParameter),
-            from: "first",
-            to: "someNewParameterName",
-            similarity: 0,
+    private var renamedParameterChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .parameter(parameter: .idChange(
+                from: "first",
+                to: "someNewParameterName",
+                similarity: 0,
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    private var pathAndParameterKindChanges: [Change] {
+    private var pathAndParameterKindChanges: [EndpointChange] {
         [
-            UpdateChange(
-                element: .endpoint(endpoint.deltaIdentifier, target: .queryParameter),
-                from: .element(ParameterType.lightweight),
-                to: .element(ParameterType.path),
-                targetID: "first",
-                parameterTarget: .kind,
+            .update(
+                id: endpoint.deltaIdentifier,
+                updated: .parameter(parameter: .update(
+                    id: "first",
+                    updated: .parameterType(from: .lightweight, to: .path),
+                    breaking: true,
+                    solvable: true
+                )),
                 breaking: true,
                 solvable: true
             ),
-            UpdateChange(
-                element: .endpoint(endpoint.deltaIdentifier, target: .resourcePath),
-                from: .element(endpoint.path),
-                to: .element(EndpointPath("/v1/tests/{second}/{first}")),
+            .update(
+                id: endpoint.deltaIdentifier,
+                updated: .identifier(identifier: .update(
+                    id: .init(EndpointPath.identifierType),
+                    updated: .value(
+                        from: AnyEndpointIdentifier(from: endpoint.identifier(for: EndpointPath.self)),
+                        to: AnyEndpointIdentifier(from: EndpointPath(rawValue: "/v1/tests/{second}/{first}"))
+                    ),
+                    breaking: true,
+                    solvable: true
+                )),
                 breaking: true,
                 solvable: true
             )
         ]
     }
     
-    private var parameterTypeChange: UpdateChange {
-        UpdateChange(
-            element: .endpoint(endpoint.deltaIdentifier, target: .queryParameter),
-            from: .element(TypeInformation.scalar(.string)),
-            to: .element(TypeInformation.scalar(.bool)),
-            targetID: "first",
-            convertFromTo: 1,
-            convertionWarning: nil,
-            parameterTarget: .typeInformation,
+    private var parameterTypeChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .parameter(parameter: .update(
+                id: "first",
+                updated: .type(
+                    from: .scalar(.string),
+                    to: .scalar(.bool),
+                    forwardMigration: 1,
+                    conversionWarning: nil
+                ),
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
         
-    private var parameterNecessityToRequiredChange: UpdateChange {
-        .init(
-            element: .endpoint(endpoint.deltaIdentifier, target: .queryParameter),
-            from: .element(Necessity.optional),
-            to: .element(Necessity.required),
-            targetID: "isDriving",
-            necessityValue: .json(1),
-            parameterTarget: .necessity,
+    private var parameterNecessityToRequiredChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .parameter(parameter: .update(
+                id: "isDriving",
+                updated: .necessity(
+                    from: .optional,
+                    to: .required,
+                    necessityMigration: 1
+                ),
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    private var parameterNecessityToOptionalChange: UpdateChange {
-        .init(
-            element: .endpoint(endpoint.deltaIdentifier, target: .queryParameter),
-            from: .element(Necessity.required),
-            to: .element(Necessity.optional),
-            targetID: "name",
-            parameterTarget: .necessity,
+    private var parameterNecessityToOptionalChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .parameter(parameter: .update(
+                id: "name",
+                updated: .necessity(
+                    from: .required,
+                    to: .optional,
+                    necessityMigration: nil
+                ),
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    private var responseChange: UpdateChange {
-        .init(
-            element: .endpoint(endpoint.deltaIdentifier, target: .queryParameter),
-            from: .element(endpoint.response),
-            to: .element(TypeInformation.reference("UpdatedTestResponse")),
-            convertToFrom: 1,
-            convertionWarning: nil,
+    private var responseChange: EndpointChange {
+        .update(
+            id: endpoint.deltaIdentifier,
+            updated: .parameter(parameter: .update(
+                id: "name",
+                updated: .type(
+                    from: endpoint.response,
+                    to: .reference("UpdatedTestResponse"),
+                    forwardMigration: 1,
+                    conversionWarning: nil
+                ),
+                breaking: true,
+                solvable: true
+            )),
+            breaking: true,
+            solvable: true
+        )
+    }
+
+    private var endpointRemovalChange: EndpointChange {
+        return .removal(
+            id: endpoint.deltaIdentifier,
+            fallbackValue: nil,
             breaking: true,
             solvable: true
         )
@@ -166,7 +239,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
         FileHeaderComment.testsDate = .testsDate
     }
     
-    private func endpointFile(changes: [Change]) -> EndpointFile {
+    private func endpointFile(changes: [EndpointChange]) -> EndpointFile {
         return .init(migratedEndpointsReference: SharedNodeReference(with: []), typeInformation: endpoint.response, endpoints: [endpoint], changes: changes)
     }
     
@@ -256,15 +329,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     func testEndpointDeletedChange() throws {
-        let deletedSelfChange = DeleteChange(
-            element: .endpoint(endpoint.deltaIdentifier, target: .`self`),
-            deleted: .elementID(endpoint.deltaIdentifier),
-            fallbackValue: .none,
-            breaking: true,
-            solvable: true
-        )
-        
-        let file = endpointFile(changes: [deletedSelfChange])
+        let file = endpointFile(changes: [endpointRemovalChange])
         
         XCTMigratorAssertEqual(file, .endpointDeletedChange)
     }

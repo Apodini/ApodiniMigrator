@@ -9,6 +9,7 @@
 import XCTest
 @testable import ApodiniMigratorCore
 @testable import ApodiniMigratorClientSupport
+@testable import RESTMigrator
 
 final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
     func testDSLEndpointIdentifier() {
@@ -89,7 +90,13 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
     }
 
     func testDocument() throws {
-        var document = APIDocument()
+        let serviceInformation = ServiceInformation(
+            version: Version(prefix: "test", major: 1, minor: 2, patch: 3),
+            http: HTTPInformation(hostname: "127.0.0.1", port: 8080),
+            exporters: RESTExporterConfiguration(encoderConfiguration: .default, decoderConfiguration: .default)
+        )
+
+        var document = APIDocument(serviceInformation: serviceInformation)
         document.add(
             endpoint: .init(
                 handlerName: "someHandler",
@@ -102,14 +109,11 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
                 errors: []
             )
         )
-        document.setServerPath("http://127.0.0.1:8080")
-        document.setVersion(Version(prefix: "test", major: 1, minor: 2, patch: 3))
-        
-        document.setCoderConfigurations(.default, .default)
-        XCTAssert(document.fileName == "api_test1.2.3")
-        XCTAssert(!document.endpoints.isEmpty)
-        XCTAssertEqual(document.serviceInformation.versionedServerPath, "http://127.0.0.1:8080/test1")
-        XCTAssert(!document.json.isEmpty)
-        XCTAssert(!document.yaml.isEmpty)
+
+        XCTAssertEqual(document.fileName, "api_test1.2.3")
+        XCTAssertEqual(document.endpoints.isEmpty, false)
+        XCTAssertEqual(document.serviceInformation.http.urlFormatted, "http://127.0.0.1:8080")
+        XCTAssertEqual(document.json.isEmpty, false)
+        XCTAssertEqual(document.yaml.isEmpty, false)
     }
 }

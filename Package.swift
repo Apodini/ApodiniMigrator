@@ -37,7 +37,10 @@ let package = Package(
         .package(url: "https://github.com/jpsim/Yams.git", from: "4.0.0"),
 
         // gRPC
-        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.18.0")
+        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.18.0"),
+
+        // testing runtime crashes
+        .package(url: "https://github.com/norio-nomura/XCTAssertCrash.git", from: "0.2.0")
     ],
     targets: [
         // The lowest level ApodiniMigrator package providing common API used across several targets, including
@@ -153,7 +156,8 @@ let package = Package(
                 "ApodiniMigratorCore",
                 "RESTMigrator",
                 "ApodiniMigratorCompare",
-                "ApodiniMigratorClientSupport"
+                "ApodiniMigratorClientSupport",
+                .product(name: "XCTAssertCrash", package: "XCTAssertCrash", condition: .when(platforms: [.macOS]))
             ],
             resources: [
                 .process("Resources")

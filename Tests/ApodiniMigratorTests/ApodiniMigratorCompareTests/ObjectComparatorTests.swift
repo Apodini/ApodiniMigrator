@@ -11,8 +11,15 @@ import XCTest
 @testable import ApodiniMigratorCompare
 
 final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
+    var modelChanges = [ModelChange]()
+
+    override func tearDownWithError() throws {
+        try super.tearDownWithError()
+        modelChanges.removeAll()
+    }
+
     let user: TypeInformation = .object(
-        name: .init(name: "User"),
+        name: .init(rawValue: "User"),
         properties: [
             .init(name: "id", type: .scalar(.uuid)),
             .init(name: "name", type: .scalar(.string)),
@@ -30,30 +37,41 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testNoObjectChange() {
-        let objectComparator = ObjectComparator(lhs: user, rhs: user, changes: node, configuration: .default)
-        objectComparator.compare()
-        XCTAssert(node.isEmpty)
+        let comparator = ObjectComparator(lhs: user, rhs: user)
+        comparator.compare(comparisonContext, &modelChanges)
+        XCTAssert(modelChanges.isEmpty)
     }
     
     func testAddedObjectProperty() throws {
         let newProperty: TypeProperty = .init(name: "birthday", type: .scalar(.date))
         let updated: TypeInformation = .object(name: user.typeName, properties: user.objectProperties + newProperty)
-        let objectComparator = ObjectComparator(lhs: user, rhs: updated, changes: node, configuration: .default)
-        objectComparator.compare()
-        
-        XCTAssert(node.changes.count == 1)
-        let change = try XCTUnwrap(node.changes.first as? AddChange)
-        XCTAssert(change.element == .object(user.deltaIdentifier, target: .property))
-        XCTAssert(change.breaking)
-        XCTAssert(change.solvable)
-        XCTAssert(change.providerSupport == .renameHint(AddChange.self))
-        if case let .element(codable) = change.added {
-            XCTAssert(codable.typed(TypeProperty.self) == newProperty)
-        } else {
-            XCTFail("Did not provide the added property")
+
+        let comparator = ObjectComparator(lhs: user, rhs: updated)
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, user.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
+        XCTAssertEqual(change.breaking, true)
+        XCTAssertEqual(change.solvable, true)
+
+        let updateChange = try XCTUnwrap(change.modeledUpdateChange)
+        guard case let .property(propertyChange) = updateChange.updated else {
+            XCTFail("Change did not store the updated property")
+            return
         }
-        
-        if case let .json(id) = change.defaultValue, let json = node.jsonValues[id] {
+
+        XCTAssertEqual(propertyChange.type, .addition)
+        XCTAssertEqual(change.breaking, propertyChange.breaking)
+        XCTAssertEqual(change.solvable, propertyChange.solvable)
+        XCTAssertEqual(propertyChange.id, newProperty.deltaIdentifier)
+
+        let propertyAddition = try XCTUnwrap(propertyChange.modeledAdditionChange)
+        XCTAssertEqual(propertyAddition.added, newProperty)
+
+        if let defaultValue = propertyAddition.defaultValue,
+           let json = comparisonContext.jsonValues[defaultValue] {
             XCTAssertNoThrow(try Date.instance(from: json))
         } else {
             XCTFail("Did not provide a default value for the added required property")
@@ -62,23 +80,33 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
     
     func testDeletedProperty() throws {
         let updated: TypeInformation = .object(name: user.typeName, properties: user.objectProperties.filter { $0.name != "githubProfile" })
-        let objectComparator = ObjectComparator(lhs: user, rhs: updated, changes: node, configuration: .default)
-        objectComparator.compare()
-        
-        XCTAssert(node.changes.count == 1)
-        let deleteChange = try XCTUnwrap(node.changes.first as? DeleteChange)
-        
-        XCTAssert(deleteChange.element == .object(user.deltaIdentifier, target: .property))
-        XCTAssert(deleteChange.breaking)
-        XCTAssert(deleteChange.solvable)
-        XCTAssert(deleteChange.providerSupport == .renameHint(DeleteChange.self))
-        if case let .elementID(id) = deleteChange.deleted {
-            XCTAssert(id == "githubProfile")
-        } else {
-            XCTFail("Did not provide the id of the deleted property")
+
+        let comparator = ObjectComparator(lhs: user, rhs: updated)
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, user.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
+        XCTAssertEqual(change.breaking, true)
+        XCTAssertEqual(change.solvable, true)
+
+        let updateChange = try XCTUnwrap(change.modeledUpdateChange)
+        guard case let .property(propertyChange) = updateChange.updated else {
+            XCTFail("Change did not store the updated property")
+            return
         }
-        
-        if case let .json(id) = deleteChange.fallbackValue, let json = node.jsonValues[id] {
+
+        XCTAssertEqual(propertyChange.type, .removal)
+        XCTAssertEqual(change.breaking, propertyChange.breaking)
+        XCTAssertEqual(change.solvable, propertyChange.solvable)
+        XCTAssertEqual(propertyChange.id, "githubProfile")
+
+        let propertyRemoval = try XCTUnwrap(propertyChange.modeledRemovalChange)
+        XCTAssertEqual(propertyRemoval.removed, nil)
+
+        if let fallbackValue = propertyRemoval.fallbackValue,
+           let json = comparisonContext.jsonValues[fallbackValue] {
             XCTAssertNoThrow(try URL.instance(from: json))
         } else {
             XCTFail("Did not provide a fallback value of deleted property")
@@ -90,23 +118,32 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
             name: user.typeName,
             properties: user.objectProperties.filter { $0.name != "githubProfile" } + .init(name: "github", type: .scalar(.url))
         )
-        
-        let objectComparator = ObjectComparator(lhs: user, rhs: updated, changes: node, configuration: .default)
-        objectComparator.compare()
-        
-        XCTAssert(node.changes.count == 1)
-        let change = try XCTUnwrap(node.changes.first as? UpdateChange)
-        XCTAssert(change.element == .object(user.deltaIdentifier, target: .property))
-        XCTAssert(change.type == .rename)
-        XCTAssert(change.targetID == "githubProfile")
-        XCTAssert(change.breaking)
-        XCTAssert(change.solvable)
-        if case let .stringValue(value) = change.to, let similarity = change.similarity {
-            XCTAssert(value == "github")
-            XCTAssert(similarity > 0.5)
-        } else {
-            XCTFail("Change did not provide the updated name of the property")
+
+        let comparator = ObjectComparator(lhs: user, rhs: updated)
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, user.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
+        XCTAssertEqual(change.breaking, true)
+        XCTAssertEqual(change.solvable, true)
+        let updateChange = try XCTUnwrap(change.modeledUpdateChange)
+
+        guard case let .property(propertyChange) = updateChange.updated else {
+            XCTFail("Change did not store the updated property")
+            return
         }
+
+        XCTAssertEqual(propertyChange.type, .idChange)
+        XCTAssertEqual(change.breaking, propertyChange.breaking)
+        XCTAssertEqual(change.solvable, propertyChange.solvable)
+        XCTAssertEqual(propertyChange.id, "githubProfile")
+
+        let propertyRename = try XCTUnwrap(propertyChange.modeledIdentifierChange)
+        XCTAssertEqual(propertyRename.from, propertyChange.id)
+        XCTAssertEqual(propertyRename.to, "github")
+        XCTAssert(try XCTUnwrap(propertyRename.similarity) > 0.5)
     }
     
     func testPropertyNecessityToRequiredChange() throws {
@@ -114,24 +151,37 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
             name: user.typeName,
             properties: user.objectProperties.filter { $0.name != "age" } + .init(name: "age", type: .scalar(.uint))
         )
-        
-        let objectComparator = ObjectComparator(lhs: user, rhs: updated, changes: node, configuration: .default)
-        objectComparator.compare()
-        
-        XCTAssert(node.changes.count == 1)
-        let change = try XCTUnwrap(node.changes.first as? UpdateChange)
-        XCTAssert(change.element == .object(user.deltaIdentifier, target: .necessity))
-        XCTAssert(change.type == .update)
-        XCTAssert(change.targetID == "age")
-        XCTAssert(change.breaking)
-        XCTAssert(change.solvable)
-        if case let .element(codable) = change.to {
-            XCTAssert(codable.typed(Necessity.self) == .required)
-        } else {
-            XCTFail("Change did not provide the updated necessity of the property")
+
+        let comparator = ObjectComparator(lhs: user, rhs: updated)
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, user.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
+        XCTAssertEqual(change.breaking, true)
+        XCTAssertEqual(change.solvable, true)
+        let updateChange = try XCTUnwrap(change.modeledUpdateChange)
+
+        guard case let .property(propertyChange) = updateChange.updated else {
+            XCTFail("Change did not store the updated property")
+            return
         }
-        
-        if case let .json(id) = change.necessityValue, let json = node.jsonValues[id] {
+
+        XCTAssertEqual(propertyChange.type, .update)
+        XCTAssertEqual(change.breaking, propertyChange.breaking)
+        XCTAssertEqual(change.solvable, propertyChange.solvable)
+        XCTAssertEqual(propertyChange.id, "age")
+
+        let propertyUpdate = try XCTUnwrap(propertyChange.modeledUpdateChange)
+        guard case let .necessity(from, to, necessityMigration) = propertyUpdate.updated else {
+            XCTFail("Unexpected property update change: \(propertyUpdate.updated)")
+            return
+        }
+        XCTAssertEqual(from, .optional)
+        XCTAssertEqual(to, .required)
+
+        if let json = comparisonContext.jsonValues[necessityMigration] {
             XCTAssertNoThrow(try UInt.instance(from: json))
         } else {
             XCTFail("Did not provide a necessity value for the updated property")
@@ -143,23 +193,37 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
             name: user.typeName,
             properties: user.objectProperties.filter { $0.name != "name" } + .init(name: "name", type: .optional(wrappedValue: .scalar(.string)))
         )
-        
-        let objectComparator = ObjectComparator(lhs: user, rhs: updated, changes: node, configuration: .default)
-        objectComparator.compare()
-        
-        XCTAssert(node.changes.count == 1)
-        let change = try XCTUnwrap(node.changes.first as? UpdateChange)
-        XCTAssert(change.element == .object(user.deltaIdentifier, target: .necessity))
-        XCTAssert(change.type == .update)
-        XCTAssert(change.breaking)
-        XCTAssert(change.solvable)
-        if case let .element(codable) = change.to {
-            XCTAssert(codable.typed(Necessity.self) == .optional)
-        } else {
-            XCTFail("Change did not provide the updated necessity of the property")
+
+        let comparator = ObjectComparator(lhs: user, rhs: updated)
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, user.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
+        XCTAssertEqual(change.breaking, true)
+        XCTAssertEqual(change.solvable, true)
+        let updateChange = try XCTUnwrap(change.modeledUpdateChange)
+
+        guard case let .property(propertyChange) = updateChange.updated else {
+            XCTFail("Change did not store the updated property")
+            return
         }
-        
-        if case let .json(id) = change.necessityValue, let json = node.jsonValues[id] {
+
+        XCTAssertEqual(propertyChange.type, .update)
+        XCTAssertEqual(change.breaking, propertyChange.breaking)
+        XCTAssertEqual(change.solvable, propertyChange.solvable)
+        XCTAssertEqual(propertyChange.id, "name")
+
+        let propertyUpdate = try XCTUnwrap(propertyChange.modeledUpdateChange)
+        guard case let .necessity(from, to, necessityMigration) = propertyUpdate.updated else {
+            XCTFail("Unexpected property update change: \(propertyUpdate.updated)")
+            return
+        }
+        XCTAssertEqual(from, .required)
+        XCTAssertEqual(to, .optional)
+
+        if let json = comparisonContext.jsonValues[necessityMigration] {
             XCTAssertNoThrow(try String.instance(from: json))
         } else {
             XCTFail("Did not provide a necessity value for the updated property")
@@ -170,33 +234,50 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
         guard canImportJavaScriptCore() else {
             return
         }
+
         let updated: TypeInformation = .object(
             name: user.typeName,
             properties: user.objectProperties.filter { $0.name != "isStudent" } + .init(name: "isStudent", type: .scalar(.bool))
         )
-        
-        let objectComparator = ObjectComparator(lhs: user, rhs: updated, changes: node, configuration: .default)
-        objectComparator.compare()
-        
-        XCTAssert(node.changes.count == 1)
-        let change = try XCTUnwrap(node.changes.first as? UpdateChange)
-        XCTAssert(change.element == .object(user.deltaIdentifier, target: .property))
-        XCTAssert(change.type == .propertyChange)
-        XCTAssert(change.breaking)
-        XCTAssert(change.solvable)
-        if case let .element(codable) = change.to {
-            XCTAssert(codable.typed(TypeInformation.self) == .scalar(.bool))
-        } else {
-            XCTFail("Change did not provide the updated type of the property")
+
+        let comparator = ObjectComparator(lhs: user, rhs: updated)
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, user.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
+        XCTAssertEqual(change.breaking, true)
+        XCTAssertEqual(change.solvable, true)
+        let updateChange = try XCTUnwrap(change.modeledUpdateChange)
+
+        guard case let .property(propertyChange) = updateChange.updated else {
+            XCTFail("Change did not store the updated property")
+            return
         }
-        
-        if let convertFromTo = change.convertFromTo, let script = node.scripts[convertFromTo] {
+
+        XCTAssertEqual(propertyChange.type, .update)
+        XCTAssertEqual(change.breaking, propertyChange.breaking)
+        XCTAssertEqual(change.solvable, propertyChange.solvable)
+        XCTAssertEqual(propertyChange.id, "name")
+
+        let propertyUpdate = try XCTUnwrap(propertyChange.modeledUpdateChange)
+        guard case let .type(from, to, forwardMigration, backwardMigration, conversionWarning) = propertyUpdate.updated else {
+            XCTFail("Unexpected property update change: \(propertyUpdate.updated)")
+            return
+        }
+
+        XCTAssertEqual(from, .scalar(.string))
+        XCTAssertEqual(to, .scalar(.bool))
+        XCTAssertEqual(conversionWarning, nil)
+
+        if let script = comparisonContext.scripts[forwardMigration] {
             XCTAssertEqual(false, try Bool.from("NO", script: script))
         } else {
             XCTFail("Did not provide the convert script for updated property type")
         }
         
-        if let convertToFrom = change.convertToFrom, let script = node.scripts[convertToFrom] {
+        if let script = node.scripts[backwardMigration] {
             XCTAssertEqual("YES", try String.from(true, script: script))
         } else {
             XCTFail("Did not provide the convert script for updated property type")

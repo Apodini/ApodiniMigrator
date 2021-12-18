@@ -24,7 +24,7 @@ final class ChangeComparisonContext {
     var modelChanges: [ModelChange] = []
     var endpointChanges: [EndpointChange] = []
 
-    init(configuration: CompareConfiguration? = nil, latestModels: [TypeInformation]) {
+    init(configuration: CompareConfiguration? = nil, latestModels: [TypeInformation] = []) {
         self.configuration = configuration ?? .default
         self.latestModels = latestModels
     }

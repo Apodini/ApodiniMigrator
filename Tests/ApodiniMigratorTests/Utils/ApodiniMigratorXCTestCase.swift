@@ -13,7 +13,8 @@ import PathKit
 @testable import ApodiniMigrator
 
 class ApodiniMigratorXCTestCase: XCTestCase {
-    var node = ChangeContextNode()
+    var node = ChangeContextNode() // TODO remove
+    var comparisonContext = ChangeComparisonContext()
     
     let testDirectory = "./\(UUID().uuidString)"
     var testDirectoryPath: Path {
@@ -36,7 +37,8 @@ class ApodiniMigratorXCTestCase: XCTestCase {
     override func tearDownWithError() throws {
         try super.tearDownWithError()
         
-        node = ChangeContextNode()
+        node = ChangeContextNode() // TODO remove
+        comparisonContext = ChangeComparisonContext()
         try testDirectoryPath.delete()
     }
     
@@ -53,7 +55,7 @@ class ApodiniMigratorXCTestCase: XCTestCase {
     func XCTAssertThrows<T>(_ expression: @autoclosure () throws -> T) {
         let expectation = XCTestExpectation(description: "Expression did throw")
         do {
-            _ = try expression()
+            try _ = expression()
             XCTFail("Expression did not throw")
         } catch {
             expectation.fulfill()

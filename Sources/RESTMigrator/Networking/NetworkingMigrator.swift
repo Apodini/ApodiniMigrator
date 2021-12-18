@@ -9,7 +9,7 @@
 import Foundation
 import ApodiniMigratorCompare
 
-private extension HTTPInformation {
+internal extension HTTPInformation {
     var urlFormatted: String {
         // TODO assuming http for now!
         "http://\(description)"

@@ -13,7 +13,7 @@ import XCTest
 
 final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
     private let user: TypeInformation = .object(
-        name: .init(name: "User"),
+        name: .init(rawValue: "User"),
         properties: [
             .init(name: "id", type: .scalar(.uuid)),
             .init(name: "name", type: .scalar(.string)),
@@ -24,72 +24,122 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
         ]
     )
     
-    private var addPropertyChange: AddChange {
-        .init(
-            element: .object(user.deltaIdentifier, target: .property),
-            added: .element(TypeProperty(name: "username", type: .scalar(.string))),
-            defaultValue: .json(1),
+    private var addPropertyChange: ModelChange {
+        .update(
+            id: user.deltaIdentifier,
+            updated: .property(property: .addition(
+                id: "username",
+                added: TypeProperty(name: "username", type: .scalar(.string)),
+                defaultValue: 1,
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    private var deletePropertyChange: DeleteChange {
-        .init(
-            element: .object(user.deltaIdentifier, target: .property),
-            deleted: .elementID("friends"),
-            fallbackValue: .json(2),
+    private var deletePropertyChange: ModelChange {
+        .update(
+            id: user.deltaIdentifier,
+            updated: .property(property: .removal(
+                id: "friends",
+                fallbackValue: 2,
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    private var renamedPropertyChange: UpdateChange {
-        .init(
-            element: .object(user.deltaIdentifier, target: .property),
-            from: "githubProfile",
-            to: "githubURL",
-            similarity: 0,
+    private var renamedPropertyChange: ModelChange {
+        .update(
+            id: user.deltaIdentifier,
+            updated: .property(property: .idChange(
+                from: "githubProfile",
+                to: "githubURL",
+                similarity: 0,
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    private var propertyNecessityToRequiredChange: UpdateChange {
-        UpdateChange(
-            element: .object(user.deltaIdentifier, target: .necessity),
-            from: .element(Necessity.optional),
-            to: .element(Necessity.required),
-            necessityValue: .json(3),
-            targetID: "age",
+    private var propertyNecessityToRequiredChange: ModelChange {
+        .update(
+            id: user.deltaIdentifier,
+            updated: .property(property: .update(
+                id: "age",
+                updated: .necessity(from: .optional, to: .required, necessityMigration: 3),
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    private var propertyNecessityToOptionalChange: UpdateChange {
-        UpdateChange(
-            element: .object(user.deltaIdentifier, target: .necessity),
-            from: .element(Necessity.required),
-            to: .element(Necessity.optional),
-            necessityValue: .json(4),
-            targetID: "name",
+    private var propertyNecessityToOptionalChange: ModelChange {
+        .update(
+            id: user.deltaIdentifier,
+            updated: .property(property: .update(
+                id: "name",
+                updated: .necessity(from: .required, to: .optional, necessityMigration: 4),
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    private var propertyTypeChange: UpdateChange {
-        .init(
-            element: .object(user.deltaIdentifier, target: .property),
-            from: .element(TypeInformation.scalar(.string)),
-            to: .element(TypeInformation.scalar(.bool)),
-            targetID: "isStudent",
-            convertFromTo: 1,
-            convertToFrom: 2,
-            convertionWarning: nil,
+    private var propertyTypeChange: ModelChange {
+        .update(
+            id: user.deltaIdentifier,
+            updated: .property(property: .update(
+                id: "isStudent",
+                updated: .type(
+                    from: .scalar(.string),
+                    to: .scalar(.bool),
+                    forwardMigration: 1,
+                    backwardMigration: 2,
+                    conversionWarning: nil
+                ),
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
-            solvable: true)
+            solvable: true
+        )
+    }
+
+    private var objectRemovalChange: ModelChange {
+        .removal(
+            id: user.deltaIdentifier,
+            fallbackValue: nil,
+            breaking: true,
+            solvable: true
+        )
+    }
+
+    private var objectUnsupportedRootTypeChange: ModelChange {
+        .update(
+            id: user.deltaIdentifier,
+            updated: .rootType(
+                from: .object,
+                to: .enum,
+                newModel: .enum(
+                    name: .init(rawValue: user.deltaIdentifier.rawValue),
+                    rawValueType: .scalar(.string),
+                    cases: [EnumCase("ok")]
+                )
+            ),
+            breaking: true,
+            solvable: false
+        )
     }
     
     override class func setUp() {
@@ -149,25 +199,12 @@ final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     func testObjectDeleted() throws {
-        let deletedSelfChange = DeleteChange(
-            element: .object(user.deltaIdentifier, target: .`self`),
-            deleted: .elementID(user.deltaIdentifier),
-            fallbackValue: .none,
-            breaking: true,
-            solvable: true
-        )
-        
-        let migrator = ObjectMigrator(user, changes: [deletedSelfChange])
+        let migrator = ObjectMigrator(user, changes: [objectRemovalChange])
         XCTMigratorAssertEqual(migrator, .objectDeletedChange)
     }
     
     func testObjectUnsupportedChange() throws {
-        let unsupportedChange = UnsupportedChange(
-            element: .object(user.deltaIdentifier, target: .`self`),
-            description: "Unsupported change! Type changed to enum"
-        )
-        
-        let migrator = ObjectMigrator(user, changes: [unsupportedChange])
+        let migrator = ObjectMigrator(user, changes: [objectUnsupportedRootTypeChange])
         XCTMigratorAssertEqual(migrator, .objectUnsupportedChange)
     }
 }

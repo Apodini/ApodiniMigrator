@@ -11,10 +11,18 @@ import XCTest
 @testable import ApodiniMigratorCompare
 
 final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
+    var endpointChanges = [EndpointChange]()
+
+    override func tearDownWithError() throws {
+        try super.tearDownWithError()
+        endpointChanges.removeAll()
+    }
+
     private let lhs = Endpoint(
         handlerName: "handlerName",
         deltaIdentifier: "runTests",
         operation: .read,
+        communicationalPattern: .requestResponse,
         absolutePath: "/v1/tests",
         parameters: [],
         response: .scalar(.bool),
@@ -25,6 +33,7 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
         handlerName: "handlerName",
         deltaIdentifier: "runningTests",
         operation: .read,
+        communicationalPattern: .requestResponse,
         absolutePath: "/v1/tests",
         parameters: [],
         response: .scalar(.bool),
@@ -38,60 +47,60 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testNoEndpointsChange() throws {
-        let endpointsComparator = EndpointsComparator(lhs: [lhs], rhs: [lhs], changes: node, configuration: .default)
-        endpointsComparator.compare()
-        XCTAssert(node.isEmpty)
+        let comparator = EndpointsComparator(lhs: [lhs], rhs: [lhs])
+        comparator.compare(comparisonContext, &endpointChanges)
+        XCTAssertEqual(endpointChanges.isEmpty, true)
     }
     
     func testEndpointDeleted() throws {
-        let endpointsComparator = EndpointsComparator(lhs: [lhs], rhs: [], changes: node, configuration: .default)
-        endpointsComparator.compare()
-        XCTAssert(node.changes.count == 1)
-        let deleteChange = try XCTUnwrap(node.changes.first as? DeleteChange)
-        
-        XCTAssert(deleteChange.element == .endpoint(lhs.deltaIdentifier, target: .`self`))
-        XCTAssert(deleteChange.breaking)
-        XCTAssert(!deleteChange.solvable)
-        XCTAssert(deleteChange.fallbackValue == .none)
-        XCTAssert(deleteChange.providerSupport == .renameHint(DeleteChange.self))
+        let comparator = EndpointsComparator(lhs: [lhs], rhs: [])
+        comparator.compare(comparisonContext, &endpointChanges)
+
+        XCTAssertEqual(endpointChanges.count, 1)
+        let change = try XCTUnwrap(endpointChanges.first)
+        XCTAssertEqual(change.id, lhs.deltaIdentifier)
+        XCTAssertEqual(change.type, .removal)
+        XCTAssertEqual(change.breaking, true)
+        XCTAssertEqual(change.solvable, false)
+
+        let removalChange = try XCTUnwrap(change.modeledRemovalChange)
+        XCTAssertEqual(removalChange.removed, nil)
+        XCTAssertEqual(removalChange.fallbackValue, nil)
+        // TODO XCTAssert(deleteChange.providerSupport == .renameHint(DeleteChange.self))
     }
     
     func testEndpointAdded() throws {
-        let endpointsComparator = EndpointsComparator(lhs: [], rhs: [lhs], changes: node, configuration: .default)
-        endpointsComparator.compare()
-        XCTAssert(node.changes.count == 1)
-        let addChange = try XCTUnwrap(node.changes.first as? AddChange)
-        
-        XCTAssert(addChange.element == .endpoint(lhs.deltaIdentifier, target: .`self`))
-        XCTAssert(!addChange.breaking)
-        XCTAssert(addChange.providerSupport == .renameHint(AddChange.self))
-        XCTAssert(addChange.solvable)
-    
-        if case let .element(codable) = addChange.added {
-            XCTAssert(codable.typed(Endpoint.self) == lhs)
-        } else {
-            XCTFail("Added endpoint was not stored in the change object")
-        }
+        let comparator = EndpointsComparator(lhs: [], rhs: [lhs])
+        comparator.compare(comparisonContext, &endpointChanges)
+
+        XCTAssertEqual(endpointChanges.count, 1)
+        let change = try XCTUnwrap(endpointChanges.first)
+        XCTAssertEqual(change.id, lhs.deltaIdentifier)
+        XCTAssertEqual(change.type, .addition)
+        XCTAssertEqual(change.breaking, false)
+        XCTAssertEqual(change.solvable, true)
+
+        let additionChange = try XCTUnwrap(change.modeledAdditionChange)
+        XCTAssertEqual(additionChange.added, lhs)
+        XCTAssertEqual(additionChange.defaultValue, nil)
+        // TODO XCTAssert(addChange.providerSupport == .renameHint(AddChange.self))
     }
     
     func testEndpointRenamed() throws {
-        let endpointsComparator = EndpointsComparator(lhs: [lhs], rhs: [rhs], changes: node, configuration: .default)
-        endpointsComparator.compare()
-        XCTAssert(node.changes.count == 1)
-        let renameChange = try XCTUnwrap(node.changes.first as? UpdateChange)
-        
-        let providerSupport = try XCTUnwrap(renameChange.providerSupport)
-        XCTAssert(renameChange.element == .endpoint(lhs.deltaIdentifier, target: .deltaIdentifier))
-        XCTAssert(renameChange.type == .rename)
-        XCTAssert(!renameChange.breaking)
-        XCTAssert(renameChange.solvable)
-        XCTAssert(providerSupport == .renameValidationHint)
-        
-        if case let .stringValue(value) = renameChange.to, let similarity = renameChange.similarity {
-            XCTAssert(value == "runningTests")
-            XCTAssert(similarity > 0.5)
-        } else {
-            XCTFail("Rename change did not store the updated string value of the endpoint identifier")
-        }
+        let comparator = EndpointsComparator(lhs: [lhs], rhs: [rhs])
+        comparator.compare(comparisonContext, &endpointChanges)
+
+        XCTAssertEqual(endpointChanges.count, 1)
+        let change = try XCTUnwrap(endpointChanges.first)
+        XCTAssertEqual(change.id, lhs.deltaIdentifier)
+        XCTAssertEqual(change.type, .idChange)
+        XCTAssertEqual(change.breaking, false)
+        XCTAssertEqual(change.solvable, true)
+
+        let idChange = try XCTUnwrap(change.modeledIdentifierChange)
+        XCTAssertEqual(idChange.from, change.id)
+        XCTAssertEqual(idChange.to, rhs.deltaIdentifier)
+        XCTAssert(try XCTUnwrap(idChange.similarity) > 0.5)
+        // TODO XCTAssert(providerSupport == .renameValidationHint)
     }
 }
