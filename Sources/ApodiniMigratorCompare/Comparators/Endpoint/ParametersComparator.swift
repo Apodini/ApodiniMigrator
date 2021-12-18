@@ -27,7 +27,8 @@ struct ParametersComparator: Comparator {
                 results.append(.idChange(
                     from: candidate.deltaIdentifier,
                     to: relaxedMatching.element.deltaIdentifier,
-                    similarity: relaxedMatching.similarity
+                    similarity: relaxedMatching.similarity,
+                    breaking: true
                     // TODO includeProviderSupport: includeProviderSupport
                 ))
 

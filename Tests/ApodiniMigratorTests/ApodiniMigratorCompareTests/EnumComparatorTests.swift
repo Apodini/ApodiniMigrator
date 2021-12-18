@@ -31,8 +31,8 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     
     override func setUp() {
         super.setUp()
-        
-        node = ChangeContextNode(compareConfiguration: .active)
+
+        comparisonContext = ChangeComparisonContext(configuration: .active)
     }
     
     func testNoEnumChange() {
@@ -155,6 +155,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testIgnoreCompareWithNonEnum() {
-        XCTAssertRuntimeFailure(EnumComparator(lhs: self.enumeration, rhs: .scalar(.bool)))
+        let comparator = EnumComparator(lhs: self.enumeration, rhs: .scalar(.bool))
+        XCTAssertRuntimeFailure(comparator.compare(self.comparisonContext, &self.modelChanges))
     }
 }

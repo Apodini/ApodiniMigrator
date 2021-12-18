@@ -17,9 +17,13 @@ public enum DocumentVersion: String, Codable {
 /// A API document describing an Apodini Web Service.
 public struct APIDocument: Value {
     public enum CodingError: Error {
-        case encodingUnsupportedExporterConfiguration(exporter: ExporterConfiguration)
-        case decodingUnsupportedExporterConfiguration
-        case unsupportedDocumentVersion(version: DocumentVersion)
+        case unsupportedDocumentVersion(version: String)
+
+        case decodingUnsupportedExporterConfiguration(container: UnkeyedDecodingContainer)
+        case encodingUnsupportedExporterConfiguration(configuration: ExporterConfiguration)
+
+        // migration errors
+        case failedServicePathMigration(path: String)
     }
 
     // MARK: Private Inner Types
@@ -29,6 +33,9 @@ public struct APIDocument: Value {
         case serviceInformation = "service"
         case endpoints
         case types
+
+        case legacyServiceInformation = "info"
+        case legacyTypes = "components"
     }
     
     /// Id of the document
@@ -110,14 +117,30 @@ public struct APIDocument: Value {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        try documentVersion = container.decodeIfPresent(DocumentVersion.self, forKey: .documentVersion) ?? .v1
-        guard case .v2 = documentVersion else {
-            throw CodingError.unsupportedDocumentVersion(version: documentVersion)
+        let documentVersion: DocumentVersion
+        do {
+            try documentVersion = (container.decodeIfPresent(DocumentVersion.self, forKey: .documentVersion) ?? .v1)
+        } catch {
+            throw CodingError.unsupportedDocumentVersion(version: try container.decode(String.self, forKey: .documentVersion))
         }
 
         try id = container.decode(UUID.self, forKey: .id)
-        try serviceInformation = container.decode(ServiceInformation.self, forKey: .serviceInformation)
-        try _endpoints = container.decode([Endpoint].self, forKey: .endpoints)
-        try types = container.decode(TypesStore.self, forKey: .types)
+
+        switch documentVersion {
+        case .v1:
+            let legacyInformation = try container.decode(LegacyServiceInformation.self, forKey: .legacyServiceInformation)
+            try self.serviceInformation = ServiceInformation(from: legacyInformation)
+
+            let endpoints = try container.decode([LegacyEndpoint].self, forKey: .endpoints)
+            self._endpoints = endpoints.map { Endpoint(from: $0) }
+
+            try types = container.decode(TypesStore.self, forKey: .legacyTypes)
+        case .v2:
+            try serviceInformation = container.decode(ServiceInformation.self, forKey: .serviceInformation)
+            try _endpoints = container.decode([Endpoint].self, forKey: .endpoints)
+            try types = container.decode(TypesStore.self, forKey: .types)
+        }
+
+        self.documentVersion = .v2
     }
 }

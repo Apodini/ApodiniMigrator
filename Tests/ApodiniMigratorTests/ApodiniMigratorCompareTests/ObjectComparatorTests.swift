@@ -32,8 +32,8 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
     
     override func setUp() {
         super.setUp()
-        
-        node = ChangeContextNode(compareConfiguration: .active)
+
+        comparisonContext = ChangeComparisonContext(configuration: .active)
     }
     
     func testNoObjectChange() {
@@ -259,7 +259,7 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(propertyChange.type, .update)
         XCTAssertEqual(change.breaking, propertyChange.breaking)
         XCTAssertEqual(change.solvable, propertyChange.solvable)
-        XCTAssertEqual(propertyChange.id, "name")
+        XCTAssertEqual(propertyChange.id, "isStudent")
 
         let propertyUpdate = try XCTUnwrap(propertyChange.modeledUpdateChange)
         guard case let .type(from, to, forwardMigration, backwardMigration, conversionWarning) = propertyUpdate.updated else {
@@ -277,7 +277,7 @@ final class ObjectComparatorTests: ApodiniMigratorXCTestCase {
             XCTFail("Did not provide the convert script for updated property type")
         }
         
-        if let script = node.scripts[backwardMigration] {
+        if let script = comparisonContext.scripts[backwardMigration] {
             XCTAssertEqual("YES", try String.from(true, script: script))
         } else {
             XCTFail("Did not provide the convert script for updated property type")

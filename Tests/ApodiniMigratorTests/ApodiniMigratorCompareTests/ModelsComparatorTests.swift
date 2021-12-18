@@ -45,8 +45,8 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
     
     override func setUp() {
         super.setUp()
-        
-        node = ChangeContextNode(compareConfiguration: .active)
+
+        comparisonContext = ChangeComparisonContext(configuration: .active)
     }
     
     func testModelComparatorCommutativity() throws {
@@ -119,6 +119,8 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
         comparator.compare(comparisonContext, &modelChanges)
 
         let scriptBuilder = JSObjectScript(from: obj1, to: obj2, context: comparisonContext)
+        print(scriptBuilder.convertFromTo.rawValue)
+        print(scriptBuilder.convertToFrom.rawValue)
         XCTAssert(scriptBuilder.convertFromTo.rawValue.contains("'prop1': parsedFrom.prop1"))
         XCTAssert(scriptBuilder.convertToFrom.rawValue.contains("'prop1': parsedTo.prop1"))
     }

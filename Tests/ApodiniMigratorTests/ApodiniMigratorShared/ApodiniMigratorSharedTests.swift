@@ -12,7 +12,7 @@ import XCTest
 
 final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
     func testYAMLandJSON() throws {
-        for format in [OutputFormat.yaml, .json] {
+        for format in [OutputFormat.json, .yaml] {
             let document: APIDocument = XCTAssertNoThrowWithResult(try Documents.v1.decodedContent())
             let path = Path(XCTAssertNoThrowWithResult(try document.write(at: testDirectory, outputFormat: format)))
             XCTAssertThrows(try APIDocument.decode(from: path + "invalid"))

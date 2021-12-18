@@ -60,21 +60,10 @@ public struct Endpoint: Value, DeltaIdentifiable {
     public let deltaIdentifier: DeltaIdentifier // TODO is this party of the identifier?
 
     // TODO encoding of identifier is duplicated right now!
-    public var identifiers: [String: AnyEndpointIdentifier]
+    public var identifiers: [String: AnyEndpointIdentifier] // TODO encode as simple string key,value!
 
     /// The communicational pattern of the endpoint.
     public let communicationalPattern: CommunicationalPattern
-
-    /*
-    /// The operation of the endpoint
-    public let operation: Operation // TODO "Identifier"
-
-    /// The path string of the endpoint
-    public let path: EndpointPath // TODO identifier
-
-    // TODO gRPC identifier! (how to integrate?)
-    public var grpcIdentifier: String?
-    */
 
     /// Parameters of the endpoint
     public var parameters: EndpointInput
@@ -161,7 +150,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         }
     }
     
-    /// Returns a version of self where occurrencies of type informations (response or parameters) are references
+    /// Returns a version of self where occurrences of type information (response or parameters) are references
     public func referencedTypes() -> Endpoint {
         var retValue = self
         var typesStore = TypesStore()

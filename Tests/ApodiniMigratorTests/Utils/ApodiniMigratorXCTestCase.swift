@@ -13,7 +13,6 @@ import PathKit
 @testable import ApodiniMigrator
 
 class ApodiniMigratorXCTestCase: XCTestCase {
-    var node = ChangeContextNode() // TODO remove
     var comparisonContext = ChangeComparisonContext()
     
     let testDirectory = "./\(UUID().uuidString)"
@@ -36,18 +35,17 @@ class ApodiniMigratorXCTestCase: XCTestCase {
     
     override func tearDownWithError() throws {
         try super.tearDownWithError()
-        
-        node = ChangeContextNode() // TODO remove
+
         comparisonContext = ChangeComparisonContext()
         try testDirectoryPath.delete()
     }
     
-    func XCTAssertNoThrowWithResult<T>(_ expression: @autoclosure () throws -> T) -> T {
-        XCTAssertNoThrow(try expression())
+    func XCTAssertNoThrowWithResult<T>(_ expression: @autoclosure () throws -> T, file: StaticString = #file, line: UInt = #line) -> T {
+        XCTAssertNoThrow(try expression(), file: file, line: line)
         do {
             return try expression()
         } catch {
-            XCTFail(error.localizedDescription)
+            XCTFail(error.localizedDescription, file: file, line: line)
         }
         preconditionFailure("Expression threw an error")
     }

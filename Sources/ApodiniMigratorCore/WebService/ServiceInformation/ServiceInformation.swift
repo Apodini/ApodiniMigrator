@@ -1,5 +1,9 @@
 //
-// Created by Andreas Bauer on 06.12.21.
+// This source file is part of the Apodini open source project
+//
+// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+//
+// SPDX-License-Identifier: MIT
 //
 
 import Foundation
@@ -23,12 +27,6 @@ public struct ServiceInformation: Value, Hashable {
     public var configuredExporters: [ApodiniExporterType] {
         exporters.map { $0.type }
     }
-
-    /*
-    /// Server path appending the description of the version
-    public var versionedServerPath: String {
-        serverPath + "/" + version.description
-    }*/
 
     init(
         version: Version,
@@ -60,7 +58,7 @@ public struct ServiceInformation: Value, Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(version)
         hasher.combine(http)
-        hasher.combine(configuredExporters) // TODO enough?
+        hasher.combine(configuredExporters) // TODO enough (out of oder?)?
     }
 
     public static func == (lhs: ServiceInformation, rhs: ServiceInformation) -> Bool {
@@ -80,15 +78,16 @@ public struct ServiceInformation: Value, Hashable {
         while !exporterContainer.isAtEnd {
             if let httpConfiguration = try? exporterContainer.decode(RESTExporterConfiguration.self) {
                 exporters.append(httpConfiguration)
+            } else {
+                throw APIDocument.CodingError.decodingUnsupportedExporterConfiguration(container: exporterContainer)
             }
-            // TODO support other containers!
         }
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(version, forKey: .version)
-        try container.encode(http, forKey: .version)
+        try container.encode(http, forKey: .http)
 
 
         var exporterContainer = container.nestedUnkeyedContainer(forKey: .exporters)
@@ -96,9 +95,8 @@ public struct ServiceInformation: Value, Hashable {
             if let httpExporter = exporter as? RESTExporterConfiguration {
                 try exporterContainer.encode(httpExporter)
             } else {
-                // TODO throw
+                throw APIDocument.CodingError.encodingUnsupportedExporterConfiguration(configuration: exporter)
             }
-            // TODO add other exporters
         }
     }
 }

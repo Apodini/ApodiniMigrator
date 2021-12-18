@@ -116,7 +116,9 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
             self.value = value
         } else if let value = try? container.decode(EnumCase.self) {
             self.value = value
-        } else { throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode \(Self.self)") }
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode \(Self.self)")
+        }
     }
     
     /// Returns the typed value. The method is to be used by migrator objects to cast the element of change after ensuring the type

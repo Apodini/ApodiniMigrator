@@ -128,7 +128,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(identifierChange.type, .update)
         XCTAssertEqual(change.breaking, identifierChange.breaking)
         XCTAssertEqual(change.solvable, identifierChange.solvable)
-        XCTAssertEqual(change.id.rawValue, EndpointPath.identifierType)
+        XCTAssertEqual(identifierChange.id.rawValue, EndpointPath.identifierType)
         let pathChange = try XCTUnwrap(identifierChange.modeledUpdateChange)
         if case let .value(_, to) = pathChange.updated {
             XCTAssertEqual(to.typed(of: EndpointPath.self), rhs.identifier())
@@ -340,8 +340,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         comparator.compare(comparisonContext, &endpointChanges)
 
         XCTAssertEqual(endpointChanges.count, 2) // registered two changes, one for the path as well
-        let change = try XCTUnwrap(endpointChanges.first) // TODO check if there is a consistent order!
-        // TODO let change2 = try XCTUnwrap(node.changes.first(where: { $0.element.target == EndpointTarget.pathParameter.rawValue }) as? UpdateChange)
+        let change = try XCTUnwrap(endpointChanges.last)
         XCTAssertEqual(change.id, lhs.deltaIdentifier)
         XCTAssertEqual(change.type, .update)
         XCTAssertEqual(change.breaking, true)
@@ -349,7 +348,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         let updateChange = try XCTUnwrap(change.modeledUpdateChange)
 
         guard case let .parameter(parameterChange) = updateChange.updated else {
-            XCTFail("Change did not store the updated parameter")
+            XCTFail("Change did not store the updated parameter: \(updateChange.updated)")
             return
         }
 

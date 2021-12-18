@@ -42,8 +42,8 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
     
     override func setUp() {
         super.setUp()
-        
-        node = ChangeContextNode(compareConfiguration: .active)
+
+        comparisonContext = ChangeComparisonContext(configuration: .active)
     }
     
     func testNoEndpointsChange() throws {

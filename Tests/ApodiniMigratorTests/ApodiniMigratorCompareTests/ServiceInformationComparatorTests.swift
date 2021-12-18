@@ -41,24 +41,28 @@ final class ServiceInformationComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testVersionChanged() throws {
+        let updatedVersion = Version(prefix: "api", major: 2, minor: 0, patch: 0)
         let http = HTTPInformation(hostname: "test.com")
 
         let lhs = ServiceInformation(version: .default, http: http)
-        let rhs = ServiceInformation(version: Version(prefix: "api", major: 2, minor: 0, patch: 0), http: http)
+        let rhs = ServiceInformation(version: updatedVersion, http: http)
 
         let comparator = ServiceInformationComparator(lhs: lhs, rhs: rhs)
         comparator.compare(comparisonContext, &serviceChanges)
         
-        XCTAssert(node.changes.count == 1)
-        let serverPathChange = try XCTUnwrap(node.changes.first as? UpdateChange)
-        XCTAssert(serverPathChange.type == .update)
-        XCTAssert(serverPathChange.breaking)
-        XCTAssert(serverPathChange.solvable)
-        XCTAssert(serverPathChange.element == .networking(target: .serverPath))
-        if case let .stringValue(value) = serverPathChange.to {
-            XCTAssert(value == "www.test.com/api2")
+        XCTAssert(serviceChanges.count == 1)
+        let change = try XCTUnwrap(serviceChanges.first)
+        XCTAssertEqual(change.id, lhs.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
+        XCTAssertEqual(change.breaking, false)
+        XCTAssertEqual(change.solvable, true)
+
+        let updateChange = try XCTUnwrap(change.modeledUpdateChange)
+        if case let .version(from, to) = updateChange.updated {
+            XCTAssertEqual(from, .default)
+            XCTAssertEqual(to, updatedVersion)
         } else {
-            XCTFail("Change did not store the updated server path")
+            XCTFail("Unexpected ServiceInformationUpdateChange: \(updateChange.updated)")
         }
     }
     
@@ -78,10 +82,10 @@ final class ServiceInformationComparatorTests: ApodiniMigratorXCTestCase {
 
         XCTAssertEqual(serviceChanges.count, 1)
         let change = try XCTUnwrap(serviceChanges.first)
+        XCTAssertEqual(change.id, lhs.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
         XCTAssertEqual(change.breaking, true)
         XCTAssertEqual(change.solvable, true)
-        XCTAssertEqual(change.type, .update)
-        XCTAssertEqual(change.id, lhs.deltaIdentifier)
         let updateChange = try XCTUnwrap(change.modeledUpdateChange)
         if case let .exporter(exporter, from, to) = updateChange.updated {
             XCTAssertEqual(exporter, .rest)
