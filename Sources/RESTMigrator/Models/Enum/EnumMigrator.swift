@@ -31,7 +31,7 @@ struct EnumMigrator: GeneratedFile {
     /// A flag that indicates whether enum has been deleted in the new version
     private let notPresentInNewVersion: Bool
     /// An unsupported change related to the enum from the migration guide,
-    private var unsupportedChanges: [NewUnsupportedChange<ModelChangeDeclaration>] = []
+    private var unsupportedChanges: [UnsupportedChange<TypeInformation>] = []
 
     /// Initializes a new instance out of an `enum` type information and its corresponding changes
     init(_ typeInformation: TypeInformation, changes: [ModelChange]) {
@@ -49,7 +49,7 @@ struct EnumMigrator: GeneratedFile {
         for change in changes.compactMap({ $0.modeledUpdateChange }) {
             // first step is to check for unsupported changes and mark them as such
             if case .rootType = change.updated {
-                let unsupportedChange = ChangeEnum(from: change)
+                let unsupportedChange = Change(from: change)
                     .classifyUnsupported(description: """
                                                       ApodiniMigrator is not able to handle the migration of \(change.id). \
                                                       Change from enum to object or vice versa is currently not supported.
@@ -57,7 +57,7 @@ struct EnumMigrator: GeneratedFile {
                 unsupportedChanges.append(unsupportedChange)
                 continue
             } else if case let .rawValueType(_, to) = change.updated {
-                let unsupportedChange = ChangeEnum(from: change)
+                let unsupportedChange = Change(from: change)
                     .classifyUnsupported(description: """
                                                       The raw value type of this enum has changed to \(to.nestedTypeString). \
                                                       ApodiniMigrator is not able to migrate this change.
@@ -78,7 +78,7 @@ struct EnumMigrator: GeneratedFile {
                     removedCases.append(deletedCase)
                 }
             } else if let caseUpdate = caseChange.modeledUpdateChange,
-                      case let .rawValueType(from, to) = caseUpdate.updated {
+                      case let .rawValue(from, to) = caseUpdate.updated {
                 self.rawValueUpdates[caseUpdate.id] = to
             }
         }

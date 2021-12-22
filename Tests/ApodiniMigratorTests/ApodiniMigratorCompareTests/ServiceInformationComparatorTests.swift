@@ -87,13 +87,20 @@ final class ServiceInformationComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(change.breaking, true)
         XCTAssertEqual(change.solvable, true)
         let updateChange = try XCTUnwrap(change.modeledUpdateChange)
-        if case let .exporter(exporter, from, to) = updateChange.updated {
-            XCTAssertEqual(exporter, .rest)
-            XCTAssertEqual(from as! RESTExporterConfiguration, lhsExporter)
-            XCTAssertEqual(to as! RESTExporterConfiguration, rhsExporter)
-        } else {
+
+        guard case let .exporter(exporter) = updateChange.updated else {
             XCTFail("Unexpected ServiceInformationUpdateChange: \(updateChange.updated)")
+            return
         }
+
+        XCTAssertEqual(exporter.type, .update)
+        XCTAssertEqual(exporter.breaking, change.breaking)
+        XCTAssertEqual(exporter.solvable, change.solvable)
+        XCTAssertEqual(exporter.id, DeltaIdentifier(ApodiniExporterType.rest.rawValue))
+
+        let updatedExporter = try XCTUnwrap(exporter.modeledUpdateChange)
+        XCTAssertEqual(updatedExporter.updated.from.typed(of: RESTExporterConfiguration.self), lhsExporter)
+        XCTAssertEqual(updatedExporter.updated.to.typed(of: RESTExporterConfiguration.self), rhsExporter)
     }
     
     func testDecoderConfigurationChanged() throws {
@@ -116,13 +123,20 @@ final class ServiceInformationComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(change.type, .update)
         XCTAssertEqual(change.id, lhs.deltaIdentifier)
         let updateChange = try XCTUnwrap(change.modeledUpdateChange)
-        if case let .exporter(exporter, from, to) = updateChange.updated {
-            XCTAssertEqual(exporter, .rest)
-            XCTAssertEqual(from as! RESTExporterConfiguration, lhsExporter)
-            XCTAssertEqual(to as! RESTExporterConfiguration, rhsExporter)
-        } else {
+
+        guard case let .exporter(exporter) = updateChange.updated else {
             XCTFail("Unexpected ServiceInformationUpdateChange: \(updateChange.updated)")
+            return
         }
+
+        XCTAssertEqual(exporter.type, .update)
+        XCTAssertEqual(exporter.breaking, change.breaking)
+        XCTAssertEqual(exporter.solvable, change.solvable)
+        XCTAssertEqual(exporter.id, DeltaIdentifier(ApodiniExporterType.rest.rawValue))
+
+        let updatedExporter = try XCTUnwrap(exporter.modeledUpdateChange)
+        XCTAssertEqual(updatedExporter.updated.from.typed(of: RESTExporterConfiguration.self), lhsExporter)
+        XCTAssertEqual(updatedExporter.updated.to.typed(of: RESTExporterConfiguration.self), rhsExporter)
     }
 
     // TODO add tests for grpc and addition/removal of exporters!

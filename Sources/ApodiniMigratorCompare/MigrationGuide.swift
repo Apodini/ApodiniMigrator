@@ -44,12 +44,12 @@ public struct MigrationGuide {
 
 
     /// Dictionary holding all registered convert scripts which are referenced from change objects
-    public let scripts: [Int: JSScript]
+    public private(set) var scripts: [Int: JSScript]
     /// Dictionary holding all registered json values which are referenced from change objects
-    public let jsonValues: [Int: JSONValue]
+    public private(set) var jsonValues: [Int: JSONValue]
     /// A property that holds json representation of models that had a breaking change on their properties, e.g. rename, addition, deletion or property type change.
     /// This property is used for test cases in the client application
-    public let objectJSONs: [String: JSONValue]
+    public private(set) var objectJSONs: [String: JSONValue]
 
     /// An empty migration guide with no changes
     public static var empty: MigrationGuide {
@@ -199,10 +199,9 @@ extension MigrationGuide: Codable {
         case .v2:
             try compareConfiguration = container.decodeIfPresent(CompareConfiguration.self, forKey: .compareConfiguration)
 
-            // TODO decode if non empty?
-            try serviceChanges = container.decode([ServiceInformationChange].self, forKey: .serviceChanges)
-            try modelChanges = container.decode([ModelChange].self, forKey: .modelChanges)
-            try endpointChanges = container.decode([EndpointChange].self, forKey: .endpointChanges)
+            try serviceChanges = container.decodeIfPresentOrInitEmpty([ServiceInformationChange].self, forKey: .serviceChanges)
+            try modelChanges = container.decodeIfPresentOrInitEmpty([ModelChange].self, forKey: .modelChanges)
+            try endpointChanges = container.decodeIfPresentOrInitEmpty([EndpointChange].self, forKey: .endpointChanges)
         }
 
         self.documentVersion = .v2
@@ -212,22 +211,20 @@ extension MigrationGuide: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(summary, forKey: .summary)
+        try container.encodeIfPresent(id, forKey: .id)
         try container.encode(documentVersion, forKey: .documentVersion)
         try container.encode(from, forKey: .from)
         try container.encode(to, forKey: .to)
         try container.encodeIfPresent(compareConfiguration, forKey: .compareConfiguration)
 
-        // TODO encode if non-empty?
-        try container.encode(serviceChanges, forKey: .serviceChanges)
-        try container.encode(modelChanges, forKey: .modelChanges)
-        try container.encode(endpointChanges, forKey: .endpointChanges)
+        try container.encodeIfNotEmpty(serviceChanges, forKey: .serviceChanges)
+        try container.encodeIfNotEmpty(modelChanges, forKey: .modelChanges)
+        try container.encodeIfNotEmpty(endpointChanges, forKey: .endpointChanges)
 
         try container.encode(scripts, forKey: .scripts)
         try container.encode(jsonValues, forKey: .jsonValues)
         try container.encode(objectJSONs, forKey: .objectJSONs)
     }
-
-    // encode is synthezied
 }
 
 extension MigrationGuide: Equatable {
@@ -235,15 +232,16 @@ extension MigrationGuide: Equatable {
     public static func == (lhs: MigrationGuide, rhs: MigrationGuide) -> Bool {
         var mutableLhs = lhs
         var mutableRhs = rhs
-        // TODO equatable is fucked!
-        /*mutableLhs.scripts = [:]
+        mutableLhs.scripts = [:]
         mutableLhs.jsonValues = [:]
         mutableLhs.objectJSONs = [:]
         
         mutableRhs.scripts = [:]
         mutableRhs.jsonValues = [:]
         mutableRhs.objectJSONs = [:]
-         */
+
+        // we do this json based approach, as a simple array comparison
+        // would take forever, especially for non matching comparisons
         return mutableLhs.json == mutableRhs.json
             && lhs.scripts == rhs.scripts
             && lhs.jsonValues == rhs.jsonValues

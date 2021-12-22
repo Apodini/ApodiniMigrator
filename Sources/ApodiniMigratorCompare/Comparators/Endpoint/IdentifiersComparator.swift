@@ -41,7 +41,7 @@ struct IdentifiersComparator: Comparator {
                lhs.value != rhs.value {
                 results.append(.update(
                     id: lhs.deltaIdentifier,
-                    updated: .value(from: lhs, to: rhs)
+                    updated: .init(from: lhs, to: rhs)
                 ))
             }
         }

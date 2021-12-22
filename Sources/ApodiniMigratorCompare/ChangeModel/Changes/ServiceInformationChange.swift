@@ -8,14 +8,13 @@
 
 import Foundation
 
-public typealias ServiceInformationChange = ChangeEnum<ServiceInformationChangeDeclaration>
+public typealias ServiceInformationChange = Change<ServiceInformation>
 
-public struct ServiceInformationChangeDeclaration: ChangeDeclaration {
-    public typealias Element = ServiceInformation
+extension ServiceInformation: ChangeableElement {
     public typealias Update = ServiceInformationUpdateChange
 }
 
-public enum ServiceInformationUpdateChange: Codable {
+public enum ServiceInformationUpdateChange: Equatable {
     case version(
         from: Version,
         to: Version
@@ -26,19 +25,72 @@ public enum ServiceInformationUpdateChange: Codable {
         to: HTTPInformation
     )
 
-    case exporter(
-        exporter: ApodiniExporterType,
-        from: ExporterConfiguration, // TODO more granular? (e.g. encode/decode configuration?)
-        to: ExporterConfiguration
-    )
+    case exporter(exporter: ExporterConfigurationChange)
+}
+
+// MARK: Codable
+extension ServiceInformationUpdateChange: Codable {
+    private enum EnumType: String, Codable {
+        case version
+        case http
+        case exporter
+    }
+
+    private var type: EnumType {
+        switch self {
+        case .version:
+            return .version
+        case .http:
+            return .http
+        case .exporter:
+            return .exporter
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case type
+
+        case from
+        case to
+
+        case exporter
+    }
 
     public init(from decoder: Decoder) throws {
-        // TODO decodable
-        fatalError("ServiceInformationUpdateChange(from:) isn't implemented yet")
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        let type = try container.decode(EnumType.self, forKey: .type)
+
+        switch type {
+        case .version:
+            self = .version(
+                from: try container.decode(Version.self, forKey: .from),
+                to: try container.decode(Version.self, forKey: .to)
+            )
+        case .http:
+            self = .http(
+                from: try container.decode(HTTPInformation.self, forKey: .from),
+                to: try container.decode(HTTPInformation.self, forKey: .to)
+            )
+        case .exporter:
+            self = .exporter(exporter: try container.decode(ExporterConfigurationChange.self, forKey: .exporter))
+        }
     }
 
     public func encode(to encoder: Encoder) throws {
-        //TODO encodable
-        fatalError("ServiceInformationUpdateChange.encode(to:) isn't implemented yet")
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(type, forKey: .type)
+
+        switch self {
+        case let .version(from, to):
+            try container.encode(from, forKey: .from)
+            try container.encode(to, forKey: .to)
+        case let .http(from, to):
+            try container.encode(from, forKey: .from)
+            try container.encode(to, forKey: .to)
+        case let .exporter(exporter):
+            try container.encode(exporter, forKey: .exporter)
+        }
     }
 }

@@ -21,7 +21,7 @@ struct ObjectMigrator: GeneratedFile {
     var kind: Kind
 
     /// An unsupported change related to this object if any contained in the migration guide
-    private var unsupportedChanges: [NewUnsupportedChange<ModelChangeDeclaration>] = []
+    private var unsupportedChanges: [UnsupportedChange<TypeInformation>] = []
     /// A flag that indicates whether the object is present in the new version or not
     private let notPresentInNewVersion: Bool
 
@@ -51,7 +51,7 @@ struct ObjectMigrator: GeneratedFile {
         for change in changes.compactMap({ $0.modeledUpdateChange }) {
             // first step is to check for unsupported changes and mark them as such
             if case .rootType = change.updated {
-                let unsupportedChange = ChangeEnum(from: change)
+                let unsupportedChange = Change(from: change)
                     .classifyUnsupported(description: """
                                                       ApodiniMigrator is not able to handle the migration of \(change.id). \
                                                       Change from enum to object or vice versa is currently not supported.

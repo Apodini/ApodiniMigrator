@@ -9,7 +9,7 @@
 import Foundation
 
 /// Distinct cases of change types that can appear in the Migration Guide
-public enum ChangeType: String, Value {
+public enum LegacyChangeType: String, Value {
     /// An AddChange
     case addition
     /// A DeleteChange

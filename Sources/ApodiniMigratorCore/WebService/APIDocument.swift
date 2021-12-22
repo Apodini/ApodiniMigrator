@@ -25,7 +25,7 @@ public struct APIDocument: Value {
     /// Endpoints
     private var _endpoints: [Endpoint]
     public var endpoints: [Endpoint] {
-        _endpoints // TODO best solution for dereferencing?
+        _endpoints
             .map {
                 var endpoint = $0
                 endpoint.dereference(in: types)
@@ -40,21 +40,6 @@ public struct APIDocument: Value {
             .map { TypeInformation.reference($0) }
             .map { types.construct(from: $0) }
     }
-
-    /*
-    // TODO turn into property (and maybe split up into response and parameters)
-    public func allModels() -> [TypeInformation] {
-        // TODO we duplicate the TypeStore data structure!
-        endpoints.reduce(into: Set<TypeInformation>()) { result, current in
-                result.insert(current.response)
-                current.parameters.forEach { parameter in
-                    result.insert(parameter.typeInformation)
-                }
-            }
-            .asArray
-            .fileRenderableTypes()
-            .sorted(by: \.typeName)
-    }*/
     
     /// Name of the file, constructed as `api_{version}`
     public var fileName: String {
@@ -78,8 +63,7 @@ public struct APIDocument: Value {
     }
 
     public mutating func add<Configuration: ExporterConfiguration>(exporter: Configuration) {
-        // TODO non generic func?
-        serviceInformation.exporters.append(exporter)
+        serviceInformation.add(exporter: exporter)
     }
 }
 
@@ -88,8 +72,9 @@ extension APIDocument: Codable {
     public enum CodingError: Error {
         case unsupportedDocumentVersion(version: String)
 
+        // TODO unused?
         case decodingUnsupportedExporterConfiguration(container: UnkeyedDecodingContainer)
-        case encodingUnsupportedExporterConfiguration(configuration: ExporterConfiguration)
+        case encodingUnsupportedExporterConfiguration(configuration: AnyExporterConfiguration)
     }
 
     // MARK: Private Inner Types

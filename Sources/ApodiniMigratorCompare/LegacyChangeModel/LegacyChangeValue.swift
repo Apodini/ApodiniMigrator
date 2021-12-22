@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents distinct cases of values that can appear in sections of Migration Guide, e.g. as default-values, fallback-values or identifiers
-public enum ChangeValue: Value {
+public enum LegacyChangeValue: Value {
     private enum ChangeValueCodingError: Error {
         case notNone
     }
@@ -34,7 +34,7 @@ public enum ChangeValue: Value {
     /// A case where there is no need to provide an element, since the element is part of the old version and can be simply identified based on the `id`
     case elementID(DeltaIdentifier)
     /// An internal convenience method to initialize `.elementID` case ouf of an `DeltaIdentifiable`
-    static func id<D: DeltaIdentifiable>(from identifiable: D) -> ChangeValue {
+    static func id<D: DeltaIdentifiable>(from identifiable: D) -> LegacyChangeValue {
         .elementID(identifiable.deltaIdentifier)
     }
     
@@ -103,7 +103,7 @@ public enum ChangeValue: Value {
         do {
             let singleValueContainer = try decoder.singleValueContainer()
             let string = try singleValueContainer.decode(String.self)
-            if string == ChangeValue.none.value {
+            if string == LegacyChangeValue.none.value {
                 self = .none
             } else {
                 throw ChangeValueCodingError.notNone

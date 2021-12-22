@@ -33,7 +33,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
             id: endpoint.deltaIdentifier,
             updated: .identifier(identifier: .update(
                 id: .init(EndpointPath.identifierType),
-                updated: .value(
+                updated: .init(
                     from: AnyEndpointIdentifier(from: endpoint.identifier(for: EndpointPath.self)),
                     to: AnyEndpointIdentifier(from: EndpointPath(rawValue: "/v1/updatedTests/{second}"))
                 ),
@@ -50,7 +50,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
             id: endpoint.deltaIdentifier,
             updated: .identifier(identifier: .update(
                 id: .init(Operation.identifierType),
-                updated: .value(
+                updated: .init(
                     from: AnyEndpointIdentifier(from: endpoint.identifier(for: ApodiniMigratorCore.Operation.self)),
                     to: AnyEndpointIdentifier(from: ApodiniMigratorCore.Operation.create)
                 ),
@@ -137,7 +137,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
                 id: endpoint.deltaIdentifier,
                 updated: .identifier(identifier: .update(
                     id: .init(EndpointPath.identifierType),
-                    updated: .value(
+                    updated: .init(
                         from: AnyEndpointIdentifier(from: endpoint.identifier(for: EndpointPath.self)),
                         to: AnyEndpointIdentifier(from: EndpointPath(rawValue: "/v1/tests/{second}/{first}"))
                     ),

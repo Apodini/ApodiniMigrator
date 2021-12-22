@@ -9,11 +9,11 @@
 import Foundation
 
 /// A protocol that represents a change that can appear in the Migration Guide
-public protocol Change: Codable {
+public protocol LegacyChange: Codable {
     /// Top-level changed element related to the change
-    var element: ChangeElement { get }
+    var element: LegacyChangeElement { get }
     /// Type of change
-    var type: ChangeType { get }
+    var type: LegacyChangeType { get }
     /// Indicates whether the change is non-backward compatible
     var breaking: Bool { get } // TODO if it is breaking depends on interface (e.g. necessity for grpc?)
     /// Indicates whether the change can be handled by `ApodiniMigrator`
@@ -21,16 +21,16 @@ public protocol Change: Codable {
 }
 
 // MARK: - Change default implementation
-public extension Change {
+public extension LegacyChange {
     /// Element ID of `element`
     var elementID: DeltaIdentifier { element.deltaIdentifier }
 }
 
 
 // MARK: - Array
-public extension Array where Element == Change {
+public extension Array where Element == LegacyChange {
     /// Returns all changes of a `DeltaIdentifiable` instance
-    func of<D: DeltaIdentifiable>(_ deltaIdentifiable: D) -> [Change] {
+    func of<D: DeltaIdentifiable>(_ deltaIdentifiable: D) -> [LegacyChange] {
         filter { $0.elementID == deltaIdentifiable.deltaIdentifier }
     }
 }

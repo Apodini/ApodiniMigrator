@@ -9,7 +9,7 @@
 import Foundation
 
 /// Distinct cases of endpoint targets that are subject to change
-public enum EndpointTarget: String, Value {
+public enum LegacyEndpointTarget: String, Value {
     /// Indicates a change that relates to the endpoint itself, e.g. a deleted or added endpoint
     case `self`
     /// Indicates a change that relates to the identifier of the endpoint, e.g. updated to some new id
@@ -30,7 +30,7 @@ public enum EndpointTarget: String, Value {
     case response
     
     /// An internal convenience static method to return the corresponding `EndpointTarget` of a parameter
-    static func target(for parameter: Parameter) -> EndpointTarget {
+    static func target(for parameter: Parameter) -> LegacyEndpointTarget {
         switch parameter.parameterType {
         case .lightweight: return .queryParameter
         case .content: return .contentParameter
@@ -40,7 +40,7 @@ public enum EndpointTarget: String, Value {
 }
 
 /// Distinct cases of object targets that are subject to change
-public enum ObjectTarget: String, Value {
+public enum LegacyObjectTarget: String, Value {
     /// Indicates a change that relates to the object itself, e.g. a deleted or added object
     case `self`
     /// TypeName target
@@ -52,7 +52,7 @@ public enum ObjectTarget: String, Value {
 }
 
 /// Distinct cases of enum targets that are subject to change
-public enum EnumTarget: String, Value {
+public enum LegacyEnumTarget: String, Value {
     /// Indicates a change that relates to the enum itself, e.g. a deleted or added enum
     case `self`
     /// TypeName target
@@ -66,7 +66,7 @@ public enum EnumTarget: String, Value {
 }
 
 /// Distinct cases of networking service targets that are subject to change
-public enum NetworkingTarget: String, Value {
+public enum LegacyNetworkingTarget: String, Value {
     /// Server path target, including the version path component
     case serverPath = "base-url"
     /// Encoder configuration target

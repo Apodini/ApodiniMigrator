@@ -90,11 +90,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(change.solvable, identifierChange.solvable)
         XCTAssertEqual(identifierChange.id.rawValue, Operation.identifierType)
         let operationUpdate = try XCTUnwrap(identifierChange.modeledUpdateChange)
-        if case let .value(_, to) = operationUpdate.updated {
-            XCTAssertEqual(to.typed(of: Operation.self), .create)
-        } else {
-            XCTFail("Encountered unsupported Operation identifier update change")
-        }
+        XCTAssertEqual(operationUpdate.updated.to.typed(), Operation.create)
     }
     
     func testResourcePathChange() throws {
@@ -130,11 +126,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(change.solvable, identifierChange.solvable)
         XCTAssertEqual(identifierChange.id.rawValue, EndpointPath.identifierType)
         let pathChange = try XCTUnwrap(identifierChange.modeledUpdateChange)
-        if case let .value(_, to) = pathChange.updated {
-            XCTAssertEqual(to.typed(of: EndpointPath.self), rhs.identifier())
-        } else {
-            XCTFail("Encountered unsupported EndpointPath identifier update change")
-        }
+        XCTAssertEqual(pathChange.updated.to.typed(of: EndpointPath.self), rhs.identifier())
     }
 
     // TODO test communicational pattern change!

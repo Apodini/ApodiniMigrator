@@ -18,7 +18,7 @@ public enum ParameterChangeTarget: String, Value {
 /// the most frequent change that can appear in the Migration guide. Depending on the change element
 /// and the target, the type of an update change can either be a generic `.update` or a `.rename`, `.propertyChange`, `.parameterChange` or `.responseChange`,
 /// which can be initialized through different initalizers
-public struct UpdateChange: Change {
+public struct LegacyUpdateChange: LegacyChange {
     // MARK: Private Inner Types
     enum CodingKeys: String, CodingKey {
         case element
@@ -38,19 +38,19 @@ public struct UpdateChange: Change {
     }
     
     /// Top-level changed element related to the change
-    public let element: ChangeElement
+    public let element: LegacyChangeElement
     /// Type of change, can either be a generic `.update` or a `.rename`, `.propertyChange`, `.parameterChange` or `.responseChange`
-    public let type: ChangeType
+    public let type: LegacyChangeType
     /// Old value of the target
-    public let from: ChangeValue
+    public let from: LegacyChangeValue
     /// New value of the target
-    public let to: ChangeValue
+    public let to: LegacyChangeValue
     /// Similarity score from 0 to 1 for renaming
     public let similarity: Double?
     /// Optional id of the target
     public let targetID: DeltaIdentifier?
     /// A json id in case that the necessity of a property or a parameter changed
-    public let necessityValue: ChangeValue?
+    public let necessityValue: LegacyChangeValue?
     /// JS convert function to convert old type to new type
     public let convertFromTo: Int?
     /// JS convert function to convert new type to old type, e.g. if the change element is an object and the target is property
@@ -64,14 +64,14 @@ public struct UpdateChange: Change {
     /// Indicates whether the change can be handled by `ApodiniMigrator`
     public let solvable: Bool
     /// Provider support field if change type is a rename and `compare-config` of the Migration Guide is set to `true` for `include-provider-support`
-    public let providerSupport: ProviderSupport?
+    public let providerSupport: LegacyProviderSupport?
     
     /// Initializer for an UpdateChange with type `.update`
     init(
-        element: ChangeElement,
-        from: ChangeValue,
-        to: ChangeValue,
-        necessityValue: ChangeValue? = nil,
+        element: LegacyChangeElement,
+        from: LegacyChangeValue,
+        to: LegacyChangeValue,
+        necessityValue: LegacyChangeValue? = nil,
         targetID: DeltaIdentifier? = nil,
         breaking: Bool,
         solvable: Bool
@@ -94,7 +94,7 @@ public struct UpdateChange: Change {
     
     /// Initializer for an UpdateChange with type `.rename`
     init(
-        element: ChangeElement,
+        element: LegacyChangeElement,
         from: String,
         to: String,
         similarity: Double?,
@@ -120,9 +120,9 @@ public struct UpdateChange: Change {
     
     /// Initializer for an UpdateChange with type `.responseChange`
     init(
-        element: ChangeElement,
-        from: ChangeValue,
-        to: ChangeValue,
+        element: LegacyChangeElement,
+        from: LegacyChangeValue,
+        to: LegacyChangeValue,
         convertToFrom: Int,
         convertionWarning: String?,
         breaking: Bool,
@@ -146,9 +146,9 @@ public struct UpdateChange: Change {
     
     /// Initializer for an UpdateChange with type `.propertyChange`
     init(
-        element: ChangeElement,
-        from: ChangeValue,
-        to: ChangeValue,
+        element: LegacyChangeElement,
+        from: LegacyChangeValue,
+        to: LegacyChangeValue,
         targetID: DeltaIdentifier,
         convertFromTo: Int,
         convertToFrom: Int,
@@ -174,11 +174,11 @@ public struct UpdateChange: Change {
     
     /// Initializer for an UpdateChange with type `.parameterChange`
     init(
-        element: ChangeElement,
-        from: ChangeValue,
-        to: ChangeValue,
+        element: LegacyChangeElement,
+        from: LegacyChangeValue,
+        to: LegacyChangeValue,
         targetID: DeltaIdentifier,
-        necessityValue: ChangeValue? = nil,
+        necessityValue: LegacyChangeValue? = nil,
         convertFromTo: Int? = nil,
         convertionWarning: String? = nil,
         parameterTarget: ParameterChangeTarget,

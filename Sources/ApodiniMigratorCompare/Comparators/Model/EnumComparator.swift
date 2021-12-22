@@ -13,7 +13,7 @@ struct EnumComparator: Comparator {
     let lhs: TypeInformation
     let rhs: TypeInformation
     
-    func element(_ target: EnumTarget) -> ChangeElement {
+    func element(_ target: LegacyEnumTarget) -> LegacyChangeElement {
         .for(enum: lhs, target: target)
     }
 
@@ -79,7 +79,7 @@ private struct EnumCasesComparator: Comparator {
                 if candidate.rawValue != relaxedMatching.element.rawValue {
                     results.append(.update(
                         id: candidate.deltaIdentifier,
-                        updated: .rawValueType(from: candidate.rawValue, to: relaxedMatching.element.rawValue)
+                        updated: .rawValue(from: candidate.rawValue, to: relaxedMatching.element.rawValue)
                     ))
                 }
             }
@@ -107,7 +107,7 @@ private struct EnumCasesComparator: Comparator {
                lhs.rawValue != rhs.rawValue {
                 results.append(.update(
                     id: lhs.deltaIdentifier,
-                    updated: .rawValueType(from: lhs.rawValue, to: rhs.rawValue)
+                    updated: .rawValue(from: lhs.rawValue, to: rhs.rawValue)
                 ))
             }
         }

@@ -9,7 +9,7 @@
 import Foundation
 import ApodiniMigratorCore
 
-public enum ElementType: String, Value {
+public enum LegacyElementType: String, Value {
     case endpoint
     case `enum`
     case object
@@ -17,36 +17,36 @@ public enum ElementType: String, Value {
 }
 
 /// Represents distinct top-level elements that are subject to change in the web service
-public enum ChangeElement: DeltaIdentifiable, Value {
+public enum LegacyChangeElement: DeltaIdentifiable, Value {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case endpoint, `enum`, object, networking, target
     }
     
     /// Represents an endpoint change element identified by its id and the corresponding endpoint change target
-    case endpoint(DeltaIdentifier, target: EndpointTarget)
+    case endpoint(DeltaIdentifier, target: LegacyEndpointTarget)
     /// An internal convenience static method to return an `.endpoint` change element with its corresponding target
-    static func `for`(endpoint: Endpoint, target: EndpointTarget) -> ChangeElement {
+    static func `for`(endpoint: Endpoint, target: LegacyEndpointTarget) -> LegacyChangeElement {
         .endpoint(endpoint.deltaIdentifier, target: target)
     }
     
     /// Represents an enum change element identified by its id and the corresponding enum change target
-    case `enum`(DeltaIdentifier, target: EnumTarget)
+    case `enum`(DeltaIdentifier, target: LegacyEnumTarget)
     /// An internal convenience static method to return an `.enum` change element with its corresponding target
-    static func `for`(enum: TypeInformation, target: EnumTarget) -> ChangeElement {
+    static func `for`(enum: TypeInformation, target: LegacyEnumTarget) -> LegacyChangeElement {
         .enum(`enum`.deltaIdentifier, target: target)
     }
     
     /// Represents an object change element identified by its id and the corresponding object change target
-    case object(DeltaIdentifier, target: ObjectTarget)
+    case object(DeltaIdentifier, target: LegacyObjectTarget)
     /// An internal convenience static method to return an `.object` change element with its corresponding target
-    static func `for`(object: TypeInformation, target: ObjectTarget) -> ChangeElement {
+    static func `for`(object: TypeInformation, target: LegacyObjectTarget) -> LegacyChangeElement {
         .object(object.deltaIdentifier, target: target)
     }
     
     /// Represents an networking change element and the corresponding networking change target
     /// - Note: Networking change element always have `DeltaIdentifier("NetworkingService")` as id
-    case networking(target: NetworkingTarget)
+    case networking(target: LegacyNetworkingTarget)
     
     /// Encodes `self` into the given encoder
     public func encode(to encoder: Encoder) throws {
@@ -68,16 +68,16 @@ public enum ChangeElement: DeltaIdentifiable, Value {
         let keys = container.allKeys
         
         if keys.contains(.endpoint) {
-            let target = try container.decode(EndpointTarget.self, forKey: .target)
+            let target = try container.decode(LegacyEndpointTarget.self, forKey: .target)
             self = .endpoint(try container.decode(DeltaIdentifier.self, forKey: .endpoint), target: target)
         } else if keys.contains(.enum) {
-            let target = try container.decode(EnumTarget.self, forKey: .target)
+            let target = try container.decode(LegacyEnumTarget.self, forKey: .target)
             self = .enum(try container.decode(DeltaIdentifier.self, forKey: .enum), target: target)
         } else if keys.contains(.object) {
-            let target = try container.decode(ObjectTarget.self, forKey: .target)
+            let target = try container.decode(LegacyObjectTarget.self, forKey: .target)
             self = .object(try container.decode(DeltaIdentifier.self, forKey: .object), target: target)
         } else if keys.contains(.networking) {
-            let target = try container.decode(NetworkingTarget.self, forKey: .target)
+            let target = try container.decode(LegacyNetworkingTarget.self, forKey: .target)
             self = .networking(target: target)
         } else {
             throw DecodingError.dataCorrupted(.init(codingPath: keys, debugDescription: "Failed to decode \(Self.self)"))
@@ -86,7 +86,7 @@ public enum ChangeElement: DeltaIdentifiable, Value {
 }
 
 // MARK: - ChangeElement
-public extension ChangeElement {
+public extension LegacyChangeElement {
     /// Returns the delta identifier of the change element
     var deltaIdentifier: DeltaIdentifier {
         switch self {
@@ -108,7 +108,7 @@ public extension ChangeElement {
     }
     
     /// Type of the change element
-    var type: ElementType {
+    var type: LegacyElementType {
         switch self {
         case .endpoint: return .endpoint
         case .enum: return .enum

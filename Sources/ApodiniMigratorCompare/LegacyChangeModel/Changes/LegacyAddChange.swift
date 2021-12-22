@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents an add change
-public struct AddChange: Change {
+public struct LegacyAddChange: LegacyChange {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case element
@@ -22,25 +22,25 @@ public struct AddChange: Change {
     }
     
     /// Top-level changed element related to the change
-    public let element: ChangeElement
+    public let element: LegacyChangeElement
     /// Type of change, always `.addition`
-    public let type: ChangeType
+    public let type: LegacyChangeType
     /// The added value
-    public let added: ChangeValue
+    public let added: LegacyChangeValue
     /// Default value of the added value
-    public let defaultValue: ChangeValue
+    public let defaultValue: LegacyChangeValue
     /// Indicates whether the change is non-backward compatible
     public let breaking: Bool
     /// Indicates whether the change can be handled by `ApodiniMigrator`
     public let solvable: Bool
     /// Provider support field if `MigrationGuide.providerSupport` is set to `true`
-    public let providerSupport: ProviderSupport?
+    public let providerSupport: LegacyProviderSupport?
     
     /// Initializer for a new add change instance
     init(
-        element: ChangeElement,
-        added: ChangeValue,
-        defaultValue: ChangeValue,
+        element: LegacyChangeElement,
+        added: LegacyChangeValue,
+        defaultValue: LegacyChangeValue,
         breaking: Bool,
         solvable: Bool,
         includeProviderSupport: Bool = false

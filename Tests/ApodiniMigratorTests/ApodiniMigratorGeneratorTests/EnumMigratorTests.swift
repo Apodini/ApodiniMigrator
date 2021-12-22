@@ -74,7 +74,7 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
             id: enumeration.deltaIdentifier,
             updated: .case(case: .update(
                 id: "swift",
-                updated: .rawValueType(from: "swift", to: "swiftLang"),
+                updated: .rawValue(from: "swift", to: "swiftLang"),
                 breaking: true,
                 solvable: true
             )),

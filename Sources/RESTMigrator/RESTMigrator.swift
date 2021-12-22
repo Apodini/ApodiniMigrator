@@ -51,6 +51,8 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
             )
         }
 
+        // TODO ensure REST is configured on the thingy (and wasn't removed!)!
+
         networkingMigrator = NetworkingMigrator(
             baseServiceInformation: document.serviceInformation,
             serviceChanges: migrationGuide.serviceChanges
@@ -58,7 +60,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
     }
 
     public var library: RootDirectory {
-        let allModels = document.models // TODO document.allModels()
+        let allModels = document.models
         let encoderConfiguration = networkingMigrator.encoderConfiguration()
         let decoderConfiguration = networkingMigrator.decoderConfiguration()
 

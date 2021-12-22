@@ -13,7 +13,7 @@ struct EndpointComparator: Comparator {
     let rhs: Endpoint
 
     func compare(_ context: ChangeComparisonContext, _ results: inout [EndpointChange]) {
-        func element(_ target: EndpointTarget) -> ChangeElement {
+        func element(_ target: LegacyEndpointTarget) -> LegacyChangeElement {
             .for(endpoint: lhs, target: target)
         }
 

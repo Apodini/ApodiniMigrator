@@ -50,16 +50,15 @@ class EndpointMethodMigrator: SourceCodeRenderable {
                     continue
                 }
 
-                guard let updateChange = identifierChange.modeledUpdateChange,
-                      case let .value(from, to) = updateChange.updated else {
+                guard let updateChange = identifierChange.modeledUpdateChange else {
                     fatalError("Encountered unsupported change type for required endpoint identifier: \(identifierChange)")
                 }
 
                 switch updateChange.id.rawValue {
                 case Operation.identifierType:
-                    self.operation = to.typed()
+                    self.operation = updateChange.updated.to.typed()
                 case EndpointPath.identifierType:
-                    self.path = to.typed()
+                    self.path = updateChange.updated.to.typed()
                 default:
                     break
                 }
@@ -133,7 +132,7 @@ class EndpointMethodMigrator: SourceCodeRenderable {
     }
     
     /// Returns the string raw value of `target`
-    private func target(_ target: EndpointTarget) -> String {
+    private func target(_ target: LegacyEndpointTarget) -> String {
         target.rawValue
     }
 

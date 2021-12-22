@@ -78,8 +78,7 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
         XCTAssertThrows(try MigrationGuide.from("", ""))
     }
     
-    func testMigrationGuideGeneration() throws {
-        throw XCTSkip("ServiceInformation coding")
+    func testMigrationGuideGenerationYAML() throws {
         let doc1 = try Documents.v1.decodedContent() as APIDocument
         let doc2 = try Documents.v2.decodedContent() as APIDocument
         
@@ -87,6 +86,18 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
         try (testDirectoryPath + "migration_guide.yaml").write(migrationGuide.yaml)
 
         let decoded = try MigrationGuide.decode(from: testDirectoryPath + "migration_guide.yaml")
+        XCTAssertEqual(decoded, migrationGuide)
+        XCTAssertNotEqual(decoded, .empty)
+    }
+
+    func testMigrationGuideGenerationJSON() throws {
+        let doc1 = try Documents.v1.decodedContent() as APIDocument
+        let doc2 = try Documents.v2.decodedContent() as APIDocument
+
+        let migrationGuide = MigrationGuide(for: doc1, rhs: doc2)
+        try (testDirectoryPath + "migration_guide.json").write(migrationGuide.json)
+
+        let decoded = try MigrationGuide.decode(from: testDirectoryPath + "migration_guide.json")
         XCTAssertEqual(decoded, migrationGuide)
         XCTAssertNotEqual(decoded, .empty)
     }

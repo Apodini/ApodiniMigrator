@@ -17,10 +17,10 @@ struct LegacyChangeArray: Decodable {
     private static let rootTypeUnsupportedChangeDescriptionSuffix = "Change from enum to object or vice versa is currently not supported"
     private static let rawValueTypeUnsupportedChangeDescriptionPrefix = "The raw value type of this enum has changed to"
 
-    private var addChanges: [AddChange] = []
-    private var deleteChanges: [DeleteChange] = []
-    private var updateChanges: [UpdateChange] = []
-    private var unsupportedChanges: [UnsupportedChange] = []
+    private var addChanges: [LegacyAddChange] = []
+    private var deleteChanges: [LegacyDeleteChange] = []
+    private var updateChanges: [LegacyUpdateChange] = []
+    private var unsupportedChanges: [LegacyUnsupportedChange] = []
 
     init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
@@ -28,18 +28,18 @@ struct LegacyChangeArray: Decodable {
         var iterations = 0;
 
         while !container.isAtEnd {
-            if let value = try? container.decode(AddChange.self) {
+            if let value = try? container.decode(LegacyAddChange.self) {
                 addChanges.append(value)
-            } else if let value = try? container.decode(DeleteChange.self) {
+            } else if let value = try? container.decode(LegacyDeleteChange.self) {
                 deleteChanges.append(value)
-            } else if let value = try? container.decode(UpdateChange.self) {
+            } else if let value = try? container.decode(LegacyUpdateChange.self) {
                 updateChanges.append(value)
-            } else if let value = try? container.decode(UnsupportedChange.self) {
+            } else if let value = try? container.decode(LegacyUnsupportedChange.self) {
                 unsupportedChanges.append(value)
             } else {
                 // TODO remove
                 print(iterations)
-                try container.decode(AddChange.self)
+                try container.decode(LegacyAddChange.self)
                 throw MigrationError.unknownChangeType(message: "Encountered unknown change type after \(iterations) iterations", path: decoder.codingPath)
             }
             iterations += 1
@@ -320,7 +320,7 @@ struct LegacyChangeArray: Decodable {
                         id: id,
                         updated: .identifier(identifier: .update(
                             id: DeltaIdentifier(EndpointPath.identifierType),
-                            updated: .value(
+                            updated: .init(
                                 from: AnyEndpointIdentifier(from: fromPath),
                                 to: AnyEndpointIdentifier(from: toPath)
                             ),
@@ -346,7 +346,7 @@ struct LegacyChangeArray: Decodable {
                         id: id,
                         updated: .identifier(identifier: .update(
                             id: DeltaIdentifier(Operation.identifierType),
-                            updated: .value(
+                            updated: .init(
                                 from: AnyEndpointIdentifier(from: fromOperation),
                                 to: AnyEndpointIdentifier(from: toOperation)
                             ),
@@ -515,7 +515,7 @@ struct LegacyChangeArray: Decodable {
                         id: id,
                         updated: .case(case: .update(
                             id: fromCase.deltaIdentifier,
-                            updated: .rawValueType(from: fromCase.rawValue, to: toCase.rawValue),
+                            updated: .rawValue(from: fromCase.rawValue, to: toCase.rawValue),
                             breaking: change.breaking,
                             solvable: change.solvable
                         )),
@@ -701,7 +701,7 @@ struct LegacyChangeArray: Decodable {
         }
     }
 
-    private func migrateModelAdditionChange(change: AddChange) throws -> ModelChange {
+    private func migrateModelAdditionChange(change: LegacyAddChange) throws -> ModelChange {
         guard case .none = change.defaultValue else {
             throw MigrationError.malformedLegacyMigrationGuide(message: "Expecting .none defaultValue for model!")
         }
@@ -720,7 +720,7 @@ struct LegacyChangeArray: Decodable {
         )
     }
 
-    private func migrateModelRemovalChange(change: DeleteChange) throws -> ModelChange {
+    private func migrateModelRemovalChange(change: LegacyDeleteChange) throws -> ModelChange {
         guard case .none = change.fallbackValue else {
             throw MigrationError.malformedLegacyMigrationGuide(message: "Expecting .none fallbackValue for model!")
         }
@@ -741,7 +741,7 @@ struct LegacyChangeArray: Decodable {
         )
     }
 
-    private func migrateModelUpdateTypeNameChange(change: UpdateChange) throws -> ModelChange {
+    private func migrateModelUpdateTypeNameChange(change: LegacyUpdateChange) throws -> ModelChange {
         guard case .rename = change.type else {
             throw MigrationError.malformedLegacyMigrationGuide(message: "Didn't expect \(change.type) for type rename change")
         }
