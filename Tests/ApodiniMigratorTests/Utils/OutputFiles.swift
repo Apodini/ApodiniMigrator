@@ -14,7 +14,7 @@ enum OutputFiles: String, TestResource {
     case defaultIntEnum
     case enumAddedCase
     case enumDeletedCase
-    case enumRenamedCase
+    case enumRawValue
     case enumDeletedSelf
     case enumUnsupportedChange
     case enumMultipleChanges

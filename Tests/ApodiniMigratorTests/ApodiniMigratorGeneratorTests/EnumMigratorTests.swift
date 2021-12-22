@@ -127,10 +127,15 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
         let migrator = EnumMigrator(enumeration, changes: [deleteCaseChange])
         XCTMigratorAssertEqual(migrator, .enumDeletedCase)
     }
-    
-    func testEnumRenamedCase() throws {
+
+    func testCaseRename() throws {
         let migrator = EnumMigrator(enumeration, changes: [renameCaseChange])
-        XCTMigratorAssertEqual(migrator, .enumRenamedCase)
+        XCTMigratorAssertEqual(migrator, .defaultStringEnum)
+    }
+    
+    func testRawValueChange() throws {
+        let migrator = EnumMigrator(enumeration, changes: [updateRawValueChange])
+        XCTMigratorAssertEqual(migrator, .enumRawValue)
     }
     
     func testEnumDeleted() throws {
