@@ -54,6 +54,8 @@ public struct AnyEndpointIdentifier: Value, DeltaIdentifiable, Hashable {
 
 /// Represents an endpoint
 public struct Endpoint: Value, DeltaIdentifiable {
+    // TODO track the handlerName as `TypeName!` to properly support nesting!
+
     /// Name of the handler
     public let handlerName: String // TODO this is also identifier
     /// Identifier of the handler

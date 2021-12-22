@@ -39,13 +39,13 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
     /// Value
     let value: Any
     
-    /// JSON string representation of `value`, with `.sortedKeys` outputformatting
+    /// JSON string representation of `value`, with `.sortedKeys` output formatting
     public var description: String {
         // swiftlint:disable:next force_cast
         (value as! Encodable).json()
     }
     
-    // MARK: - Intializer
+    // MARK: - Initializer
     /// Internal initializer that restricts the initialization only with values of known types that can be encoded and decoded by `AnyCodableElement`
     init<A: AnyCodableElementValue>(_ value: A) {
         self.value = value
@@ -58,6 +58,8 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
         if let value = value as? APIDocument {
             try singleValueContainer.encode(value)
         } else if let value = value as? DeltaIdentifier {
+            try singleValueContainer.encode(value)
+        } else if let value = value as? LegacyEndpoint {
             try singleValueContainer.encode(value)
         } else if let value = value as? Endpoint {
             try singleValueContainer.encode(value)
@@ -98,6 +100,8 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
             self.value = value
         } else if let value = try? container.decode(ApodiniMigratorCore.Operation.self) {
             self.value = value
+        } else if let value = try? container.decode(LegacyEndpoint.self) {
+            self.value = Endpoint(from: value)
         } else if let value = try? container.decode(Endpoint.self) {
             self.value = value
         } else if let value = try? container.decode(EndpointPath.self) {
@@ -129,6 +133,10 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
             fatalError("Failed to cast value to \(C.self)")
         }
         return value
+    }
+
+    public func tryTyped<C: Codable>(_ type: C.Type = C.self) -> C? {
+        value as? C
     }
 }
 

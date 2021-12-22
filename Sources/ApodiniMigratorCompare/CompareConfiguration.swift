@@ -9,7 +9,6 @@
 import Foundation
 
 public struct CompareConfiguration: Value {
-    // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case includeProviderSupport = "include-provider-support"
         case allowEndpointIdentifierUpdate = "allowed-endpoint-id-update"

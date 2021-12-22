@@ -9,33 +9,48 @@
 import Foundation
 
 struct LegacyServiceInformation: Codable {
+    enum MigrationError: Error {
+        case failedMath(path: String)
+        case failedHostnameExtraction(path: String)
+        case failedPortConversion(path: String)
+    }
+
     let version: Version
     let serverPath: String
     let encoderConfiguration: EncoderConfiguration
     let decoderConfiguration: DecoderConfiguration
 }
 
-extension ServiceInformation {
-    init(from information: LegacyServiceInformation) throws {
-        let range = NSRange(information.serverPath.startIndex..., in: information.serverPath)
-        let regex = try! NSRegularExpression(pattern: "^http://(.+):([0-9]+)(/[a-zA-Z]+)?$")
+extension HTTPInformation {
+    public init(fromLegacyServerPath serverPath: String) throws {
+        let range = NSRange(serverPath.startIndex..., in: serverPath)
+        let regex = try! NSRegularExpression(pattern: "^http://(.+):([0-9]+)(/(\\w|\\d)+)?$")
 
-        guard let match = regex.firstMatch(in: information.serverPath, range: range) else {
-            throw APIDocument.CodingError.failedServicePathMigration(path: information.serverPath)
+        guard let match = regex.firstMatch(in: serverPath, range: range) else {
+            throw LegacyServiceInformation.MigrationError.failedMath(path: serverPath)
         }
 
-        guard let hostname = information.serverPath.retrieveMatch(match: match, at: 1),
-              let portString = information.serverPath.retrieveMatch(match: match, at: 2) else {
-            throw APIDocument.CodingError.failedServicePathMigration(path: information.serverPath)
+        guard let hostname = serverPath.retrieveMatch(match: match, at: 1),
+              let portString = serverPath.retrieveMatch(match: match, at: 2) else {
+            throw LegacyServiceInformation.MigrationError.failedHostnameExtraction(path: serverPath)
         }
 
         guard let port = Int(portString) else {
-            throw APIDocument.CodingError.failedServicePathMigration(path: information.serverPath)
+            throw LegacyServiceInformation.MigrationError.failedPortConversion(path: serverPath)
         }
+
+        self.hostname = hostname
+        self.port = port
+    }
+}
+
+extension ServiceInformation {
+    init(from information: LegacyServiceInformation) throws {
+        let http = try HTTPInformation(fromLegacyServerPath: information.serverPath)
 
         self.init(
             version: information.version,
-            http: HTTPInformation(hostname: hostname, port: port),
+            http: http,
             exporters: [
                 RESTExporterConfiguration(
                     encoderConfiguration: information.encoderConfiguration,

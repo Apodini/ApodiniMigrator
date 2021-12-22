@@ -102,7 +102,10 @@ public struct ServiceInformation: Value, Hashable {
 }
 
 extension ServiceInformation: DeltaIdentifiable {
+    // there is only a single service information
+    public static var deltaIdentifier: DeltaIdentifier = "SERVICE_INFO_ID"
+
     public var deltaIdentifier: DeltaIdentifier {
-        "SERVICE_INFO_ID" // there is only a single service information
+        Self.deltaIdentifier
     }
 }

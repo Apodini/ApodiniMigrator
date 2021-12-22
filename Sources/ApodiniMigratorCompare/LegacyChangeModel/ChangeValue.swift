@@ -24,10 +24,12 @@ public enum ChangeValue: Value {
     
     /// Holds a type-erasured codable element of one of the models of `ApodiniMigrator` that are subject to change
     case element(AnyCodableElement)
+    /*
     /// An internal convenience method to initialize `.element` case ouf of an `AnyCodableElementValue`
     static func element<A: AnyCodableElementValue>(_ element: A) -> ChangeValue {
         .element(element.asAnyCodableElement)
     }
+    */
     
     /// A case where there is no need to provide an element, since the element is part of the old version and can be simply identified based on the `id`
     case elementID(DeltaIdentifier)

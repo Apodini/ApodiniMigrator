@@ -9,39 +9,17 @@
 import Foundation
 import ApodiniTypeInformation
 
-public enum DocumentVersion: String, Codable {
+public enum APIDocumentVersion: String, Codable {
     case v1 = "1.0.0"
     case v2 = "2.0.0"
 }
 
 /// A API document describing an Apodini Web Service.
 public struct APIDocument: Value {
-    public enum CodingError: Error {
-        case unsupportedDocumentVersion(version: String)
-
-        case decodingUnsupportedExporterConfiguration(container: UnkeyedDecodingContainer)
-        case encodingUnsupportedExporterConfiguration(configuration: ExporterConfiguration)
-
-        // migration errors
-        case failedServicePathMigration(path: String)
-    }
-
-    // MARK: Private Inner Types
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case documentVersion = "version"
-        case serviceInformation = "service"
-        case endpoints
-        case types
-
-        case legacyServiceInformation = "info"
-        case legacyTypes = "components"
-    }
-    
     /// Id of the document
     public let id: UUID // TODO how do we generate the Id (and persist it in API documents)
     /// Describes the version the ``Document`` was generate with
-    public let documentVersion: DocumentVersion // TODO we don't really need this property STORED?
+    public let documentVersion: APIDocumentVersion // TODO we don't really need this property STORED?
     /// Metadata
     public var serviceInformation: ServiceInformation
     /// Endpoints
@@ -101,26 +79,38 @@ public struct APIDocument: Value {
         // TODO non generic func?
         serviceInformation.exporters.append(exporter)
     }
-    
-    /// Encodes self into the given encoder.
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
+}
 
-        try container.encode(id, forKey: .id)
-        try container.encode(documentVersion, forKey: .documentVersion)
-        try container.encode(serviceInformation, forKey: .serviceInformation)
-        try container.encode(_endpoints, forKey: .endpoints)
-        try container.encode(types, forKey: .types)
+// MARK: Codable
+extension APIDocument: Codable {
+    public enum CodingError: Error {
+        case unsupportedDocumentVersion(version: String)
+
+        case decodingUnsupportedExporterConfiguration(container: UnkeyedDecodingContainer)
+        case encodingUnsupportedExporterConfiguration(configuration: ExporterConfiguration)
     }
-    
+
+    // MARK: Private Inner Types
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case documentVersion = "version"
+        case serviceInformation = "service"
+        case endpoints
+        case types
+
+        case legacyServiceInformation = "info"
+        case legacyTypes = "components"
+    }
+
     /// Creates a new instance by decoding from the given decoder.
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        let documentVersion: DocumentVersion
+        let documentVersion: APIDocumentVersion
         do {
-            try documentVersion = (container.decodeIfPresent(DocumentVersion.self, forKey: .documentVersion) ?? .v1)
+            try documentVersion = container.decodeIfPresent(APIDocumentVersion.self, forKey: .documentVersion) ?? .v1
         } catch {
+            // failed to decode APIDocumentVersion, probably because its an unknown version!
             throw CodingError.unsupportedDocumentVersion(version: try container.decode(String.self, forKey: .documentVersion))
         }
 
@@ -142,5 +132,16 @@ public struct APIDocument: Value {
         }
 
         self.documentVersion = .v2
+    }
+
+    /// Encodes self into the given encoder.
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(id, forKey: .id)
+        try container.encode(documentVersion, forKey: .documentVersion)
+        try container.encode(serviceInformation, forKey: .serviceInformation)
+        try container.encode(_endpoints, forKey: .endpoints)
+        try container.encode(types, forKey: .types)
     }
 }

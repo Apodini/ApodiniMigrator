@@ -91,7 +91,7 @@ public enum ModelUpdateChange: Codable {
     case rootType(
         from: TypeInformation.RootType,
         to: TypeInformation.RootType,
-        newModel: TypeInformation
+        newModel: TypeInformation // TODO in MG migrations value UNSUPPORTED
     )
 
     // .object
@@ -99,6 +99,7 @@ public enum ModelUpdateChange: Codable {
 
     // .enum
     case `case`(case: EnumCaseChange)
+    // TODO in MG migrations both types have value UNSUPPORTED0, UNSUPPORTED1
     case rawValueType(
         from: TypeInformation, // TODO annotate: reference or scalar
         to: TypeInformation

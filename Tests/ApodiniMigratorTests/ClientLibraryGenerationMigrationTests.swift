@@ -59,7 +59,6 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testMigratorThrowIncompatibleMigrationGuide() throws {
-        throw XCTSkip("Old MigrationGuide format!") // TODO rework(OFFF)
         XCTAssertThrows(try RESTMigrator(
             documentPath: Documents.v2.bundlePath.string,
             migrationGuidePath: Documents.migrationGuide.bundlePath.string
@@ -67,7 +66,7 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testPackageMigration() throws {
-        throw XCTSkip("Old MigrationGuide format!") // TODO rework(OFFF)
+        throw XCTSkip("issue with .typeName applied to reference types") // TODO reference type issue
         let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
             documentPath: Documents.v1.bundlePath.string,
             migrationGuidePath: Documents.migrationGuide.bundlePath.string
