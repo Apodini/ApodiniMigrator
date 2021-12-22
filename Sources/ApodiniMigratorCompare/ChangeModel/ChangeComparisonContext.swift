@@ -119,3 +119,20 @@ extension ChangeComparisonContext {
         }
     }
 }
+
+extension ChangeComparisonContext: CustomDebugStringConvertible {
+    var debugDescription: String {
+        """
+        ChangeComparisonContext(\
+        configuration: \(configuration), \
+        latestModels: \(latestModels), \
+        scripts: \(scripts), \
+        jsonValues: \(jsonValues), \
+        objectJSONs: \(objectJSONs), \
+        serviceChanges: \(serviceChanges), \
+        modelChanges: \(modelChanges), \
+        endpointChanges: \(endpointChanges)\
+        )
+        """
+    }
+}
