@@ -44,12 +44,12 @@ public struct MigrationGuide {
 
 
     /// Dictionary holding all registered convert scripts which are referenced from change objects
-    public private(set) var scripts: [Int: JSScript]
+    public let scripts: [Int: JSScript]
     /// Dictionary holding all registered json values which are referenced from change objects
-    public private(set) var jsonValues: [Int: JSONValue]
+    public let jsonValues: [Int: JSONValue]
     /// A property that holds json representation of models that had a breaking change on their properties, e.g. rename, addition, deletion or property type change.
     /// This property is used for test cases in the client application
-    public private(set) var objectJSONs: [String: JSONValue]
+    public let objectJSONs: [String: JSONValue]
 
     /// An empty migration guide with no changes
     public static var empty: MigrationGuide {
@@ -230,19 +230,15 @@ extension MigrationGuide: Codable {
 extension MigrationGuide: Equatable {
     /// :nodoc:
     public static func == (lhs: MigrationGuide, rhs: MigrationGuide) -> Bool {
-        var mutableLhs = lhs
-        var mutableRhs = rhs
-        mutableLhs.scripts = [:]
-        mutableLhs.jsonValues = [:]
-        mutableLhs.objectJSONs = [:]
-        
-        mutableRhs.scripts = [:]
-        mutableRhs.jsonValues = [:]
-        mutableRhs.objectJSONs = [:]
-
-        // we do this json based approach, as a simple array comparison
-        // would take forever, especially for non matching comparisons
-        return mutableLhs.json == mutableRhs.json
+        lhs.summary == rhs.summary
+            && lhs.id == rhs.id
+            && lhs.documentVersion == rhs.documentVersion
+            && lhs.from == rhs.from
+            && lhs.to == rhs.to
+            && lhs.compareConfiguration == rhs.compareConfiguration
+            && lhs.serviceChanges.json(prettyPrinted: false) == rhs.serviceChanges.json(prettyPrinted: false)
+            && lhs.modelChanges.json(prettyPrinted: false) == rhs.modelChanges.json(prettyPrinted: false)
+            && lhs.endpointChanges.json(prettyPrinted: false) == rhs.endpointChanges.json(prettyPrinted: false)
             && lhs.scripts == rhs.scripts
             && lhs.jsonValues == rhs.jsonValues
             && lhs.objectJSONs == rhs.objectJSONs
