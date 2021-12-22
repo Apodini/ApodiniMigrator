@@ -16,10 +16,11 @@ struct DocumentComparator {
         let metaDataComparator = ServiceInformationComparator(lhs: lhs.serviceInformation, rhs: rhs.serviceInformation)
         metaDataComparator.compare(context, &context.serviceChanges)
 
-        // TODO comment, models must be compared first, as js script uses it!
+        // It is important that the ModelsComparator runs before the EndpointsComparator, as this step
+        // collects possible migration js scripts which are later on referenced.
         let modelsComparator = ModelsComparator(
-            lhs: .init(lhs.types.values),
-            rhs: .init(rhs.types.values)
+            lhs: .init(lhs.models),
+            rhs: .init(rhs.models)
         )
         modelsComparator.compare(context, &context.modelChanges)
 

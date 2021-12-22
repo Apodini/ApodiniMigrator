@@ -11,6 +11,9 @@ import ApodiniMigrator
 
 /// An object that represents an `Type+Endpoint.swift` file in the client library
 class EndpointFile: GeneratedFile {
+    /// Suffix of endpoint files, e.g. `User+Endpoint.swift`
+    static let fileSuffix = "+Endpoint" + .swift
+
     let fileName: [NameComponent]
 
     @SharedNodeReference
@@ -35,15 +38,14 @@ class EndpointFile: GeneratedFile {
         changes: [EndpointChange]
     ) {
         _migratedEndpoints = migratedEndpointsReference
-        // TODO file name uniqueness
-        self.fileName = [typeInformation.typeName.mangledName + EndpointsMigrator.fileSuffix]
+        self.fileName = [typeInformation.unsafeFileNaming + EndpointFile.fileSuffix]
         self.typeInformation = typeInformation
 
         self.endpoints = endpoints.sorted { lhs, rhs in
-            if lhs.response.typeString == rhs.response.typeString {
+            if lhs.response.unsafeTypeString == rhs.response.unsafeTypeString {
                 return lhs.deltaIdentifier < rhs.deltaIdentifier
             }
-            return lhs.response.typeString < rhs.response.typeString
+            return lhs.response.unsafeTypeString < rhs.response.unsafeTypeString
         }
         self.changes = changes
 
@@ -59,7 +61,7 @@ class EndpointFile: GeneratedFile {
         ""
 
         MARKComment(.endpoints)
-        "\(kind.signature) \(typeInformation.typeName.mangledName) {" // TODO file name uniqueness
+        "\(kind.signature) \(typeInformation.unsafeFileNaming) {"
 
         Indent {
             var first = true

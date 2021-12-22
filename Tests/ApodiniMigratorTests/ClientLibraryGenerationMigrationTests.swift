@@ -11,7 +11,6 @@ import XCTest
 
 final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     func testV1LibraryGeneration() throws {
-        throw XCTSkip("issue with .typeName applied to reference types") // TODO reference type issue
         let document = try Documents.v1.decodedContent() as APIDocument
         let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
             documentPath: Documents.v1.bundlePath.string
@@ -35,7 +34,6 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testV2LibraryGeneration() throws {
-        throw XCTSkip("issue with .typeName applied to reference types") // TODO reference type issue
         let document = try Documents.v2.decodedContent() as APIDocument
         let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
             documentPath: Documents.v2.bundlePath.string
@@ -66,7 +64,6 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testPackageMigration() throws {
-        throw XCTSkip("issue with .typeName applied to reference types") // TODO reference type issue
         let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
             documentPath: Documents.v1.bundlePath.string,
             migrationGuidePath: Documents.migrationGuide.bundlePath.string
@@ -82,8 +79,7 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testMigrationGuideGeneration() throws {
-        // TODO rework
-        throw XCTSkip("Some reference shit")
+        throw XCTSkip("ServiceInformation coding")
         let doc1 = try Documents.v1.decodedContent() as APIDocument
         let doc2 = try Documents.v2.decodedContent() as APIDocument
         

@@ -93,7 +93,7 @@ public struct MigrationGuide {
         // TODO don't like how all the expensive comparison bootstrapping is but in the init!
         let comparisonContext = ChangeComparisonContext(
             configuration: compareConfiguration,
-            latestModels: Array(rhs.types.values)
+            latestModels: Array(rhs.models)
         )
 
         let documentsComparator = DocumentComparator(lhs: lhs, rhs: rhs)

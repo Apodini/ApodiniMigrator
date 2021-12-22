@@ -12,7 +12,7 @@ import ApodiniMigrator
 /// Represents an `object` file that was not affected by any change
 struct DefaultObjectFile: GeneratedFile {
     var fileName: [NameComponent] {
-        ["\(typeInformation.typeName.mangledName).swift"] // TODO file name uniqueness
+        ["\(typeInformation.unsafeFileNaming).swift"]
     }
 
     /// `TypeInformation` to be rendered in this file
@@ -74,7 +74,7 @@ struct DefaultObjectFile: GeneratedFile {
         ""
 
         MARKComment(.model)
-        "\(annotationComment)\(kind.signature) \(typeInformation.typeName.mangledName): Codable {" // TODO file name uniqueness
+        "\(annotationComment)\(kind.signature) \(typeInformation.unsafeFileNaming): Codable {"
 
         Indent {
             if properties.isEmpty {
@@ -108,6 +108,6 @@ struct DefaultObjectFile: GeneratedFile {
 extension TypeProperty {
     /// The corresponding line of the property to be rendered under the list of properties of the object
     var propertyLine: String {
-        "public var \(name): \(type.typeString)"
+        "public var \(name): \(type.unsafeTypeString)"
     }
 }

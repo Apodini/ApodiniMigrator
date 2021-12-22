@@ -9,26 +9,10 @@
 import Foundation
 import ApodiniMigrator
 
-/// A util struct that holds an added property and its corresponding default value as provided by the migration guide
-struct AddedProperty {
-    /// Property
-    let typeProperty: TypeProperty
-    /// Default value
-    let defaultValue: ChangeValue
-}
-
-/// A util struct that holds the id of a deleted property and its corresponding fallback value as provided by the migration guide
-struct DeletedProperty { // TODO remove both!
-    /// Id of the property
-    let id: DeltaIdentifier
-    /// Fallback value
-    let fallbackValue: ChangeValue
-}
-
 /// An object that handles the migration of an object in the client library
 struct ObjectMigrator: GeneratedFile {
     var fileName: [NameComponent] {
-        ["\(typeInformation.typeName.mangledName).swift"] // TODO file name uniqueness!
+        ["\(typeInformation.unsafeFileNaming).swift"]
     }
 
     /// Type information of the object that will be migrated
@@ -134,8 +118,7 @@ struct ObjectMigrator: GeneratedFile {
             ""
 
             MARKComment(.model)
-            // TODO type name uniqueness
-            "\(annotation?.comment ?? "")\(kind.signature) \(typeInformation.typeName.mangledName): Codable {"
+            "\(annotation?.comment ?? "")\(kind.signature) \(typeInformation.unsafeFileNaming): Codable {"
             Indent {
                 MARKComment(.codingKeys)
                 ObjectCodingKeys(allProperties, renameChanges: renamedProperties)

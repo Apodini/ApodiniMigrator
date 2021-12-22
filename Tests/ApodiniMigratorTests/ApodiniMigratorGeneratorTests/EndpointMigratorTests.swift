@@ -208,24 +208,19 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     private var responseChange: EndpointChange {
         .update(
             id: endpoint.deltaIdentifier,
-            updated: .parameter(parameter: .update(
-                id: "name",
-                updated: .type(
-                    from: endpoint.response,
-                    to: .reference("UpdatedTestResponse"),
-                    forwardMigration: 1,
-                    conversionWarning: nil
-                ),
-                breaking: true,
-                solvable: true
-            )),
+            updated: .response(
+                from: endpoint.response,
+                to: .reference("UpdatedTestResponse"),
+                backwardsConversion: 1,
+                conversionWarning: nil
+            ),
             breaking: true,
             solvable: true
         )
     }
 
     private var endpointRemovalChange: EndpointChange {
-        return .removal(
+        .removal(
             id: endpoint.deltaIdentifier,
             fallbackValue: nil,
             breaking: true,
@@ -239,85 +234,84 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
         FileHeaderComment.testsDate = .testsDate
     }
     
-    private func endpointFile(changes: [EndpointChange]) throws -> EndpointFile {
-        throw XCTSkip("issue with .typeName applied to reference types") // TODO reference type issue
-        return EndpointFile(migratedEndpointsReference: SharedNodeReference(with: []), typeInformation: endpoint.response, endpoints: [endpoint], changes: changes)
+    private func endpointFile(changes: [EndpointChange]) -> EndpointFile {
+        EndpointFile(migratedEndpointsReference: SharedNodeReference(with: []), typeInformation: endpoint.response, endpoints: [endpoint], changes: changes)
     }
     
     func testDefaultEndpointFile() throws {
-        let file = try endpointFile(changes: [])
+        let file = endpointFile(changes: [])
 
         XCTMigratorAssertEqual(file, .defaultEndpointFile)
     }
     
     func testEndpointPathChange() throws {
-        let file = try endpointFile(changes: [pathChange])
+        let file = endpointFile(changes: [pathChange])
         
         XCTMigratorAssertEqual(file, .endpointPathChange)
     }
     
     func testEndpointOperationChange() throws {
-        let file = try endpointFile(changes: [operationChange])
+        let file = endpointFile(changes: [operationChange])
         
         XCTMigratorAssertEqual(file, .endpointOperationChange)
     }
     
     func testAddEndpointParameterChange() throws {
-        let file = try endpointFile(changes: [addParameterChange])
+        let file = endpointFile(changes: [addParameterChange])
         
         XCTMigratorAssertEqual(file, .endpointAddParameterChange)
     }
     
     func testDeleteEndpointParameterChange() throws {
-        let file = try endpointFile(changes: [deleteParameterChange])
+        let file = endpointFile(changes: [deleteParameterChange])
         
         XCTMigratorAssertEqual(file, .endpointDeleteParameterChange)
     }
     
     func testDeleteEndpointContentParameterChange() throws {
-        let file = try endpointFile(changes: [deleteContentParameterChange])
+        let file = endpointFile(changes: [deleteContentParameterChange])
         
         XCTMigratorAssertEqual(file, .endpointDeleteContentParameterChange)
     }
     
     func testRenameEndpointParameterChange() throws {
-        let file = try endpointFile(changes: [renamedParameterChange])
+        let file = endpointFile(changes: [renamedParameterChange])
         
         XCTMigratorAssertEqual(file, .endpointRenameParameterChange)
     }
     
     func testParameterNecessityToRequiredChange() throws {
-        let file = try endpointFile(changes: [parameterNecessityToRequiredChange])
+        let file = endpointFile(changes: [parameterNecessityToRequiredChange])
         
         XCTMigratorAssertEqual(file, .endpointParameterNecessityToRequiredChange)
     }
     
     func testParameterNecessityToOptionalChange() throws {
-        let file = try endpointFile(changes: [parameterNecessityToOptionalChange])
+        let file = endpointFile(changes: [parameterNecessityToOptionalChange])
         
         XCTMigratorAssertEqual(file, .defaultEndpointFile) // no update to the method required for this change
     }
     
     func testParameterKindAndPathChange() throws {
-        let file = try endpointFile(changes: pathAndParameterKindChanges)
+        let file = endpointFile(changes: pathAndParameterKindChanges)
         
         XCTMigratorAssertEqual(file, .endpointParameterKindAndPathChange)
     }
     
     func testParameterTypeChange() throws {
-        let file = try endpointFile(changes: [parameterTypeChange])
+        let file = endpointFile(changes: [parameterTypeChange])
         
         XCTMigratorAssertEqual(file, .endpointParameterTypeChange)
     }
     
     func testEndpointResponseChange() throws {
-        let file = try endpointFile(changes: [responseChange])
+        let file = endpointFile(changes: [responseChange])
 
         XCTMigratorAssertEqual(file, .endpointResponseChange)
     }
     
     func testEndpointMultipleChanges() throws {
-        let file = try endpointFile(
+        let file = endpointFile(
             changes: [
                 addParameterChange,
                 deleteContentParameterChange,
@@ -330,7 +324,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     func testEndpointDeletedChange() throws {
-        let file = try endpointFile(changes: [endpointRemovalChange])
+        let file = endpointFile(changes: [endpointRemovalChange])
         
         XCTMigratorAssertEqual(file, .endpointDeletedChange)
     }

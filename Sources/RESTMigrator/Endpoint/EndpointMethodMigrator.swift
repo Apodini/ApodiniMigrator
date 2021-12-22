@@ -33,7 +33,7 @@ class EndpointMethodMigrator: SourceCodeRenderable {
         self.path = endpoint.identifier()
         self.operation = endpoint.identifier()
 
-        self.responseString = endpoint.response.typeString
+        self.responseString = endpoint.response.unsafeTypeString
 
         var parameters: [MigratedParameter] = []
 
@@ -66,7 +66,7 @@ class EndpointMethodMigrator: SourceCodeRenderable {
             case let .response(from, to, migration, warning):
                 // TODO response change is always there when the NAME changes? (recheck this in general)
                 //   renaming do not need to be handled here, as we always keep the old name!
-                self.responseString = to.typeString
+                self.responseString = to.unsafeTypeString
                 self.responseConvertID = migration
             case let .parameter(parameter):
                 if let parameterAddition = parameter.modeledAdditionChange {
@@ -144,7 +144,7 @@ class EndpointMethodMigrator: SourceCodeRenderable {
         if let convertID = responseConvertID {
             Indent {
                 """
-                .tryMap { try \(endpoint.response.typeString).from($0, script: \(convertID)) }
+                .tryMap { try \(endpoint.response.unsafeTypeString).from($0, script: \(convertID)) }
                 .eraseToAnyPublisher()
                 """
             }

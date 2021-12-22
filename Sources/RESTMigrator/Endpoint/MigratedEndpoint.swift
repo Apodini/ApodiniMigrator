@@ -27,7 +27,7 @@ class MigratedEndpoint {
     
     /// Response string of the endpoint in the old version
     private var responseString: String {
-        endpoint.response.typeString
+        endpoint.response.unsafeTypeString
     }
     
     /// Initializes a new instance out of an endpoint of the old version, unavailable flag, migrated parameters and the path of the endpoint in the new version
@@ -41,7 +41,7 @@ class MigratedEndpoint {
     /// Returns the input string of the endpoint method considering added parameters and providing default values for those
     private func methodInput() -> String {
         var input = parameters.map { parameter -> String in
-            let typeString = parameter.oldType.typeString + (parameter.necessity == .optional ? "?" : "")
+            let typeString = parameter.oldType.unsafeTypeString + (parameter.necessity == .optional ? "?" : "")
             var parameterSignature = "\(parameter.oldName): \(typeString)"
             if let defaultValue = parameter.defaultValue {
                 let defaultValueString: String
@@ -74,9 +74,9 @@ class MigratedEndpoint {
     private func setValue(for parameter: MigratedParameter) -> String {
         let setValue: String
         if let necessityValueID = parameter.necessityValueJSONId {
-            setValue = "\(parameter.oldName) ?? (try! \(parameter.oldType.typeString).instance(from: \(necessityValueID)))"
+            setValue = "\(parameter.oldName) ?? (try! \(parameter.oldType.unsafeTypeString).instance(from: \(necessityValueID)))"
         } else if let convertID = parameter.convertFromTo {
-            setValue = "try! \(parameter.newType.typeString).from(\(parameter.oldName), script: \(convertID))"
+            setValue = "try! \(parameter.newType.unsafeTypeString).from(\(parameter.oldName), script: \(convertID))"
         } else {
             setValue = "\(parameter.oldName)"
         }
@@ -153,9 +153,9 @@ extension MigratedEndpoint: Comparable {
     static func < (lhs: MigratedEndpoint, rhs: MigratedEndpoint) -> Bool {
         let lhsEndpoint = lhs.endpoint
         let rhsEndpoint = rhs.endpoint
-        if lhsEndpoint.response.typeString == rhsEndpoint.response.typeString {
+        if lhsEndpoint.response.unsafeTypeString == rhsEndpoint.response.unsafeTypeString {
             return lhsEndpoint.deltaIdentifier < rhsEndpoint.deltaIdentifier
         }
-        return lhsEndpoint.response.typeString < rhsEndpoint.response.typeString
+        return lhsEndpoint.response.unsafeTypeString < rhsEndpoint.response.unsafeTypeString
     }
 }

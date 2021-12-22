@@ -11,9 +11,6 @@ import ApodiniMigrator
 
 /// An object that handles / triggers the migrated rendering of all endpoints of the client library
 struct EndpointsMigrator: LibraryComposite {
-    /// Suffix of endpoint files, e.g. `User+Endpoint.swift`
-    static let fileSuffix = "+Endpoint" + .swift
-
     @SharedNodeReference
     var migratedEndpoints: [MigratedEndpoint]
 

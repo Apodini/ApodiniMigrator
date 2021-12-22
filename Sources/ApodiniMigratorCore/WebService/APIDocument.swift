@@ -33,10 +33,12 @@ public struct APIDocument: Value {
             }
     }
 
-    public var types: TypesStore
+    private var types: TypesStore
 
     public var models: [TypeInformation] {
-        Array(types.values)
+        Array(types.keys)
+            .map { TypeInformation.reference($0) }
+            .map { types.construct(from: $0) }
     }
 
     /*

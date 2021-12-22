@@ -37,13 +37,13 @@ struct EncodingMethod: SourceCodeRenderable {
 
             return """
                    try container.encode(\(property.name) \
-                   ?? (try \(property.type.unwrapped.typeString)\
+                   ?? (try \(property.type.unwrapped.unsafeTypeString)\
                    .instance(from: \(migration))), forKey: .\(property.name))
                    """
         } else if case let .type(from, to, forwardMigration, backwardMigration, hint) = change.updated {
             let encodeMethod = "encode\(to.isOptional ? "IfPresent" : "")"
             return """
-                   try container.\(encodeMethod)(try \(to.typeString)\
+                   try container.\(encodeMethod)(try \(to.unsafeTypeString)\
                    .from(\(property.name), script: \(forwardMigration)), forKey: .\(property.name))
                    """
         }

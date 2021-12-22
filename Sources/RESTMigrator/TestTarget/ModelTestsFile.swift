@@ -24,7 +24,7 @@ struct ModelTestsFile: GeneratedFile {
         encoderConfiguration: EncoderConfiguration = .default
     ) {
         self.fileName = name
-        self.models = models.sorted(by: \.typeString)
+        self.models = models.sorted(by: \.unsafeTypeString)
         self.objectJSONs = objectJSONs
         self.encoderConfiguration = encoderConfiguration
     }

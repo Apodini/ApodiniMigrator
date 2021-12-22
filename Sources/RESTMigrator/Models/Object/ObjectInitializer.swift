@@ -46,7 +46,7 @@ struct ObjectInitializer: SourceCodeRenderable {
     
     /// Returns the string of the type of the property appending a corresponding default value for added properties as provided in the migration guide
     private func defaultValue(for property: TypeProperty) -> String {
-        var typeString = property.type.typeString
+        var typeString = property.type.unsafeTypeString
         if let defaultValueEntry: Int? = defaultValues[property.deltaIdentifier] {
             let defaultValueString: String
             if let defaultValue = defaultValueEntry {

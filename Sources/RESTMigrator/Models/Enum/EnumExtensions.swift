@@ -14,7 +14,7 @@ struct EnumExtensions: SourceCodeRenderable {
     let `enum`: TypeInformation
     let rawValueType: TypeInformation
     var typeName: String {
-        `enum`.typeString
+        `enum`.unsafeTypeString
     }
     
     init(_ enum: TypeInformation, rawValueType: TypeInformation) {

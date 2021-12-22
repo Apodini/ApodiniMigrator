@@ -95,7 +95,7 @@ extension ChangeComparisonContext {
      */
 
     /// For every compare between two models of different versions, this function is called to register potentially updated json representation of an object
-    func store(rhs: TypeInformation) {
+    func store(rhs: TypeInformation, into modelChanges: inout [ModelChange]) {
         // TODO
         //  let propertyTargets = [ObjectTarget.property, .necessity].map { $0.rawValue }
         //  $0.breaking

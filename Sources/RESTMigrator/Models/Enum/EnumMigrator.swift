@@ -13,7 +13,7 @@ import ApodiniMigrator
 /// An object that handles the migration of an enum declaration and renders the output accordingly
 struct EnumMigrator: GeneratedFile {
     var fileName: [NameComponent] {
-        ["\(typeInformation.typeName.mangledName).swift"] // TODO file name uniqueness
+        ["\(typeInformation.unsafeFileNaming).swift"]
     }
 
     /// Type information enum that will be rendered
@@ -123,8 +123,7 @@ struct EnumMigrator: GeneratedFile {
             ""
 
             MARKComment(.model)
-            // TODO file name uniqueness
-            "\(addedCasesAnnotation)\(Kind.enum.signature) \(typeInformation.typeName.mangledName): \(rawValueType.nestedTypeString), Codable, CaseIterable {"
+            "\(addedCasesAnnotation)\(Kind.enum.signature) \(typeInformation.unsafeFileNaming): \(rawValueType.nestedTypeString), Codable, CaseIterable {"
             Indent {
                 for enumCase in allCases {
                     precondition(enumCase.name == enumCase.rawValue, "Assumption about the TypeInformation framework changed!")

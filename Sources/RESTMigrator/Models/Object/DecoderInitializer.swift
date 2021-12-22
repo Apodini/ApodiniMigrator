@@ -32,7 +32,7 @@ struct DecoderInitializer: SourceCodeRenderable {
     private func decodingLine(for property: TypeProperty) -> String {
         if let removalChange = removed.first(where: {  $0.id == property.deltaIdentifier }) {
             if let fallbackValue = removalChange.fallbackValue {
-                return "\(property.name) = try \(property.type.typeString).instance(from: \(fallbackValue))"
+                return "\(property.name) = try \(property.type.unsafeTypeString).instance(from: \(fallbackValue))"
             } else {
                 return "\(property.name) = nil"
             }
@@ -52,14 +52,14 @@ struct DecoderInitializer: SourceCodeRenderable {
 
             return """
                    \(property.name) = try container.decodeIfPresent\
-                   (\(property.type.typeString).self, forKey: .\(property.name)) \
-                   ?? (try \(property.type.typeString).instance(from: \(migration)))
+                   (\(property.type.unsafeTypeString).self, forKey: .\(property.name)) \
+                   ?? (try \(property.type.unsafeTypeString).instance(from: \(migration)))
                    """
         } else if case let .type(from, to, forwardMigration, backwardMigration, hint) = change.updated {
             let decodeMethod = "decode\(to.isOptional ? "IfPresent" : "")"
             return """
-                   \(property.name) = try \(property.type.typeString).from(\
-                   try container.\(decodeMethod)(\(to.typeString.dropQuestionMark).self, forKey: .\(property.name)), script: \(backwardMigration)\
+                   \(property.name) = try \(property.type.unsafeTypeString).from(\
+                   try container.\(decodeMethod)(\(to.unsafeTypeString.dropQuestionMark).self, forKey: .\(property.name)), script: \(backwardMigration)\
                    )
                    """
         }
@@ -88,6 +88,6 @@ private extension TypeProperty {
     /// The corresponding line of the property to be rendered inside `init(from decoder: Decoder)` if no change affected the property
     var decoderInitLine: String {
         let decodeMethodString = "decode\(type.isOptional ? "IfPresent" : "")"
-        return "\(name) = try container.\(decodeMethodString)(\(type.typeString.dropQuestionMark).self, forKey: .\(name))"
+        return "\(name) = try container.\(decodeMethodString)(\(type.unsafeTypeString.dropQuestionMark).self, forKey: .\(name))"
     }
 }
