@@ -82,7 +82,7 @@ class ApodiniMigratorXCTestCase: XCTestCase {
     ) {
         XCTAssertEqual(
             rendarable.formattedFile(with: context),
-            resource.content(), // TODO .indentatioNFormatted of content is missing!
+            resource.content(),
             message(),
             file: file,
             line: line

@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Model
-@available(*, deprecated, message: "Unsupported change! Raw value type changed")
+@available(*, deprecated, message: "The raw value type of this enum has changed to Int. ApodiniMigrator is not able to migrate this change.")
 public enum ProgLang: String, Codable, CaseIterable {
     case java
     case javaScript

@@ -97,7 +97,7 @@ struct ObjectMigrator: GeneratedFile {
         var annotation: Annotation? = nil
         if !unsupportedChanges.isEmpty {
             annotation = GenericComment(
-                comment: "@available(*, deprecated, message: \(unsupportedChanges.map { $0.description }.joined(separator: "; ")))"
+                comment: "@available(*, deprecated, message: \"\(unsupportedChanges.map { $0.description }.joined(separator: "; "))\")"
             )
         } else if notPresentInNewVersion {
             annotation = GenericComment(

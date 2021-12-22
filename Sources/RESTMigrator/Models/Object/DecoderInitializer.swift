@@ -46,6 +46,10 @@ struct DecoderInitializer: SourceCodeRenderable {
         // I'm just rewriting the thing and don't really have the time to fix things.
 
         if case let .necessity(from, to, migration) = change.updated {
+            if to != .optional {
+                return property.decoderInitLine
+            }
+
             return """
                    \(property.name) = try container.decodeIfPresent\
                    (\(property.type.typeString).self, forKey: .\(property.name)) \

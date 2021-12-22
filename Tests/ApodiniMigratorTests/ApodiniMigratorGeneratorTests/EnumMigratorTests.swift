@@ -69,6 +69,20 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
         )
     }
 
+    var updateRawValueChange: ModelChange {
+        .update(
+            id: enumeration.deltaIdentifier,
+            updated: .case(case: .update(
+                id: "swift",
+                updated: .rawValueType(from: "swift", to: "swiftLang"),
+                breaking: true,
+                solvable: true
+            )),
+            breaking: true,
+            solvable: true
+        )
+    }
+
     var deleteEnumChange: ModelChange {
         .removal(
             id: enumeration.deltaIdentifier,
@@ -115,7 +129,6 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     func testEnumRenamedCase() throws {
-        
         let migrator = EnumMigrator(enumeration, changes: [renameCaseChange])
         XCTMigratorAssertEqual(migrator, .enumRenamedCase)
     }
@@ -132,7 +145,7 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     func testEnumMultipleChanges() throws {
-        let migrator = EnumMigrator(enumeration, changes: [addCaseChange, deleteCaseChange, renameCaseChange])
+        let migrator = EnumMigrator(enumeration, changes: [addCaseChange, deleteCaseChange, renameCaseChange, updateRawValueChange])
         XCTMigratorAssertEqual(migrator, .enumMultipleChanges)
     }
 }

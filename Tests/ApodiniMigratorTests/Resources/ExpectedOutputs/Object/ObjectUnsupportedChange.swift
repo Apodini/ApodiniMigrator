@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Model
-@available(*, deprecated, message: "Unsupported change! Type changed to enum")
+@available(*, deprecated, message: "ApodiniMigrator is not able to handle the migration of User. Change from enum to object or vice versa is currently not supported.")
 public struct User: Codable {
     // MARK: - CodingKeys
     private enum CodingKeys: String, CodingKey {

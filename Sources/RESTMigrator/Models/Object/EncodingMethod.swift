@@ -31,6 +31,10 @@ struct EncodingMethod: SourceCodeRenderable {
         // I'm just rewriting the thing and don't really have the time to fix things.
 
         if case let .necessity(from, to, migration) = change.updated {
+            if to != .required {
+                return property.encodingMethodLine
+            }
+
             return """
                    try container.encode(\(property.name) \
                    ?? (try \(property.type.unwrapped.typeString)\

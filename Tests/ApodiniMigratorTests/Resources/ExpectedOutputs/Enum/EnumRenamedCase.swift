@@ -13,7 +13,7 @@ public enum ProgLang: String, Codable, CaseIterable {
     case other
     case python
     case ruby
-    case swift = "swiftLang"
+    case swift
     
     // MARK: - Deprecated
     private static let deprecatedCases: [Self] = []
