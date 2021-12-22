@@ -116,7 +116,8 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
         let obj2: TypeInformation = .object(name: .init(rawValue: "Test"), properties: [.init(name: "prop1", type: renamedUser)])
 
         let comparator = ModelsComparator(lhs: [obj1, user], rhs: [obj2, renamedUser])
-        comparator.compare(comparisonContext, &comparisonContext.modelChanges)
+        comparator.compare(comparisonContext, &modelChanges)
+        comparisonContext.modelChanges = modelChanges
 
         let scriptBuilder = JSObjectScript(from: obj1, to: obj2, context: comparisonContext)
         XCTAssert(scriptBuilder.convertFromTo.rawValue.contains("'prop1': parsedFrom.prop1"))
