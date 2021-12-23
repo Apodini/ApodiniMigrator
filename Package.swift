@@ -35,6 +35,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/omochi/FineJSON.git", from: "1.14.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "4.0.0"),
+        .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
 
         // gRPC
         .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.18.0"),
@@ -61,7 +62,8 @@ let package = Package(
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
                 .product(name: "ApodiniTypeInformation", package: "ApodiniTypeInformation"),
-                .product(name: "Yams", package: "Yams")
+                .product(name: "Yams", package: "Yams"),
+                .product(name: "OrderedCollections", package: "swift-collections")
             ]
         ),
 

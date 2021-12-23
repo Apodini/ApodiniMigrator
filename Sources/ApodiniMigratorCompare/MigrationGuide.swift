@@ -230,7 +230,52 @@ extension MigrationGuide: Codable {
 extension MigrationGuide: Equatable {
     /// :nodoc:
     public static func == (lhs: MigrationGuide, rhs: MigrationGuide) -> Bool {
-        lhs.summary == rhs.summary
+        let lhsS = lhs.serviceChanges.json(prettyPrinted: false)
+        let rhsS = rhs.serviceChanges.json(prettyPrinted: false)
+        let lhsM = lhs.modelChanges.json(prettyPrinted: false)
+        let rhsM = rhs.modelChanges.json(prettyPrinted: false)
+        let lhsE = lhs.endpointChanges.json(prettyPrinted: false)
+        let rhsE = rhs.endpointChanges.json(prettyPrinted: false)
+
+        print(lhsS)
+        print(rhsS)
+        print("\n")
+        print(lhsM)
+        print(rhsM)
+        print("\n")
+        print(lhsE)
+        print(rhsE)
+        print("\n\n")
+
+        let bool0 = lhs.summary == rhs.summary
+        let bool1 = lhs.id == rhs.id
+        let bool2 = lhs.documentVersion == rhs.documentVersion
+        let bool3 = lhs.from == rhs.from
+        let bool4 = lhs.to == rhs.to
+        let bool5 = lhs.compareConfiguration == rhs.compareConfiguration
+        let bool6 = lhsS == rhsS
+        let bool7 = lhsM == rhsM
+        let bool8 = lhsE == rhsE
+        let bool9 = lhs.scripts == rhs.scripts
+        let bool10 = lhs.jsonValues == rhs.jsonValues
+        let bool11 = lhs.objectJSONs == rhs.objectJSONs
+
+        print(bool0)
+        print(bool1)
+        print(bool2)
+        print(bool3)
+        print(bool4)
+        print(bool5)
+        print(bool6)
+        print(bool7)
+        print(bool8)
+        print(bool9)
+        print(bool10)
+        print(bool11)
+
+        return bool0 && bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9 && bool10 && bool11
+
+        return lhs.summary == rhs.summary
             && lhs.id == rhs.id
             && lhs.documentVersion == rhs.documentVersion
             && lhs.from == rhs.from

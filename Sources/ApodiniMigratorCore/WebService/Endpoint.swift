@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OrderedCollections
 
 /// A typealias of an array of `Parameter`
 public typealias EndpointInput = [Parameter] // TODO remove
@@ -62,7 +63,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
     public let deltaIdentifier: DeltaIdentifier // TODO is this party of the identifier?
 
     // TODO encoding of identifier is duplicated right now!
-    public var identifiers: [String: AnyEndpointIdentifier] // TODO encode as simple string key,value!
+    public var identifiers: OrderedDictionary<String, AnyEndpointIdentifier> // TODO encode as simple string key,value!
 
     /// The communicational pattern of the endpoint.
     public let communicationalPattern: CommunicationalPattern
@@ -158,58 +159,6 @@ public struct Endpoint: Value, DeltaIdentifiable {
         var typesStore = TypesStore()
         retValue.reference(in: &typesStore)
         return retValue
-    }
-}
-
-extension Endpoint: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case handlerName
-        case deltaIdentifier
-        case identifiers
-        case communicationalPattern
-        case parameters
-        case response
-        case errors
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        handlerName = try container.decode(String.self, forKey: .handlerName)
-        deltaIdentifier = try container.decode(DeltaIdentifier.self, forKey: .deltaIdentifier)
-
-        let identifiers = try container.decode([String: String].self, forKey: .identifiers)
-        self.identifiers = identifiers
-                .reduce(into: [:]) { result, entry in
-                    result[entry.key] = AnyEndpointIdentifier(id: entry.key, value: entry.value)
-                }
-
-        communicationalPattern = try container.decode(CommunicationalPattern.self, forKey: .communicationalPattern)
-        parameters = try container.decode(EndpointInput.self, forKey: .parameters)
-        response = try container.decode(TypeInformation.self, forKey: .response)
-        errors = try container.decode([ErrorCode].self, forKey: .errors)
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-
-        try container.encode(handlerName, forKey: .handlerName)
-        try container.encode(deltaIdentifier, forKey: .deltaIdentifier)
-
-        let identifiers = self.identifiers
-                .map { ($0, $1.value) }
-                .sorted(by: { value0, value1 in
-                    value0.0 < value1.0
-                })
-                .reduce(into: [:]) { result, entry in
-                    result[entry.0] = entry.1
-                }
-        try container.encode(identifiers, forKey: .identifiers)
-
-        try container.encode(communicationalPattern, forKey: .communicationalPattern)
-        try container.encode(parameters, forKey: .parameters)
-        try container.encode(response, forKey: .response)
-        try container.encode(errors, forKey: .errors)
     }
 }
 
