@@ -56,7 +56,8 @@ extension DeltaIdentifier: ExpressibleByStringLiteral {
     }
 }
 
-// TODO expressible by string interpoilation?
+// MARK: - ExpressibleByStringInterpolation
+extension DeltaIdentifier: ExpressibleByStringInterpolation {}
 
 extension DeltaIdentifier: CustomStringConvertible {
     /// String representation of self

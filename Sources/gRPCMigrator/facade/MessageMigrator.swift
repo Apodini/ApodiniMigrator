@@ -35,7 +35,7 @@ struct MessageMigrator {
     /// All update changes of properties
     private var updatedProperties: [PropertyChange.UpdateChange] = []
 
-    private let unsupportedChange: LegacyUnsupportedChange? = nil // TODO ?
+    // TODO private let unsupportedChange: LegacyUnsupportedChange? = nil // TODO ?
     /// A flag that indicates whether the object is present in the new version or not
     // TODO private let notPresentInNewVersion: Bool
     /// All old properties of the object

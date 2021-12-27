@@ -10,13 +10,11 @@ import Foundation
 
 
 protocol Comparator {
-    associatedtype Element: Value
-    associatedtype ChangeType: ChangeableElement // TODO naming!
+    associatedtype ComparableElement: Value
+    associatedtype ChangeElement: ChangeableElement
     
-    var lhs: Element { get }
-    var rhs: Element { get }
-
-    // var changes: ChangeCollection { get }
+    var lhs: ComparableElement { get }
+    var rhs: ComparableElement { get }
     
-    func compare(_ context: ChangeComparisonContext, _ results: inout [Change<ChangeType>])
+    func compare(_ context: ChangeComparisonContext, _ results: inout [Change<ChangeElement>])
 }

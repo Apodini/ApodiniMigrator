@@ -29,7 +29,7 @@ public enum ParameterUpdateChange: Equatable {
     case type(
         from: TypeInformation,
         to: TypeInformation, // TODO annotate: reference or scalar
-        forwardMigration: Int, // TODO single direction migration?
+        forwardMigration: Int,
         conversionWarning: String?
     )
 }

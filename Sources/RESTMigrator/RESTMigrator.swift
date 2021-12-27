@@ -38,10 +38,10 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         if let path = migrationGuidePath {
             try self.migrationGuide = MigrationGuide.decode(from: Path(path))
         } else {
-            self.migrationGuide = .empty
+            self.migrationGuide = .empty(id: document.id)
         }
 
-        if let id = migrationGuide.id, document.id != id {
+        guard migrationGuide.id == document.id else {
             throw MigratorError.incompatible(
                 message:
                 """
@@ -51,7 +51,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
             )
         }
 
-        // TODO ensure REST is configured on the thingy (and wasn't removed!)!
+        // TODO ensure REST is configured on the web service (and wasn't removed!)!
 
         networkingMigrator = NetworkingMigrator(
             baseServiceInformation: document.serviceInformation,

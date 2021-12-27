@@ -45,7 +45,7 @@ public struct GRPCMigrator: Migrator {
             try self.migrationGuide = MigrationGuide.decode(from: Path(path))
             self.migrationGuidePath = migrationGuidePath
         } else {
-            self.migrationGuide = .empty
+            self.migrationGuide = .empty()
             self.migrationGuidePath = nil
         }
     }

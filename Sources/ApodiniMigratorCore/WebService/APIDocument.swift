@@ -9,17 +9,21 @@
 import Foundation
 import ApodiniTypeInformation
 
+/// This enum describes the document format version of the ``APIDocument``.
+/// ``APIDocumentVersion`` follows the SemVer versioning scheme.
 public enum APIDocumentVersion: String, Codable {
+    /// The original/legacy document format introduced with version 0.1.0.
+    /// - Note: This version is assumed when no `version` field is present in the document root.
+    ///     ApodiniMigrator supports parsing legacy documents till 0.3.0.
     case v1 = "1.0.0"
+    /// The current document format introduced with version 0.2.0.
     case v2 = "2.0.0"
 }
 
 /// A API document describing an Apodini Web Service.
 public struct APIDocument: Value {
     /// Id of the document
-    public let id: UUID // TODO how do we generate the Id (and persist it in API documents)
-    /// Describes the version the ``Document`` was generate with
-    public let documentVersion: APIDocumentVersion // TODO we don't really need this property STORED?
+    public let id: UUID
     /// Metadata
     public var serviceInformation: ServiceInformation
     /// Endpoints
@@ -49,7 +53,6 @@ public struct APIDocument: Value {
     /// Initializes a new Apodini API document.
     public init(serviceInformation: ServiceInformation) {
         self.id = .init()
-        self.documentVersion = .v2
         self.serviceInformation = serviceInformation
         self._endpoints = []
         self.types = TypesStore()
@@ -57,6 +60,11 @@ public struct APIDocument: Value {
     
     /// Adds a new endpoint
     public mutating func add(endpoint: Endpoint) {
+        precondition(
+            !_endpoints.contains(where: { $0.deltaIdentifier == endpoint.deltaIdentifier }),
+            "Tried adding `Endpoint` to `APIDocument` with colliding identifiers (or just added it twice)."
+        )
+
         var endpoint = endpoint
         endpoint.reference(in: &types)
         _endpoints.append(endpoint)
@@ -71,10 +79,6 @@ public struct APIDocument: Value {
 extension APIDocument: Codable {
     public enum CodingError: Error {
         case unsupportedDocumentVersion(version: String)
-
-        // TODO unused?
-        case decodingUnsupportedExporterConfiguration(container: UnkeyedDecodingContainer)
-        case encodingUnsupportedExporterConfiguration(configuration: AnyExporterConfiguration)
     }
 
     // MARK: Private Inner Types
@@ -117,8 +121,6 @@ extension APIDocument: Codable {
             try _endpoints = container.decode([Endpoint].self, forKey: .endpoints)
             try types = container.decode(TypesStore.self, forKey: .types)
         }
-
-        self.documentVersion = .v2
     }
 
     /// Encodes self into the given encoder.
@@ -126,7 +128,7 @@ extension APIDocument: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(id, forKey: .id)
-        try container.encode(documentVersion, forKey: .documentVersion)
+        try container.encode(APIDocumentVersion.v2, forKey: .documentVersion)
         try container.encode(serviceInformation, forKey: .serviceInformation)
         try container.encode(_endpoints, forKey: .endpoints)
         try container.encode(types, forKey: .types)

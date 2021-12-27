@@ -75,7 +75,7 @@ struct ProtocPlugin {
         if let path = options.migrationGuidePath {
             try self.migrationGuide = MigrationGuide.decode(from: Path(path))
         } else {
-            self.migrationGuide = .empty
+            self.migrationGuide = .empty()
         }
         self.descriptorSet = DescriptorSet(protos: request.protoFile)
     }

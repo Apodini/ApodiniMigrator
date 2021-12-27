@@ -13,9 +13,6 @@ struct ModelComparator: Comparator {
     let rhs: TypeInformation
 
     func compare(_ context: ChangeComparisonContext, _ results: inout [ModelChange]) {
-        // TODO only compare enum or objects?
-        //  guard lhs.rootType == rhs.rootType, [TypeInformation.RootType.enum, .object].contains(lhs.rootType) else
-
         if lhs.rootType != rhs.rootType {
             results.append(.update(
                 id: lhs.deltaIdentifier,

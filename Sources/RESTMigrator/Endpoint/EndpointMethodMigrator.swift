@@ -130,11 +130,6 @@ class EndpointMethodMigrator: SourceCodeRenderable {
 
         self.migratedEndpoint = MigratedEndpoint(endpoint: endpoint, unavailable: unavailable, parameters: parameters, path: path)
     }
-    
-    /// Returns the string raw value of `target`
-    private func target(_ target: LegacyEndpointTarget) -> String {
-        target.rawValue
-    }
 
     @SourceCodeBuilder
     private var returnValueString: String {

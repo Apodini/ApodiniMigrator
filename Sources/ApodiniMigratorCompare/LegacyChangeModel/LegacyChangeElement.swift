@@ -9,15 +9,8 @@
 import Foundation
 import ApodiniMigratorCore
 
-public enum LegacyElementType: String, Value {
-    case endpoint
-    case `enum`
-    case object
-    case networking
-}
-
 /// Represents distinct top-level elements that are subject to change in the web service
-public enum LegacyChangeElement: DeltaIdentifiable, Value {
+enum LegacyChangeElement: Decodable {
     // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case endpoint, `enum`, object, networking, target
@@ -25,45 +18,19 @@ public enum LegacyChangeElement: DeltaIdentifiable, Value {
     
     /// Represents an endpoint change element identified by its id and the corresponding endpoint change target
     case endpoint(DeltaIdentifier, target: LegacyEndpointTarget)
-    /// An internal convenience static method to return an `.endpoint` change element with its corresponding target
-    static func `for`(endpoint: Endpoint, target: LegacyEndpointTarget) -> LegacyChangeElement {
-        .endpoint(endpoint.deltaIdentifier, target: target)
-    }
     
     /// Represents an enum change element identified by its id and the corresponding enum change target
     case `enum`(DeltaIdentifier, target: LegacyEnumTarget)
-    /// An internal convenience static method to return an `.enum` change element with its corresponding target
-    static func `for`(enum: TypeInformation, target: LegacyEnumTarget) -> LegacyChangeElement {
-        .enum(`enum`.deltaIdentifier, target: target)
-    }
     
     /// Represents an object change element identified by its id and the corresponding object change target
     case object(DeltaIdentifier, target: LegacyObjectTarget)
-    /// An internal convenience static method to return an `.object` change element with its corresponding target
-    static func `for`(object: TypeInformation, target: LegacyObjectTarget) -> LegacyChangeElement {
-        .object(object.deltaIdentifier, target: target)
-    }
     
     /// Represents an networking change element and the corresponding networking change target
     /// - Note: Networking change element always have `DeltaIdentifier("NetworkingService")` as id
     case networking(target: LegacyNetworkingTarget)
     
-    /// Encodes `self` into the given encoder
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        let key: CodingKeys
-        switch self {
-        case .endpoint: key = .endpoint
-        case .enum: key = .enum
-        case .object: key = .object
-        case .networking: key = .networking
-        }
-        try container.encode(deltaIdentifier, forKey: key)
-        try container.encode(target, forKey: .target)
-    }
-    
     /// Creates a new instance by decoding from the given decoder
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let keys = container.allKeys
         
@@ -86,7 +53,7 @@ public enum LegacyChangeElement: DeltaIdentifiable, Value {
 }
 
 // MARK: - ChangeElement
-public extension LegacyChangeElement {
+extension LegacyChangeElement {
     /// Returns the delta identifier of the change element
     var deltaIdentifier: DeltaIdentifier {
         switch self {
@@ -95,50 +62,5 @@ public extension LegacyChangeElement {
         case let .object(deltaIdentifier, _): return deltaIdentifier
         case .networking: return "NetworkingService"
         }
-    }
-    
-    /// Returns the corresponding string raw value of the target of `self`
-    var target: String {
-        switch self {
-        case let .endpoint(_, target): return target.rawValue
-        case let .enum(_, target): return target.rawValue
-        case let .object(_, target): return target.rawValue
-        case let .networking(target): return target.rawValue
-        }
-    }
-    
-    /// Type of the change element
-    var type: LegacyElementType {
-        switch self {
-        case .endpoint: return .endpoint
-        case .enum: return .enum
-        case .object: return .object
-        case .networking: return .networking
-        }
-    }
-    
-    /// Indicates whether `self` is an `.endpoint` change element
-    var isEndpoint: Bool {
-        type == .endpoint
-    }
-    
-    /// Indicates whether `self` is an `.enum` change element
-    var isEnum: Bool {
-        type == .enum
-    }
-    
-    /// Indicates whether `self` is an `.object` change element
-    var isObject: Bool {
-        type == .object
-    }
-    
-    /// Indicates whether `self` is an `.enum` or `.object` change element
-    var isModel: Bool {
-        isEnum || isObject
-    }
-    
-    /// Indicates whether `self` is an `.networking` change element
-    var isNetworking: Bool {
-        type == .networking
     }
 }

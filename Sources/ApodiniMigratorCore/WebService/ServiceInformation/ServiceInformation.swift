@@ -69,13 +69,13 @@ public struct ServiceInformation: Value, Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(version)
         hasher.combine(http)
-        hasher.combine(Array(exporters.keys)) // TODO enough (out of oder?)?
+        hasher.combine(exporters)
     }
 
     public static func == (lhs: ServiceInformation, rhs: ServiceInformation) -> Bool {
         lhs.version == rhs.version
             && lhs.http == rhs.http
-            && lhs.configuredExporters == rhs.configuredExporters // TODO enough? (TODO compare out of order!)
+            && lhs.exporters == rhs.exporters
     }
 }
 

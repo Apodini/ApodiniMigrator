@@ -24,7 +24,9 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
         
         modelNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
-        let endpointFileNames = document.endpoints.map { $0.response.nestedTypeString + "+Endpoint" + .swift }.unique()
+        let endpointFileNames = document.endpoints
+                .map { $0.response.nestedTypeString + "+Endpoint" + .swift }
+                .unique()
         
         endpointFileNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
@@ -47,7 +49,9 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
         
         modelNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
-        let endpointFileNames = document.endpoints.map { $0.response.nestedTypeString + "+Endpoint" + .swift }.unique()
+        let endpointFileNames = document.endpoints
+                .map { $0.response.nestedTypeString + "+Endpoint" + .swift }
+                .unique()
         
         endpointFileNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
@@ -87,7 +91,7 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
 
         let decoded = try MigrationGuide.decode(from: testDirectoryPath + "migration_guide.yaml")
         XCTAssert(decoded == migrationGuide)
-        XCTAssert(decoded != .empty)
+        XCTAssert(decoded != .empty())
     }
 
     func testMigrationGuideGenerationJSON() throws {
@@ -99,6 +103,6 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
 
         let decoded = try MigrationGuide.decode(from: testDirectoryPath + "migration_guide.json")
         XCTAssert(decoded == migrationGuide)
-        XCTAssert(decoded != .empty)
+        XCTAssert(decoded != .empty())
     }
 }

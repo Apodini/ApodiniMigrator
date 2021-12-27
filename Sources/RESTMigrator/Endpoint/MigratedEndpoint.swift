@@ -88,7 +88,10 @@ class MigratedEndpoint {
     var signature: String {
         let methodName = endpoint.deltaIdentifier.swiftSanitizedName.lowerFirst
 
-        EndpointComment(endpoint.handlerName, path: resourcePath(replaceBrackets: false))
+        EndpointComment(
+            endpoint.handlerName.buildName(componentSeparator: ".", genericsStart: "<", genericsSeparator: ",", genericsDelimiter: ">"),
+            path: resourcePath(replaceBrackets: false)
+        )
 
         "\(unavailableComment())static func \(methodName)("
         Indent {

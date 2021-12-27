@@ -18,7 +18,7 @@ final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
             XCTAssertThrows(try APIDocument.decode(from: path + "invalid"))
             let stringContent = XCTAssertNoThrowWithResult(try path.read() as String)
             let documentFromPath = XCTAssertNoThrowWithResult(try APIDocument.decode(from: path))
-            XCTAssertEqual(document, documentFromPath)
+            XCTAssert(document == documentFromPath)
             XCTAssertEqual(format.string(of: document).isEmpty, false)
             XCTAssertEqual(stringContent.isEmpty, false)
         }

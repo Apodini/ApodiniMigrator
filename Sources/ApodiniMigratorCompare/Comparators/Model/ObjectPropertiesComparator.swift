@@ -29,7 +29,6 @@ struct ObjectPropertiesComparator: Comparator {
                     to: relaxedMatching.element.deltaIdentifier,
                     similarity: relaxedMatching.similarity,
                     breaking: true
-                    // TODO includeProviderSupport: includeProviderSupport
                 ))
 
                 compare(context, &results, lhs: candidate, rhs: relaxedMatching.element)
@@ -50,7 +49,6 @@ struct ObjectPropertiesComparator: Comparator {
                 fallbackValue: valueId,
                 breaking: wasRequired,
                 solvable: true
-                // TODO includeProviderSupport: includeProviderSupport
             ))
         }
 
@@ -69,7 +67,6 @@ struct ObjectPropertiesComparator: Comparator {
                 defaultValue: valueId,
                 breaking: isRequired,
                 solvable: true
-                // TODO includeProviderSupport: includeProviderSupport
             ))
         }
 
@@ -87,11 +84,9 @@ struct ObjectPropertiesComparator: Comparator {
 
         // TODO if sameNestedTypes(lhs: lhsType, rhs: rhsType), lhs.necessity != rhs.necessity
         if lhsType.typeName == rhsType.typeName && lhs.necessity != rhs.necessity {
-            // TODO what the hell is this
             let currentLhsType = context.currentVersion(of: lhsType)
             let jsonValue = JSONValue(JSONStringBuilder.jsonString(currentLhsType.unwrapped, with: context.configuration.encoderConfiguration))
             let migrationId = context.store(jsonValue: jsonValue)
-            // TODO conversion only valid for same type?
 
             results.append(.update(
                 id: lhs.deltaIdentifier,

@@ -12,10 +12,6 @@ import ApodiniTypeInformation
 struct EnumComparator: Comparator {
     let lhs: TypeInformation
     let rhs: TypeInformation
-    
-    func element(_ target: LegacyEnumTarget) -> LegacyChangeElement {
-        .for(enum: lhs, target: target)
-    }
 
     func compare(_ context: ChangeComparisonContext, _ results: inout [ModelChange]) {
         guard let lhsRawValue = lhs.rawValueType, let rhsRawValue = rhs.rawValueType else {
@@ -32,7 +28,6 @@ struct EnumComparator: Comparator {
                 solvable: false
             ))
 
-            // TODO we skip the rest for now(?)
             return
         }
 
@@ -47,69 +42,5 @@ struct EnumComparator: Comparator {
                 solvable: change.solvable
             )
         })
-    }
-}
-
-
-// TODO own file!
-private struct EnumCasesComparator: Comparator {
-    let lhs: [EnumCase]
-    let rhs: [EnumCase]
-
-    func compare(_ context: ChangeComparisonContext, _ results: inout [EnumCaseChange]) {
-        let matchedIds = lhs.matchedIds(with: rhs)
-        let removalCandidates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
-        let additionCandidates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }
-
-        var relaxedMatchings: Set<DeltaIdentifier> = []
-
-        for candidate in removalCandidates {
-            if let relaxedMatching = candidate.mostSimilarWithSelf(in: additionCandidates.filter { !relaxedMatchings.contains($0.deltaIdentifier) }) {
-                relaxedMatchings += relaxedMatching.element.deltaIdentifier
-                relaxedMatchings += candidate.deltaIdentifier
-
-                results.append(.idChange(
-                    from: candidate.deltaIdentifier,
-                    to: relaxedMatching.element.deltaIdentifier,
-                    similarity: relaxedMatching.similarity,
-                    breaking: true
-                    // TODO includeProviderSupport: includeProviderSupport
-                ))
-
-                if candidate.rawValue != relaxedMatching.element.rawValue {
-                    results.append(.update(
-                        id: candidate.deltaIdentifier,
-                        updated: .rawValue(from: candidate.rawValue, to: relaxedMatching.element.rawValue)
-                    ))
-                }
-            }
-        }
-
-        for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
-            results.append(.removal(
-                id: removal.deltaIdentifier,
-                solvable: true
-                // TODO includeProviderSupport: includeProviderSupport
-            ))
-        }
-
-        for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
-            results.append(.addition(
-                id: addition.deltaIdentifier,
-                added: addition
-                // TODO includeProviderSupport: includeProviderSupport
-            ))
-        }
-        
-        for matched in matchedIds {
-            if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
-               let rhs = rhs.first(where: { $0.deltaIdentifier == matched}),
-               lhs.rawValue != rhs.rawValue {
-                results.append(.update(
-                    id: lhs.deltaIdentifier,
-                    updated: .rawValue(from: lhs.rawValue, to: rhs.rawValue)
-                ))
-            }
-        }
     }
 }

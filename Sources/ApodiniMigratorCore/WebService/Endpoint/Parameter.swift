@@ -72,7 +72,6 @@ public struct Parameter: Value {
 
 
     static func wrappedContentParameterTypeName(from handlerName: String) -> TypeName {
-        // TODO does this work?
         TypeName(rawValue: handlerName.replacingOccurrences(of: "Handler", with: "") + "WrappedContent")
     }
     

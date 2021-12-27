@@ -211,8 +211,8 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
             updated: .response(
                 from: endpoint.response,
                 to: .reference("UpdatedTestResponse"),
-                backwardsConversion: 1,
-                conversionWarning: nil
+                backwardsMigration: 1,
+                migrationWarning: nil
             ),
             breaking: true,
             solvable: true

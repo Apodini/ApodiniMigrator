@@ -28,7 +28,6 @@ fileprivate extension AnyChange {
 }
 
 public extension Array where Element: AnyChange {
-    // TODO similar thing for the models? (e.g. EncodingMethod, DecodingMethod ...)
     func of(base element: Element.Element) -> [Element] {
         self.filter { $0.id == element.deltaIdentifier }
     }

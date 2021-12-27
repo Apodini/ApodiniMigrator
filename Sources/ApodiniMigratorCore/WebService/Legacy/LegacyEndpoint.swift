@@ -13,14 +13,13 @@ struct LegacyEndpoint: Codable {
     let deltaIdentifier: DeltaIdentifier
     let operation: Operation
     let path: EndpointPath
-    let parameters: EndpointInput
+    let parameters: [Parameter]
     let response: TypeInformation
     let errors: [ErrorCode]
 }
 
 extension Endpoint {
     init(from endpoint: LegacyEndpoint) {
-        self.handlerName = endpoint.handlerName
         self.deltaIdentifier = endpoint.deltaIdentifier
         self.identifiers = [:]
         self.communicationalPattern = .requestResponse
@@ -28,6 +27,9 @@ extension Endpoint {
         self.response = endpoint.response
         self.errors = endpoint.errors
 
+        let handlerName = TypeName(rawValue: endpoint.handlerName)
+
+        self.add(identifier: handlerName)
         self.add(identifier: endpoint.operation)
         self.add(identifier: endpoint.path)
     }

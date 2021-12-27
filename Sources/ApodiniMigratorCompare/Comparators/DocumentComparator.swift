@@ -8,11 +8,21 @@
 
 import Foundation
 
-struct DocumentComparator {
-    let lhs: APIDocument
-    let rhs: APIDocument
+public struct DocumentComparator {
+    public let lhs: APIDocument
+    public let rhs: APIDocument
+    public let context: ChangeComparisonContext
 
-    func compare(_ context: ChangeComparisonContext) {
+    public init(configuration: CompareConfiguration? = nil, lhs: APIDocument, rhs: APIDocument) {
+        self.lhs = lhs
+        self.rhs = rhs
+        self.context = ChangeComparisonContext(
+            configuration: configuration,
+            latestModels: rhs.models
+        )
+    }
+
+    public func compare() {
         let metaDataComparator = ServiceInformationComparator(lhs: lhs.serviceInformation, rhs: rhs.serviceInformation)
         metaDataComparator.compare(context, &context.serviceChanges)
 

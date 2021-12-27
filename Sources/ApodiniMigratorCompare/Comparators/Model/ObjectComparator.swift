@@ -25,7 +25,6 @@ struct ObjectComparator: Comparator {
             )
         })
 
-        // TODO what is this?
         context.store(rhs: rhs, into: &results)
     }
 }

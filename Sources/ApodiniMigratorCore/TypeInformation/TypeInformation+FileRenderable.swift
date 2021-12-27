@@ -48,7 +48,7 @@ public extension TypeInformation {
         case let .optional(wrappedValue):
             return .optional(wrappedValue: wrappedValue.referenced())
         case .object, .enum:
-            return .reference(typeName.absoluteName())
+            return .reference(typeName.buildName())
         }
     }
 }

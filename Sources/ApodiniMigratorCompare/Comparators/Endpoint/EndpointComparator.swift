@@ -13,10 +13,6 @@ struct EndpointComparator: Comparator {
     let rhs: Endpoint
 
     func compare(_ context: ChangeComparisonContext, _ results: inout [EndpointChange]) {
-        func element(_ target: LegacyEndpointTarget) -> LegacyChangeElement {
-            .for(endpoint: lhs, target: target)
-        }
-
         var identifierChanges: [EndpointIdentifierChange] = []
         let identifiersComparator = IdentifiersComparator(lhs: .init(lhs.identifiers.values), rhs: .init(rhs.identifiers.values))
         identifiersComparator.compare(context, &identifierChanges)
@@ -65,8 +61,8 @@ struct EndpointComparator: Comparator {
                 updated: .response(
                     from: lhs.response.referenced(),
                     to: rhs.response.referenced(),
-                    backwardsConversion: migrationId,
-                    conversionWarning: jsScriptBuilder.hint
+                    backwardsMigration: migrationId,
+                    migrationWarning: jsScriptBuilder.hint
                 )
             ))
         }

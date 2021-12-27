@@ -8,22 +8,22 @@
 
 import Foundation
 
-final class ChangeComparisonContext {
+public final class ChangeComparisonContext {
     /// The configuration used when comparing two `APIDocument`s.
-    let configuration: CompareConfiguration
+    public let configuration: CompareConfiguration
     /// This array contains all model definition of the update API document.
-    let latestModels: [TypeInformation]
+    private let latestModels: [TypeInformation]
 
     /// All javascript convert methods created during comparison
-    var scripts: [Int: JSScript] = [:]
+    public var scripts: [Int: JSScript] = [:]
     /// All json values of properties or parameter that require a default or fallback value
-    var jsonValues: [Int: JSONValue] = [:]
+    public var jsonValues: [Int: JSONValue] = [:]
     /// All json representations of objects that had some kind of breaking change in their properties
-    private(set) var objectJSONs: [String: JSONValue] = [:]
+    public private(set) var objectJSONs: [String: JSONValue] = [:]
 
-    var serviceChanges: [ServiceInformationChange] = []
-    var modelChanges: [ModelChange] = []
-    var endpointChanges: [EndpointChange] = []
+    public var serviceChanges: [ServiceInformationChange] = []
+    public var modelChanges: [ModelChange] = []
+    public var endpointChanges: [EndpointChange] = []
 
     init(configuration: CompareConfiguration? = nil, latestModels: [TypeInformation] = []) {
         self.configuration = configuration ?? .default
@@ -66,7 +66,6 @@ extension ChangeComparisonContext {
         }
     }
 
-    // TODO evaluate placement! (same for above)
     func isPairOfRenamedTypes(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
         if !configuration.allowTypeRename {
             return false
@@ -80,29 +79,8 @@ extension ChangeComparisonContext {
         })
     }
 
-    /*
-     func sameNestedTypes(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
-        if lhs.typeName.name == rhs.typeName.name {
-            return true
-        }
-        return allowTypeRename ? changes.typesAreRenamings(lhs: lhs, rhs: rhs) : false
-    }
-
-    func typesNeedConvert(lhs: TypeInformation, rhs: TypeInformation) -> Bool {
-        let sameNestedType = sameNestedTypes(lhs: lhs, rhs: rhs)
-        return (sameNestedType && !lhs.sameType(with: rhs)) || !sameNestedType
-    }
-     */
-
     /// For every compare between two models of different versions, this function is called to register potentially updated json representation of an object
     func store(rhs: TypeInformation, into modelChanges: inout [ModelChange]) {
-        // TODO
-        //  let propertyTargets = [ObjectTarget.property, .necessity].map { $0.rawValue }
-        //  $0.breaking
-        //                && $0.element.isObject
-        //                && $0.elementID == rhs.deltaIdentifier
-        //                && propertyTargets.contains($0.element.target)
-
         // if in natural language: if the list of model changes contains
         //  an property change of an object where the identifier matches with "rhs" and the change is breaking
         if modelChanges.contains(where: { change in
@@ -114,14 +92,13 @@ extension ChangeComparisonContext {
             }
             return false
         }) {
-            // TODO name index! what was the intention here?
-            objectJSONs[rhs.typeName.mangledName] = .init(JSONStringBuilder.jsonString(rhs, with: configuration.encoderConfiguration))
+            objectJSONs[rhs.typeName.rawValue] = .init(JSONStringBuilder.jsonString(rhs, with: configuration.encoderConfiguration))
         }
     }
 }
 
 extension ChangeComparisonContext: CustomDebugStringConvertible {
-    var debugDescription: String {
+    public var debugDescription: String {
         """
         ChangeComparisonContext(\
         configuration: \(configuration), \

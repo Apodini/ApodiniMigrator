@@ -10,19 +10,16 @@ import Foundation
 
 public enum ApodiniExporterType: String, Value, CodingKey, CaseIterable {
     case rest
-    case gRPC
 
     public func anyDecode<Key>(from container: KeyedDecodingContainer<Key>, forKey key: Key) throws -> AnyExporterConfiguration {
         switch self {
         case .rest:
             return AnyExporterConfiguration(try container.decode(RESTExporterConfiguration.self, forKey: key))
-        case .gRPC:
-            return AnyExporterConfiguration(try container.decode(RESTExporterConfiguration.self, forKey: key)) // TODO support gRPC
         }
     }
 }
 
-public struct AnyExporterConfiguration: Equatable, DeltaIdentifiable {
+public struct AnyExporterConfiguration: Hashable, DeltaIdentifiable {
     private let exporter: _ExporterConfiguration
 
     public var deltaIdentifier: DeltaIdentifier {
@@ -53,6 +50,10 @@ public struct AnyExporterConfiguration: Equatable, DeltaIdentifiable {
         lhs.deltaIdentifier == rhs.deltaIdentifier
             && lhs.exporter.compare(to: rhs.exporter)
     }
+
+    public func hash(into hasher: inout Hasher) {
+        exporter.anyHash(into: &hasher)
+    }
 }
 
 extension AnyExporterConfiguration: Codable {
@@ -67,8 +68,6 @@ extension AnyExporterConfiguration: Codable {
         switch type {
         case .rest:
             try exporter = RESTExporterConfiguration(from: decoder)
-        case .gRPC:
-            try exporter = RESTExporterConfiguration(from: decoder) // TODO grpc!
         }
     }
 
@@ -76,7 +75,7 @@ extension AnyExporterConfiguration: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(exporter.type, forKey: .type)
-        try exporter.encode(to: encoder) // TODO does this work
+        try exporter.encode(to: encoder)
     }
 }
 
@@ -84,6 +83,8 @@ public protocol _ExporterConfiguration: Codable {
     static var type: ApodiniExporterType { get }
 
     func compare(to exporter: _ExporterConfiguration) -> Bool
+
+    func anyHash(into hasher: inout Hasher)
 }
 
 extension _ExporterConfiguration {
@@ -97,7 +98,7 @@ extension _ExporterConfiguration {
 }
 
 
-public protocol ExporterConfiguration: _ExporterConfiguration, Equatable {}
+public protocol ExporterConfiguration: _ExporterConfiguration, Hashable {}
 
 extension ExporterConfiguration {
     public func compare(to exporter: _ExporterConfiguration) -> Bool {
@@ -106,6 +107,10 @@ extension ExporterConfiguration {
         }
 
         return self == casted
+    }
+
+    public func anyHash(into hasher: inout Hasher) {
+        self.hash(into: &hasher)
     }
 }
 

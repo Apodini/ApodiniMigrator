@@ -36,7 +36,6 @@ struct ModelsComparator: Comparator {
                         from: candidate.deltaIdentifier,
                         to: relaxedMatching.element.deltaIdentifier,
                         similarity: relaxedMatching.similarity
-                        // TODO includeProviderSupport: includeProviderSupport
                     ))
 
                     pairs.insert(.init(candidate: candidate, relaxedMatching: relaxedMatching.element))
@@ -50,13 +49,10 @@ struct ModelsComparator: Comparator {
             }
         }
 
-        let includeProviderSupport = context.configuration.allowTypeRename && context.configuration.includeProviderSupport
-
         for removal in removalCandidates where !pairs.contains(where: { $0.contains(removal.deltaIdentifier) }) {
             results.append(.removal(
                 id: removal.deltaIdentifier,
-                breaking: false // TODO it isn't?
-                // TODO includeProviderSupport: includeProviderSupport
+                breaking: false
             ))
         }
 
@@ -64,14 +60,13 @@ struct ModelsComparator: Comparator {
             results.append(.addition(
                 id: addition.deltaIdentifier,
                 added: addition.referencedProperties(),
-                breaking: false // TODO isn't breaking?
-                // TODO includeProviderSupport: includeProviderSupport
+                breaking: false
             ))
         }
         
         for matched in matchedIds {
             if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
-               let rhs = rhs.first(where: { $0.deltaIdentifier == matched}) {
+               let rhs = rhs.first(where: { $0.deltaIdentifier == matched }) {
                 let modelComparator = ModelComparator(lhs: lhs, rhs: rhs)
                 modelComparator.compare(context, &results)
             }

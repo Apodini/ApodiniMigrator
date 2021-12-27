@@ -37,7 +37,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
             errors: errors
         )
         
-        XCTAssert(noIDEndpoint.deltaIdentifier == .init(noIDEndpoint.handlerName.lowerFirst))
+        XCTAssert(noIDEndpoint.deltaIdentifier == .init(noIDEndpoint.handlerName.buildName()))
         XCTAssert(withIDEndpoint.deltaIdentifier == "getSomeHandler")
     }
     

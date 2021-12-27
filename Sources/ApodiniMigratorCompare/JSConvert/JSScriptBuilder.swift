@@ -34,7 +34,6 @@ struct JSScriptBuilder {
     }
     
     private mutating func construct() {
-        // TODO shouldn't currentForm == to?
         let currentFrom = context.currentVersion(of: from)
 
         if case let .scalar(fromPrimitive) = currentFrom, case let .scalar(toPrimitive) = to {

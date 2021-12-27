@@ -9,9 +9,6 @@
 import Foundation
 
 public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
-    // TODO provider support, addition/deletion pairs be treated as rename
-    //   - update change be treated as deletion + addition
-
     /// TODO only present if `allowEndpointIdentifierUpdate` is enabled!
     case idChange(
         from: DeltaIdentifier,
@@ -19,16 +16,14 @@ public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
         similarity: Double?, // TODO check why these are all optionals?
         breaking: Bool = false,
         solvable: Bool = true
-        // TODO also a provider support thingy?
     )
 
     case addition(
-        id: DeltaIdentifier, // TODO removable, included in element!
+        id: DeltaIdentifier,
         added: Element,
         defaultValue: Int? = nil,
         breaking: Bool = false,
         solvable: Bool = true
-        // TODO addition provider support
     )
 
     /// Describes a change where the element was completely removed.
@@ -36,12 +31,11 @@ public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
     /// removed: Optional a description of the element which was removed.
     ///     Typically the based element is still in the original interface description document.
     case removal(
-        id: DeltaIdentifier, // TODO this would be duplicate if below field is required!
+        id: DeltaIdentifier,
         removed: Element? = nil,
         fallbackValue: Int? = nil,
         breaking: Bool = true,
         solvable: Bool = false
-        // TODO addition provider support
     )
 
     case update(
@@ -49,7 +43,6 @@ public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
         updated: Element.Update,
         breaking: Bool = true,
         solvable: Bool = true
-        // TODO those are not encoded if the Update VALUE already contains those(?)
     )
 
     public var id: DeltaIdentifier {
@@ -112,8 +105,6 @@ extension Change: Codable {
         case fallbackValue
 
         case updated
-
-        // TODO provider support
     }
 
     public init(from decoder: Decoder) throws {
@@ -186,6 +177,7 @@ extension Change: Codable {
             try container.encode(solvable, forKey: .solvable)
         case let .update(id, updated, breaking, solvable):
             // TODO do not encode breaking/solvable if nested update?
+            //   those are not encoded if the Update VALUE already contains those(?)
             try container.encode(ChangeType.update, forKey: .type)
 
             try container.encode(id, forKey: .id)

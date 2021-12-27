@@ -6,6 +6,9 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable file_length line_length
+
+// swiftlint:disable:next type_body_length
 struct LegacyChangeArray: Decodable {
     enum MigrationError: Error {
         case unknownChangeType(message: String, path: [CodingKey])
@@ -14,7 +17,9 @@ struct LegacyChangeArray: Decodable {
         case unsupported(message: String)
     }
 
+    // swiftlint:disable:next identifier_name
     private static let rootTypeUnsupportedChangeDescriptionSuffix = "Change from enum to object or vice versa is currently not supported"
+    // swiftlint:disable:next identifier_name
     private static let rawValueTypeUnsupportedChangeDescriptionPrefix = "The raw value type of this enum has changed to"
 
     private var addChanges: [LegacyAddChange] = []
@@ -25,7 +30,7 @@ struct LegacyChangeArray: Decodable {
     init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
 
-        var iterations = 0;
+        var iterations = 0
 
         while !container.isAtEnd {
             if let value = try? container.decode(LegacyAddChange.self) {
@@ -37,20 +42,21 @@ struct LegacyChangeArray: Decodable {
             } else if let value = try? container.decode(LegacyUnsupportedChange.self) {
                 unsupportedChanges.append(value)
             } else {
-                // TODO remove
-                print(iterations)
-                try container.decode(LegacyAddChange.self)
                 throw MigrationError.unknownChangeType(message: "Encountered unknown change type after \(iterations) iterations", path: decoder.codingPath)
             }
             iterations += 1
         }
     }
 
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     func migrate(
         serviceChanges: inout [ServiceInformationChange],
         modelChanges: inout [ModelChange],
         endpointChanges: inout [EndpointChange]
     ) throws {
+        var changedEncoderConfiguration: (from: EncoderConfiguration, to: EncoderConfiguration)?
+        var changedDecoderConfiguration: (from: DecoderConfiguration, to: DecoderConfiguration)?
+
         for change in addChanges {
             precondition(change.type == .addition)
             switch change.element {
@@ -377,8 +383,8 @@ struct LegacyChangeArray: Decodable {
                         updated: .response(
                             from: fromResponse,
                             to: toResponse,
-                            backwardsConversion: convertToFrom,
-                            conversionWarning: change.convertionWarning
+                            backwardsMigration: convertToFrom,
+                            migrationWarning: change.convertionWarning
                         ),
                         breaking: change.breaking,
                         solvable: change.solvable
@@ -622,15 +628,15 @@ struct LegacyChangeArray: Decodable {
                     throw MigrationError.unexpectedState(message: "Didn't expect change target \(target) for object update change.")
                 }
             case let .networking(target):
+                guard case .update = change.type else {
+                    throw MigrationError.malformedLegacyMigrationGuide(message: "Didn't expect \(change.type) for networking change.")
+                }
+
                 switch target {
                 case .serverPath:
-                    guard case .update = change.type else {
-                        throw MigrationError.malformedLegacyMigrationGuide(message: "Didn't expect \(change.type) for server path change.")
-                    }
-
                     guard case let .stringValue(fromServerPath) = change.from,
                           case let .stringValue(toServerPath) = change.to else {
-                        throw MigrationError.malformedLegacyMigrationGuide(message: "Network change value must be .stringValue!")
+                        throw MigrationError.malformedLegacyMigrationGuide(message: "Network change path value must be .stringValue!")
                     }
 
                     serviceChanges.append(.update(
@@ -643,11 +649,23 @@ struct LegacyChangeArray: Decodable {
                         solvable: change.solvable
                     ))
                 case .encoderConfiguration:
-                    // TODO needs to be grouped with decoderConfig
-                    throw MigrationError.unsupported(message: "EncoderConfiguration migration is unsupported!")
+                    guard case let .element(fromCodable) = change.from,
+                          case let .element(toCodable) = change.to,
+                          let fromEncoder = fromCodable.tryTyped(EncoderConfiguration.self),
+                          let toEncoder = toCodable.tryTyped(EncoderConfiguration.self) else {
+                        throw MigrationError.malformedLegacyMigrationGuide(message: "Network change encoder value must be .element!")
+                    }
+
+                    changedEncoderConfiguration = (fromEncoder, toEncoder)
                 case .decoderConfiguration:
-                    // TODO needs to be grouped with above
-                    throw MigrationError.unsupported(message: "DecoderConfiguration migration is unsupported!")
+                    guard case let .element(fromCodable) = change.from,
+                          case let .element(toCodable) = change.to,
+                          let fromDecoder = fromCodable.tryTyped(DecoderConfiguration.self),
+                          let toDecoder = toCodable.tryTyped(DecoderConfiguration.self) else {
+                        throw MigrationError.malformedLegacyMigrationGuide(message: "Network change decoder value must be .element!")
+                    }
+
+                    changedDecoderConfiguration = (fromDecoder, toDecoder)
                 }
             }
         }
@@ -698,6 +716,31 @@ struct LegacyChangeArray: Decodable {
             default:
                 throw MigrationError.unexpectedState(message: "Encountered unknown unsupported change for element \(change.element): \(change.description)")
             }
+        }
+
+        if changedEncoderConfiguration != nil || changedDecoderConfiguration != nil {
+            // we can't properly reconstruct everything if it wasn't changed ://
+            // we do best effort here
+            let from = AnyExporterConfiguration(RESTExporterConfiguration(
+                encoderConfiguration: changedEncoderConfiguration?.from ?? .default,
+                decoderConfiguration: changedDecoderConfiguration?.from ?? .default
+            ))
+            let to = AnyExporterConfiguration(RESTExporterConfiguration(
+                encoderConfiguration: changedEncoderConfiguration?.to ?? .default,
+                decoderConfiguration: changedDecoderConfiguration?.to ?? .default
+            ))
+
+            serviceChanges.append(.update(
+                id: ServiceInformation.deltaIdentifier,
+                updated: .exporter(exporter: .update(
+                    id: from.deltaIdentifier,
+                    updated: .init(from: from, to: to),
+                    breaking: true,
+                    solvable: true
+                )),
+                breaking: true,
+                solvable: true
+            ))
         }
     }
 

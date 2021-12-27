@@ -54,7 +54,6 @@ struct EndpointsComparator: Comparator {
         for removal in removalCandidates where !pairs.contains(where: { $0.contains(removal.deltaIdentifier) }) {
             results.append(.removal(
                 id: removal.deltaIdentifier
-                // TODO includeProviderSupport: includeProviderSupport
             ))
         }
 
@@ -62,7 +61,6 @@ struct EndpointsComparator: Comparator {
             results.append(.addition(
                 id: addition.deltaIdentifier,
                 added: addition.referencedTypes()
-                // TODO includeProviderSupport: includeProviderSupport
             ))
         }
         

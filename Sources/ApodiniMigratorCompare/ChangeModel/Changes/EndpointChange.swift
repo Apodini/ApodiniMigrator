@@ -22,23 +22,17 @@ public enum EndpointUpdateChange: Equatable {
         to: CommunicationalPattern
     )
 
+    // TODO look into response changes coming from renamings!
     case response(
-        // TODO checking, if this change is due to name change! (affects provider support!)
         from: TypeInformation,
         to: TypeInformation, // TODO annotate: reference or scalar
-        backwardsConversion: Int, // TODO we only have conversion in one direction
-        // TODO reanme "migration"
-        conversionWarning: String? = nil
+        backwardsMigration: Int,
+        migrationWarning: String? = nil
     )
 
     case parameter(
         parameter: ParameterChange
-        // TODO anything other than that?
-        // TODO this nesting duplicates required and solvable parameters!
-
     )
-
-    // TODO errors?
 }
 
 extension EndpointUpdateChange: Codable {
@@ -57,8 +51,8 @@ extension EndpointUpdateChange: Codable {
         case from
         case to
 
-        case backwardsConversion
-        case conversionWarning
+        case backwardsMigration
+        case migrationWarning
 
         case parameter
     }
@@ -94,8 +88,8 @@ extension EndpointUpdateChange: Codable {
             self = .response(
                 from: try container.decode(TypeInformation.self, forKey: .from),
                 to: try container.decode(TypeInformation.self, forKey: .to),
-                backwardsConversion: try container.decode(Int.self, forKey: .backwardsConversion),
-                conversionWarning: try container.decodeIfPresent(String.self, forKey: .conversionWarning)
+                backwardsMigration: try container.decode(Int.self, forKey: .backwardsMigration),
+                migrationWarning: try container.decodeIfPresent(String.self, forKey: .migrationWarning)
             )
         case .parameter:
             self = .parameter(
@@ -114,11 +108,11 @@ extension EndpointUpdateChange: Codable {
         case let .communicationalPattern(from, to):
             try container.encode(from, forKey: .from)
             try container.encode(to, forKey: .to)
-        case let .response(from, to, backwardsConversion, conversionWarning):
+        case let .response(from, to, backwardsMigration, migrationWarning):
             try container.encode(from, forKey: .from)
             try container.encode(to, forKey: .to)
-            try container.encode(backwardsConversion, forKey: .backwardsConversion)
-            try container.encodeIfPresent(conversionWarning, forKey: .conversionWarning)
+            try container.encode(backwardsMigration, forKey: .backwardsMigration)
+            try container.encodeIfPresent(migrationWarning, forKey: .migrationWarning)
         case let .parameter(parameter):
             try container.encode(parameter, forKey: .parameter)
         }

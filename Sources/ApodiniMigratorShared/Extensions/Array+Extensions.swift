@@ -10,7 +10,7 @@ import Foundation
 
 public extension Array where Element: Hashable {
     /// Unique elements contained in self
-    func unique() -> Self { // TODO remove this hell!
+    func unique() -> Self {
         Set(self).asArray
     }
 }

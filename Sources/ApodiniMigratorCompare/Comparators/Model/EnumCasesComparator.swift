@@ -8,11 +8,11 @@
 
 import Foundation
 
-struct ParametersComparator: Comparator {
-    let lhs: [Parameter]
-    let rhs: [Parameter]
+struct EnumCasesComparator: Comparator {
+    let lhs: [EnumCase]
+    let rhs: [EnumCase]
 
-    func compare(_ context: ChangeComparisonContext, _ results: inout [ParameterChange]) {
+    func compare(_ context: ChangeComparisonContext, _ results: inout [EnumCaseChange]) {
         let matchedIds = lhs.matchedIds(with: rhs)
         let removalCandidates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
         let additionCandidates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }
@@ -31,42 +31,37 @@ struct ParametersComparator: Comparator {
                     breaking: true
                 ))
 
-                let parameterComparator = ParameterComparator(lhs: candidate, rhs: relaxedMatching.element)
-                parameterComparator.compare(context, &results)
+                if candidate.rawValue != relaxedMatching.element.rawValue {
+                    results.append(.update(
+                        id: candidate.deltaIdentifier,
+                        updated: .rawValue(from: candidate.rawValue, to: relaxedMatching.element.rawValue)
+                    ))
+                }
             }
         }
 
         for removal in removalCandidates where !relaxedMatchings.contains(removal.deltaIdentifier) {
             results.append(.removal(
                 id: removal.deltaIdentifier,
-                breaking: false,
                 solvable: true
             ))
         }
 
         for addition in additionCandidates where !relaxedMatchings.contains(addition.deltaIdentifier) {
-            var defaultValueId: Int?
-            let isRequired = addition.necessity == .required
-            if isRequired {
-                let defaultJsonValue = JSONValue(
-                    JSONStringBuilder.jsonString(addition.typeInformation, with: context.configuration.encoderConfiguration)
-                )
-                defaultValueId = context.store(jsonValue: defaultJsonValue)
-            }
-
             results.append(.addition(
                 id: addition.deltaIdentifier,
-                added: addition.referencedType(),
-                defaultValue: defaultValueId,
-                breaking: isRequired
+                added: addition
             ))
         }
 
         for matched in matchedIds {
             if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
-               let rhs = rhs.first(where: { $0.deltaIdentifier == matched}) {
-                let parameterComparator = ParameterComparator(lhs: lhs, rhs: rhs)
-                parameterComparator.compare(context, &results)
+               let rhs = rhs.first(where: { $0.deltaIdentifier == matched}),
+               lhs.rawValue != rhs.rawValue {
+                results.append(.update(
+                    id: lhs.deltaIdentifier,
+                    updated: .rawValue(from: lhs.rawValue, to: rhs.rawValue)
+                ))
             }
         }
     }

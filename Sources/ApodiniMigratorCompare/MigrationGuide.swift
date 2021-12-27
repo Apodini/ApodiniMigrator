@@ -8,38 +8,42 @@
 
 import Foundation
 
+/// This enum describes the document format version of the ``MigrationGuide``.
+/// ``MigrationGuideDocumentVersion`` follows the SemVer versioning scheme.
 public enum MigrationGuideDocumentVersion: String, Codable {
+    /// The original/legacy document format introduced with version 0.1.0.
+    /// - Note: This version is assumed when no `version` field is present in the document root.
+    ///     ApodiniMigrator supports parsing legacy documents till 0.3.0.
     case v1 = "1.0.0"
+    /// The current document format and updated change model introduced with version 0.2.0.
     case v2 = "2.0.0"
 }
 
 /// Migration guide
 public struct MigrationGuide {
-    /// A default summary
-    static let defaultSummary = "A summary of what changed between versions" // TODO really needed?
+    /// A default summary. A free filed to use by providers of MigrationGuides.
+    static let defaultSummary = "A summary of what changed between versions"
 
     /// A textual description of the migration guide
     public let summary: String
 
     /// Id of the old document from which the migration guide was generated
-    public let id: UUID? // TODO why is this optional?
-    public let documentVersion: MigrationGuideDocumentVersion
+    public let id: UUID
     /// Old version
     public let from: Version
     /// New version
     public let to: Version
-    /// Configuration used for comparison TODO detailed!
-    public let compareConfiguration: CompareConfiguration?
-    /// Private change context node that holds, encodes and decodes the changes
-    // TODO private let changeContextNode: ChangeContextNode
-    /// List of changes in the Migration Guide
-    //public var changes: [Change] {
-    //    changeContextNode.changes
-    //}
+    private let _compareConfiguration: CompareConfiguration?
+    /// Configuration used for the Comparators while generating the MigrationGuide.
+    public var compareConfiguration: CompareConfiguration {
+        self._compareConfiguration ?? .default
+    }
 
-    // TODO those are still not encodable!
+    /// Captures any changes happening to the `ServiceInformation`, describing the web service.
     public let serviceChanges: [ServiceInformationChange]
+    /// Captures any changes done to web service models.
     public let modelChanges: [ModelChange]
+    /// Captures any changes done to web service endpoints.
     public let endpointChanges: [EndpointChange]
 
 
@@ -52,10 +56,10 @@ public struct MigrationGuide {
     public let objectJSONs: [String: JSONValue]
 
     /// An empty migration guide with no changes
-    public static var empty: MigrationGuide {
+    public static func empty(id: UUID = UUID()) -> MigrationGuide {
         .init(
             summary: Self.defaultSummary,
-            id: nil,
+            id: id,
             from: .default,
             to: .default,
             comparisonContext: ChangeComparisonContext(configuration: nil, latestModels: [])
@@ -65,18 +69,16 @@ public struct MigrationGuide {
     /// Internal initializer of the Migration Guide
     init(
         summary: String,
-        id: UUID?,
+        id: UUID,
         from: Version,
         to: Version,
         comparisonContext: ChangeComparisonContext
     ) {
         self.summary = summary
         self.id = id
-        self.documentVersion = .v2
         self.from = from
         self.to = to
-        // TODO replace with non optional stored property, but encode optional style!
-        self.compareConfiguration = comparisonContext.configuration == .default ? nil : comparisonContext.configuration
+        self._compareConfiguration = comparisonContext.configuration
 
         self.serviceChanges = comparisonContext.serviceChanges
         self.modelChanges = comparisonContext.modelChanges
@@ -90,27 +92,15 @@ public struct MigrationGuide {
     /// Initializes the Migration Guide out of two Documents. Documents get compared
     /// and the changes can be accessed via `changes` of the new Migration Guide instance
     public init(for lhs: APIDocument, rhs: APIDocument, compareConfiguration: CompareConfiguration? = nil) {
-        // TODO don't like how all the expensive comparison bootstrapping is but in the init!
-        let comparisonContext = ChangeComparisonContext(
-            configuration: compareConfiguration,
-            latestModels: Array(rhs.models)
-        )
-
-        let documentsComparator = DocumentComparator(lhs: lhs, rhs: rhs)
-        // Triggers the compare logic for all elements of both documents, and record the changes in the contex
-        documentsComparator.compare(comparisonContext)
-
-        // TODO MigrationGuide should validate (after checking provider support [is this relevant?]);
-        //   that for a single DeltaIdentifier, there either exists a addition, deletion or
-        //   one or multiple updates.
-        //  => tricky as this would need to be nested!
+        let documentsComparator = DocumentComparator(configuration: compareConfiguration, lhs: lhs, rhs: rhs)
+        documentsComparator.compare()
 
         self.init(
             summary: Self.defaultSummary,
             id: lhs.id,
             from: lhs.serviceInformation.version,
             to: rhs.serviceInformation.version,
-            comparisonContext: comparisonContext
+            comparisonContext: documentsComparator.context
         )
     }
 
@@ -157,32 +147,32 @@ extension MigrationGuide: Codable {
     }
 
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self);
+        let container = try decoder.container(keyedBy: CodingKeys.self)
 
         let documentVersion: MigrationGuideDocumentVersion
         do {
-            try documentVersion = container.decodeIfPresent(MigrationGuideDocumentVersion.self, forKey: .documentVersion) ?? .v1
+            documentVersion = try container.decodeIfPresent(MigrationGuideDocumentVersion.self, forKey: .documentVersion) ?? .v1
         } catch {
             // failed to decode APIDocumentVersion, probably because its an unknown version!
             throw CodingError.unsupportedDocumentVersion(version: try container.decode(String.self, forKey: .documentVersion))
         }
 
         // decode fields which are the same in all versions
-        try summary = container.decode(String.self, forKey: .summary)
-        try id = container.decodeIfPresent(UUID.self, forKey: .id)
-        try from = container.decode(Version.self, forKey: .from)
-        try to = container.decode(Version.self, forKey: .to)
+        summary = try container.decode(String.self, forKey: .summary)
+        id = try container.decode(UUID.self, forKey: .id)
+        from = try container.decode(Version.self, forKey: .from)
+        to = try container.decode(Version.self, forKey: .to)
 
-        try scripts = container.decode([Int: JSScript].self, forKey: .scripts)
-        try jsonValues = container.decode([Int: JSONValue].self, forKey: .jsonValues)
-        try objectJSONs = container.decode([String: JSONValue].self, forKey: .objectJSONs)
+        scripts = try container.decode([Int: JSScript].self, forKey: .scripts)
+        jsonValues = try container.decode([Int: JSONValue].self, forKey: .jsonValues)
+        objectJSONs = try container.decode([String: JSONValue].self, forKey: .objectJSONs)
 
         switch documentVersion {
         case .v1:
             if let legacyConfiguration = try container.decodeIfPresent(LegacyCompareConfiguration.self, forKey: .compareConfiguration) {
-                self.compareConfiguration = CompareConfiguration(from: legacyConfiguration)
+                self._compareConfiguration = CompareConfiguration(from: legacyConfiguration)
             } else {
-                self.compareConfiguration = nil
+                self._compareConfiguration = nil
             }
 
             let changes = try container.decode(LegacyChangeArray.self, forKey: .changes)
@@ -197,14 +187,12 @@ extension MigrationGuide: Codable {
             self.modelChanges = modelChanges
             self.endpointChanges = endpointChanges
         case .v2:
-            try compareConfiguration = container.decodeIfPresent(CompareConfiguration.self, forKey: .compareConfiguration)
+            _compareConfiguration = try container.decodeIfPresent(CompareConfiguration.self, forKey: .compareConfiguration)
 
-            try serviceChanges = container.decodeIfPresentOrInitEmpty([ServiceInformationChange].self, forKey: .serviceChanges)
-            try modelChanges = container.decodeIfPresentOrInitEmpty([ModelChange].self, forKey: .modelChanges)
-            try endpointChanges = container.decodeIfPresentOrInitEmpty([EndpointChange].self, forKey: .endpointChanges)
+            serviceChanges = try container.decodeIfPresentOrInitEmpty([ServiceInformationChange].self, forKey: .serviceChanges)
+            modelChanges = try container.decodeIfPresentOrInitEmpty([ModelChange].self, forKey: .modelChanges)
+            endpointChanges = try container.decodeIfPresentOrInitEmpty([EndpointChange].self, forKey: .endpointChanges)
         }
-
-        self.documentVersion = .v2
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -212,7 +200,7 @@ extension MigrationGuide: Codable {
 
         try container.encode(summary, forKey: .summary)
         try container.encodeIfPresent(id, forKey: .id)
-        try container.encode(documentVersion, forKey: .documentVersion)
+        try container.encode(MigrationGuideDocumentVersion.v2, forKey: .documentVersion)
         try container.encode(from, forKey: .from)
         try container.encode(to, forKey: .to)
         try container.encodeIfPresent(compareConfiguration, forKey: .compareConfiguration)
@@ -229,55 +217,8 @@ extension MigrationGuide: Codable {
 
 extension MigrationGuide: Equatable {
     /// :nodoc:
-    public static func == (lhs: MigrationGuide, rhs: MigrationGuide) -> Bool {
-        let lhsS = lhs.serviceChanges.json(prettyPrinted: false)
-        let rhsS = rhs.serviceChanges.json(prettyPrinted: false)
-        let lhsM = lhs.modelChanges.json(prettyPrinted: false)
-        let rhsM = rhs.modelChanges.json(prettyPrinted: false)
-        let lhsE = lhs.endpointChanges.json(prettyPrinted: false)
-        let rhsE = rhs.endpointChanges.json(prettyPrinted: false)
-
-        print(lhsS)
-        print(rhsS)
-        print("\n")
-        print(lhsM)
-        print(rhsM)
-        print("\n")
-        print(lhsE)
-        print(rhsE)
-        print("\n\n")
-
-        let bool0 = lhs.summary == rhs.summary
-        let bool1 = lhs.id == rhs.id
-        let bool2 = lhs.documentVersion == rhs.documentVersion
-        let bool3 = lhs.from == rhs.from
-        let bool4 = lhs.to == rhs.to
-        let bool5 = lhs.compareConfiguration == rhs.compareConfiguration
-        let bool6 = lhsS == rhsS
-        let bool7 = lhsM == rhsM
-        let bool8 = lhsE == rhsE
-        let bool9 = lhs.scripts == rhs.scripts
-        let bool10 = lhs.jsonValues == rhs.jsonValues
-        let bool11 = lhs.objectJSONs == rhs.objectJSONs
-
-        print(bool0)
-        print(bool1)
-        print(bool2)
-        print(bool3)
-        print(bool4)
-        print(bool5)
-        print(bool6)
-        print(bool7)
-        print(bool8)
-        print(bool9)
-        print(bool10)
-        print(bool11)
-
-        return bool0 && bool1 && bool2 && bool3 && bool4 && bool5 && bool6 && bool7 && bool8 && bool9 && bool10 && bool11
-
-        return lhs.summary == rhs.summary
+    public static func == (lhs: MigrationGuide, rhs: MigrationGuide) -> Bool {lhs.summary == rhs.summary
             && lhs.id == rhs.id
-            && lhs.documentVersion == rhs.documentVersion
             && lhs.from == rhs.from
             && lhs.to == rhs.to
             && lhs.compareConfiguration == rhs.compareConfiguration

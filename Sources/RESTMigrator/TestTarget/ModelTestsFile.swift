@@ -17,7 +17,7 @@ struct ModelTestsFile: GeneratedFile {
     let objectJSONs: [String: JSONValue]
     let encoderConfiguration: EncoderConfiguration
     
-    public init(
+    init(
         name: NameComponent...,
         models: [TypeInformation],
         objectJSONs: [String: JSONValue] = [:],
@@ -47,15 +47,14 @@ struct ModelTestsFile: GeneratedFile {
     }
     
     private func method(for model: TypeInformation) -> String {
-        let typeName = model.typeName.mangledName // TOOD name not unique?
         let jsonString: String
-        if let jsonValue = objectJSONs[typeName] {
+        if let jsonValue = objectJSONs[model.typeName.rawValue] {
             jsonString = jsonValue.rawValue
-            // TODO indentation?
         } else {
             jsonString = JSONStringBuilder.jsonString(dereference(model), with: encoderConfiguration)
         }
 
+        let typeName = model.typeName.mangledName
 
         @SourceCodeBuilder
         var method: String {
