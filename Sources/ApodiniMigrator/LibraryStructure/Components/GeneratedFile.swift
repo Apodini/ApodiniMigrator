@@ -10,7 +10,7 @@ import Foundation
 import PathKit
 
 public protocol GeneratedFile: LibraryNode, SourceCodeRenderable {
-    var fileName: [NameComponent] { get }
+    var fileName: Name { get }
 }
 
 extension GeneratedFile {
@@ -19,7 +19,7 @@ extension GeneratedFile {
         var fileContent = self.renderableContent
 
         for (placeholder, content) in context.placeholderValues {
-            // TODO code duplication to the `ResourceFile`!
+            // TODO code duplication to the `ResourceFile` (and less potent?)!
             fileContent = fileContent.replacingOccurrences(of: placeholder.description, with: content)
         }
 

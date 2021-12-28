@@ -12,8 +12,8 @@ import ApodiniMigrator
 
 /// Represents an `enum` file that did not got affected by any change
 struct DefaultEnumFile: GeneratedFile {
-    var fileName: [NameComponent] {
-        ["\(typeInformation.unsafeFileNaming).swift"]
+    var fileName: Name {
+        "\(typeInformation.unsafeFileNaming).swift"
     }
 
     /// The `.enum` `typeInformation` to be rendered in this file

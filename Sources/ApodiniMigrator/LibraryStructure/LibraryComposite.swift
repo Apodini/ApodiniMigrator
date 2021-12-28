@@ -11,7 +11,7 @@ import PathKit
 
 public protocol LibraryComposite: LibraryComponent {
     // TODO doucment this is optional? (LibraryCOmposite may be used as a "DirectoryProtocol" using this thingy!
-    var path: [NameComponent] { get }
+    var path: Name { get }
 
     @DefaultLibraryComponentBuilder
     var content: [LibraryComponent] { get }
@@ -20,8 +20,8 @@ public protocol LibraryComposite: LibraryComponent {
 }
 
 public extension LibraryComposite {
-    var path: [NameComponent] {
-        []
+    var path: Name {
+        Name(empty: ())
     }
 
     func handle(at path: Path, with context: MigrationContext) throws {}

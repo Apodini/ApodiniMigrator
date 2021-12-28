@@ -66,7 +66,6 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
         let removalChange = try XCTUnwrap(change.modeledRemovalChange)
         XCTAssertEqual(removalChange.removed, nil)
         XCTAssertEqual(removalChange.fallbackValue, nil)
-        // TODO XCTAssert(deleteChange.providerSupport == .renameHint(DeleteChange.self))
     }
     
     func testEndpointAdded() throws {
@@ -83,7 +82,6 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
         let additionChange = try XCTUnwrap(change.modeledAdditionChange)
         XCTAssertEqual(additionChange.added, lhs)
         XCTAssertEqual(additionChange.defaultValue, nil)
-        // TODO XCTAssert(addChange.providerSupport == .renameHint(AddChange.self))
     }
     
     func testEndpointRenamed() throws {
@@ -101,6 +99,5 @@ final class EndpointsComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(idChange.from, change.id)
         XCTAssertEqual(idChange.to, rhs.deltaIdentifier)
         XCTAssert(try XCTUnwrap(idChange.similarity) > 0.5)
-        // TODO XCTAssert(providerSupport == .renameValidationHint)
     }
 }

@@ -12,8 +12,8 @@ import ApodiniMigrator
 
 /// An object that handles the migration of an enum declaration and renders the output accordingly
 struct EnumMigrator: GeneratedFile {
-    var fileName: [NameComponent] {
-        ["\(typeInformation.unsafeFileNaming).swift"]
+    var fileName: Name {
+        "\(typeInformation.unsafeFileNaming).swift"
     }
 
     /// Type information enum that will be rendered

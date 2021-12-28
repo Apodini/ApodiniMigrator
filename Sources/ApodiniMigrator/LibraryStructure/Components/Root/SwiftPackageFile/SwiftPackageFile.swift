@@ -9,7 +9,7 @@
 import Foundation
 
 public class SwiftPackageFile: GeneratedFile {
-    public var fileName: [NameComponent] = ["Package.swift"]
+    public var fileName: Name = "Package.swift"
 
     var swiftToolsVersion: String
     var platforms: [String] = []
@@ -34,17 +34,17 @@ public class SwiftPackageFile: GeneratedFile {
     }
 
 
-    public func product(library name: NameComponent..., targets: [[NameComponent]]) -> Self { // TODO double array
+    public func product(library name: Name, targets: Name...) -> Self {
         products.append(PackageProduct(type: .library, name: name, targets: targets))
         return self
     }
 
-    public func product(executable name: NameComponent..., targets: [[NameComponent]]) -> Self {
+    public func product(executable name: Name, targets: Name...) -> Self {
         products.append(PackageProduct(type: .executable, name: name, targets: targets))
         return self
     }
 
-    public func product(plugin name: NameComponent..., targets: [[NameComponent]]) -> Self {
+    public func product(plugin name: Name, targets: Name...) -> Self {
         products.append(PackageProduct(type: .plugin, name: name, targets: targets))
         return self
     }
@@ -60,7 +60,7 @@ public class SwiftPackageFile: GeneratedFile {
         """
         Indent {
             Joined(by: ",") {
-                "name: \(GlobalPlaceholder.$packageName)"
+                "name: \(Placeholder.packageName)"
 
                 if !platforms.isEmpty {
                     "platforms: ["

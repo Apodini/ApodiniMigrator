@@ -10,8 +10,8 @@ import Foundation
 import PathKit
 
 public class ResourceFile: LibraryNode {
-    let srcFileName: [NameComponent]
-    let dstFilename: [NameComponent]
+    let srcFileName: Name
+    let dstFilename: Name
 
     /// String which is to be prepended to the resulting file. Empty if not supplied.
     let filePrefix: String
@@ -21,14 +21,18 @@ public class ResourceFile: LibraryNode {
     var contentReplacer: [Placeholder: String] = [:]
 
     public init(
-        copy srcFileName: NameComponent...,
-        to dstFileName: NameComponent...,
+        copy srcFileName: Name,
+        to dstFileName: Name? = nil,
         @SourceCodeBuilder filePrefix: () -> String = { "" },
         @SourceCodeBuilder fileSuffix: () -> String = { "" }
     ) {
         precondition(!srcFileName.isEmpty)
         self.srcFileName = srcFileName
-        self.dstFilename = dstFileName.isEmpty ? srcFileName : dstFileName
+        if let dstFileName = dstFileName {
+            self.dstFilename = dstFileName
+        } else {
+            self.dstFilename = srcFileName
+        }
         self.filePrefix = filePrefix()
         self.fileSuffix = fileSuffix()
     }

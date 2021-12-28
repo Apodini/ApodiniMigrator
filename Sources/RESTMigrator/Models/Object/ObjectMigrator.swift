@@ -11,8 +11,8 @@ import ApodiniMigrator
 
 /// An object that handles the migration of an object in the client library
 struct ObjectMigrator: GeneratedFile {
-    var fileName: [NameComponent] {
-        ["\(typeInformation.unsafeFileNaming).swift"]
+    var fileName: Name {
+        "\(typeInformation.unsafeFileNaming).swift"
     }
 
     /// Type information of the object that will be migrated
@@ -39,7 +39,8 @@ struct ObjectMigrator: GeneratedFile {
     
     /// Initializes a new instance out of an object type information, kind of the file and the changes related to the object
     init(_ typeInformation: TypeInformation, kind: Kind = .struct, changes: [ModelChange]) {
-        precondition([.struct, .class].contains(kind) && typeInformation.isObject, "Can't initialize an ObjectMigrator with a non object type information or file other than struct or class")
+        precondition([.struct, .class].contains(kind) && typeInformation.isObject,
+                     "Can't initialize an ObjectMigrator with a non object type information or file other than struct or class")
         precondition(!changes.contains(where: { $0.id != typeInformation.deltaIdentifier }), "Found unrelated changes for \(typeInformation)")
 
         self.typeInformation = typeInformation

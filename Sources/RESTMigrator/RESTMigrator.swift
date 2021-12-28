@@ -43,15 +43,21 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
 
         guard migrationGuide.id == document.id else {
             throw MigratorError.incompatible(
-                message:
-                """
-                Migration guide is not compatible with the provided document. Apparently another old document version, \
-                has been used to generate the migration guide!
-                """
+                message: """
+                         Migration guide is not compatible with the provided document. Apparently another old document version, \
+                         has been used to generate the migration guide!
+                         """
             )
         }
 
-        // TODO ensure REST is configured on the web service (and wasn't removed!)!
+        if document.serviceInformation.exporterIfPresent(for: RESTExporterConfiguration.self, migrationGuide: migrationGuide) == nil {
+            throw MigratorError.incompatible(
+                message: """
+                         RESTMigrator is not compatible with the provided documents. The web service either \
+                         hasn't a REST interface configured, or it was removed in the latest version!
+                         """
+            )
+        }
 
         networkingMigrator = NetworkingMigrator(
             baseServiceInformation: document.serviceInformation,
@@ -65,7 +71,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         let decoderConfiguration = networkingMigrator.decoderConfiguration()
 
         Sources {
-            Target(GlobalPlaceholder.$packageName) {
+            Target(.packageName) {
                 Directory("Endpoints") {
                     EndpointsMigrator(
                         migratedEndpointsReference: $apiFileMigratedEndpoints,
@@ -113,9 +119,9 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         }
 
         Tests {
-            TestTarget(GlobalPlaceholder.$packageName, "Tests") {
+            TestTarget("\(.packageName)Tests") {
                 ModelTestsFile(
-                    name: GlobalPlaceholder.$packageName, "Tests.swift",
+                    name: "\(.packageName)Tests.swift",
                     models: allModels,
                     objectJSONs: migrationGuide.objectJSONs,
                     encoderConfiguration: encoderConfiguration
@@ -123,7 +129,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
 
                 ResourceFile(copy: "XCTestManifests.swift", filePrefix: { FileHeaderComment() })
             }
-                .dependency(target: GlobalPlaceholder.$packageName)
+                .dependency(target: .packageName)
 
             // TODO ResourceFile(Copy: "LinuxMain.swift", filePrefix: { FileHeaderComment() })
         }
@@ -131,7 +137,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         SwiftPackageFile(swiftTools: "5.5")
             .platform(".macOS(.v12)", ".iOS(.v14)")
             .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.1.0\")")
-            .product(library: GlobalPlaceholder.$packageName, targets: [[GlobalPlaceholder.$packageName]])
+            .product(library: .packageName, targets: .packageName)
 
         ReadMeFile("Readme.md")
     }

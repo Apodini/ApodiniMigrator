@@ -106,6 +106,6 @@ extension MigrationContext {
             logger: .init(label: "org.apodini.test")
         )
 
-        placeholderValues[GlobalPlaceholder.$packageName] = packageName
+        placeholderValues[.packageName] = packageName
     }
 }

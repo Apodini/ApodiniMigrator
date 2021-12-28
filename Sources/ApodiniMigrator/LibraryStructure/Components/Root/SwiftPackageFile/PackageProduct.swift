@@ -16,14 +16,14 @@ enum PackageProductType {
 
 struct PackageProduct: SourceCodeRenderable {
     let type: PackageProductType
-    let name: [NameComponent]
+    let name: Name
     // Note: Library type for type=`.library` is unsupported right now!
-    let targets: [[NameComponent]]
+    let targets: [Name]
 
     var renderableContent: String {
         """
-        .\(type)(name: "\(name.nameString)", targets: [\(
-            targets.map { "\"\($0.nameString)\"" }.joined(separator: ",")
+        .\(type)(name: "\(name.description)", targets: [\(
+            targets.map { "\"\($0.description)\"" }.joined(separator: ",")
         )])
         """
     }

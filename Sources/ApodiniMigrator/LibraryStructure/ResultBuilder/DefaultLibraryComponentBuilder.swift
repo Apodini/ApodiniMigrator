@@ -8,8 +8,6 @@
 
 import Foundation
 
-// TODO some code duplication between all result builders
-
 @resultBuilder
 public enum DefaultLibraryComponentBuilder {
     public static func buildExpression(_ expression: LibraryNode) -> [LibraryComponent] {

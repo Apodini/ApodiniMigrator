@@ -9,6 +9,8 @@
 import Foundation
 
 public struct SwiftFunction: SourceCodeRenderable {
+    private static let indent: String = "    "
+
     private let name: String
     private let arguments: [String]
     private let returnType: String?
@@ -95,7 +97,7 @@ public struct SwiftFunction: SourceCodeRenderable {
             }
 
             head += "\n"
-            head += "    \(argument)" // TODO idnent character
+            head += "\(Self.indent)\(argument)"
         }
         if !arguments.isEmpty {
             head += "\n"

@@ -11,8 +11,8 @@ import ApodiniMigrator
 
 /// Represents an `object` file that was not affected by any change
 struct DefaultObjectFile: GeneratedFile {
-    var fileName: [NameComponent] {
-        ["\(typeInformation.unsafeFileNaming).swift"]
+    var fileName: Name {
+        "\(typeInformation.unsafeFileNaming).swift"
     }
 
     /// `TypeInformation` to be rendered in this file
@@ -60,7 +60,8 @@ struct DefaultObjectFile: GeneratedFile {
     ///     - kind: the kind of the file, if other than .struct or .class is passed, .struct is chosen by default
     ///     - annotation: an annotation on the object, e.g. if the model is not present in the new version anymore
     init(_ typeInformation: TypeInformation, kind: Kind = .struct, annotation: Annotation? = nil) {
-        precondition([.struct, .class].contains(kind) && typeInformation.isObject, "Can't initialize an ObjectFile with a non object type information or file other than struct or class")
+        precondition([.struct, .class].contains(kind) && typeInformation.isObject,
+                     "Can't initialize an ObjectFile with a non object type information or file other than struct or class")
         self.typeInformation = typeInformation
         self.kind = kind
         self.properties = typeInformation.objectProperties.sorted(by: \.name)

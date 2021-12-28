@@ -138,6 +138,4 @@ final class ServiceInformationComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(updatedExporter.updated.from.typed(of: RESTExporterConfiguration.self), lhsExporter)
         XCTAssertEqual(updatedExporter.updated.to.typed(of: RESTExporterConfiguration.self), rhsExporter)
     }
-
-    // TODO add tests for grpc and addition/removal of exporters!
 }

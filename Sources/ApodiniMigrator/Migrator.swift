@@ -37,15 +37,8 @@ public extension Migrator {
 
         let path = Path(packagePath)
         var context = MigrationContext(bundle: bundle, logger: Self.logger)
-        context.placeholderValues[GlobalPlaceholder.$packageName] = name
+        context.placeholderValues[.packageName] = name
 
         try library._handle(at: path, with: context)
     }
-}
-
-
-// TODO first of all "Move", but also rethink the whole thing, not really happy how it turned out tbh
-public enum GlobalPlaceholder {
-    @PlaceholderDefinition(wrappedValue: Placeholder("PACKAGE_NAME"))
-    public static var packageName
 }

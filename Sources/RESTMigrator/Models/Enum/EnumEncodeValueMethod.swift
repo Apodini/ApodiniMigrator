@@ -22,13 +22,6 @@ struct EnumEncodeValueMethod: SourceCodeRenderable {
             }
             "}"
 
-            // TODO are we sending random cases?
-            "if let alternativeCase = Self.allCases.first(where: { !deprecated.contains($0) }) {"
-            Indent {
-                "return alternativeCase"
-            }
-            "}"
-
             "throw ApodiniError(code: 404, message: \"The web service does not support the cases of this enum anymore\")"
         }
         "}"

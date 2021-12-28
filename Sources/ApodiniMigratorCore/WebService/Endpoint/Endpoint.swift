@@ -105,7 +105,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.identifiers[Identifier.identifierType] = AnyEndpointIdentifier(from: identifier)
     }
 
-    public func identifierIfAvailable<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier? {
+    public func identifierIfPresent<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier? {
         guard let rawValue = self.identifiers[Identifier.identifierType]?.value else {
             return nil
         }
@@ -114,7 +114,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
     }
 
     public func identifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier {
-        guard let identifier = identifierIfAvailable(for: Identifier.self) else {
+        guard let identifier = identifierIfPresent(for: Identifier.self) else {
             fatalError("Failed to retrieve required Identifier \(type) which wasn't present on endpoint \(deltaIdentifier).")
         }
 

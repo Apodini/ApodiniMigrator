@@ -61,22 +61,22 @@ public enum TargetType: String {
 public protocol TargetDependency: SourceCodeRenderable {}
 
 struct LocalDependency: TargetDependency {
-    let target: [NameComponent]
+    let target: Name
 
     var renderableContent: String {
         """
-        .target(name: "\(target.nameString)")
+        .target(name: "\(target.description)")
         """
     }
 }
 
 struct ProductDependency: TargetDependency {
-    let product: [NameComponent]
-    let package: [NameComponent]
+    let product: Name
+    let package: Name
 
     var renderableContent: String {
         """
-        .product(name: "\(product.nameString)", package: "\(package.nameString)")
+        .product(name: "\(product.description)", package: "\(package.description)")
         """
     }
 }
@@ -89,11 +89,11 @@ public enum ResourceType: String {
 
 public struct TargetResource: SourceCodeRenderable {
     let type: ResourceType
-    let path: [NameComponent]
+    let path: Name
 
     public var renderableContent: String {
         """
-        .\(type.rawValue)("\(path.nameString)")
+        .\(type.rawValue)("\(path.description)")
         """
     }
 }

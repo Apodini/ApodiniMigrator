@@ -15,7 +15,6 @@ extension TypeInformation {
         case let .reference(key):
             return TypeName(rawValue: key.rawValue).mangledName
         default:
-            // TODO file name uniqueness
             return typeName.mangledName
         }
     }

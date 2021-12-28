@@ -8,6 +8,14 @@
 
 import Foundation
 
+public extension Array {
+    func flatten<InnerElement>() -> [InnerElement] where Element == [InnerElement] {
+        self.reduce(into: []) { result, element in
+            result.append(contentsOf: element)
+        }
+    }
+}
+
 public extension Array where Element: Hashable {
     /// Unique elements contained in self
     func unique() -> Self {

@@ -19,7 +19,11 @@ public extension EndpointIdentifier {
 }
 
 // MARK: Handler Name
-extension TypeName: EndpointIdentifier {}
+extension TypeName: EndpointIdentifier {
+    public static var identifierType: String {
+        "HandlerName"
+    }
+}
 
 
 public struct AnyEndpointIdentifier: Value, DeltaIdentifiable, Hashable {

@@ -95,7 +95,7 @@ public struct GRPCMigrator: Migrator {
                 .dependency(product: "GRPC", of: "grpc-swift")
 
 
-            Target(GlobalPlaceholder.$packageName) {
+            Target(.packageName) {
                 Directory("Networking") {
                     ResourceFile(copy: "GRPCNetworking.swift")
                 }
@@ -108,7 +108,8 @@ public struct GRPCMigrator: Migrator {
         SwiftPackageFile(swiftTools: "5.5")
             .platform(".macOS(.v12)", ".iOS(.v14)")
             .dependency(url: "https://github.com/grpc/grpc-swift.git", ".exact(\"1.6.1-async-await.1\")")
-            .product(library: GlobalPlaceholder.$packageName, targets: [[GlobalPlaceholder.$packageName]])
+            .product(library: .packageName, targets: .packageName)
+
 
         ReadMeFile()
     }

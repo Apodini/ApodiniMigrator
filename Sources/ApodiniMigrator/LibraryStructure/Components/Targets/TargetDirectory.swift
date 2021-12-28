@@ -9,23 +9,23 @@
 import Foundation
 
 public protocol TargetDirectory: LibraryComponent {
-    var path: [NameComponent] { get }
+    var path: Name { get }
     var type: TargetType { get }
     var dependencies: [TargetDependency] { get set }
     var resources: [TargetResource] { get set }
 
-    func dependency(target: NameComponent...) -> Self
-    func dependency(product: NameComponent..., of package: NameComponent...) -> Self
+    func dependency(target: Name) -> Self
+    func dependency(product: Name, of package: Name) -> Self
 }
 
 public extension TargetDirectory {
-    func dependency(target: NameComponent...) -> Self {
+    func dependency(target: Name) -> Self {
         var copy = self
         copy.dependencies.append(LocalDependency(target: target))
         return copy
     }
 
-    func dependency(product: NameComponent..., of package: NameComponent...) -> Self {
+    func dependency(product: Name, of package: Name) -> Self {
         var copy = self
         copy.dependencies.append(ProductDependency(product: product, package: package))
         return copy
@@ -33,7 +33,7 @@ public extension TargetDirectory {
 }
 
 public extension TargetDirectory {
-    func resource(type: ResourceType, path: NameComponent...) -> Self {
+    func resource(type: ResourceType, path: Name) -> Self {
         var copy = self
         copy.resources.append(TargetResource(type: type, path: path))
         return copy

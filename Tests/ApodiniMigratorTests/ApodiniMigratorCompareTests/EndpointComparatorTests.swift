@@ -98,7 +98,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: .read,
-            communicationalPattern: .requestResponse,
+            communicationalPattern: lhs.communicationalPattern,
             absolutePath: "/v1/newTests/{second}",
             parameters: lhs.parameters,
             response: lhs.response,
@@ -129,7 +129,37 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(pathChange.updated.to.typed(of: EndpointPath.self), rhs.identifier())
     }
 
-    // TODO test communicational pattern change!
+    func testCommunicationPatternChange() throws {
+        let rhs = Endpoint(
+            handlerName: lhs.handlerName,
+            deltaIdentifier: lhs.deltaIdentifier.description,
+            operation: lhs.operation,
+            communicationalPattern: .bidirectionalStream,
+            absolutePath: lhs.path.description,
+            parameters: lhs.parameters,
+            response: lhs.response,
+            errors: lhs.errors
+        )
+
+        let comparator = EndpointComparator(lhs: lhs, rhs: rhs)
+        comparator.compare(comparisonContext, &endpointChanges)
+
+        XCTAssertEqual(endpointChanges.count, 1)
+        let change = try XCTUnwrap(endpointChanges.first)
+        XCTAssertEqual(change.id, lhs.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
+        XCTAssertEqual(change.breaking, true)
+        XCTAssertEqual(change.solvable, true)
+        let updateChange = try XCTUnwrap(change.modeledUpdateChange)
+
+        guard case let .communicationalPattern(from, to) = updateChange.updated else {
+            XCTFail("Change did not store the updated communicational pattern")
+            return
+        }
+
+        XCTAssertEqual(from, .requestResponse)
+        XCTAssertEqual(to, .bidirectionalStream)
+    }
     
     func testAddNewEndpointParameter() throws {
         let newParameter = Parameter(name: "newParam", typeInformation: .scalar(.int64), parameterType: .lightweight, isRequired: true)

@@ -13,11 +13,3 @@ public protocol LibraryComponent {
     // swiftlint:disable:next identifier_name
     func _handle(at path: Path, with context: MigrationContext) throws
 }
-
-extension Array { // TODO move to utils!
-    func flatten<InnerElement>() -> [InnerElement] where Element == [InnerElement] {
-        self.reduce(into: []) { result, element in
-            result.append(contentsOf: element)
-        }
-    }
-}

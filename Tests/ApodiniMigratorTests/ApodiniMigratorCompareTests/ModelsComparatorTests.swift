@@ -69,12 +69,6 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
         let removalChange = try XCTUnwrap(change.modeledRemovalChange)
         XCTAssertEqual(removalChange.removed, nil)
         XCTAssertEqual(removalChange.fallbackValue, nil)
-        // TODO XCTAssert(deleteChange.providerSupport == .renameHint(DeleteChange.self))
-        //  if let providerSupport = deleteChange.providerSupport {
-        //            let decodedInstance = XCTAssertNoThrowWithResult(try ProviderSupport.decode(from: providerSupport.json))
-        //            XCTAssert(decodedInstance == deleteChange.providerSupport)
-        //            XCTAssertNoThrow(try ProviderSupport.decode(from: "{}"))
-        //        }
     }
     
     func testModelAdded() throws {
@@ -90,7 +84,6 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
 
         let additionChange = try XCTUnwrap(change.modeledAdditionChange)
         XCTAssertEqual(additionChange.added, programmingLanguages)
-        // TODO XCTAssert(addChange.providerSupport == .renameHint(AddChange.self))
     }
     
     func testModelRenamed() throws {
@@ -107,8 +100,6 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
         let idChange = try XCTUnwrap(change.modeledIdentifierChange)
         XCTAssertEqual(idChange.to, "UserNew")
         XCTAssert(try XCTUnwrap(idChange.similarity) > 0.5)
-        // TODO let providerSupport = try XCTUnwrap(renameChange.providerSupport)
-        // TODO XCTAssert(providerSupport == .renameValidationHint)
     }
     
     func testJSObjectScriptForRenamedType() {

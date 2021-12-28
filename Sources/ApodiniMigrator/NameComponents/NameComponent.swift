@@ -8,15 +8,6 @@
 
 import Foundation
 
-@propertyWrapper
-public struct PlaceholderDefinition {
-    public var wrappedValue: Placeholder
-
-    public var projectedValue: Placeholder {
-        wrappedValue
-    }
-
-    public init(wrappedValue: Placeholder) {
-        self.wrappedValue = wrappedValue
-    }
+public protocol NameComponent: CustomStringConvertible {
+    func description(with context: MigrationContext) -> String
 }

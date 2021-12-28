@@ -23,7 +23,7 @@ public struct AnyExporterConfiguration: Hashable, DeltaIdentifiable {
     private let exporter: _ExporterConfiguration
 
     public var deltaIdentifier: DeltaIdentifier {
-        DeltaIdentifier(exporter.type.rawValue)
+        "\(exporter.type.rawValue)"
     }
 
     init(untyped exporter: _ExporterConfiguration) {
@@ -32,6 +32,10 @@ public struct AnyExporterConfiguration: Hashable, DeltaIdentifiable {
 
     public init<Exporter: ExporterConfiguration>(_ exporter: Exporter) {
         self.exporter = exporter
+    }
+
+    public func tryTyped<Exporter: ExporterConfiguration>(of exporter: Exporter.Type = Exporter.self) -> Exporter? {
+        self.exporter as? Exporter
     }
 
     public func typed<Exporter: ExporterConfiguration>(of exporter: Exporter.Type = Exporter.self) -> Exporter {
@@ -88,8 +92,12 @@ public protocol _ExporterConfiguration: Codable {
 }
 
 extension _ExporterConfiguration {
-    var type: ApodiniExporterType {
+    public var type: ApodiniExporterType {
         Self.type
+    }
+
+    public static var deltaIdentifier: DeltaIdentifier {
+        "\(type.rawValue)"
     }
 
     func anyEncode<Key>(into container: inout KeyedEncodingContainer<Key>, forKey key: Key) throws {

@@ -17,11 +17,11 @@ public class Target: Directory, TargetDirectory {
     public var dependencies: [TargetDependency] = []
     public var resources: [TargetResource] = []
 
-    public override init(_ name: NameComponent..., @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
+    public override init(_ name: Name, @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
         super.init(name, _content: content())
     }
 
-    override init(_ name: [NameComponent], _content: [LibraryComponent]) {
+    override init(_ name: Name, _content: [LibraryComponent]) {
         super.init(name, _content: _content)
     }
 }

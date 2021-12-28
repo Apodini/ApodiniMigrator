@@ -35,7 +35,6 @@ struct ObjectCodingKeys: SourceCodeRenderable {
     
     /// Renders the content of the enum, in a non-formatted way
     var renderableContent: String {
-        // TODO type name uniqueness
         "private enum \(codingKeysEnum.typeName.mangledName): String, CodingKey {"
         Indent {
             for enumCase in enumCases {

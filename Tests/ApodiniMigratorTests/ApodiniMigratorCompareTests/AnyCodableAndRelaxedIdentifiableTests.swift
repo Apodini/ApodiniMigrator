@@ -86,11 +86,5 @@ final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(int ?= string, false)
         XCTAssertEqual(int ?= customInt, false)
         XCTAssert(int ?= int)
-
-        return
-        // TODO this is is absolutely not possible?
-        let reference = TypeInformation.reference("User")
-        XCTAssert(reference.deltaIdentifier.rawValue == "User")
-        XCTAssert(reference ?= .object(name: .init(rawValue: "User"), properties: []))
     }
 }

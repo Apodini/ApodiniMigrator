@@ -14,7 +14,7 @@ class EndpointFile: GeneratedFile {
     /// Suffix of endpoint files, e.g. `User+Endpoint.swift`
     static let fileSuffix = "+Endpoint" + .swift
 
-    let fileName: [NameComponent]
+    let fileName: Name
 
     @SharedNodeReference
     var migratedEndpoints: [MigratedEndpoint]
@@ -38,7 +38,7 @@ class EndpointFile: GeneratedFile {
         changes: [EndpointChange]
     ) {
         _migratedEndpoints = migratedEndpointsReference
-        self.fileName = [typeInformation.unsafeFileNaming + EndpointFile.fileSuffix]
+        self.fileName = "\(typeInformation.unsafeTypeString)\(EndpointFile.fileSuffix)"
         self.typeInformation = typeInformation
 
         self.endpoints = endpoints.sorted { lhs, rhs in

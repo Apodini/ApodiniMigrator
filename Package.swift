@@ -133,18 +133,10 @@ let package = Package(
             ]
         ),
 
-        .executableTarget( // TODO replace my incorporating grpc into the CLI!
-            name: "MigratorBoostrap",
-            dependencies: [
-                .target(name: "RESTMigrator"),
-                .target(name: "gRPCMigrator")
-            ]
-        ),
-
         .executableTarget(
             name: "protoc-gen-grpc-migrator",
             dependencies: [
-                .target(name: "ApodiniMigrator"), // TODO check if we need the whole thing?
+                .target(name: "ApodiniMigrator"),
                 .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
                 .product(name: "SwiftProtobuf", package: "swift-protobuf"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser")

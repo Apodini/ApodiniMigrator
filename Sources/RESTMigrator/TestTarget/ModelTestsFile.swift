@@ -12,13 +12,13 @@ import ApodiniMigratorShared
 import ApodiniMigrator
 
 struct ModelTestsFile: GeneratedFile {
-    let fileName: [NameComponent]
+    let fileName: Name
     let models: [TypeInformation]
     let objectJSONs: [String: JSONValue]
     let encoderConfiguration: EncoderConfiguration
     
     init(
-        name: NameComponent...,
+        name: Name,
         models: [TypeInformation],
         objectJSONs: [String: JSONValue] = [:],
         encoderConfiguration: EncoderConfiguration = .default
@@ -80,11 +80,11 @@ struct ModelTestsFile: GeneratedFile {
         FileHeaderComment()
 
         Import(.xCTest)
-        Import("\(GlobalPlaceholder.$packageName)", testable: true)
+        Import(.packageName, testable: true)
         Import(.apodiniMigratorClientSupport, testable: true)
         ""
 
-        "final class \(GlobalPlaceholder.$packageName)Tests: XCTestCase {"
+        "final class \(Placeholder.packageName)Tests: XCTestCase {"
         Indent {
             for model in models {
                 method(for: model)

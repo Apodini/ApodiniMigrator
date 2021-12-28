@@ -11,7 +11,6 @@ import ApodiniMigratorCompare
 
 internal extension HTTPInformation {
     var urlFormatted: String {
-        // TODO assuming http for now!
         "http://\(description)"
     }
 }
@@ -28,8 +27,8 @@ struct NetworkingMigrator {
         var serverPath = baseServiceInformation.http.urlFormatted
 
         for change in serviceChanges {
-            if case let .update(_, updated, _, _) = change,
-               case let .http(from, to) = updated {
+            if let update = change.modeledUpdateChange,
+               case let .http(from, to) = update.updated {
                 serverPath = to.urlFormatted
             }
         }
@@ -40,28 +39,30 @@ struct NetworkingMigrator {
     func encoderConfiguration() -> EncoderConfiguration {
         var encoderConfiguration = exporterConfiguration.encoderConfiguration
 
-        /*
-         TODO support exporter config changes!
-        for change in networkingChanges where change.element.target == NetworkingTarget.encoderConfiguration.rawValue {
-            if let updateChange = change as? UpdateChange, case let .element(anyCodable) = updateChange.to {
-                encoderConfiguration = anyCodable.typed(EncoderConfiguration.self)
+        for change in serviceChanges {
+            if let update = change.modeledUpdateChange,
+               case let .exporter(exporter) = update.updated,
+               let exporterUpdate = exporter.modeledUpdateChange,
+               let exporter = exporterUpdate.updated.to.tryTyped(of: RESTExporterConfiguration.self) {
+                encoderConfiguration = exporter.encoderConfiguration
             }
         }
-         */
+
         return encoderConfiguration
     }
     
     func decoderConfiguration() -> DecoderConfiguration {
         var decoderConfiguration = exporterConfiguration.decoderConfiguration
 
-        /*
-         TODO support exporter config changes
-        for change in networkingChanges where change.element.target == NetworkingTarget.decoderConfiguration.rawValue {
-            if let updateChange = change as? UpdateChange, case let .element(anyCodable) = updateChange.to {
-                decoderConfiguration = anyCodable.typed(DecoderConfiguration.self)
+        for change in serviceChanges {
+            if let update = change.modeledUpdateChange,
+               case let .exporter(exporter) = update.updated,
+               let exporterUpdate = exporter.modeledUpdateChange,
+               let exporter = exporterUpdate.updated.to.tryTyped(of: RESTExporterConfiguration.self) {
+                decoderConfiguration = exporter.decoderConfiguration
             }
         }
-         */
+
         return decoderConfiguration
     }
 }

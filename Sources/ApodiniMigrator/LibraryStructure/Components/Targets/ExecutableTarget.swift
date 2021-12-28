@@ -13,7 +13,7 @@ public class Executable: Target {
         .executable
     }
 
-    public override init(_ name: NameComponent..., @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
+    public override init(_ name: Name, @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
         super.init(name, _content: content())
     }
 }

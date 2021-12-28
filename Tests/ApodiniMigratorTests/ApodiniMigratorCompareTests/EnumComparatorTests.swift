@@ -78,8 +78,7 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
         comparator.compare(comparisonContext, &modelChanges)
 
         XCTAssertEqual(modelChanges.count, 2) // update of the raw value as well
-        let change = try XCTUnwrap(modelChanges.first) // TODO check if we have persistent order
-        // TODO let change = try XCTUnwrap(node.changes.first(where: { $0.element.target == EnumTarget.case.rawValue }) as? UpdateChange)
+        let change = try XCTUnwrap(modelChanges.first)
         XCTAssertEqual(change.id, enumeration.deltaIdentifier)
         XCTAssertEqual(change.type, .update)
         XCTAssertEqual(change.breaking, true)

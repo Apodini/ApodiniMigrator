@@ -10,18 +10,18 @@ import Foundation
 import PathKit
 
 public class Directory: LibraryComposite {
-    public let path: [NameComponent]
+    public let path: Name
 
     public let content: [LibraryComponent]
 
-    public init(_ name: NameComponent..., @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
+    public init(_ name: Name, @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
         precondition(!name.isEmpty)
         self.path = name
         self.content = content()
     }
 
     // swiftlint:disable:next identifier_name
-    internal init(_ name: [NameComponent], _content: [LibraryComponent]) {
+    internal init(_ name: Name, _content: [LibraryComponent]) {
         precondition(!name.isEmpty)
         self.path = name
         self.content = _content

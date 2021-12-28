@@ -10,7 +10,7 @@ import Foundation
 import PathKit
 
 public class RootDirectory: LibraryComposite {
-    public var path: [NameComponent] = [GlobalPlaceholder.$packageName]
+    public var path: Name = .packageName
 
     public var content: [LibraryComponent]
 
@@ -52,12 +52,12 @@ public class RootDirectory: LibraryComposite {
     }
 
     public func handle(at path: Path, with context: MigrationContext) throws {
-        guard let packageName = context.placeholderValues[GlobalPlaceholder.$packageName] else {
+        guard let packageName = context.placeholderValues[.packageName] else {
             fatalError("PackageName not present")
         }
 
         let rootPath = path + packageName
-        try? rootPath.delete() // TODO dangerous operation (failsafes for accidential deleations?)
+        try? rootPath.delete()
         try rootPath.mkpath()
 
         packageSwift.targets.append(contentsOf: sources.targets.map { $0.targetDescription(with: context) })

@@ -34,8 +34,8 @@ public struct Import: SourceCodeRenderable {
         self.testable = testable
     }
 
-    public init(_ frameworks: String..., testable: Bool = false) {
-        self.frameworks = Set(frameworks.map { "import " + $0 })
+    public init(_ frameworks: Name..., testable: Bool = false) {
+        self.frameworks = Set(frameworks.map { "import " + $0.description })
         self.testable = testable
     }
 
