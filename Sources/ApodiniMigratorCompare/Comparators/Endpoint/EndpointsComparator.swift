@@ -49,8 +49,6 @@ struct EndpointsComparator: Comparator {
             }
         }
 
-        let includeProviderSupport = context.configuration.allowEndpointIdentifierUpdate && context.configuration.includeProviderSupport
-
         for removal in removalCandidates where !pairs.contains(where: { $0.contains(removal.deltaIdentifier) }) {
             results.append(.removal(
                 id: removal.deltaIdentifier
@@ -66,7 +64,7 @@ struct EndpointsComparator: Comparator {
         
         for matched in matchedIds {
             if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
-               let rhs = rhs.first(where: { $0.deltaIdentifier == matched}) {
+               let rhs = rhs.first(where: { $0.deltaIdentifier == matched }) {
                 let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs)
                 endpointComparator.compare(context, &results)
             }

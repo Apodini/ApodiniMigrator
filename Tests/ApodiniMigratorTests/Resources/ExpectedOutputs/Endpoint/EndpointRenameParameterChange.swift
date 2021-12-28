@@ -22,10 +22,10 @@ public extension TestResponse {
         
         var headers = httpHeaders
         headers.setContentType(to: "application/json")
-        
+
         var errors: [ApodiniError] = []
         errors.addError(404, message: "Not found")
-        
+
         let handler = Handler<TestResponse>(
             path: "tests/\(second)",
             httpMethod: .get,
@@ -35,7 +35,7 @@ public extension TestResponse {
             authorization: authorization,
             errors: errors
         )
-        
+
         return NetworkingService.trigger(handler)
     }
 }

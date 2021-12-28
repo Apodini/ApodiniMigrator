@@ -41,29 +41,6 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
         XCTAssert(withIDEndpoint.deltaIdentifier == "getSomeHandler")
     }
     
-    func testWrappedContentParameters() throws {
-        let param1 = Parameter(name: "first", typeInformation: .scalar(.string), parameterType: .content, isRequired: true)
-        let param2 = Parameter(name: "second", typeInformation: .scalar(.int), parameterType: .content, isRequired: false)
-        
-        let endpoint = Endpoint(
-            handlerName: "someHandler",
-            deltaIdentifier: "id",
-            operation: .create,
-            communicationalPattern: .requestResponse,
-            absolutePath: "/v1/test",
-            parameters: [param1, param2],
-            response: .scalar(.bool),
-            errors: []
-        )
-        
-        XCTAssert(endpoint.parameters.count == 1)
-        let contentParameter = try XCTUnwrap(endpoint.parameters.first)
-        XCTAssert(contentParameter.isWrapped)
-        XCTAssert(contentParameter.typeInformation.isObject)
-        XCTAssert(contentParameter.necessity == .required)
-        XCTAssert(contentParameter.name == "\(Parameter.wrappedContentParameter)")
-    }
-    
     func testEndpointPath() throws {
         let pathString = "v1/user".json
         XCTAssertThrows(try EndpointPath.decode(from: pathString))

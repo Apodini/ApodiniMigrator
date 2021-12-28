@@ -8,11 +8,21 @@
 
 import Foundation
 
+/// The ``DocumentComparator`` allows to compare two `APIDocument` to uncover any changes between them.
 public struct DocumentComparator {
+    /// The original/base document.
     public let lhs: APIDocument
+    /// The updated document.
     public let rhs: APIDocument
+    /// The associated ``ChangeComparisonContext``. It is used to track any changes.
+    /// Use this property to access the resulting change arrays.
     public let context: ChangeComparisonContext
 
+    /// Initialize a new DocumentComparator.
+    /// - Parameters:
+    ///   - configuration: The ``CompareConfiguration`` used for the comparisons.
+    ///   - lhs: The base `APIDocument`.
+    ///   - rhs: The updated `APIDocument`.
     public init(configuration: CompareConfiguration? = nil, lhs: APIDocument, rhs: APIDocument) {
         self.lhs = lhs
         self.rhs = rhs
@@ -22,6 +32,8 @@ public struct DocumentComparator {
         )
     }
 
+    /// This method kicks of the comparison operations.
+    /// After this method has completed, you can access the ``context`` property to acquire the results of the comparison.
     public func compare() {
         let metaDataComparator = ServiceInformationComparator(lhs: lhs.serviceInformation, rhs: rhs.serviceInformation)
         metaDataComparator.compare(context, &context.serviceChanges)

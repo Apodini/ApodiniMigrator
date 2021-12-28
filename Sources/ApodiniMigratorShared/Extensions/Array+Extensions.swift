@@ -9,6 +9,8 @@
 import Foundation
 
 public extension Array {
+    /// This method can be used to flatten an array of arrays.
+    /// - Returns: Returns the flattened array, where they are all appened to one big array.
     func flatten<InnerElement>() -> [InnerElement] where Element == [InnerElement] {
         self.reduce(into: []) { result, element in
             result.append(contentsOf: element)

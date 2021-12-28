@@ -8,7 +8,9 @@
 
 import Foundation
 
+/// Describes an Apodini exporter type.
 public enum ApodiniExporterType: String, Value, CodingKey, CaseIterable {
+    /// The `ApodiniREST` exporter.
     case rest
 
     public func anyDecode<Key>(from container: KeyedDecodingContainer<Key>, forKey key: Key) throws -> AnyExporterConfiguration {
@@ -18,6 +20,38 @@ public enum ApodiniExporterType: String, Value, CodingKey, CaseIterable {
         }
     }
 }
+
+
+/// Any conforming type, describes a configured exporter on a Apodini web service.
+public protocol ExporterConfiguration: _ExporterConfiguration, Hashable {}
+
+public protocol _ExporterConfiguration: Codable {
+    /// The ``ApodiniExporterType`` of the configuration.
+    static var type: ApodiniExporterType { get }
+
+    /// A type erased `==` function. This method is implemented by default when conforming to `Equatable`.
+    func compare(to exporter: _ExporterConfiguration) -> Bool
+
+    /// A type erased `hash(into:)`. This method is implemented by default wehn conforming to `Hashable`.
+    func anyHash(into hasher: inout Hasher)
+}
+
+extension _ExporterConfiguration {
+    /// The ``ApodiniExporterType`` of the configuration.
+    public var type: ApodiniExporterType {
+        Self.type
+    }
+
+    /// The `DeltaIdentifier` of the Exporter.
+    public static var deltaIdentifier: DeltaIdentifier {
+        "\(type.rawValue)"
+    }
+
+    func anyEncode<Key>(into container: inout KeyedEncodingContainer<Key>, forKey key: Key) throws {
+        try container.encode(self, forKey: key)
+    }
+}
+
 
 public struct AnyExporterConfiguration: Hashable, DeltaIdentifiable {
     private let exporter: _ExporterConfiguration
@@ -83,32 +117,8 @@ extension AnyExporterConfiguration: Codable {
     }
 }
 
-public protocol _ExporterConfiguration: Codable {
-    static var type: ApodiniExporterType { get }
-
-    func compare(to exporter: _ExporterConfiguration) -> Bool
-
-    func anyHash(into hasher: inout Hasher)
-}
-
-extension _ExporterConfiguration {
-    public var type: ApodiniExporterType {
-        Self.type
-    }
-
-    public static var deltaIdentifier: DeltaIdentifier {
-        "\(type.rawValue)"
-    }
-
-    func anyEncode<Key>(into container: inout KeyedEncodingContainer<Key>, forKey key: Key) throws {
-        try container.encode(self, forKey: key)
-    }
-}
-
-
-public protocol ExporterConfiguration: _ExporterConfiguration, Hashable {}
-
 extension ExporterConfiguration {
+    /// Default type erased implementation for `Equatable`.
     public func compare(to exporter: _ExporterConfiguration) -> Bool {
         guard let casted = exporter as? Self else {
             fatalError("\(Swift.type(of: exporter)) cannot be casted to \(Self.self).")
@@ -117,6 +127,7 @@ extension ExporterConfiguration {
         return self == casted
     }
 
+    /// Default type erased implementation for `Hashable`.
     public func anyHash(into hasher: inout Hasher) {
         self.hash(into: &hasher)
     }

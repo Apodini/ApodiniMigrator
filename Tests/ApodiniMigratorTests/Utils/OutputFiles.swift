@@ -49,6 +49,7 @@ enum OutputFiles: String, TestResource {
     case endpointResponseChange
     case endpointDeletedChange
     case endpointMultipleChanges
+    case endpointWrappedContentParameter
 
     var fileName: String {
         rawValue.upperFirst + ".swift"

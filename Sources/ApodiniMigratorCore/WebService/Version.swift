@@ -67,7 +67,7 @@ public struct Version: Value {
         let numbers = components
             .last?
             .split(separator: ".")
-            .map{ String($0) }
+            .map { String($0) }
         
         if
             let prefix = prefix,

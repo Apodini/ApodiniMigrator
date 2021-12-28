@@ -72,7 +72,7 @@ public struct Parameter: Value {
 
 
     static func wrappedContentParameterTypeName(from handlerName: String) -> TypeName {
-        TypeName(rawValue: handlerName.replacingOccurrences(of: "Handler", with: "") + "WrappedContent")
+        TypeName(rawValue: handlerName.replacingOccurrences(of: "Handler", with: "").upperFirst + "WrappedContent")
     }
     
     /// Returns a version of self where the typeInformation is a reference if a complex object or enum

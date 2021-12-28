@@ -8,11 +8,14 @@
 
 import Foundation
 
+/// Some sort of identifier of an ``Endpoint``.
 public protocol EndpointIdentifier: RawRepresentable where Self.RawValue == String {
+    /// A string identifier, to uniquely identify this ``EndpointIdentifier``.
     static var identifierType: String { get }
 }
 
 public extension EndpointIdentifier {
+    /// Default implementation. Uses the type name.
     static var identifierType: String {
         "\(Self.self)"
     }

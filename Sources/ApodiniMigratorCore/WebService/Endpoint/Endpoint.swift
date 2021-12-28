@@ -226,7 +226,6 @@ extension Endpoint: Equatable {
 }
 
 private extension Endpoint {
-    // TODO this is REST specific! we have something similar (Parameter Wrapping) for GRPC
     static func wrapContentParameters(from parameters: [Parameter], with handlerName: String) -> [Parameter] {
         let contentParameters = parameters.filter { $0.parameterType == .content }
         guard !contentParameters.isEmpty else {

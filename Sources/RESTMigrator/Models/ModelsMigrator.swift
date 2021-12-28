@@ -28,7 +28,7 @@ struct ModelsMigrator: LibraryComposite {
 
         // new models are per definition unchanged
         let addedModels: [TypeInformation] = migrationGuide.modelChanges
-            .compactMap({ $0.modeledAdditionChange })
+            .compactMap { $0.modeledAdditionChange }
             .map { $0.added }
         changedModels.append(contentsOf: addedModels)
 

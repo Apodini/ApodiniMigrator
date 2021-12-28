@@ -52,7 +52,7 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
     }
     
     /// Encodes `self` into the given encoder by encoding value into a singleValueContainer
-    public func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws { // swiftlint:disable:this cyclomatic_complexity
         var singleValueContainer = encoder.singleValueContainer()
         
         if let value = value as? APIDocument {
@@ -89,7 +89,7 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
     }
     
     /// Creates a new instance by decoding from the given decoder
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws { // swiftlint:disable:this cyclomatic_complexity
         let container = try decoder.singleValueContainer()
         
         if let value = try? container.decode(APIDocument.self) {

@@ -328,4 +328,30 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
         
         XCTMigratorAssertEqual(file, .endpointDeletedChange)
     }
+
+    func testWrappedContentParameter() throws {
+        let param1 = Parameter(name: "first", typeInformation: .scalar(.string), parameterType: .content, isRequired: true)
+        let param2 = Parameter(name: "second", typeInformation: .scalar(.int), parameterType: .content, isRequired: false)
+
+        let endpoint = Endpoint(
+            handlerName: "someHandler",
+            deltaIdentifier: "id",
+            operation: .create,
+            communicationalPattern: .requestResponse,
+            absolutePath: "/v1/test",
+            parameters: [param1, param2],
+            response: .scalar(.bool),
+            errors: []
+        )
+
+        let file = EndpointFile(
+            migratedEndpointsReference: SharedNodeReference(with: []),
+            typeInformation: endpoint.response,
+            endpoints: [endpoint],
+            changes: []
+        )
+
+        XCTMigratorAssertEqual(file, .endpointWrappedContentParameter)
+        // TODO also test that the according model file is written!
+    }
 }

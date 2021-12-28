@@ -64,7 +64,7 @@ struct ParametersComparator: Comparator {
 
         for matched in matchedIds {
             if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
-               let rhs = rhs.first(where: { $0.deltaIdentifier == matched}) {
+               let rhs = rhs.first(where: { $0.deltaIdentifier == matched }) {
                 let parameterComparator = ParameterComparator(lhs: lhs, rhs: rhs)
                 parameterComparator.compare(context, &results)
             }
