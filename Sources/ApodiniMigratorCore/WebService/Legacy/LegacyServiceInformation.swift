@@ -22,7 +22,10 @@ struct LegacyServiceInformation: Codable {
 }
 
 extension HTTPInformation {
-    init(fromLegacyServerPath serverPath: String) throws {
+    /// Initialize a `HTTPInformation` from a legacy style server path string.
+    /// - Parameter serverPath: The server path string e.g. formatted as follows: "http://<hostname>:<port>[/optional-path]"
+    /// - Throws: Throws `LegacyServiceInformation.MigrationError` if encountering malformed format.
+    public init(fromLegacyServerPath serverPath: String) throws {
         let range = NSRange(serverPath.startIndex..., in: serverPath)
         // swiftlint:disable:next force_try
         let regex = try! NSRegularExpression(pattern: "^http://(.+):([0-9]+)(/(\\w|\\d)+)?$")
