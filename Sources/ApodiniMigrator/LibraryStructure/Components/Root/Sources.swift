@@ -11,10 +11,10 @@ import Foundation
 /// The `Sources` folder in a swift package.
 public class Sources: Directory, TargetContainingDirectory {
     public var targets: [TargetDirectory] {
-        content as! [TargetDirectory] // swiftlint:disable:this force_cast
+        content.compactMap { $0 as? TargetDirectory }
     }
 
-    public init(@TargetLibraryComponentBuilder<Target> content: () -> [TargetDirectory] = { [] }) {
+    public init(@TargetLibraryComponentBuilder<Target> content: () -> [LibraryComponent] = { [] }) {
         super.init("Sources", content: content)
     }
 }

@@ -56,6 +56,7 @@ extension TestTypes {
         let url: URL
         let scores: [Set<Int>]
         let name: String?
+        // swiftlint:disable:next discouraged_optional_collection
         let nestedDirections: Set<[[[[[Direction]?]?]?]]> // testing recursive storing and reconstructing in `TypesStore`
         let shops: [Shop]
         let cars: [String: Car]

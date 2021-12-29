@@ -26,7 +26,7 @@ class EndpointMethodMigrator: SourceCodeRenderable {
     let migratedEndpoint: MigratedEndpoint
     
     /// Initializes a new instance out of an endpoint of old version and the changes that belong to `endpoint`
-    init(_ endpoint: Endpoint, changes: [EndpointChange]) {
+    init(_ endpoint: Endpoint, changes: [EndpointChange]) { // swiftlint:disable:this function_body_length cyclomatic_complexity
         self.endpoint = endpoint
         self.unavailable = changes.contains(where: { $0.type == .removal })
 
@@ -63,8 +63,6 @@ class EndpointMethodMigrator: SourceCodeRenderable {
                     break
                 }
             case let .response(from, to, migration, warning):
-                // TODO response change is always there when the NAME changes? (recheck this in general)
-                //   renaming do not need to be handled here, as we always keep the old name!
                 self.responseString = to.unsafeTypeString
                 self.responseConvertID = migration
             case let .parameter(parameter):
@@ -101,8 +99,6 @@ class EndpointMethodMigrator: SourceCodeRenderable {
             for change in updatedParameters[parameter.deltaIdentifier, default: []] {
                 switch change.updated {
                 case let .parameterType(from, to):
-                    // TODO type change is also done for renaming! (recheck this in general)
-                    //   renaming do not need to be handled here, as we always keep the old name!
                     parameterType = to
                 case let .necessity(from, to, migration):
                     necessityValueJSONId = migration

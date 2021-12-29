@@ -152,7 +152,7 @@ final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
     func testArray() {
         var numbers = [1, 2, 3, 4, 5, 6, 6, 6, 6, 7]
         let replaced = numbers.replacingOccurrences(ofElement: 6, with: 9)
-        XCTAssert(replaced.filter { $0 == 6 }.isEmpty )
+        XCTAssert(!replaced.contains { $0 == 6 })
         numbers.replacingOccurrences(of: 6, with: 9)
         XCTAssert(numbers == replaced)
     }

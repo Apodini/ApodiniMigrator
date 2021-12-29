@@ -20,8 +20,6 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
     public static let logger: Logger = {
         .init(label: "org.apodini.migrator.rest")
     }()
-    // TODO incorporate logger and according logging of progress!
-    // TODO logger.info("Persisting content at \(directories.path(of: directory).string.without(packagePath.string + "/"))")
 
     private let document: APIDocument
     private let migrationGuide: MigrationGuide
@@ -130,7 +128,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
             }
                 .dependency(target: .packageName)
 
-            // TODO ResourceFile(Copy: "LinuxMain.swift", filePrefix: { FileHeaderComment() })
+            StubLinuxMainFile(prefix: { FileHeaderComment() })
         }
 
         SwiftPackageFile(swiftTools: "5.5")

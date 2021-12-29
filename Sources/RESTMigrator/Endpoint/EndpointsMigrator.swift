@@ -26,7 +26,7 @@ struct EndpointsMigrator: LibraryComposite {
 
         let baseEndpoints = baseDocument.endpoints
         let addedModels = migrationGuide.endpointChanges
-            .compactMap({ $0.modeledAdditionChange })
+            .compactMap { $0.modeledAdditionChange }
             .map { $0.added }
 
         let allEndpoints = baseEndpoints + addedModels

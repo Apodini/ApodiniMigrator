@@ -30,7 +30,7 @@ struct DecoderInitializer: SourceCodeRenderable {
     
     /// Returns the corresponding line of `property` inside of the initializer by considering potential changes of the property
     private func decodingLine(for property: TypeProperty) -> String {
-        if let removalChange = removed.first(where: {  $0.id == property.deltaIdentifier }) {
+        if let removalChange = removed.first(where: { $0.id == property.deltaIdentifier }) {
             if let fallbackValue = removalChange.fallbackValue {
                 return "\(property.name) = try \(property.type.unsafeTypeString).instance(from: \(fallbackValue))"
             } else {
@@ -64,7 +64,6 @@ struct DecoderInitializer: SourceCodeRenderable {
                    """
         }
 
-        // TODO warning unsupported update!!!
         return property.decoderInitLine
     }
     

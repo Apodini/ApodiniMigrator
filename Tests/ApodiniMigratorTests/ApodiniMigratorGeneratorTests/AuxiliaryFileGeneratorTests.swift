@@ -13,7 +13,6 @@ import XCTest
 import PathKit
 
 final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
-    
     override class func setUp() {
         super.setUp()
         

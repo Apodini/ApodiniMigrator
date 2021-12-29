@@ -20,7 +20,7 @@ class ApodiniMigratorXCTestCase: XCTestCase {
         Path(testDirectory)
     }
     
-    private func testTestDirectoryCreated() throws {
+    func testTestDirectoryCreated() throws {
         XCTAssert(testDirectoryPath.exists)
         XCTAssert(try testDirectoryPath.children().isEmpty)
     }

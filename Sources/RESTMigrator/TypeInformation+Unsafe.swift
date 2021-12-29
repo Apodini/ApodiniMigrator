@@ -9,7 +9,9 @@
 import Foundation
 
 extension TypeInformation {
-    /// TODO explain why this isn't ideal, but isn't any worse than existing stuff!
+    /// Retrieves the unsafe `mangledName` which is used by the ``RESTMigrator`` for file naming.
+    /// This is considered unsafe as we cannot guarantee that we avoid name collisions (e.g. generics or nested types).
+    /// Further, we normally cannot reconstruct the `TypeName` from `.reference` key.
     var unsafeFileNaming: String {
         switch self {
         case let .reference(key):
@@ -19,6 +21,9 @@ extension TypeInformation {
         }
     }
 
+    /// Retrieves the unsafe `typeString` which is used by the ``RESTMigrator` for type naming.
+    /// This is considered unsafe as we cannot guarantee that we avoid name collisions (e.g. nested types).
+    /// Further, we normally cannot reconstruct the `TypeName` from `.reference` key.
     var unsafeTypeString: String {
         switch self {
         case let .repeated(element):

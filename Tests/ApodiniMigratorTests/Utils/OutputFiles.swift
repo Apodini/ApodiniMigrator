@@ -43,7 +43,7 @@ enum OutputFiles: String, TestResource {
     case endpointDeleteParameterChange
     case endpointDeleteContentParameterChange
     case endpointRenameParameterChange
-    case endpointParameterNecessityToRequiredChange
+    case endpointParameterNecessityToRequiredChange // swiftlint:disable:this identifier_name
     case endpointParameterKindAndPathChange
     case endpointParameterTypeChange
     case endpointResponseChange

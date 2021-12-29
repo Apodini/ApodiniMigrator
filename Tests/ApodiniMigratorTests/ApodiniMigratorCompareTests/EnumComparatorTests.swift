@@ -42,7 +42,11 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testDeletedEnumCase() throws {
-        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .scalar(.string), cases: enumeration.enumCases.filter { $0.name != "other" })
+        let updated: TypeInformation = .enum(
+            name: enumeration.typeName,
+            rawValueType: .scalar(.string),
+            cases: enumeration.enumCases.filter { $0.name != "other" }
+        )
 
         let comparator = EnumComparator(lhs: enumeration, rhs: updated)
         comparator.compare(comparisonContext, &modelChanges)
@@ -102,7 +106,11 @@ final class EnumComparatorTests: ApodiniMigratorXCTestCase {
     }
     
     func testAddedEnumCase() throws {
-        let updated: TypeInformation = .enum(name: enumeration.typeName, rawValueType: .scalar(.string), cases: enumeration.enumCases + .init("newCase"))
+        let updated: TypeInformation = .enum(
+            name: enumeration.typeName,
+            rawValueType: .scalar(.string),
+            cases: enumeration.enumCases + .init("newCase")
+        )
 
         let comparator = EnumComparator(lhs: enumeration, rhs: updated)
         comparator.compare(comparisonContext, &modelChanges)

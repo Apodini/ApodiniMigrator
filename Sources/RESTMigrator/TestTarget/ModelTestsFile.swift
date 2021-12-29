@@ -38,7 +38,6 @@ struct ModelTestsFile: GeneratedFile {
         case let .object(name, properties, _):
             return .object(name: name, properties: properties.map { .init(name: $0.name, type: dereference($0.type), annotation: $0.annotation) })
         case let .reference(key):
-            // TODO refernece key naming!
             if let type = models.first(where: { $0.typeName.buildName() == key.rawValue }) {
                 return dereference(type)
             }

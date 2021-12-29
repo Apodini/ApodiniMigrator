@@ -10,6 +10,7 @@ import XCTest
 @testable import ApodiniMigratorCore
 @testable import ApodiniMigratorCompare
 
+// swiftlint:disable:next type_body_length
 final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
     var endpointChanges = [EndpointChange]()
 
@@ -45,8 +46,10 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
             .init(name: "first", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
             .init(name: "second", typeInformation: .scalar(.uuid), parameterType: .path, isRequired: true),
+            // swiftlint:disable:next force_try
             .init(name: "third", typeInformation: try! TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
         ],
+        // swiftlint:disable:next force_try
         response: try! TypeInformation(type: LHSResponse.self),
         errors: []
     )
@@ -120,7 +123,6 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             XCTFail("Change did not store the updated resource path")
             return
         }
-
         XCTAssertEqual(identifierChange.type, .update)
         XCTAssertEqual(change.breaking, identifierChange.breaking)
         XCTAssertEqual(change.solvable, identifierChange.solvable)
@@ -347,7 +349,8 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.identifier(),
             communicationalPattern: .requestResponse,
-            absolutePath: lhs.identifier(for: EndpointPath.self).description.replacingOccurrences(of: "{second}", with: ""), // removing from path as well
+            // removing from path as well
+            absolutePath: lhs.identifier(for: EndpointPath.self).description.replacingOccurrences(of: "{second}", with: ""),
             parameters: [
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
                 .init(name: "first", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),

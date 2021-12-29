@@ -80,6 +80,8 @@ public class ResourceFile: LibraryNode {
             fileContent += "\n" + fileSuffix
         }
 
+        context.logger.debug("Copying resource file \(rawSrcFileName)\(rawSrcFileName != rawDstFileName ? "to \(rawDstFileName)": "") at: \(path.absolute())")
+
         let destinationPath = path + rawDstFileName
         try destinationPath.write(fileContent, encoding: .utf8)
     }

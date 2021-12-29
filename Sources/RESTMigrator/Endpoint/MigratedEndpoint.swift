@@ -133,7 +133,7 @@ class MigratedEndpoint {
     
     /// Returns the string that should be used in the `content` field of the handler initializer inside of the endpoint method, by only considering active content parameter
     func contentParameterString() -> String {
-        guard let contentParameter = activeParameters.first(where: { $0.kind == .content}) else {
+        guard let contentParameter = activeParameters.first(where: { $0.kind == .content }) else {
             return "nil"
         }
         

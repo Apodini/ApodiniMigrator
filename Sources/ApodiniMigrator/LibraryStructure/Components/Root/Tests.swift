@@ -11,10 +11,10 @@ import Foundation
 /// The `Tests` directory in a swift package
 public class Tests: Directory, TargetContainingDirectory {
     public var targets: [TargetDirectory] {
-        content as! [TargetDirectory] // swiftlint:disable:this force_cast
+        content.compactMap { $0 as? TargetDirectory }
     }
 
-    public init(@TargetLibraryComponentBuilder<TestTarget> content: () -> [TargetDirectory] = { [] }) {
+    public init(@TargetLibraryComponentBuilder<TestTarget> content: () -> [LibraryComponent] = { [] }) {
         super.init("Tests", content: content)
     }
 }

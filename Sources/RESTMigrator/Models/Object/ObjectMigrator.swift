@@ -79,7 +79,8 @@ struct ObjectMigrator: GeneratedFile {
     }
 
     var renderableContent: String {
-        var annotation: Annotation? = nil
+        // some weirdness of result builder that this thingy requires an explicit initializer
+        var annotation: Annotation? = nil // swiftlint:disable:this redundant_optional_initialization
         if !unsupportedChanges.isEmpty {
             annotation = GenericComment(
                 comment: "@available(*, deprecated, message: \"\(unsupportedChanges.map { $0.description }.joined(separator: "; "))\")"
@@ -101,7 +102,7 @@ struct ObjectMigrator: GeneratedFile {
 
             let encodingMethod = EncodingMethod(
                 properties: allProperties.filter { property in
-                    !removedProperties.contains(where: {  $0.id ==  property.deltaIdentifier })
+                    !removedProperties.contains(where: { $0.id == property.deltaIdentifier })
                 },
                 changes: updatedProperties
             )

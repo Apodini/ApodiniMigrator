@@ -48,7 +48,6 @@ struct EncodingMethod: SourceCodeRenderable {
                    """
         }
 
-        // TODO warning unsupported update!!!
         return property.encodingMethodLine
     }
     

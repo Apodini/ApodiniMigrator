@@ -93,7 +93,8 @@ struct EnumMigrator: GeneratedFile {
     }
 
     var renderableContent: String {
-        var annotation: Annotation? = nil
+        // some weirdness of result builder that this thingy requires an explicit initializer
+        var annotation: Annotation? = nil // swiftlint:disable:this redundant_optional_initialization
 
         if !unsupportedChanges.isEmpty {
             annotation = GenericComment(

@@ -22,6 +22,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
             .init(name: "isDriving", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
             .init(name: "first", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
             .init(name: "second", typeInformation: .scalar(.uuid), parameterType: .path, isRequired: true),
+            // swiftlint:disable:next force_try
             .init(name: "third", typeInformation: try! TypeInformation(type: TestTypes.Car.self), parameterType: .content, isRequired: true)
         ],
         response: .reference("TestResponse"),
@@ -235,7 +236,12 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     private func endpointFile(changes: [EndpointChange]) -> EndpointFile {
-        EndpointFile(migratedEndpointsReference: SharedNodeReference(with: []), typeInformation: endpoint.response, endpoints: [endpoint], changes: changes)
+        EndpointFile(
+            migratedEndpointsReference: SharedNodeReference(with: []),
+            typeInformation: endpoint.response,
+            endpoints: [endpoint],
+            changes: changes
+        )
     }
     
     func testDefaultEndpointFile() throws {
@@ -352,6 +358,5 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
         )
 
         XCTMigratorAssertEqual(file, .endpointWrappedContentParameter)
-        // TODO also test that the according model file is written!
     }
 }
