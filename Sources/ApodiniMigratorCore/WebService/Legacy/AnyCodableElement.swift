@@ -124,17 +124,9 @@ public final class AnyCodableElement: Value, CustomStringConvertible {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode \(Self.self)")
         }
     }
-    
+
     /// Returns the typed value. The method is to be used by migrator objects to cast the element of change after ensuring the type
     /// via the target value of the element. E.g. for an element `.endpoint(id, target: .operation)`, the value can be casted as `.typed(Operation.self)`
-    /// - Note: Results in `fatalError` if casting fails
-    public func typed<C: Codable>(_ type: C.Type) -> C {
-        guard let value = value as? C else {
-            fatalError("Failed to cast value to \(C.self)")
-        }
-        return value
-    }
-
     public func tryTyped<C: Codable>(_ type: C.Type = C.self) -> C? {
         value as? C
     }

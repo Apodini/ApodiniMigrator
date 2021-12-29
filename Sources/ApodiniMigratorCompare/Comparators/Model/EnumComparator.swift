@@ -22,8 +22,8 @@ struct EnumComparator: Comparator {
             results.append(.update(
                 id: lhs.deltaIdentifier,
                 updated: .rawValueType(
-                    from: lhsRawValue.referenced(),
-                    to: rhsRawValue.referenced()
+                    from: lhsRawValue.asReference(),
+                    to: rhsRawValue.asReference()
                 ),
                 solvable: false
             ))

@@ -473,8 +473,8 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             XCTFail("Change did not store the updated parameter")
             return
         }
-        XCTAssertEqual(from, .reference("EndpointComparatorTestsLHSResponse"))
-        XCTAssertEqual(to, .reference("EndpointComparatorTestsRHSResponse"))
+        XCTAssertEqual(from, .reference("EndpointComparatorTests.LHSResponse"))
+        XCTAssertEqual(to, .reference("EndpointComparatorTests.RHSResponse"))
         XCTAssertEqual(conversionWarning, nil)
 
         if let script = comparisonContext.scripts[backwardsConversion] {

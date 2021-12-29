@@ -66,7 +66,6 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
     }
 
     public var library: RootDirectory {
-        let allModels = document.models
         let encoderConfiguration = networkingMigrator.encoderConfiguration()
         let decoderConfiguration = networkingMigrator.decoderConfiguration()
 
@@ -122,7 +121,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
             TestTarget("\(.packageName)Tests") {
                 ModelTestsFile(
                     name: "\(.packageName)Tests.swift",
-                    models: allModels,
+                    models: document.models.fileRenderableTypes(),
                     objectJSONs: migrationGuide.objectJSONs,
                     encoderConfiguration: encoderConfiguration
                 )

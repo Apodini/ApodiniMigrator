@@ -8,6 +8,23 @@
 
 import Foundation
 
+/// A `Name` is any kind of string which is built using ``NameComponent``s
+/// which are either `String`s or ``Placeholder``s.
+///
+/// There are several ways to build construct a `Name`:
+///
+/// # Using string literals
+/// ```swift
+/// let name: Name = "Hello World"
+/// ```
+///
+/// # Using string interpolation to insert Placeholders
+/// This example inserts the globally defined `PACKAGE_NAME` placeholder.
+/// The most convenient way to integrate ``Placeholder``s into ``Name``s is via the custom interpolation.
+///
+/// ```swift
+/// let name: Name = "The package is called \(.packageName)"
+/// ```
 public struct Name: NameComponent {
     var components: [NameComponent]
 

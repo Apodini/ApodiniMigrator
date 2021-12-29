@@ -108,8 +108,8 @@ struct ObjectPropertiesComparator: Comparator {
             results.append(.update(
                 id: lhs.deltaIdentifier,
                 updated: .type(
-                    from: lhsType.referenced(),
-                    to: rhsType.referenced(),
+                    from: lhsType.asReference(),
+                    to: rhsType.asReference(),
                     forwardMigration: forwardScript,
                     backwardMigration: backwardScript,
                     conversionWarning: jsScriptBuilder.hint

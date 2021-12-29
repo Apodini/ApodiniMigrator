@@ -48,8 +48,8 @@ struct ParameterComparator: Comparator {
             results.append(.update(
                 id: lhs.deltaIdentifier,
                 updated: .type(
-                    from: lhs.typeInformation.referenced(),
-                    to: rhs.typeInformation.referenced(),
+                    from: lhs.typeInformation.asReference(),
+                    to: rhs.typeInformation.asReference(),
                     forwardMigration: migrationId,
                     conversionWarning: jsScriptBuilder.hint
                 )

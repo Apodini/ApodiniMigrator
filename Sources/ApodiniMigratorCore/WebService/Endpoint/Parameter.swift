@@ -79,7 +79,7 @@ public struct Parameter: Value {
     public func referencedType() -> Parameter {
         .init(
             name: name,
-            typeInformation: typeInformation.referenced(),
+            typeInformation: typeInformation.asReference(),
             parameterType: parameterType,
             isRequired: necessity == .required
         )

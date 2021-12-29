@@ -9,13 +9,21 @@
 import Foundation
 import PathKit
 
+/// Describes a single leaf node in the tree of ``LibraryComponent``.
+/// This is the leaf of the composite pattern.
 public protocol LibraryNode: LibraryComponent {
+    /// The `handle` method is called to handle the ``LibraryNode``.
+    ///
+    /// - Parameters:
+    ///   - path: The path where this component is placed under.
+    ///   - context: The ``MigrationContext`` in which this component is called.
+    /// - Throws: Throws any potential errors by the implementing parties.
     func handle(at path: Path, with context: MigrationContext) throws
 }
 
 public extension LibraryNode {
-    // swiftlint:disable:next identifier_name
-    func _handle(at path: Path, with context: MigrationContext) throws {
+    /// Default implementation forwarding call.
+    func _handle(at path: Path, with context: MigrationContext) throws { // swiftlint:disable:this identifier_name
         try handle(at: path, with: context)
     }
 }

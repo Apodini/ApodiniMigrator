@@ -325,9 +325,8 @@ only_rules:
 excluded: # paths to ignore during linting. Takes precedence over `included`.
   - .build
   - .swiftpm
-  - Tests
-  - Sources/ApodiniMigratorCompare/Change/ProviderSupport.swift
-  - Sources/ApodiniMigratorCompare/AnyCodableElement.swift
+  - Sources/RESTMigrator/Resources
+  - Tests/ApodiniMigratorTests/Resources
 
 closure_body_length: # Closure bodies should not span too many lines.
   - 35 # warning - default: 20

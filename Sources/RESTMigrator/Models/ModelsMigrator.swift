@@ -32,8 +32,11 @@ struct ModelsMigrator: LibraryComposite {
             .map { $0.added }
         changedModels.append(contentsOf: addedModels)
 
+        let allModels = baseDocument.models
+            .fileRenderableTypes()
+            .sorted(by: \.unsafeTypeString)
         // check if the models from the base document were changed or not
-        for model in baseDocument.models {
+        for model in allModels {
             if changesIds.contains(model.deltaIdentifier) {
                 changedModels.append(model)
             } else {

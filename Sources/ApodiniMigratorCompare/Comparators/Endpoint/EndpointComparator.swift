@@ -59,8 +59,8 @@ struct EndpointComparator: Comparator {
             results.append(.update(
                 id: lhs.deltaIdentifier,
                 updated: .response(
-                    from: lhs.response.referenced(),
-                    to: rhs.response.referenced(),
+                    from: lhs.response.asReference(),
+                    to: rhs.response.asReference(),
                     backwardsMigration: migrationId,
                     migrationWarning: jsScriptBuilder.hint
                 )
