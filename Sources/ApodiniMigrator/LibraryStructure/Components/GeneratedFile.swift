@@ -9,6 +9,8 @@
 import Foundation
 import PathKit
 
+/// A special ``LibraryNode`` which describes a single generated file, simply by supplying
+/// a file name an the source code file using ``SourceCodeRenderable``.
 public protocol GeneratedFile: LibraryNode, SourceCodeRenderable {
     var fileName: Name { get }
 }
@@ -19,8 +21,7 @@ extension GeneratedFile {
         var fileContent = self.renderableContent
 
         for (placeholder, content) in context.placeholderValues {
-            // TODO code duplication to the `ResourceFile` (and less potent?)!
-            fileContent = fileContent.replacingOccurrences(of: placeholder.description, with: content)
+            fileContent.replaceOccurrencesRespectingIndent(of: placeholder.description, with: content)
         }
 
         return fileContent.appending("\n")
@@ -28,6 +29,7 @@ extension GeneratedFile {
 }
 
 public extension GeneratedFile {
+    /// Default implementation to write the generated file and handle ``Placeholder`` replacements.
     func handle(at path: Path, with context: MigrationContext) throws {
         precondition(!fileName.isEmpty)
         let filePath = path + fileName.description(with: context)

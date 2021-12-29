@@ -8,12 +8,15 @@
 
 import Foundation
 
+/// Any element which can be rendered to source code using ``SourceCodeBuilder``.
 public protocol SourceCodeRenderable: SourceCodeComponent {
+    /// The rendered source code content.
     @SourceCodeBuilder
     var renderableContent: String { get }
 }
 
 public extension SourceCodeRenderable {
+    /// Default implementation for the render method based on the `renderableContent` property.
     func render() -> [String] {
         renderableContent
             .split(separator: "\n", omittingEmptySubsequences: false)

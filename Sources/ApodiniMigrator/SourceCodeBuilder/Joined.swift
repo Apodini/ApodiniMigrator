@@ -8,7 +8,10 @@
 
 import Foundation
 
+/// Join several ``SourceCodeComponent``
 public struct Joined: SourceCodeComponent {
+    /// Describes how the ``SourceCodeComponent``s are joined.
+    /// This basically controls if the separator is applied before or after the newline character.
     public enum JoinType {
         case appendPreviousLine
         case prependNextLine
@@ -18,6 +21,13 @@ public struct Joined: SourceCodeComponent {
     private let joinType: JoinType
     private let content: [SourceCodeComponent]
 
+    /// Initialize new joined ``SourceCodeComponent``s.
+    /// - Parameters:
+    ///   - separator: The separator character.
+    ///   - joinType: Optionally, the ``JoinType``.
+    ///   - content: The content of ``SourceCodeComponents``.
+    ///     Note: You might want to use ``Group`` to group several ``SourceCodeComponents`` such that they are treated as
+    ///     a single component here.
     public init(
         by separator: String,
         using joinType: JoinType = .appendPreviousLine,

@@ -9,11 +9,19 @@
 import Foundation
 import PathKit
 
+/// A ``LibraryComposite`` used to build a `Directory`.
+/// The `Directory` might container other ``LibraryComponent``s.
 public class Directory: LibraryComposite {
+    /// The directory name
     public let path: Name
 
+    /// The directory content.
     public let content: [LibraryComponent]
 
+    /// Create a new `Directory`.
+    /// - Parameters:
+    ///   - name: The directory name.
+    ///   - content: The directory content using a ``DefaultLibraryComponentBuilder`` closure.
     public init(_ name: Name, @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
         precondition(!name.isEmpty)
         self.path = name

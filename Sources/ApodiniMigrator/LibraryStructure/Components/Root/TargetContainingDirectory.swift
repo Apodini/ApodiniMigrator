@@ -8,6 +8,12 @@
 
 import Foundation
 
+/// A protocol describing a ``Directory`` which contains ``TargetDorectory``s.
+///
+/// The following two directories exist:
+/// * ``Sources``
+/// * ``Tests``
 public protocol TargetContainingDirectory {
+    /// The ``TargetDirectory``s contained in this directory.
     var targets: [TargetDirectory] { get }
 }

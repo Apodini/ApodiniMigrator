@@ -8,12 +8,13 @@
 
 import Foundation
 
+/// A swift executable target placed in ``Sources``.
 public class Executable: Target {
-    public override var type: TargetType {
+    override public var type: TargetType {
         .executable
     }
 
-    public override init(_ name: Name, @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
+    override public init(_ name: Name, @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
         super.init(name, _content: content())
     }
 }

@@ -8,9 +8,10 @@
 
 import Foundation
 
+/// The `Tests` directory in a swift package
 public class Tests: Directory, TargetContainingDirectory {
     public var targets: [TargetDirectory] {
-        content as! [TargetDirectory]
+        content as! [TargetDirectory] // swiftlint:disable:this force_cast
     }
 
     public init(@TargetLibraryComponentBuilder<TestTarget> content: () -> [TargetDirectory] = { [] }) {

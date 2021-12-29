@@ -8,15 +8,26 @@
 
 import Foundation
 
+/// A simple string based file.
 public struct StringFile: GeneratedFile {
+    /// The file ``Name``.
     public let fileName: Name
+    /// The file content encoded as a string.
     public let renderableContent: String
 
+    /// Initialize a new `StringFile` by supplying file name and the content by string.
+    /// - Parameters:
+    ///   - fileName: The file ``Name``.
+    ///   - content: The full file content encoded as a string.
     public init(name fileName: Name, content: String) {
         self.fileName = fileName
         self.renderableContent = content
     }
 
+    /// Initialize a new `StringFile` by supplying file name and the content using the ``SourceCodeBuilder``.
+    /// - Parameters:
+    ///   - fileName: The file ``Name``.
+    ///   - content: The content provided as a ``SourceCodeBuilder`` closure.
     public init(name fileName: Name, @SourceCodeBuilder content: () -> String) {
         self.fileName = fileName
         self.renderableContent = content()

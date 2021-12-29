@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// An `Empty` ``LibraryNode``. Does nothing.
 public struct Empty: LibraryNode {
     public init() {}
 

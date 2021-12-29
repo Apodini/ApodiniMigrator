@@ -8,6 +8,9 @@
 
 import Foundation
 
+/// A ``SourceCodeRenderable`` to render swift functions.
+///
+/// Those can be placed inside ``SourceCodeBuilder``s.
 public struct SwiftFunction: SourceCodeRenderable {
     private static let indent: String = "    "
 
@@ -21,6 +24,19 @@ public struct SwiftFunction: SourceCodeRenderable {
     private let whereClause: String?
     private let functionBody: String?
 
+    /// Create a new SwiftFunction.
+    ///
+    /// - Note: This initializer doesn't require a `functionBody` and thus only generates the function signature.
+    ///
+    /// - Parameters:
+    ///   - name: The function name
+    ///   - arguments: Array of function arguments (e.g. `["_ someString: String", "number: Int"]`)
+    ///   - returnType: The string representation of a return type. `nil` for `Void`.
+    ///   - access: The optional access level as a string representation.
+    ///   - sendable: Defines if the function is annotated with `@Sendable`.
+    ///   - async: Defines if the function is declared as `async`.
+    ///   - throws: Defines if the function is declared as throwing.
+    ///   - whereClause: A string representation of a where clause.
     public init(
         name: String,
         arguments: [String] = [],
@@ -42,6 +58,17 @@ public struct SwiftFunction: SourceCodeRenderable {
         self.functionBody = nil
     }
 
+    /// Create a new SwiftFunction.
+    /// - Parameters:
+    ///   - name: The function name
+    ///   - arguments: Array of function arguments (e.g. `["_ someString: String", "number: Int"]`)
+    ///   - returnType: The string representation of a return type. `nil` for `Void`.
+    ///   - access: The optional access level as a string representation.
+    ///   - sendable: Defines if the function is annotated with `@Sendable`.
+    ///   - async: Defines if the function is declared as `async`.
+    ///   - throws: Defines if the function is declared as throwing.
+    ///   - whereClause: A string representation of a where clause.
+    ///   - functionBody: A ``SourceCodeBuilder`` closure to render the function body.
     public init(
         name: String,
         arguments: [String] = [],

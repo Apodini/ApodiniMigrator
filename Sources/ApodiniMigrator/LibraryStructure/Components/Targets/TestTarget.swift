@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// A swift test target placed in ``Tests``.
 public class TestTarget: Directory, TargetDirectory {
     public var type: TargetType {
         .test
@@ -16,7 +17,7 @@ public class TestTarget: Directory, TargetDirectory {
     public var dependencies: [TargetDependency] = []
     public var resources: [TargetResource] = []
 
-    public override init(_ name: Name, @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
+    override public init(_ name: Name, @DefaultLibraryComponentBuilder content: () -> [LibraryComponent] = { [] }) {
         super.init(name, _content: content())
     }
 }

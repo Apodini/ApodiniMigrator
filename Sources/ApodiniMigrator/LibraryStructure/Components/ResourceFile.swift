@@ -9,6 +9,8 @@
 import Foundation
 import PathKit
 
+/// A `ResourceFile` is a file which is copied from the resources (e.g. `Bundle.module`) of a target.
+/// The file is searched in the bundle supplied in the ``Migrator``.
 public class ResourceFile: LibraryNode {
     let srcFileName: Name
     let dstFilename: Name
@@ -20,6 +22,13 @@ public class ResourceFile: LibraryNode {
 
     var contentReplacer: [Placeholder: String] = [:]
 
+    /// Initializes a new `ResourceFile`.
+    /// - Parameters:
+    ///   - srcFileName: The file ``Name`` to search for in the ``Migrator/bundle``.
+    ///   - dstFileName: If supplied the filename is used when writing the file to disk.
+    ///         Otherwise the `srcFileName` is used.
+    ///   - filePrefix: Optional ``SourceCodeBuilder`` closure to supply a prefix which is prepended to the file content.
+    ///   - fileSuffix: Optional ``SourceCodeBuilder`` closure to supply a suffix which is appended to the file content.
     public init(
         copy srcFileName: Name,
         to dstFileName: Name? = nil,
@@ -37,6 +46,11 @@ public class ResourceFile: LibraryNode {
         self.fileSuffix = fileSuffix()
     }
 
+    /// Adds a new content replacement for the given file. This can be used to dynamically supply ``Placeholder`` values.
+    /// - Parameters:
+    ///   - placeholder: The ``Placeholder`` which should be replaced in the file content.
+    ///   - content: The value for the ``Placeholder``.
+    /// - Returns: Returns `self` for chanining.
     public func replacing(_ placeholder: Placeholder, with content: String) -> Self {
         precondition(contentReplacer[placeholder] == nil)
         contentReplacer[placeholder] = content
@@ -56,16 +70,7 @@ public class ResourceFile: LibraryNode {
         }
 
         for (placeholder, content) in context.placeholderValues.merging(contentReplacer, uniquingKeysWith: { $1 }) {
-            // this block is basically a `fileContent.replacingOccurrences(of: placeholder.description, with: content)`
-            //  though it considers the indent of a `placeholder` and applies it to the lines of `content`
-            while let range = fileContent.range(of: placeholder.description) {
-                let indent = indent(of: fileContent, at: range)
-                let indentedContent = content
-                    .split(separator: "\n", omittingEmptySubsequences: false)
-                    .joined(separator: "\n\(indent)")
-
-                fileContent.replaceSubrange(range, with: indentedContent)
-            }
+            fileContent.replaceOccurrencesRespectingIndent(of: placeholder.description, with: content)
         }
 
         if !filePrefix.isEmpty {
@@ -77,23 +82,6 @@ public class ResourceFile: LibraryNode {
 
         let destinationPath = path + rawDstFileName
         try destinationPath.write(fileContent, encoding: .utf8)
-    }
-
-    private func indent(of content: String, at range: Range<String.Index>) -> String {
-        var index = content.index(before: range.lowerBound)
-
-        var indent = ""
-
-        while content[index] == " " {
-            index = content.index(before: index)
-            indent += " "
-        }
-
-        if content[index] == "\n" {
-            return indent
-        }
-
-        return ""
     }
 }
 

@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// An empty ``SourceCodeComponent``.
 public struct EmptyLine: SourceCodeRenderable {
     public init() {}
 

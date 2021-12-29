@@ -8,15 +8,24 @@
 
 import Foundation
 
+/// Creates an indented section in the ``SourceCodeBuilder``.
 public struct Indent: SourceCodeComponent {
     private let indentString: String
     private let content: [SourceCodeComponent]
 
+    /// Creates a new indented content.
+    /// - Parameters:
+    ///   - indentString: The indent string.
+    ///   - content: The content as string.
     public init(with indentString: String = "    ", _ content: String) {
         self.indentString = indentString
         self.content = [content]
     }
 
+    /// Creates a new indented ``SourceCodeComponent``s build via a ``SourceCodeComponentBuilder`` closure.
+    /// - Parameters:
+    ///   - indentString: The indent string.
+    ///   - content: The content which is indented provided by a result builder closure.
     public init(
         with indentString: String = "    ",
         @SourceCodeComponentBuilder content: () -> [SourceCodeComponent]

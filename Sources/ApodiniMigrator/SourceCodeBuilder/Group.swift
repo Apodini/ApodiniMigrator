@@ -8,9 +8,13 @@
 
 import Foundation
 
-public struct Group: SourceCodeComponent { // TODO document, only really useful in combination with the Joined operator!
+/// A way of Grouping several ``SourceCodeComponent``s.
+/// This can be handy to treat multiple ``SourceCodeComponent``s as a single component (e.g. in combination with the ``Joined`` component).
+public struct Group: SourceCodeComponent {
     private let content: [SourceCodeComponent]
 
+    /// Initialize a new `Group`
+    /// - Parameter content: The content of the group.
     public init(@SourceCodeComponentBuilder content: () -> [SourceCodeComponent]) {
         self.content = content()
     }

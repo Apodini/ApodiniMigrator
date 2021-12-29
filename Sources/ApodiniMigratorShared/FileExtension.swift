@@ -12,7 +12,7 @@ import PathKit
 /// Represent different cases of file extensions
 public enum FileExtension: CustomStringConvertible {
     /// Markdown
-    case markdown
+    case markdown // TODO remove some cases
     /// JSON
     case json
     /// YAML

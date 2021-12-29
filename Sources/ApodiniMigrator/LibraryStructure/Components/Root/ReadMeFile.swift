@@ -8,7 +8,12 @@
 
 import Foundation
 
+/// The `Readme` file of a swift package.
+///
+/// Note: This implementation expects the readme file to be a ``ResourceFile``.
 public class ReadMeFile: ResourceFile {
+    /// Initialize a `ReadMeFile`.
+    /// - Parameter name: The name of the readme file (including file extension).
     public init(_ name: String = "README.md") {
         super.init(copy: Name(stringLiteral: name))
     }
