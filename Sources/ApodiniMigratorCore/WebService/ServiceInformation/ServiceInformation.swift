@@ -22,7 +22,7 @@ public struct ServiceInformation: Value, Hashable {
         exporters.keys
     }
 
-    init(
+    public init(
         version: Version,
         http: HTTPInformation,
         exporters: [_ExporterConfiguration]
@@ -36,7 +36,7 @@ public struct ServiceInformation: Value, Hashable {
         }
     }
 
-    init(
+    public init(
         version: Version,
         http: HTTPInformation,
         exporters: _ExporterConfiguration...
