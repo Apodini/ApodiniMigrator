@@ -11,27 +11,21 @@ import PathKit
 
 /// Represent different cases of file extensions
 public enum FileExtension: CustomStringConvertible {
-    /// Markdown
-    case markdown // TODO remove some cases
     /// JSON
     case json
     /// YAML
     case yaml
     /// Swift
     case swift
-    /// Text
-    case text
     /// Other
     case other(String)
     
     /// String representation this extension
     public var description: String {
         switch self {
-        case .markdown: return "md"
         case .json: return "json"
         case .yaml: return "yaml"
         case .swift: return "swift"
-        case .text: return "txt"
         case let .other(value): return value
         }
     }
