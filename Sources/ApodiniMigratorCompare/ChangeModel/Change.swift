@@ -8,16 +8,30 @@
 
 import Foundation
 
+/// Typed version of an ``AnyChange``.
 public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
-    /// TODO only present if `allowEndpointIdentifierUpdate` is enabled!
+    /// This case represents a change of the primary identifier (the ``DeltaIdentifier``) of the `Element`.
+    /// - Parameters:
+    ///   - from: The previous identifier value.
+    ///   - to: The updated identifier value.
+    ///   - similarity: The similarity score [0-1] of the identifiers.
+    ///   - breaking: Breaking classification.
+    ///   - solvable: Solvable classification.
     case idChange(
         from: DeltaIdentifier,
         to: DeltaIdentifier,
-        similarity: Double?, // TODO check why these are all optionals?
+        similarity: Double?,
         breaking: Bool = false,
         solvable: Bool = true
     )
 
+    /// Describes a change where a new instance of an `Element` was added.
+    /// - Parameters:
+    ///   - id: The identifier of the newly added `Element`.
+    ///   - added: The added `Element`.
+    ///   - defaultValue: Optionally and only if applicable, an int identifier to the json representation of a default value.
+    ///   - breaking: Breaking classification.
+    ///   - solvable: Solvable classification.
     case addition(
         id: DeltaIdentifier,
         added: Element,
@@ -26,10 +40,14 @@ public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
         solvable: Bool = true
     )
 
-    /// Describes a change where the element was completely removed.
-    ///
-    /// removed: Optional a description of the element which was removed.
-    ///     Typically the based element is still in the original interface description document.
+    /// Describes a change where a instance of an `Element` was completely removed.
+    /// - Parameters:
+    ///   - id: The identifier of the removed `Element`.
+    ///   - removed: Optionally, the description of the removed `Element`.
+    ///        Typically, this is not included as the element is part of the base `APIDocument`.
+    ///   - fallbackValue: Optionally and only if applicable, an int identifier to the json representation of a fallback value.
+    ///   - breaking: Breaking classification.
+    ///   - solvable: Solvable classification.
     case removal(
         id: DeltaIdentifier,
         removed: Element? = nil,
@@ -38,6 +56,13 @@ public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
         solvable: Bool = false
     )
 
+    /// Describes some sort of update to an existing instance of an `Element`.
+    /// - Parameters:
+    ///   - id: The identifier of the updated `Element`.
+    ///   - updated: A structure which describes the update. How the update is structured is entirely defined
+    ///     by the `Element` itself. It may contain nested ``Changes``.
+    ///   - breaking: Breaking classification.
+    ///   - solvable: Solvable classification.
     case update(
         id: DeltaIdentifier,
         updated: Element.Update,
@@ -45,6 +70,8 @@ public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
         solvable: Bool = true
     )
 
+    /// The identifier of the `Element` this change is about.
+    /// - Note: In the case of an `idChange` this property returns the "base" ``DeltaIdentifier``.
     public var id: DeltaIdentifier {
         switch self {
         case let .idChange(from, _, _, _, _):
@@ -58,6 +85,7 @@ public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
         }
     }
 
+    /// The breaking classification of the change.
     public var breaking: Bool {
         switch self {
         case let .idChange(_, _, _, breaking, _):
@@ -71,6 +99,7 @@ public enum Change<Element: ChangeableElement>: AnyChange, Equatable {
         }
     }
 
+    /// The solvable classification of the change.
     public var solvable: Bool {
         switch self {
         case let .idChange(_, _, _, _, solvable):
@@ -138,11 +167,26 @@ extension Change: Codable {
                 solvable: try container.decode(Bool.self, forKey: .solvable)
             )
         case .update:
+            let id = try container.decode(DeltaIdentifier.self, forKey: .id)
+            let updated = try container.decode(Element.Update.self, forKey: .updated)
+            let breaking: Bool
+            let solvable: Bool
+
+            if let nestedChange = updated as? UpdateChangeWithNestedChange,
+               let nestedBreaking = nestedChange.nestedBreakingClassification,
+               let nestedSolvable = nestedChange.nestedSolvableClassification {
+                breaking = nestedBreaking
+                solvable = nestedSolvable
+            } else {
+                breaking = try container.decode(Bool.self, forKey: .breaking)
+                solvable = try container.decode(Bool.self, forKey: .solvable)
+            }
+
             self = .update(
-                id: try container.decode(DeltaIdentifier.self, forKey: .id),
-                updated: try container.decode(Element.Update.self, forKey: .updated),
-                breaking: try container.decode(Bool.self, forKey: .breaking),
-                solvable: try container.decode(Bool.self, forKey: .solvable)
+                id: id,
+                updated: updated,
+                breaking: breaking,
+                solvable: solvable
             )
         }
     }
@@ -176,14 +220,17 @@ extension Change: Codable {
             try container.encode(breaking, forKey: .breaking)
             try container.encode(solvable, forKey: .solvable)
         case let .update(id, updated, breaking, solvable):
-            // TODO do not encode breaking/solvable if nested update?
-            //   those are not encoded if the Update VALUE already contains those(?)
             try container.encode(ChangeType.update, forKey: .type)
 
             try container.encode(id, forKey: .id)
             try container.encode(updated, forKey: .updated)
-            try container.encode(breaking, forKey: .breaking)
-            try container.encode(solvable, forKey: .solvable)
+            if let nestedChange = updated as? UpdateChangeWithNestedChange,
+               nestedChange.isNestedChange {
+                // do nothing
+            } else {
+                try container.encode(breaking, forKey: .breaking)
+                try container.encode(solvable, forKey: .solvable)
+            }
         }
     }
 }

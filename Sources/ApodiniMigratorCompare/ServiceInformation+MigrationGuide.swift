@@ -9,6 +9,8 @@
 import Foundation
 
 public extension ServiceInformation {
+    /// Retrieve the `ExporterConfiguration` if its present.
+    /// This method considers updates of the supplied ``MigrationGuide`` (e.g. if a ExporterConfiguration was removed in the update `APIDocument`).
     func exporterIfPresent<Exporter: ExporterConfiguration>(
         for type: Exporter.Type = Exporter.self,
         migrationGuide: MigrationGuide

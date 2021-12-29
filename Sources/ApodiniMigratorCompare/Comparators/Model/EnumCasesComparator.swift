@@ -56,7 +56,7 @@ struct EnumCasesComparator: Comparator {
 
         for matched in matchedIds {
             if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
-               let rhs = rhs.first(where: { $0.deltaIdentifier == matched}),
+               let rhs = rhs.first(where: { $0.deltaIdentifier == matched }),
                lhs.rawValue != rhs.rawValue {
                 results.append(.update(
                     id: lhs.deltaIdentifier,

@@ -8,6 +8,8 @@
 
 import Foundation
 
+/// ``Change`` type which is related to an `EndpointIdentifier`.
+/// `.update` changes are encoded as `EndpointIdentifierUpdateChange`.
 public typealias EndpointIdentifierChange = Change<AnyEndpointIdentifier>
 
 extension AnyEndpointIdentifier: ChangeableElement {

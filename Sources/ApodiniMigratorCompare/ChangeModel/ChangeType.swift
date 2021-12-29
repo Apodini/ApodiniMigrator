@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// One to one mapping of enum cases of the ``Change`` type.
 public enum ChangeType: String, Codable {
     case idChange
     case addition
@@ -17,6 +18,7 @@ public enum ChangeType: String, Codable {
 
 // MARK: ChangeType
 extension Change {
+    /// Retrieve the type of change.
     public var type: ChangeType {
         switch self {
         case .idChange:

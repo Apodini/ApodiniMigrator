@@ -7,6 +7,8 @@
 
 import Foundation
 
+/// ``Change`` type which is related to an `Endpoint`.
+/// `.update` changes are encoded as ``EndpointUpdateChange``.
 public typealias EndpointChange = Change<Endpoint>
 
 extension Endpoint: ChangeableElement {
@@ -14,25 +16,62 @@ extension Endpoint: ChangeableElement {
 }
 
 public enum EndpointUpdateChange: Equatable {
-    /// type: see ``EndpointIdentifier``
+    /// Describes an update change related to `EndpointIdentifier`s (e.g. Operation, Path or HandlerName).
+    /// - Parameters:
+    ///   - identifier: The ``EndpointIdentifierChange``.
     case identifier(identifier: EndpointIdentifierChange)
 
+    /// Describes an update to the `CommunicationalPattern` of the `Endpoint`.
     case communicationalPattern(
         from: CommunicationalPattern,
         to: CommunicationalPattern
     )
 
-    // TODO look into response changes coming from renamings!
+    /// Describes an update to the response type of the `Endpoint`.
+    /// - Parameters:
+    ///   - from: The original `TypeInformation`.
+    ///   - to: The updated `TypeInformation`.
+    ///   - backwardsMigration: An integer identifier to a json script which provides backwards migration between those types.
+    ///   - migrationWarning: An optional textual warning for the migration.
+    /// - Note: The TypeInformation are either some sort of `.reference` type (e.g. also repeated types) or a `.scalar`.
     case response(
         from: TypeInformation,
-        to: TypeInformation, // TODO annotate: reference or scalar
+        to: TypeInformation,
         backwardsMigration: Int,
         migrationWarning: String? = nil
     )
 
+    /// Describes an update to a parameter of the `Endpoint`.
     case parameter(
         parameter: ParameterChange
     )
+}
+
+extension EndpointUpdateChange: UpdateChangeWithNestedChange {
+    public var isNestedChange: Bool {
+        if case .parameter = self {
+            return true
+        }
+        return false
+    }
+
+    public var nestedBreakingClassification: Bool? { // swiftlint:disable:this discouraged_optional_boolean
+        switch self {
+        case let .parameter(parameter):
+            return parameter.breaking
+        default:
+            return nil
+        }
+    }
+
+    public var nestedSolvableClassification: Bool? { // swiftlint:disable:this discouraged_optional_boolean
+        switch self {
+        case let .parameter(parameter):
+            return parameter.solvable
+        default:
+            return nil
+        }
+    }
 }
 
 extension EndpointUpdateChange: Codable {

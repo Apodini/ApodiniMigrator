@@ -41,7 +41,6 @@ struct ParameterComparator: Comparator {
         // by using `buildString` we exclude the target name from the comparison. We don't care about
         // migrations happening on target level (e.g. moving models between targets).
         if lhs.typeInformation.typeName.buildName() != rhs.typeInformation.typeName.buildName() {
-        // TODO if typesNeedConvert(lhs: lhsType, rhs: rhsType) {
             let jsScriptBuilder = JSScriptBuilder(from: lhs.typeInformation, to: rhs.typeInformation, context: context)
             let migrationId = context.store(script: jsScriptBuilder.convertFromTo)
 

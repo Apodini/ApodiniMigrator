@@ -8,6 +8,8 @@
 
 import Foundation
 
+/// The `ChangeComparisonContext` tracks changes within comparison operations.
+/// The entry point for `APIDocument` comparison is the ``DocumentComparator``.
 public final class ChangeComparisonContext {
     /// The configuration used when comparing two `APIDocument`s.
     public let configuration: CompareConfiguration
@@ -21,8 +23,11 @@ public final class ChangeComparisonContext {
     /// All json representations of objects that had some kind of breaking change in their properties
     public private(set) var objectJSONs: [String: JSONValue] = [:]
 
+    /// Stores all collected ``ServiceInformationChange``s.
     public var serviceChanges: [ServiceInformationChange] = []
+    /// Stores all collected ``ModelChange``s.
     public var modelChanges: [ModelChange] = []
+    /// Stores all collected ``EndpointChange``s.
     public var endpointChanges: [EndpointChange] = []
 
     init(configuration: CompareConfiguration? = nil, latestModels: [TypeInformation] = []) {

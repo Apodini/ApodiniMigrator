@@ -82,7 +82,6 @@ struct ObjectPropertiesComparator: Comparator {
         let lhsType = lhs.type
         let rhsType = rhs.type
 
-        // TODO if sameNestedTypes(lhs: lhsType, rhs: rhsType), lhs.necessity != rhs.necessity
         if lhsType.typeName == rhsType.typeName && lhs.necessity != rhs.necessity {
             let currentLhsType = context.currentVersion(of: lhsType)
             let jsonValue = JSONValue(JSONStringBuilder.jsonString(currentLhsType.unwrapped, with: context.configuration.encoderConfiguration))
@@ -98,7 +97,6 @@ struct ObjectPropertiesComparator: Comparator {
             ))
         }
 
-        // TODO else if typesNeedConvert(lhs: lhsType, rhs: rhsType)
         if lhsType.typeName != rhsType.typeName {
             let jsScriptBuilder = JSScriptBuilder(from: lhsType, to: rhsType, context: context)
 

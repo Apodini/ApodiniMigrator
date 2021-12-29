@@ -8,20 +8,23 @@
 
 import Foundation
 
+/// ``Change`` type which is related to an `EnumCase`.
+/// `.update` changes are encoded as ``EnumCaseUpdateChange``.
 public typealias EnumCaseChange = Change<EnumCase>
 
 extension EnumCase: ChangeableElement {
     public typealias Update = EnumCaseUpdateChange
 }
 
-public enum EnumCaseUpdateChange {
-    case rawValue( // TODO string vs int?
+public enum EnumCaseUpdateChange: Equatable {
+    /// Describes an update of the raw **value**
+    case rawValue(
         from: String,
         to: String
     )
 }
 
-extension EnumCaseUpdateChange: Codable, Equatable {
+extension EnumCaseUpdateChange: Codable {
     private enum UpdateType: String, Codable {
         case rawValue
     }

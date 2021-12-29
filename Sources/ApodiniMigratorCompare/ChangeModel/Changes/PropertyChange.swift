@@ -8,6 +8,8 @@
 
 import Foundation
 
+/// ``Change`` type which is related to a `TypeProperty`.
+/// `.update` changes are encoded as ``PropertyUpdateChange``.
 public typealias PropertyChange = Change<TypeProperty>
 
 extension TypeProperty: ChangeableElement {
@@ -15,12 +17,14 @@ extension TypeProperty: ChangeableElement {
 }
 
 public enum PropertyUpdateChange: Equatable {
+    /// Describes an update to the property necessity.
     case necessity(
         from: Necessity,
         to: Necessity,
         necessityMigration: Int
     )
 
+    /// Describes an update to the property type.
     case type(
         from: TypeInformation,
         to: TypeInformation,

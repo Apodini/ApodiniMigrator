@@ -52,7 +52,6 @@ struct EndpointComparator: Comparator {
         // by using `buildString` we exclude the target name from the comparison. We don't care about
         // migrations happening on target level (e.g. moving models between targets).
         if lhs.response.typeName.buildName() != rhs.response.typeName.buildName() {
-        // TODO if typesNeedConvert(lhs: lhsResponse, rhs: rhsResponse)
             let jsScriptBuilder = JSScriptBuilder(from: lhs.response, to: rhs.response, context: context)
             let migrationId = context.store(script: jsScriptBuilder.convertToFrom)
 

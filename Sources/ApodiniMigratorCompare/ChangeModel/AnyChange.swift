@@ -8,13 +8,20 @@
 
 import Foundation
 
+/// Represents any change. Protocol for ``Change``.
 public protocol AnyChange {
+    /// The type of element this change is about.
     associatedtype Element: ChangeableElement
 
+    /// The ``DeltaIdentifier`` of the instance of the changed element.
     var id: DeltaIdentifier { get }
+    /// The ``ChangeType``. This maps to cases in the ``Change`` type.
     var type: ChangeType { get }
 
+    /// Breaking classification of the change.
     var breaking: Bool { get }
+    /// Solvable (by the Migrator) classification of the change.
+    /// This classification might be inaccurate, as the classification is heavily dependent on the api type.
     var solvable: Bool { get }
 }
 
@@ -28,6 +35,8 @@ fileprivate extension AnyChange {
 }
 
 public extension Array where Element: AnyChange {
+    /// Retrieves all changes from an array of ``Change``es for a given instance.
+    /// - Parameter element: The instance to filter for changes.
     func of(base element: Element.Element) -> [Element] {
         self.filter { $0.id == element.deltaIdentifier }
     }

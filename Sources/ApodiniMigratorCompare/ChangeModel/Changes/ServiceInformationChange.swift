@@ -8,6 +8,8 @@
 
 import Foundation
 
+/// ``Change`` type which is related to the `ServiceInformation`
+/// `.update` changes are encoded as ``ServiceInformationUpdateChange``.
 public typealias ServiceInformationChange = Change<ServiceInformation>
 
 extension ServiceInformation: ChangeableElement {
@@ -15,16 +17,19 @@ extension ServiceInformation: ChangeableElement {
 }
 
 public enum ServiceInformationUpdateChange: Equatable {
+    /// Defines an update to the service `Version`.
     case version(
         from: Version,
         to: Version
     )
 
+    /// Defines an update to the `HTTPInformation` of the service.
     case http(
         from: HTTPInformation,
         to: HTTPInformation
     )
 
+    /// Defines an update of the `ExporterConfiguration` of the service.
     case exporter(exporter: ExporterConfigurationChange)
 }
 

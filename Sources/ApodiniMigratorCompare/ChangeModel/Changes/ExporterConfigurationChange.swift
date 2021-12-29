@@ -8,6 +8,8 @@
 
 import Foundation
 
+/// ``Change`` type which is related to an `ExporterConfiguration`.
+/// `.update` changes are encoded as ``ExporterConfigurationUpdateChange``.
 public typealias ExporterConfigurationChange = Change<AnyExporterConfiguration>
 
 extension AnyExporterConfiguration: ChangeableElement {

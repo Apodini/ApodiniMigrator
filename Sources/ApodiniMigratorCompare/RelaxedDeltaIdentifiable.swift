@@ -129,8 +129,8 @@ extension TypeName: RelaxedDeltaIdentifiable {
 
 extension TypeInformation: DeltaIdentifiable {
     public var deltaIdentifier: DeltaIdentifier {
-        if case let .reference(key) = self {
-            return .init(key.rawValue)
+        if case .reference = self {
+            fatalError("Cannot retrieve the deltaIdentifier of a .reference!")
         }
         return typeName.deltaIdentifier
     }

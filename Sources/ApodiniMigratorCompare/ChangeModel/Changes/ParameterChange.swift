@@ -8,6 +8,8 @@
 
 import Foundation
 
+/// ``Change`` type which is related to a `Parameter`.
+/// `.update` changes are encoded as ``ParameterUpdateChange``.
 public typealias ParameterChange = Change<Parameter>
 
 extension Parameter: ChangeableElement {
@@ -15,20 +17,23 @@ extension Parameter: ChangeableElement {
 }
 
 public enum ParameterUpdateChange: Equatable {
+    /// Describes an update of the `ParameterType`
     case parameterType(
         from: ParameterType,
         to: ParameterType
     )
 
+    /// Describes an update of the parameter `Necessity`.
     case necessity(
         from: Necessity,
         to: Necessity,
         necessityMigration: Int?
     )
 
+    /// Describes an update of the parameter type.
     case type(
         from: TypeInformation,
-        to: TypeInformation, // TODO annotate: reference or scalar
+        to: TypeInformation,
         forwardMigration: Int,
         conversionWarning: String?
     )
