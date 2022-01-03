@@ -86,7 +86,7 @@ public class SwiftPackageFile: GeneratedFile {
         """
         Indent {
             Joined(by: ",") {
-                "name: \(Placeholder.packageName)"
+                "name: \"\(Placeholder.packageName)\""
 
                 if !platforms.isEmpty {
                     "platforms: ["

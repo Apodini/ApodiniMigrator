@@ -74,9 +74,9 @@ extension URLRequest {
         
         if let authorization = handler.authorization {
             switch authorization.location {
-            ____SKIP____case .cookie, .header:
+            case .cookie, .header:
                 authorization.inject(into: &headers)
-            ____SKIP____case .query:
+            case .query:
                 let query = "\(url?.query != nil ? "&" : "?")\(authorization.query)"
                 url?.appendPathComponent(query)
             }
