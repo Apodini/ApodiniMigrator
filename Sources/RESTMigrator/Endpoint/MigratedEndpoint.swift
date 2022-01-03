@@ -44,13 +44,7 @@ class MigratedEndpoint {
             let typeString = parameter.oldType.unsafeTypeString + (parameter.necessity == .optional ? "?" : "")
             var parameterSignature = "\(parameter.oldName): \(typeString)"
             if let defaultValue = parameter.defaultValue {
-                let defaultValueString: String
-                if case let id = defaultValue {
-                    defaultValueString = "try! \(typeString).instance(from: \(id))"
-                } else {
-                    defaultValueString = "nil"
-                }
-                parameterSignature += " = \(defaultValueString)"
+                parameterSignature += " = try! \(typeString).instance(from: \(defaultValue))"
             }
             
             return parameterSignature
