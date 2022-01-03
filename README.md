@@ -20,7 +20,7 @@ SPDX-License-Identifier: MIT
 [![Build and Test](https://github.com/Apodini/ApodiniMigrator/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/build-and-test.yml)
 [![codecov](https://codecov.io/gh/Apodini/ApodiniMigrator/branch/develop/graph/badge.svg?token=5MMKMPO5NR)](https://codecov.io/gh/Apodini/ApodiniMigrator)
 
-`ApodiniMigrator` is a Swift package that performs several automated tasks, to migrate client applications after a Web Service publishes a new version that contains breaking changes. The tasks include automated generation of an intermediary client library that contains all required components to establish a client-server communication. Furthermore, `ApodiniMigrator` is able to automatically generate a machine-readable migration guide in either `json` or `yaml` format, that describes the changes between two subsequent Web API versions, and includes auxiliary migrating actions. By means of the migration guide, `ApodiniMigrator` can automatically migrate the intermadiary client library, ensuring therefore the compatibility with the new Web API version. It is part of [**Apodini**](https://github.com/Apodini/Apodini), a composable framework to build Web Services in using Swift.
+`ApodiniMigrator` is a Swift package that performs several automated tasks, to migrate client applications after a Web Service publishes a new version that contains breaking changes. The tasks include automated generation of an intermediary client library that contains all required components to establish a client-server communication. Furthermore, `ApodiniMigrator` is able to automatically generate a machine-readable migration guide in either `json` or `yaml` format, that describes the changes between two subsequent Web API versions, and includes auxiliary migrating actions. By means of the migration guide, `ApodiniMigrator` can automatically migrate the intermediary client library, ensuring therefore the compatibility with the new Web API version. It is part of [**Apodini**](https://github.com/Apodini/Apodini), a composable framework to build Web Services in using Swift.
 
 ## Requirements
 
@@ -168,7 +168,7 @@ info org.apodini.migrator : Starting generation of the migration guide...
 info org.apodini.migrator : Migration guide was generated successfully at /path/to/ApodiniMigrator/Resources/ExampleDocuments/migration_guide.json.
 ```
 
-Once the migration guide has been generate, use `migrate` argument to migrate the initial library:
+Once the migration guide has been generated, use `migrate` argument to migrate the initial library:
 
 ```console
 $ ./migrator migrate
@@ -185,7 +185,7 @@ info org.apodini.migrator : Package QONECTIQ was migrated successfully. You can 
 ```
 
 ## Contributing
-Contributions to this projects are welcome. Please make sure to read the [contribution guidelines](https://github.com/Apodini/.github/blob/release/CONTRIBUTING.md) first.
+Contributions to the projects are welcome. Please make sure to read the [contribution guidelines](https://github.com/Apodini/.github/blob/release/CONTRIBUTING.md) first.
 
 ## License
 This project is licensed under the MIT License. See [License](https://github.com/Apodini/ApodiniMigrator/blob/develop/LICENSES) for more information.
