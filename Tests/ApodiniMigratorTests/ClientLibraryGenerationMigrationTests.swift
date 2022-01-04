@@ -7,26 +7,26 @@
 //
 
 import XCTest
-@testable import ApodiniMigrator
+@testable import RESTMigrator
 
 final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     func testV1LibraryGeneration() throws {
-        let document = try Documents.v1.instance() as Document
-        let migrator = XCTAssertNoThrowWithResult(try Migrator(
-            packageName: "QONECTIQ",
-            packagePath: testDirectory,
-            documentPath: Documents.v1.path.string
+        let document = try Documents.v1.decodedContent() as APIDocument
+        let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
+            documentPath: Documents.v1.bundlePath.string
         ))
         
-        XCTAssertNoThrow(try migrator.run())
+        XCTAssertNoThrow(try migrator.run(packageName: "QONECTIQ", packagePath: testDirectory))
         
         let swiftFiles = try testDirectoryPath.recursiveSwiftFiles().map { $0.lastComponent }
                 
-        let modelNames = document.allModels().map { $0.typeString + .swift }
+        let modelNames = document.models.map { $0.typeString + .swift }
         
         modelNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
-        let endpointFileNames = document.endpoints.map { $0.response.nestedTypeString + "+Endpoint" + .swift }.unique()
+        let endpointFileNames = document.endpoints
+                .map { $0.response.nestedTypeString + "+Endpoint" + .swift }
+                .unique()
         
         endpointFileNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
@@ -36,22 +36,22 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testV2LibraryGeneration() throws {
-        let document = try Documents.v2.instance() as Document
-        let migrator = XCTAssertNoThrowWithResult(try Migrator(
-            packageName: "QONECTIQ",
-            packagePath: testDirectory,
-            documentPath: Documents.v2.path.string
+        let document = try Documents.v2.decodedContent() as APIDocument
+        let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
+            documentPath: Documents.v2.bundlePath.string
         ))
         
-        XCTAssertNoThrow(try migrator.run())
+        XCTAssertNoThrow(try migrator.run(packageName: "QONECTIQ", packagePath: testDirectory))
         
         let swiftFiles = try testDirectoryPath.recursiveSwiftFiles().map { $0.lastComponent }
                 
-        let modelNames = document.allModels().map { $0.typeString + .swift }
+        let modelNames = document.models.map { $0.typeString + .swift }
         
         modelNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
-        let endpointFileNames = document.endpoints.map { $0.response.nestedTypeString + "+Endpoint" + .swift }.unique()
+        let endpointFileNames = document.endpoints
+                .map { $0.response.nestedTypeString + "+Endpoint" + .swift }
+                .unique()
         
         endpointFileNames.forEach { XCTAssert(swiftFiles.contains($0)) }
         
@@ -61,37 +61,48 @@ final class ClientLibraryGenerationMigrationTests: ApodiniMigratorXCTestCase {
     }
     
     func testMigratorThrowIncompatibleMigrationGuide() throws {
-        let migrationGuide = try Documents.migrationGuide.instance() as MigrationGuide
-        XCTAssertThrows(try Migrator(packageName: "Test", packagePath: testDirectory, documentPath: Documents.v2.path.string, migrationGuide: migrationGuide))
+        XCTAssertThrows(try RESTMigrator(
+            documentPath: Documents.v2.bundlePath.string,
+            migrationGuidePath: Documents.migrationGuide.bundlePath.string
+        ))
     }
     
     func testPackageMigration() throws {
-        let migrationGuide = try MigrationGuide.decode(from: try Documents.migrationGuide.data())
-        let migrator = XCTAssertNoThrowWithResult(try Migrator(
-            packageName: "TestMigPackage",
-            packagePath: testDirectory,
-            documentPath: Documents.v1.path.string,
-            migrationGuide: migrationGuide
+        let migrator = XCTAssertNoThrowWithResult(try RESTMigrator(
+            documentPath: Documents.v1.bundlePath.string,
+            migrationGuidePath: Documents.migrationGuide.bundlePath.string
         ))
         
-        XCTAssertNoThrow(try migrator.run())
-        XCTAssert(try testDirectoryPath.recursiveSwiftFiles().isNotEmpty)
+        XCTAssertNoThrow(try migrator.run(packageName: "TestMigPackage", packagePath: testDirectory))
+        XCTAssertEqual(try testDirectoryPath.recursiveSwiftFiles().isEmpty, false)
     }
     
     func testMigrationGuideThrowing() throws {
-        XCTAssertThrows(try MigrationGuide.from(Path(#file), .init(.endpoints)))
+        XCTAssertThrows(try MigrationGuide.from(Path(#file), .init("Endpoints")))
         XCTAssertThrows(try MigrationGuide.from("", ""))
     }
     
-    func testMigrationGuideGeneration() throws {
-        let doc1 = try Documents.v1.instance() as Document
-        let doc2 = try Documents.v2.instance() as Document
+    func testMigrationGuideGenerationYAML() throws {
+        let doc1 = try Documents.v1.decodedContent() as APIDocument
+        let doc2 = try Documents.v2.decodedContent() as APIDocument
         
         let migrationGuide = MigrationGuide(for: doc1, rhs: doc2)
         try (testDirectoryPath + "migration_guide.yaml").write(migrationGuide.yaml)
 
         let decoded = try MigrationGuide.decode(from: testDirectoryPath + "migration_guide.yaml")
-        XCTAssertEqual(decoded, migrationGuide)
-        XCTAssertNotEqual(decoded, .empty)
+        XCTAssert(decoded == migrationGuide)
+        XCTAssert(decoded != .empty())
+    }
+
+    func testMigrationGuideGenerationJSON() throws {
+        let doc1 = try Documents.v1.decodedContent() as APIDocument
+        let doc2 = try Documents.v2.decodedContent() as APIDocument
+
+        let migrationGuide = MigrationGuide(for: doc1, rhs: doc2)
+        try (testDirectoryPath + "migration_guide.json").write(migrationGuide.json)
+
+        let decoded = try MigrationGuide.decode(from: testDirectoryPath + "migration_guide.json")
+        XCTAssert(decoded == migrationGuide)
+        XCTAssert(decoded != .empty())
     }
 }

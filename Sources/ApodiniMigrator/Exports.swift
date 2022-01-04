@@ -6,8 +6,5 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Foundation
-
-@_exported import ApodiniMigratorCore
+@_exported import PathKit
 @_exported import ApodiniMigratorCompare
-@_exported import ApodiniMigratorShared

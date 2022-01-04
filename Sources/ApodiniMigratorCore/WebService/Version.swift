@@ -60,9 +60,14 @@ public struct Version: Value {
         let container = try decoder.singleValueContainer()
         let string = try container.decode(String.self)
         
-        let components = string.split(string: "_")
+        let components = string
+            .split(separator: "_")
+            .map { String($0) }
         let prefix = components.first
-        let numbers = components.last?.split(string: ".")
+        let numbers = components
+            .last?
+            .split(separator: ".")
+            .map { String($0) }
         
         if
             let prefix = prefix,

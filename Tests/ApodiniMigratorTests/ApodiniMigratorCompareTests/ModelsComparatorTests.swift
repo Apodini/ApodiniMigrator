@@ -11,8 +11,15 @@ import XCTest
 @testable import ApodiniMigratorCompare
 
 final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
+    var modelChanges = [ModelChange]()
+
+    override func tearDownWithError() throws {
+        try super.tearDownWithError()
+        modelChanges.removeAll()
+    }
+
     let user: TypeInformation = .object(
-        name: .init(name: "User"),
+        name: .init(rawValue: "User"),
         properties: [
             .init(name: "id", type: .scalar(.uuid)),
             .init(name: "name", type: .scalar(.string)),
@@ -22,11 +29,11 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
     )
     
     var renamedUser: TypeInformation {
-        .object(name: .init(name: "UserNew"), properties: user.objectProperties)
+        .object(name: .init(rawValue: "UserNew"), properties: user.objectProperties)
     }
     
     let programmingLanguages: TypeInformation = .enum(
-        name: .init(name: "ProgLang"),
+        name: .init(rawValue: "ProgLang"),
         rawValueType: .scalar(.string),
         cases: [
             .init("swift"),
@@ -38,98 +45,100 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
     
     override func setUp() {
         super.setUp()
-        
-        node = ChangeContextNode(compareConfiguration: .active)
+
+        comparisonContext = ChangeComparisonContext(configuration: .active)
     }
     
-    func testNoModelsChange() throws {
-        let modelsComparator = ModelsComparator(lhs: [user, programmingLanguages], rhs: [programmingLanguages, user], changes: node, configuration: .default)
-        modelsComparator.compare()
-        XCTAssert(node.isEmpty)
+    func testModelComparatorCommutativity() throws {
+        let comparator = ModelsComparator(lhs: [user, programmingLanguages], rhs: [programmingLanguages, user])
+        comparator.compare(comparisonContext, &modelChanges)
+        XCTAssert(modelChanges.isEmpty)
     }
     
     func testModelDeleted() throws {
-        let modelsComparator = ModelsComparator(lhs: [user, programmingLanguages], rhs: [user], changes: node, configuration: .default)
-        modelsComparator.compare()
-        XCTAssert(node.changes.count == 1)
-        let deleteChange = try XCTUnwrap(node.changes.first as? DeleteChange)
-        
-        XCTAssert(deleteChange.element == .enum(programmingLanguages.deltaIdentifier, target: .`self`))
-        XCTAssert(!deleteChange.breaking)
-        XCTAssert(!deleteChange.solvable)
-        XCTAssert(deleteChange.fallbackValue == .none)
-        XCTAssert(deleteChange.providerSupport == .renameHint(DeleteChange.self))
-        if let providerSupport = deleteChange.providerSupport {
-            let decodedInstance = XCTAssertNoThrowWithResult(try ProviderSupport.decode(from: providerSupport.json))
-            XCTAssert(decodedInstance == deleteChange.providerSupport)
-            XCTAssertNoThrow(try ProviderSupport.decode(from: "{}"))
-        }
+        let comparator = ModelsComparator(lhs: [user, programmingLanguages], rhs: [user])
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, programmingLanguages.deltaIdentifier)
+        XCTAssertEqual(change.type, .removal)
+        XCTAssertEqual(change.breaking, false)
+        XCTAssertEqual(change.solvable, false)
+
+        let removalChange = try XCTUnwrap(change.modeledRemovalChange)
+        XCTAssertEqual(removalChange.removed, nil)
+        XCTAssertEqual(removalChange.fallbackValue, nil)
     }
     
     func testModelAdded() throws {
-        let modelsComparator = ModelsComparator(lhs: [user], rhs: [user, programmingLanguages], changes: node, configuration: .default)
-        modelsComparator.compare()
-        XCTAssert(node.changes.count == 1)
-        let addChange = try XCTUnwrap(node.changes.first as? AddChange)
-        
-        XCTAssert(addChange.element == .enum(programmingLanguages.deltaIdentifier, target: .`self`))
-        XCTAssert(!addChange.breaking)
-        XCTAssert(addChange.providerSupport == .renameHint(AddChange.self))
-        XCTAssert(addChange.solvable)
-    
-        if case let .element(codable) = addChange.added {
-            XCTAssert(codable.typed(TypeInformation.self) == programmingLanguages)
-        } else {
-            XCTFail("Added enumeration was not stored in the change object")
-        }
+        let comparator = ModelsComparator(lhs: [user], rhs: [user, programmingLanguages])
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, programmingLanguages.deltaIdentifier)
+        XCTAssertEqual(change.type, .addition)
+        XCTAssertEqual(change.breaking, false)
+        XCTAssertEqual(change.solvable, true)
+
+        let additionChange = try XCTUnwrap(change.modeledAdditionChange)
+        XCTAssertEqual(additionChange.added, programmingLanguages)
     }
     
     func testModelRenamed() throws {
-        let endpointsComparator = ModelsComparator(lhs: [user], rhs: [renamedUser], changes: node, configuration: .default)
-        endpointsComparator.compare()
-        XCTAssert(node.changes.count == 1)
-        let renameChange = try XCTUnwrap(node.changes.first as? UpdateChange)
-        let providerSupport = try XCTUnwrap(renameChange.providerSupport)
-        
-        XCTAssert(renameChange.element == .object(user.deltaIdentifier, target: .typeName))
-        XCTAssert(!renameChange.breaking)
-        XCTAssert(renameChange.solvable)
-        XCTAssert(renameChange.type == .rename)
-        XCTAssert(providerSupport == .renameValidationHint)
-        
-        if case let .stringValue(value) = renameChange.to, let similarity = renameChange.similarity {
-            XCTAssert(value == "UserNew")
-            XCTAssert(similarity > 0.5)
-        } else {
-            XCTFail("Rename change did not store the updated string value of the new type name")
-        }
+        let comparator = ModelsComparator(lhs: [user], rhs: [renamedUser])
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, user.deltaIdentifier)
+        XCTAssertEqual(change.type, .idChange)
+        XCTAssertEqual(change.breaking, false)
+        XCTAssertEqual(change.solvable, true)
+
+        let idChange = try XCTUnwrap(change.modeledIdentifierChange)
+        XCTAssertEqual(idChange.to, "UserNew")
+        XCTAssert(try XCTUnwrap(idChange.similarity) > 0.5)
     }
     
     func testJSObjectScriptForRenamedType() {
-        let obj1: TypeInformation = .object(name: .init(name: "Test"), properties: [.init(name: "prop1", type: user)])
-        let obj2: TypeInformation = .object(name: .init(name: "Test"), properties: [.init(name: "prop1", type: renamedUser)])
-        let comp2 = ModelsComparator(lhs: [obj1, user], rhs: [obj2, renamedUser], changes: node, configuration: .default)
-        comp2.compare()
-        
-        let scriptBuilder = JSObjectScript(from: obj1, to: obj2, changes: node, encoderConfiguration: .default)
+        let obj1: TypeInformation = .object(name: .init(rawValue: "Test"), properties: [.init(name: "prop1", type: user)])
+        let obj2: TypeInformation = .object(name: .init(rawValue: "Test"), properties: [.init(name: "prop1", type: renamedUser)])
+
+        let comparator = ModelsComparator(lhs: [obj1, user], rhs: [obj2, renamedUser])
+        comparator.compare(comparisonContext, &modelChanges)
+        comparisonContext.modelChanges = modelChanges
+
+        let scriptBuilder = JSObjectScript(from: obj1, to: obj2, context: comparisonContext)
         XCTAssert(scriptBuilder.convertFromTo.rawValue.contains("'prop1': parsedFrom.prop1"))
         XCTAssert(scriptBuilder.convertToFrom.rawValue.contains("'prop1': parsedTo.prop1"))
     }
     
     func testUnsupportedTypeChange() throws {
         let changedUser: TypeInformation = .enum(
-            name: .init(name: "User"),
+            name: .init(rawValue: "User"),
             rawValueType: .scalar(.string),
             cases: []
         )
-        let endpointsComparator = ModelsComparator(lhs: [user], rhs: [changedUser], changes: node, configuration: .default)
-        endpointsComparator.compare()
-        XCTAssert(node.changes.count == 1)
-        
-        let change = try XCTUnwrap(node.changes.first as? UnsupportedChange)
-        XCTAssert(change.element == .object(user.deltaIdentifier, target: .`self`))
-        XCTAssertEqual(change.type, .unsupported)
-        XCTAssert(change.breaking)
-        XCTAssert(!change.solvable)
+
+        let comparator = ModelsComparator(lhs: [user], rhs: [changedUser])
+        comparator.compare(comparisonContext, &modelChanges)
+
+        XCTAssertEqual(modelChanges.count, 1)
+        let change = try XCTUnwrap(modelChanges.first)
+        XCTAssertEqual(change.id, user.deltaIdentifier)
+        XCTAssertEqual(change.type, .update)
+        XCTAssertEqual(change.breaking, true)
+        XCTAssertEqual(change.solvable, false)
+
+        let updateChange = try XCTUnwrap(change.modeledUpdateChange)
+        if case let .rootType(from, to, newModel) = updateChange.updated {
+            XCTAssertEqual(from, .object)
+            XCTAssertEqual(to, .enum)
+            XCTAssertEqual(newModel, changedUser)
+        } else {
+            XCTFail("Encountered unexpected update change: \(updateChange)")
+        }
     }
 }

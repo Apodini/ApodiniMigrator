@@ -7,13 +7,14 @@
 //
 
 import XCTest
+@testable import RESTMigrator
 @testable import ApodiniMigrator
 @testable import ApodiniMigratorCompare
 import PathKit
 
 final class EnumMigratorTests: ApodiniMigratorXCTestCase {
     let enumeration: TypeInformation = .enum(
-        name: .init(name: "ProgLang"),
+        name: .init(rawValue: "ProgLang"),
         rawValueType: .scalar(.string),
         cases: [
             .init("swift"),
@@ -26,33 +27,77 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
         ]
     )
     
-    private var addCaseChange: AddChange {
-        .init(
-            element: .enum(enumeration.deltaIdentifier, target: .case),
-            added: .element(EnumCase("go")),
-            defaultValue: .none,
+    private var addCaseChange: ModelChange {
+        .update(
+            id: enumeration.deltaIdentifier,
+            updated: .case(case: .addition(
+                id: "go",
+                added: EnumCase("go"),
+                breaking: false,
+                solvable: true
+            )),
             breaking: false,
             solvable: true
         )
     }
     
-    var deleteCaseChange: DeleteChange {
-        .init(
-            element: .enum(enumeration.deltaIdentifier, target: .case),
-            deleted: .elementID("other"),
-            fallbackValue: .none,
+    var deleteCaseChange: ModelChange {
+        .update(
+            id: enumeration.deltaIdentifier,
+            updated: .case(case: .removal(
+                id: "other",
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
         )
     }
     
-    var renameCaseChange: UpdateChange {
-        .init(
-            element: .enum(enumeration.deltaIdentifier, target: .caseRawValue),
-            from: .element(EnumCase("swift")),
-            to: .element(EnumCase("swiftLang")),
+    var renameCaseChange: ModelChange {
+        .update(
+            id: enumeration.deltaIdentifier,
+            updated: .case(case: .idChange(
+                from: "swift",
+                to: "swiftLang",
+                similarity: nil,
+                breaking: true,
+                solvable: true
+            )),
             breaking: true,
             solvable: true
+        )
+    }
+
+    var updateRawValueChange: ModelChange {
+        .update(
+            id: enumeration.deltaIdentifier,
+            updated: .case(case: .update(
+                id: "swift",
+                updated: .rawValue(from: "swift", to: "swiftLang"),
+                breaking: true,
+                solvable: true
+            )),
+            breaking: true,
+            solvable: true
+        )
+    }
+
+    var deleteEnumChange: ModelChange {
+        .removal(
+            id: enumeration.deltaIdentifier,
+            removed: nil,
+            breaking: true,
+            solvable: true
+        )
+    }
+
+    var unsupportedRawValueChange: ModelChange {
+        .update(
+            id: enumeration.deltaIdentifier,
+            updated: .rawValueType(from: .scalar(.string), to: .scalar(.int)),
+            breaking: true,
+            solvable: false
         )
     }
     
@@ -73,48 +118,39 @@ final class EnumMigratorTests: ApodiniMigratorXCTestCase {
     }
     
     func testEnumAddedCase() throws {
-        let migrator = EnumMigrator(enum: enumeration, changes: [addCaseChange])
+        let migrator = EnumMigrator(enumeration, changes: [addCaseChange])
         
         XCTMigratorAssertEqual(migrator, .enumAddedCase)
     }
     
     func testEnumDeletedCase() throws {
-        let migrator = EnumMigrator(enum: enumeration, changes: [deleteCaseChange])
+        let migrator = EnumMigrator(enumeration, changes: [deleteCaseChange])
         XCTMigratorAssertEqual(migrator, .enumDeletedCase)
     }
+
+    func testCaseRename() throws {
+        let migrator = EnumMigrator(enumeration, changes: [renameCaseChange])
+        XCTMigratorAssertEqual(migrator, .defaultStringEnum)
+    }
     
-    func testEnumRenamedCase() throws {
-        
-        let migrator = EnumMigrator(enum: enumeration, changes: [renameCaseChange])
-        XCTMigratorAssertEqual(migrator, .enumRenamedCase)
+    func testRawValueChange() throws {
+        let migrator = EnumMigrator(enumeration, changes: [updateRawValueChange])
+        XCTMigratorAssertEqual(migrator, .enumRawValue)
     }
     
     func testEnumDeleted() throws {
-        let deletedSelfChange = DeleteChange(
-            element: .enum(enumeration.deltaIdentifier, target: .`self`),
-            deleted: .elementID(enumeration.deltaIdentifier),
-            fallbackValue: .none,
-            breaking: true,
-            solvable: true
-        )
-        
-        let migrator = EnumMigrator(enum: enumeration, changes: [deletedSelfChange])
+        let migrator = EnumMigrator(enumeration, changes: [deleteEnumChange])
         XCTMigratorAssertEqual(migrator, .enumDeletedSelf)
     }
     
     func testEnumUnsupportedChange() throws {
-        let unsupportedChange = UnsupportedChange(
-            element: .enum(enumeration.deltaIdentifier, target: .`self`),
-            description: "Unsupported change! Raw value type changed"
-        )
-        
-        let migrator = EnumMigrator(enum: enumeration, changes: [unsupportedChange])
+        let migrator = EnumMigrator(enumeration, changes: [unsupportedRawValueChange])
         
         XCTMigratorAssertEqual(migrator, .enumUnsupportedChange)
     }
     
     func testEnumMultipleChanges() throws {
-        let migrator = EnumMigrator(enum: enumeration, changes: [addCaseChange, deleteCaseChange, renameCaseChange])
+        let migrator = EnumMigrator(enumeration, changes: [addCaseChange, deleteCaseChange, renameCaseChange, updateRawValueChange])
         XCTMigratorAssertEqual(migrator, .enumMultipleChanges)
     }
 }

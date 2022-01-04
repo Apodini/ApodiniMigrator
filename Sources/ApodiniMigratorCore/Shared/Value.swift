@@ -11,3 +11,5 @@ import Foundation
 /// A protocol that requires conformance to `Codable` and `Hashable` (also `Equatable`),
 /// that most of the objects in `ApodiniMigrator` conform to
 public protocol Value: Codable, Hashable {}
+
+extension Array: Value where Element: Value {}

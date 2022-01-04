@@ -41,10 +41,20 @@ public extension Encodable {
     /// Writes self at the specified path with the defined format
     @discardableResult
     func write(at path: String, outputFormat: OutputFormat = .json, fileName: String? = nil) throws -> String {
-        let location = path.asPath
+        let location = Path(path)
         try location.mkpath()
         let filePath = location + "\(fileName ?? String(describing: Self.self)).\(outputFormat.rawValue)"
         try filePath.write(outputFormat.string(of: self))
         return filePath.absolute().string
+    }
+}
+
+// MARK: - KeyedEncodingContainerProtocol
+extension KeyedEncodingContainerProtocol {
+    /// Only encodes the value if the collection is not empty
+    public mutating func encodeIfNotEmpty<T: Encodable>(_ value: T, forKey key: Key) throws where T: Collection, T.Element: Encodable {
+        if !value.isEmpty {
+            try encode(value, forKey: key)
+        }
     }
 }

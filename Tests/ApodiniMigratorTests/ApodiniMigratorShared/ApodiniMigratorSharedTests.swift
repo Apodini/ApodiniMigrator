@@ -12,15 +12,15 @@ import XCTest
 
 final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
     func testYAMLandJSON() throws {
-        for format in [OutputFormat.yaml, .json] {
-            let document: Document = XCTAssertNoThrowWithResult(try Documents.v1.instance())
-            let path = XCTAssertNoThrowWithResult(try document.write(at: testDirectory, outputFormat: format))
-            XCTAssertThrows(try Document.decode(from: path.asPath + "invalid"))
-            let stringContent = XCTAssertNoThrowWithResult(try path.asPath.read() as String)
-            let documentFromPath = XCTAssertNoThrowWithResult(try Document.decode(from: path.asPath))
-            XCTAssertEqual(document, documentFromPath)
-            XCTAssert(format.string(of: document).isNotEmpty)
-            XCTAssert(stringContent.isNotEmpty)
+        for format in [OutputFormat.json, .yaml] {
+            let document: APIDocument = XCTAssertNoThrowWithResult(try Documents.v1.decodedContent())
+            let path = Path(XCTAssertNoThrowWithResult(try document.write(at: testDirectory, outputFormat: format)))
+            XCTAssertThrows(try APIDocument.decode(from: path + "invalid"))
+            let stringContent = XCTAssertNoThrowWithResult(try path.read() as String)
+            let documentFromPath = XCTAssertNoThrowWithResult(try APIDocument.decode(from: path))
+            XCTAssert(document == documentFromPath)
+            XCTAssertEqual(format.string(of: document).isEmpty, false)
+            XCTAssertEqual(stringContent.isEmpty, false)
         }
     }
     
@@ -138,7 +138,7 @@ final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
         let empty = ""
         XCTAssert(empty.lowerFirst == empty)
         XCTAssert(empty.upperFirst == empty)
-        XCTAssert(empty.lines().first == empty)
+        XCTAssert(empty.components(separatedBy: "\n").first == empty)
         
         let getEventsHandler = "GetEventsHandler"
         let events = "events"
@@ -152,7 +152,7 @@ final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
     func testArray() {
         var numbers = [1, 2, 3, 4, 5, 6, 6, 6, 6, 7]
         let replaced = numbers.replacingOccurrences(ofElement: 6, with: 9)
-        XCTAssert(replaced.filter { $0 == 6 }.isEmpty )
+        XCTAssert(!replaced.contains { $0 == 6 })
         numbers.replacingOccurrences(of: 6, with: 9)
         XCTAssert(numbers == replaced)
     }

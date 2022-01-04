@@ -8,7 +8,7 @@
 
 import Foundation
 import ArgumentParser
-import ApodiniMigrator
+import RESTMigrator
 
 struct Generate: ParsableCommand {
     static var configuration = CommandConfiguration(
@@ -25,18 +25,14 @@ struct Generate: ParsableCommand {
     var documentPath: String
     
     func run() throws {
-        let migrator = ApodiniMigrator.Migrator.self
-        let logger = migrator.logger
+        let logger = RESTMigrator.logger
         
         logger.info("Starting generation of package \(packageName)")
         
         do {
-            let generator = try migrator.init(
-                packageName: packageName,
-                packagePath: targetDirectory,
-                documentPath: documentPath
-            )
-            try generator.run()
+            let migrator = try RESTMigrator(documentPath: documentPath)
+
+            try migrator.run(packageName: packageName, packagePath: targetDirectory)
             logger.info("Package \(packageName) was generated successfully. You can open the package via \(packageName)/Package.swift")
         } catch {
             logger.error("Package generation failed with error: \(error)")

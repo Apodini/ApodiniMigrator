@@ -182,7 +182,7 @@ extension ApodiniMigratorEncodable {
 fileprivate extension String {
     /// A function to be applied on js scripts to retrieve the name of the function
     func functionName() -> String {
-        let dropFunction = without("function ")
+        let dropFunction = replacingOccurrences(of: "function ", with: "")
         
         if let idx = dropFunction.firstIndex(of: "(") {
             return String(dropFunction[dropFunction.startIndex ..< idx])

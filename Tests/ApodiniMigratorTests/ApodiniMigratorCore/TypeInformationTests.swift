@@ -17,6 +17,6 @@ final class TypeInformationTests: ApodiniMigratorXCTestCase {
         let instance = XCTAssertNoThrowWithResult(try TestTypes.Student.decode(from: json))
         XCTAssert(instance.grades.isEmpty)
         XCTAssert(instance.age == 0)
-        XCTAssert(instance.name == "")
+        XCTAssert(instance.name.isEmpty)
     }
 }

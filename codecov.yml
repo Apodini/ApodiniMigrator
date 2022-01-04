@@ -8,6 +8,7 @@
 
 ignore:
 - "Tests"
+- "Sources/ApodiniMigratorCompare/LegacyChangeModel"
 
 codecov:
   require_ci_to_pass: yes

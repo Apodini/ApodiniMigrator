@@ -9,17 +9,18 @@
 import XCTest
 import PathKit
 @testable import ApodiniMigratorCompare
+@testable import RESTMigrator
 @testable import ApodiniMigrator
 
 class ApodiniMigratorXCTestCase: XCTestCase {
-    var node = ChangeContextNode()
+    var comparisonContext = ChangeComparisonContext()
     
     let testDirectory = "./\(UUID().uuidString)"
     var testDirectoryPath: Path {
-        testDirectory.asPath
+        Path(testDirectory)
     }
     
-    private func testTestDirectoryCreated() throws {
+    func testTestDirectoryCreated() throws {
         XCTAssert(testDirectoryPath.exists)
         XCTAssert(try testDirectoryPath.children().isEmpty)
     }
@@ -34,17 +35,17 @@ class ApodiniMigratorXCTestCase: XCTestCase {
     
     override func tearDownWithError() throws {
         try super.tearDownWithError()
-        
-        node = ChangeContextNode()
+
+        comparisonContext = ChangeComparisonContext()
         try testDirectoryPath.delete()
     }
     
-    func XCTAssertNoThrowWithResult<T>(_ expression: @autoclosure () throws -> T) -> T {
-        XCTAssertNoThrow(try expression())
+    func XCTAssertNoThrowWithResult<T>(_ expression: @autoclosure () throws -> T, file: StaticString = #file, line: UInt = #line) -> T {
+        XCTAssertNoThrow(try expression(), file: file, line: line)
         do {
             return try expression()
         } catch {
-            XCTFail(error.localizedDescription)
+            XCTFail(error.localizedDescription, file: file, line: line)
         }
         preconditionFailure("Expression threw an error")
     }
@@ -52,7 +53,7 @@ class ApodiniMigratorXCTestCase: XCTestCase {
     func XCTAssertThrows<T>(_ expression: @autoclosure () throws -> T) {
         let expectation = XCTestExpectation(description: "Expression did throw")
         do {
-            _ = try expression()
+            try _ = expression()
             XCTFail("Expression did not throw")
         } catch {
             expectation.fulfill()
@@ -60,15 +61,32 @@ class ApodiniMigratorXCTestCase: XCTestCase {
     }
     
     func firstNonEqualLine(lhs: String, _ rhs: String, function: StaticString = #function, file: StaticString = #file, line: UInt = #line) {
-        for (lhsLine, rhsLine) in zip(lhs.lines(), rhs.lines()) where lhsLine != rhsLine {
+        let lhsLines = lhs.components(separatedBy: "\n")
+        let rhsLines = rhs.components(separatedBy: "\n")
+
+        for (lhsLine, rhsLine) in zip(lhsLines, rhsLines) where lhsLine != rhsLine {
             print("Lhs line: \(lhsLine)")
             print("Rhs line: \(rhsLine)")
             fatalError("Found non-equal line in \(function)", file: file, line: line)
         }
     }
-    
-    func XCTMigratorAssertEqual(_ rendarable: Renderable, _ resource: OutputFiles) {
-        XCTAssertEqual(rendarable.indentationFormatted(), resource.content().indentationFormatted())
+
+    @inlinable
+    func XCTMigratorAssertEqual(
+        _ rendarable: GeneratedFile,
+        _ resource: OutputFiles,
+        with context: MigrationContext = MigrationContext(packageName: "ApodiniMigrator"),
+        _ message: @autoclosure () -> String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssertEqual(
+            rendarable.formattedFile(with: context),
+            resource.content(),
+            message(),
+            file: file,
+            line: line
+        )
     }
     
     func canImportJavaScriptCore() -> Bool {
@@ -78,5 +96,16 @@ class ApodiniMigratorXCTestCase: XCTestCase {
         print("Test skipped because JavaScriptCore is not available in this platform")
         return false
         #endif
+    }
+}
+
+extension MigrationContext {
+    init(packageName: String) {
+        self.init(
+            bundle: .module,
+            logger: .init(label: "org.apodini.test")
+        )
+
+        placeholderValues[.packageName] = packageName
     }
 }

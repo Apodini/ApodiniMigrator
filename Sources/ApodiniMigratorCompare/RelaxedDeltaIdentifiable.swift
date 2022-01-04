@@ -61,7 +61,8 @@ extension RelaxedDeltaIdentifiable {
 /// Endpoint extension to `RelaxedDeltaIdentifiable`
 extension Endpoint: RelaxedDeltaIdentifiable {
     static func ?= (lhs: Endpoint, rhs: Endpoint) -> Bool {
-        lhs.operation == rhs.operation && lhs.path == rhs.path
+        lhs.identifier(for: Operation.self) == rhs.identifier(for: Operation.self)
+            && lhs.identifier(for: EndpointPath.self) == rhs.identifier(for: EndpointPath.self)
     }
 }
 
@@ -85,7 +86,9 @@ extension EnumCase: RelaxedDeltaIdentifiable {
 
 extension TypeProperty: DeltaIdentifiable {
     /// DeltaIdentifier of the property initialized from the `name`
-    public var deltaIdentifier: DeltaIdentifier { .init(name) }
+    public var deltaIdentifier: DeltaIdentifier {
+        .init(name)
+    }
 }
 
 extension TypeProperty: RelaxedDeltaIdentifiable {
@@ -96,7 +99,9 @@ extension TypeProperty: RelaxedDeltaIdentifiable {
 
 extension TypeName: DeltaIdentifiable {
     /// DeltaIdentifier of the type name initialized from the `name`
-    public var deltaIdentifier: DeltaIdentifier { .init(name) }
+    public var deltaIdentifier: DeltaIdentifier {
+        .init(buildName())
+    }
 }
 
 extension TypeName: RelaxedDeltaIdentifiable {
@@ -124,8 +129,8 @@ extension TypeName: RelaxedDeltaIdentifiable {
 
 extension TypeInformation: DeltaIdentifiable {
     public var deltaIdentifier: DeltaIdentifier {
-        if case let .reference(key) = self {
-            return .init(key.rawValue)
+        if case .reference = self {
+            fatalError("Cannot retrieve the deltaIdentifier of a .reference!")
         }
         return typeName.deltaIdentifier
     }

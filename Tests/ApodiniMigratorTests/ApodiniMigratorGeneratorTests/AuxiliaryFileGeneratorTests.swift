@@ -7,12 +7,12 @@
 //
 
 import XCTest
+@testable import RESTMigrator
 @testable import ApodiniMigrator
 @testable import ApodiniMigratorCompare
 import PathKit
 
 final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
-    
     override class func setUp() {
         super.setUp()
         
@@ -21,7 +21,7 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
     
     func testTestFile() throws {
         let object: TypeInformation = .object(
-            name: .init(name: "TestObject"),
+            name: .init(rawValue: "TestObject"),
             properties: [
                 .init(name: "prop1", type: .scalar(.bool)),
                 .init(name: "prop2", type: .scalar(.uint)),
@@ -33,15 +33,15 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
         )
         
         let enumeration: TypeInformation = .enum(
-            name: .init(name: "TestEnumeration"),
+            name: .init(rawValue: "TestEnumeration"),
             rawValueType: .scalar(.string),
             cases: [
                 .init("first"),
                 .init("second")
             ]
         )
-        
-        let testFile = TestFileTemplate([object, enumeration], fileName: "TestFile" + .swift, packageName: "ApodiniMigrator")
+
+        let testFile = ModelTestsFile(name: "TestFile", models: [object, enumeration])
         
         XCTMigratorAssertEqual(testFile, .modelsTestFile)
     }
@@ -51,12 +51,15 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
             handlerName: "TestHandler",
             deltaIdentifier: "sayHelloWorld",
             operation: .read,
+            communicationalPattern: .requestResponse,
             absolutePath: "/v1/hello",
             parameters: [],
             response: .scalar(.string),
             errors: [.init(code: 404, message: "Could not say hello")]
         )
-        let file = APIFile([.init(endpoint: endpoint, unavailable: false, parameters: [], path: endpoint.path)])
+
+        let migratedEndpoints = [MigratedEndpoint(endpoint: endpoint, unavailable: false, parameters: [], path: endpoint.identifier())]
+        let file = APIFile(SharedNodeReference(with: migratedEndpoints))
         
         XCTMigratorAssertEqual(file, .aPIFile)
     }

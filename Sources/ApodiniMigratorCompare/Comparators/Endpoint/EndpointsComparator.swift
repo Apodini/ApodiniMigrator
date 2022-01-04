@@ -8,97 +8,66 @@
 
 import Foundation
 
-extension Array: Value where Element: Value {}
-
 struct EndpointsComparator: Comparator {
+    struct MatchedPairs: Hashable {
+        let candidate: Endpoint
+        let relaxedMatching: Endpoint
+
+        func contains(_ id: DeltaIdentifier) -> Bool {
+            candidate.deltaIdentifier == id || relaxedMatching.deltaIdentifier == id
+        }
+    }
+
     let lhs: [Endpoint]
     let rhs: [Endpoint]
-    let changes: ChangeContextNode
-    var configuration: EncoderConfiguration
-    
-    func compare() {
+
+    func compare(_ context: ChangeComparisonContext, _ results: inout [EndpointChange]) {
         let matchedIds = lhs.matchedIds(with: rhs)
         let removalCandidates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
         let additionCandidates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }
-        handle(removalCandidates: removalCandidates, additionCandidates: additionCandidates)
-        
-        for matched in matchedIds {
-            if let lhs = lhs.firstMatch(on: \.deltaIdentifier, with: matched),
-               let rhs = rhs.firstMatch(on: \.deltaIdentifier, with: matched) {
-                let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs, changes: changes, configuration: configuration)
-                endpointComparator.compare()
-            }
-        }
-    }
-    
-    private func handle(removalCandidates: [Endpoint], additionCandidates: [Endpoint]) {
-        struct MatchedPairs: Hashable {
-            let candidate: Endpoint
-            let relaxedMatching: Endpoint
-            
-            func contains(_ id: DeltaIdentifier) -> Bool {
-                candidate.deltaIdentifier == id || relaxedMatching.deltaIdentifier == id
-            }
-        }
-        
+
         var pairs: Set<MatchedPairs> = []
-        
-        if allowEndpointIdentifierUpdate {
+
+        if context.configuration.allowEndpointIdentifierUpdate {
             for candidate in removalCandidates {
                 let unmatched = additionCandidates.filter { added in pairs.allSatisfy { !$0.contains(added.deltaIdentifier) } }
                 if let relaxedMatching = candidate.mostSimilarWithSelf(in: unmatched, useRawValueDistance: false) {
-                    changes.add(
-                        UpdateChange(
-                            element: .for(endpoint: candidate, target: .deltaIdentifier),
-                            from: candidate.deltaIdentifier.rawValue,
-                            to: relaxedMatching.element.deltaIdentifier.rawValue,
-                            similarity: relaxedMatching.similarity,
-                            breaking: false,
-                            solvable: true,
-                            includeProviderSupport: includeProviderSupport
-                        )
-                    )
-                    
+                    results.append(.idChange(
+                        from: candidate.deltaIdentifier,
+                        to: relaxedMatching.element.deltaIdentifier,
+                        similarity: relaxedMatching.similarity
+                        // includeProviderSupport: context.configuration.includeProviderSupport
+                    ))
+
                     pairs.insert(.init(candidate: candidate, relaxedMatching: relaxedMatching.element))
                 }
             }
-            
+
             pairs.forEach {
-                let endpointComparator = EndpointComparator(
-                    lhs: $0.candidate,
-                    rhs: $0.relaxedMatching,
-                    changes: changes,
-                    configuration: configuration
-                )
-                endpointComparator.compare()
+                let endpointComparator = EndpointComparator(lhs: $0.candidate, rhs: $0.relaxedMatching)
+                endpointComparator.compare(context, &results)
             }
         }
-        
-        let includeProviderSupport = allowEndpointIdentifierUpdate && self.includeProviderSupport
+
         for removal in removalCandidates where !pairs.contains(where: { $0.contains(removal.deltaIdentifier) }) {
-            changes.add(
-                DeleteChange(
-                    element: .for(endpoint: removal, target: .`self`),
-                    deleted: .id(from: removal),
-                    fallbackValue: .none,
-                    breaking: true,
-                    solvable: false,
-                    includeProviderSupport: includeProviderSupport
-                )
-            )
+            results.append(.removal(
+                id: removal.deltaIdentifier
+            ))
+        }
+
+        for addition in additionCandidates where !pairs.contains(where: { $0.contains(addition.deltaIdentifier) }) {
+            results.append(.addition(
+                id: addition.deltaIdentifier,
+                added: addition.referencedTypes()
+            ))
         }
         
-        for addition in additionCandidates where !pairs.contains(where: { $0.contains(addition.deltaIdentifier) }) {
-            changes.add(
-                AddChange(
-                    element: .for(endpoint: addition, target: .`self`),
-                    added: .element(addition.referencedTypes()),
-                    defaultValue: .none,
-                    breaking: false,
-                    solvable: true,
-                    includeProviderSupport: includeProviderSupport
-                )
-            )
+        for matched in matchedIds {
+            if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
+               let rhs = rhs.first(where: { $0.deltaIdentifier == matched }) {
+                let endpointComparator = EndpointComparator(lhs: lhs, rhs: rhs)
+                endpointComparator.compare(context, &results)
+            }
         }
     }
 }

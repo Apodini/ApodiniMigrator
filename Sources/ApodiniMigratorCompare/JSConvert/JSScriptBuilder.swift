@@ -13,38 +13,36 @@ import ApodiniMigratorClientSupport
 struct JSScriptBuilder {
     private let from: TypeInformation
     private let to: TypeInformation
-    private let changes: ChangeContextNode
-    private let encoderConfiguration: EncoderConfiguration
+    private let context: ChangeComparisonContext
     /// JScript converting from to to
     var convertFromTo: JSScript = ""
     /// JScript converting to to from
     var convertToFrom: JSScript = ""
-    /// Textual hint to be used in the change object if the convertion is not reliable
+    /// Textual hint to be used in the change object if the conversion is not reliable
     var hint: String?
     
     init(
         from: TypeInformation,
         to: TypeInformation,
-        changes: ChangeContextNode = .init(),
-        encoderConfiguration: EncoderConfiguration = .default
+        context: ChangeComparisonContext
     ) {
         self.from = from
         self.to = to
-        self.changes = changes
-        self.encoderConfiguration = encoderConfiguration
+        self.context = context
         
         construct()
     }
     
     private mutating func construct() {
-        let currentFrom = changes.currentVersion(of: from)
+        let currentFrom = context.currentVersion(of: from)
+
         if case let .scalar(fromPrimitive) = currentFrom, case let .scalar(toPrimitive) = to {
             let primitiveScript = JSPrimitiveScript.script(from: fromPrimitive, to: toPrimitive)
             convertFromTo = primitiveScript.convertFromTo
             convertToFrom = primitiveScript.convertToFrom
         } else {
             if currentFrom.isObject, to.isObject {
-                let objectScript = JSObjectScript(from: currentFrom, to: to, changes: changes, encoderConfiguration: encoderConfiguration)
+                let objectScript = JSObjectScript(from: currentFrom, to: to, context: context)
                 convertFromTo = objectScript.convertFromTo
                 convertToFrom = objectScript.convertToFrom
             } else {
@@ -52,11 +50,11 @@ struct JSScriptBuilder {
                 hint = "'ApodiniMigrator' is not able to automatically generate convert scripts between two types with different cardinalities or root types. Convert methods must be provided by the developer of the web service. Otherwise, the respective types in the client applications that will consume this Migration Guide, will be initialized with these default scripts."
                 convertFromTo = Self.stringify(
                     argumentName: "ignoredFrom",
-                    with: JSONStringBuilder.jsonString(to, with: encoderConfiguration)
+                    with: JSONStringBuilder.jsonString(to, with: context.configuration.encoderConfiguration)
                 )
                 convertToFrom = Self.stringify(
                     argumentName: "ignoredTo",
-                    with: JSONStringBuilder.jsonString(currentFrom, with: encoderConfiguration)
+                    with: JSONStringBuilder.jsonString(currentFrom, with: context.configuration.encoderConfiguration)
                 )
             }
         }

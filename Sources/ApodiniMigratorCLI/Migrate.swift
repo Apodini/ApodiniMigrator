@@ -8,7 +8,7 @@
 
 import Foundation
 import ArgumentParser
-import ApodiniMigrator
+import RESTMigrator
 
 struct Migrate: ParsableCommand {
     static var configuration = CommandConfiguration(
@@ -28,20 +28,17 @@ struct Migrate: ParsableCommand {
     var migrationGuidePath: String
     
     func run() throws {
-        let migratorType = ApodiniMigrator.Migrator.self
-        let logger = migratorType.logger
+        let logger = RESTMigrator.logger
         
         logger.info("Starting migration of package \(packageName)")
         
         do {
-            let migrationGuide = try MigrationGuide.decode(from: migrationGuidePath.asPath)
-            let migrator = try migratorType.init(
-                packageName: packageName,
-                packagePath: targetDirectory,
+            let migrator = try RESTMigrator(
                 documentPath: documentPath,
-                migrationGuide: migrationGuide
+                migrationGuidePath: migrationGuidePath
             )
-            try migrator.run()
+
+            try migrator.run(packageName: packageName, packagePath: targetDirectory)
             logger.info("Package \(packageName) was migrated successfully. You can open the package via \(packageName)/Package.swift")
         } catch {
             logger.error("Package migration failed with error: \(error)")

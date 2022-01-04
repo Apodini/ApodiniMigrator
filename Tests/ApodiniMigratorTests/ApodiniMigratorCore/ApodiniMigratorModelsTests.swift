@@ -9,6 +9,7 @@
 import XCTest
 @testable import ApodiniMigratorCore
 @testable import ApodiniMigratorClientSupport
+@testable import RESTMigrator
 
 final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
     func testDSLEndpointIdentifier() {
@@ -18,6 +19,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
             handlerName: "SomeHandler",
             deltaIdentifier: "0.1.0.0.1",
             operation: .create,
+            communicationalPattern: .requestResponse,
             absolutePath: "/v1/test",
             parameters: [],
             response: .scalar(.bool),
@@ -28,30 +30,32 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
             handlerName: "SomeHandler",
             deltaIdentifier: "getSomeHandler",
             operation: .read,
+            communicationalPattern: .requestResponse,
             absolutePath: "/v1/test",
             parameters: [],
             response: .scalar(.bool),
             errors: errors
         )
         
-        XCTAssert(noIDEndpoint.deltaIdentifier == .init(noIDEndpoint.handlerName.lowerFirst))
+        XCTAssert(noIDEndpoint.deltaIdentifier == .init(noIDEndpoint.handlerName.buildName()))
         XCTAssert(withIDEndpoint.deltaIdentifier == "getSomeHandler")
     }
-    
+
     func testWrappedContentParameters() throws {
         let param1 = Parameter(name: "first", typeInformation: .scalar(.string), parameterType: .content, isRequired: true)
         let param2 = Parameter(name: "second", typeInformation: .scalar(.int), parameterType: .content, isRequired: false)
-        
+
         let endpoint = Endpoint(
             handlerName: "someHandler",
             deltaIdentifier: "id",
             operation: .create,
+            communicationalPattern: .requestResponse,
             absolutePath: "/v1/test",
             parameters: [param1, param2],
             response: .scalar(.bool),
             errors: []
         )
-        
+
         XCTAssert(endpoint.parameters.count == 1)
         let contentParameter = try XCTUnwrap(endpoint.parameters.first)
         XCTAssert(contentParameter.isWrapped)
@@ -70,9 +74,9 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
         let string = "/v1/{some}/users/{id}"
         let string1 = "/v1/{param}/users/{param}"
         let string2 = "/v2/{param}/users/{param}" // still considered equal, change is delegated to networking due to version change
-  
-        XCTAssert(EndpointPath(string) != EndpointPath(string1))
-        XCTAssert(EndpointPath(string1) == EndpointPath(string2))
+
+        XCTAssertNotEqual(EndpointPath(string), EndpointPath(string1))
+        XCTAssertEqual(EndpointPath(string1), EndpointPath(string2))
     }
     
     func testVersion() throws {
@@ -86,26 +90,30 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
     }
 
     func testDocument() throws {
-        var document = Document()
+        let serviceInformation = ServiceInformation(
+            version: Version(prefix: "test", major: 1, minor: 2, patch: 3),
+            http: HTTPInformation(hostname: "127.0.0.1", port: 8080),
+            exporters: RESTExporterConfiguration(encoderConfiguration: .default, decoderConfiguration: .default)
+        )
+
+        var document = APIDocument(serviceInformation: serviceInformation)
         document.add(
             endpoint: .init(
                 handlerName: "someHandler",
                 deltaIdentifier: "endpoint",
                 operation: .create,
+                communicationalPattern: .requestResponse,
                 absolutePath: "/test1/test",
                 parameters: [],
                 response: .scalar(.bool),
                 errors: []
             )
         )
-        document.setServerPath("http://127.0.0.1:8080")
-        document.setVersion(Version(prefix: "test", major: 1, minor: 2, patch: 3))
-        
-        document.setCoderConfigurations(.default, .default)
-        XCTAssert(document.fileName == "api_test1.2.3")
-        XCTAssert(!document.endpoints.isEmpty)
-        XCTAssertEqual(document.metaData.versionedServerPath, "http://127.0.0.1:8080/test1")
-        XCTAssert(!document.json.isEmpty)
-        XCTAssert(!document.yaml.isEmpty)
+
+        XCTAssertEqual(document.fileName, "api_test1.2.3")
+        XCTAssertEqual(document.endpoints.isEmpty, false)
+        XCTAssertEqual(document.serviceInformation.http.urlFormatted, "http://127.0.0.1:8080")
+        XCTAssertEqual(document.json.isEmpty, false)
+        XCTAssertEqual(document.yaml.isEmpty, false)
     }
 }

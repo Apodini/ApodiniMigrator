@@ -8,7 +8,7 @@
 
 import Foundation
 import ArgumentParser
-import ApodiniMigrator
+import RESTMigrator
 
 struct Compare: ParsableCommand {
     static var configuration = CommandConfiguration(
@@ -28,13 +28,12 @@ struct Compare: ParsableCommand {
     var format: OutputFormat = .json
     
     func run() throws {
-        let migrator = ApodiniMigrator.Migrator.self
-        let logger = migrator.logger
+        let logger = RESTMigrator.logger
 
         logger.info("Starting generation of the migration guide...")
         do {
             let migrationGuideFileName = "migration_guide"
-            let migrationGuide = try MigrationGuide.from(oldDocumentPath.asPath, newDocumentPath.asPath)
+            let migrationGuide = try MigrationGuide.from(Path(oldDocumentPath), Path(newDocumentPath))
             let filePath = try migrationGuide.write(at: migrationGuidePath, outputFormat: format, fileName: migrationGuideFileName)
             logger.info("Migration guide was generated successfully at \(filePath).")
         } catch {

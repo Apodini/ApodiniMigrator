@@ -9,7 +9,7 @@
 import XCTest
 @testable import ApodiniMigratorCore
 @testable import ApodiniMigratorClientSupport
-@testable import ApodiniMigrator
+@testable import RESTMigrator
 @testable import ApodiniMigratorCompare
 
 fileprivate extension ApodiniMigratorCodable {
@@ -42,6 +42,7 @@ extension Data: Codable {
 
 private typealias Codable = ApodiniMigratorCodable
 
+// swiftlint:disable:next type_body_length
 final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
     func testComplexTypeScriptConvert() throws {
         guard canImportJavaScriptCore() else {
@@ -166,8 +167,8 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         """
         let student = XCTAssertNoThrowWithResult(try Student.from(0, script: script))
         
-        XCTAssert(student.dog.name == "")
-        XCTAssert(student.name == "")
+        XCTAssert(student.dog.name.isEmpty)
+        XCTAssert(student.name.isEmpty)
         XCTAssert(student.number == 0)
         
         let invalidConvert: JSScript =
@@ -181,8 +182,8 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         """
         let secondStudent = try Student.fromValues("John", UUID(), Dog(name: "Dog"), script: invalidConvert)
         
-        XCTAssert(secondStudent.dog.name == "")
-        XCTAssert(secondStudent.name == "")
+        XCTAssert(secondStudent.dog.name.isEmpty)
+        XCTAssert(secondStudent.name.isEmpty)
         XCTAssert(secondStudent.number == 0)
     }
     
@@ -232,7 +233,7 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         guard canImportJavaScriptCore() else {
             return
         }
-        let scriptBuilder = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date))
+        let scriptBuilder = JSScriptBuilder(from: .optional(wrappedValue: .scalar(.string)), to: .scalar(.date), context: comparisonContext)
         
         XCTAssertNoThrow(try String?.from(Date(), script: scriptBuilder.convertToFrom))
     }
@@ -387,9 +388,9 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
         guard canImportJavaScriptCore() else {
             return
         }
-        let js = JSPrimitiveScript.identity(for: .bool)
+        let script = JSPrimitiveScript.identity(for: .bool)
         
-        XCTAssertNoThrow(try Double.from(Date(Default()), script: js.convertToFrom))
+        XCTAssertNoThrow(try Double.from(Date(Default()), script: script.convertToFrom))
     }
     
     func testIgonoreInput() throws {
@@ -439,7 +440,11 @@ final class JavaScriptConvertTests: ApodiniMigratorXCTestCase {
             let name: String
         }
         
-        let jsBuilder = JSScriptBuilder(from: try TypeInformation(type: User.self), to: try TypeInformation(type: UserNew.self))
+        let jsBuilder = JSScriptBuilder(
+            from: try TypeInformation(type: User.self),
+            to: try TypeInformation(type: UserNew.self),
+            context: comparisonContext
+        )
         
         let newUser = UserNew(ident: .init(), name: "I am new user")
         let user = try User.from(newUser, script: jsBuilder.convertToFrom)

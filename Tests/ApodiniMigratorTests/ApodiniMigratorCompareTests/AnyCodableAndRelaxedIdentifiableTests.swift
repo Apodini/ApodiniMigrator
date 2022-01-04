@@ -14,8 +14,8 @@ final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
     func testAnyCodable() throws {
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
-        
-        let document = try Documents.v1.instance() as Document
+
+        let document = try Documents.v1.decodedContent() as APIDocument
         let documentAsAnyCodable = document.asAnyCodableElement
         let documentData = XCTAssertNoThrowWithResult(try encoder.encode(documentAsAnyCodable))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: documentData))
@@ -28,7 +28,7 @@ final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
         let endpointData = XCTAssertNoThrowWithResult(try encoder.encode(endpoint.asAnyCodableElement))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: endpointData))
         
-        let path = endpoint.path
+        let path: EndpointPath = endpoint.identifier()
         let pathData = XCTAssertNoThrowWithResult(try encoder.encode(path.asAnyCodableElement))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: pathData))
         
@@ -39,16 +39,20 @@ final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
         let typeInformation = parameter.typeInformation
         let typeInformationData = XCTAssertNoThrowWithResult(try encoder.encode(typeInformation.asAnyCodableElement))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: typeInformationData))
-        
-        let encoderConfig = document.metaData.encoderConfiguration
+
+
+        let exporterConfiguration: RESTExporterConfiguration = document.serviceInformation.exporter()
+
+        let encoderConfig = exporterConfiguration.encoderConfiguration
         let encoderConfigData = XCTAssertNoThrowWithResult(try encoder.encode(encoderConfig.asAnyCodableElement))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: encoderConfigData))
         
-        let decoderConfig = document.metaData.decoderConfiguration
+        let decoderConfig = exporterConfiguration.decoderConfiguration
         let decoderConfigData = XCTAssertNoThrowWithResult(try encoder.encode(decoderConfig.asAnyCodableElement))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: decoderConfigData))
-        
-        let operation = endpoint.operation
+
+
+        let operation: ApodiniMigratorCore.Operation = endpoint.identifier()
         let operationData = XCTAssertNoThrowWithResult(try encoder.encode(operation.asAnyCodableElement))
         XCTAssertNoThrow(try decoder.decode(AnyCodableElement.self, from: operationData))
         
@@ -77,14 +81,10 @@ final class AnyCodableAndRelaxedIdentifiableTests: ApodiniMigratorXCTestCase {
     func testRelaxedDeltaIdentifiable() {
         let int = TypeName(Int.self)
         let string = TypeName(String.self)
-        let customInt = TypeName(name: "Int")
+        let customInt = TypeName(rawValue: "Int")
         
         XCTAssertEqual(int ?= string, false)
         XCTAssertEqual(int ?= customInt, false)
         XCTAssert(int ?= int)
-        
-        let reference = TypeInformation.reference("User")
-        XCTAssert(reference.deltaIdentifier.rawValue == "User")
-        XCTAssert(reference ?= .object(name: .init(name: "User"), properties: []))
     }
 }

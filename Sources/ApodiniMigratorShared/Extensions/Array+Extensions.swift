@@ -8,10 +8,13 @@
 
 import Foundation
 
-public extension Collection {
-    /// Indicates whether the collection is not empty
-    var isNotEmpty: Bool {
-        !isEmpty
+public extension Array {
+    /// This method can be used to flatten an array of arrays.
+    /// - Returns: Returns the flattened array, where they are all appened to one big array.
+    func flatten<InnerElement>() -> [InnerElement] where Element == [InnerElement] {
+        self.reduce(into: []) { result, element in
+            result.append(contentsOf: element)
+        }
     }
 }
 
@@ -24,14 +27,8 @@ public extension Array where Element: Hashable {
 
 public extension Sequence {
     /// Returns a sorted version of self by a comparable element keypath
-    func sorted<C: Comparable>(by keyPath: KeyPath<Element, C>, increasingOrder: Bool = true) -> [Element] {
-        let sorted = self.sorted { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
-        return increasingOrder ? sorted : sorted.reversed()
-    }
-    
-    /// Returns the first matched element, where the value of the property is equal to other
-    func firstMatch<E: Equatable>(on keyPath: KeyPath<Element, E>, with other: E) -> Element? {
-        first(where: { $0[keyPath: keyPath] == other })
+    func sorted<C: Comparable>(by keyPath: KeyPath<Element, C>) -> [Element] {
+        self.sorted { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
     }
 }
 

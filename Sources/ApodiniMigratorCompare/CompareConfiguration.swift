@@ -9,22 +9,24 @@
 import Foundation
 
 public struct CompareConfiguration: Value {
-    // MARK: Private Inner Types
     private enum CodingKeys: String, CodingKey {
         case includeProviderSupport = "include-provider-support"
         case allowEndpointIdentifierUpdate = "allowed-endpoint-id-update"
         case allowTypeRename = "allowed-type-rename"
+        case encoderConfiguration
     }
     
     let includeProviderSupport: Bool
     let allowEndpointIdentifierUpdate: Bool
     let allowTypeRename: Bool
+    let encoderConfiguration: EncoderConfiguration
     
     public static var `default`: CompareConfiguration {
         .init(
             includeProviderSupport: false,
             allowEndpointIdentifierUpdate: false,
-            allowTypeRename: false
+            allowTypeRename: false,
+            encoderConfiguration: .default
         )
     }
     
@@ -32,7 +34,8 @@ public struct CompareConfiguration: Value {
         .init(
             includeProviderSupport: true,
             allowEndpointIdentifierUpdate: true,
-            allowTypeRename: true
+            allowTypeRename: true,
+            encoderConfiguration: .default
         )
     }
 }

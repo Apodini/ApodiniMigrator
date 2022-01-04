@@ -11,27 +11,21 @@ import PathKit
 
 /// Represent different cases of file extensions
 public enum FileExtension: CustomStringConvertible {
-    /// Markdown
-    case markdown
     /// JSON
     case json
     /// YAML
     case yaml
     /// Swift
     case swift
-    /// Text
-    case text
     /// Other
     case other(String)
     
     /// String representation this extension
     public var description: String {
         switch self {
-        case .markdown: return "md"
         case .json: return "json"
         case .yaml: return "yaml"
         case .swift: return "swift"
-        case .text: return "txt"
         case let .other(value): return value
         }
     }
@@ -56,14 +50,5 @@ public extension Path {
             return []
         }
         return try recursiveChildren().filter { $0.is(.swift) }
-    }
-    
-    /// Returns all files in `self` and in subdirectories of `self` of `extensions`
-    func recursiveFiles(of extensions: FileExtension...) throws -> [Path] {
-        guard isDirectory else {
-            return []
-        }
-        let fileExtensions = extensions.map { $0.description }
-        return try recursiveChildren().filter { fileExtensions.contains($0.extension ?? "") }
     }
 }
