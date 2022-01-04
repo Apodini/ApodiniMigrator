@@ -14,13 +14,17 @@ struct Migrate: ParsableCommand {
     static var configuration = CommandConfiguration(
         abstract: "A utility to migrate a client library out of an API document and a migration guide"
     )
+
+    @Option(name: .shortAndLong, help: "Defines which type of client to generate")
+    var libraryType: ApodiniExporterType
     
     @Option(name: .shortAndLong, help: "Name of the package")
     var packageName: String
     
     @Option(name: .shortAndLong, help: "Output path of the package (without package name)")
     var targetDirectory: String
-    
+
+    // TODO proto file
     @Option(name: .shortAndLong, help: "Path where the API document of the old version file is located, e.g. /path/to/api_v1.2.3.yaml")
     var documentPath: String
     
@@ -33,10 +37,7 @@ struct Migrate: ParsableCommand {
         logger.info("Starting migration of package \(packageName)")
         
         do {
-            let migrator = try RESTMigrator(
-                documentPath: documentPath,
-                migrationGuidePath: migrationGuidePath
-            )
+            let migrator = try libraryType.createMigrator(documentPath: documentPath, migrationGuidePath: migrationGuidePath)
 
             try migrator.run(packageName: packageName, packagePath: targetDirectory)
             logger.info("Package \(packageName) was migrated successfully. You can open the package via \(packageName)/Package.swift")

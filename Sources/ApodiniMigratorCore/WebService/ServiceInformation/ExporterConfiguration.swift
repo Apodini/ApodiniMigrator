@@ -12,11 +12,15 @@ import Foundation
 public enum ApodiniExporterType: String, Value, CodingKey, CaseIterable {
     /// The `ApodiniREST` exporter.
     case rest
+    /// The `ApodiniGRPC` exporter.
+    case grpc
 
     public func anyDecode<Key>(from container: KeyedDecodingContainer<Key>, forKey key: Key) throws -> AnyExporterConfiguration {
         switch self {
         case .rest:
             return AnyExporterConfiguration(try container.decode(RESTExporterConfiguration.self, forKey: key))
+        case .grpc:
+            return AnyExporterConfiguration(try container.decode(GRPCExporterConfiguration.self, forKey: key))
         }
     }
 }
@@ -106,6 +110,8 @@ extension AnyExporterConfiguration: Codable {
         switch type {
         case .rest:
             try exporter = RESTExporterConfiguration(from: decoder)
+        case .grpc:
+            try exporter = GRPCExporterConfiguration(from: decoder)
         }
     }
 
@@ -131,6 +137,14 @@ extension ExporterConfiguration {
     public func anyHash(into hasher: inout Hasher) {
         self.hash(into: &hasher)
     }
+}
+
+public struct GRPCExporterConfiguration: ExporterConfiguration, Value {
+    public static var type: ApodiniExporterType {
+        .grpc
+    }
+
+    public init() {}
 }
 
 public struct RESTExporterConfiguration: ExporterConfiguration, Value {

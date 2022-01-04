@@ -11,10 +11,14 @@ import SwiftProtobufPluginLibrary
 import ApodiniMigrator
 
 class GRPCService: SourceCodeRenderable {
+    // TODO interceptors?
     private unowned let file: GRPCClientFile
 
-    private let service: ServiceDescriptor
+    private let serviceName: String
+    private let serviceSourceComments: String? // TODO needed?
+
     private var methods: [GRPCMethod]
+    private var addedEndpoints: [String: Endpoint] = [:]
 
     var protobufNamer: SwiftProtobufNamer {
         file.protobufNamer
@@ -22,39 +26,69 @@ class GRPCService: SourceCodeRenderable {
 
     var servicePath: String {
         if !file.protoFile.package.isEmpty {
-            return file.protoFile.package + "." + service.name
+            return file.protoFile.package + "." + serviceName
         } else {
-            return service.name
+            return serviceName
         }
     }
 
     init(_ service: ServiceDescriptor, locatedIn file: GRPCClientFile) {
         self.file = file
-        self.service = service
+        self.serviceName = service.name
         self.methods = []
+
+        // TODO we can control to remove the ///
+        self.serviceSourceComments = service.protoSourceComments()
 
         for method in service.methods {
             self.methods.append(GRPCMethod(method, locatedIn: self))
         }
     }
 
+    init(named serviceName: String, locatedIn file: GRPCClientFile) {
+        self.file = file
+        self.serviceName = serviceName
+        self.methods = []
+        self.serviceSourceComments = nil
+    }
+
+    func addEndpoint(_ endpoint: Endpoint) {
+        let methodName = endpoint.identifier(for: GRPCMethodName.self).rawValue
+        precondition(!self.methods.contains(where: { $0.methodName == methodName }), "Added endpoint collides with existing method \(serviceName).\(methodName)")
+        precondition(self.addedEndpoints[methodName] == nil, "Added endpoint collides with added endpoint \(serviceName).\(methodName)")
+
+        self.addedEndpoints[methodName] = endpoint
+    }
+
+    func handleEndpointUpdate(_ update: EndpointChange.UpdateChange) {
+        methods
+            .filter { $0.apodiniIdentifiers.deltaIdentifier == update.id }
+            .forEach { $0.registerUpdateChange(update) }
+    }
+
+    func handleEndpointRemoval(_ removal: EndpointChange.RemovalChange) {
+        methods.removeAll(where: { $0.apodiniIdentifiers.deltaIdentifier == removal.id })
+    }
+
     var renderableContent: String {
+        var joinedMethods: [GRPCMethodRenderable & GRPCMethodRepresentable] = methods
+        joinedMethods.append(contentsOf: Array(addedEndpoints.values))
+        joinedMethods.sorted(by: \.methodName)
+
         // TODO do we need #if directovies (>= 5.5 and _Concurrency)? and @available?
 
-        var comments = service.protoSourceComments() // TODO we can control to remove the ///
-        comments.removeLast()
-        comments
-        // TODO any other comments places?
-
-        // TODO interceptor protocol?
+        // TODO we don't actually need any SERVICE comments(?)
+        if var comments = self.serviceSourceComments {
+            comments.removeLast()
+            comments
+        }
 
         // TODO visibilit + service name!!
-        "protocol \(service.name)AsyncClientProtocol: GRPCClient {"
+        "protocol \(serviceName)AsyncClientProtocol: GRPCClient {"
         Indent {
             "var serviceName: String { get }"
-            // TODO "var interceptors: "
 
-            for method in methods {
+            for method in joinedMethods {
                 EmptyLine()
                 method.clientProtocolSignature
             }
@@ -63,14 +97,13 @@ class GRPCService: SourceCodeRenderable {
 
         EmptyLine()
 
-        "extension \(service.name)AsyncClientProtocol {"
+        "extension \(serviceName)AsyncClientProtocol {"
         Indent {
             "var serviceName: String {"
             Indent("\"\(servicePath)\"")
             "}"
-            // TODO interceptors
 
-            for method in methods {
+            for method in joinedMethods {
                 EmptyLine()
 
                 method.clientProtocolExtensionFunction
@@ -83,13 +116,12 @@ class GRPCService: SourceCodeRenderable {
         // TODO protocol extension with the "safe" wrapper stuff? huh?
 
         // TODO visibilit + service name!!
-        "struct \(service.name)AsyncClient: \(service.name)AsyncClientProtocol {"
+        "struct \(serviceName)AsyncClient: \(serviceName)AsyncClientProtocol {"
         Indent {
             """
             var channel: GRPCChannel
             var defaultCallOptions: CallOptions
             """
-            // TODO interceptors
 
             "init("
             Indent {
@@ -97,7 +129,6 @@ class GRPCService: SourceCodeRenderable {
                 channel: GRPCChannel,
                 defaultCallOptions: CallOptions = CallOptions()
                 """
-                // TODO interceptors
             }
             ") {"
             Indent {
@@ -112,9 +143,9 @@ class GRPCService: SourceCodeRenderable {
 
         EmptyLine()
 
-        "extension \(service.name)AsyncClient {"
+        "extension \(serviceName)AsyncClient {"
         Indent {
-            for method in methods {
+            for method in joinedMethods {
                 method.clientProtocolExtensionSafeWrappers
             }
         }

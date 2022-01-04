@@ -64,7 +64,7 @@ extension ServiceInformation {
     }
 }
 
-private extension String {
+public extension String {
     /// Retrieves the substring of a matched group of a `NSTextCheckingResult`.
     /// - Parameters:
     ///   - match: The match (corresponding to the self String)

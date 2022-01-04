@@ -9,7 +9,7 @@
 import Foundation
 import ApodiniMigrator
 import ApodiniMigratorCompare
-import Logging // TODO depdndency?
+import Logging
 
 public struct GRPCMigrator: Migrator {
     private static let DUMP_PATH = "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES/dump.pbinary"
@@ -26,21 +26,16 @@ public struct GRPCMigrator: Migrator {
     private let migrationGuide: MigrationGuide
     private let migrationGuidePath: String?
 
-    public init(protoFilePath: String, protoFile: String, migrationGuidePath: String? = nil) throws {
+    public init(protoFile: String, migrationGuidePath: String? = nil) throws {
+        let path = Path(protoFile)
+
         // TODO support multiple proto file (non priority though)
-        self.protoFilePath = Path(protoFilePath)
-        self.protoFile = protoFile
+        self.protoFile = path.lastComponent
+        self.protoFilePath = Path(path.absolute().description.replacingOccurrences(of: path.lastComponent, with: ""))
 
         // TODO verify MigrationGuide ID(?)
         // TODO create generalized Migrator error thrown by below migrators!
 
-        // TODO handle?
-        // let scripts = migrationGuide.scripts
-        // let jsonValues = migrationGuide.jsonValues
-
-        // let changes = migrationGuide.changes
-        // let endpointChanges = changes.filter { $0.element.isEndpoint }
-        // self.modelChanges = changes.filter { $0.element.isModel }
         if let path = migrationGuidePath {
             try self.migrationGuide = MigrationGuide.decode(from: Path(path))
             self.migrationGuidePath = migrationGuidePath

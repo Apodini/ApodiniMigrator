@@ -128,6 +128,7 @@ let package = Package(
             name: "ApodiniMigratorCLI",
             dependencies: [
                 .target(name: "RESTMigrator"),
+                .target(name: "gRPCMigrator"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log")
             ]

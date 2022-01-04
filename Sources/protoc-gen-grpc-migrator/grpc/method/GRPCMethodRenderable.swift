@@ -6,80 +6,20 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Foundation
-import SwiftProtobufPluginLibrary
 import ApodiniMigrator
 
-struct GRPCMethod {
-    private unowned let service: GRPCService
-    private let method: MethodDescriptor
+protocol GRPCMethodRenderable { // TODO remove?
+    @SourceCodeBuilder
+    var clientProtocolSignature: String { get }
 
-    var methodPath: String {
-        "\(service.servicePath)/\(method.name)"
-    }
+    @SourceCodeBuilder
+    var clientProtocolExtensionFunction: String { get }
 
+    @SourceCodeBuilder
+    var clientProtocolExtensionSafeWrappers: String { get }
+}
 
-    // TODO placement
-    internal func sanitize(fieldName string: String) -> String {
-        if quotableFieldNames.contains(string) {
-            return "`\(string)`"
-        }
-        return string
-    }
-
-
-    var methodMakeFunctionName: String {
-        var name = method.name
-        // TODO keepMethodCasing
-        name = name.prefix(1).uppercased() + name.dropFirst()
-        return sanitize(fieldName: name)
-    }
-
-    var methodWrapperFunctionName: String {
-        var name = method.name
-        // TODO keepMethodCasing!
-        // if !self.options.keepMethodCasing {
-        //      name = name.prefix(1).lowercased() + name.dropFirst()
-        //    }
-        name = name.prefix(1).lowercased() + name.dropFirst()
-        return sanitize(fieldName: name)
-    }
-
-    var streamingType: StreamingType {
-        switch (method.proto.clientStreaming, method.proto.serverStreaming) {
-        case (true, true):
-            return .bidirectionalStreaming
-        case (true, false):
-            return .clientStreaming
-        case (false, true):
-            return .serverStreaming
-        case (false, false):
-            return .unary
-        }
-    }
-
-    var callType: String {
-        // TODO make this part of the streamingType overload
-        Types.call(for: streamingType)
-    }
-
-    var callTypeWithoutPrefix: String {
-        Types.call(for: streamingType, withGRPCPrefix: false)
-    }
-
-    var inputMessageName: String {
-        service.protobufNamer.fullName(message: method.inputType)
-    }
-
-    var outputMessageName: String {
-        service.protobufNamer.fullName(message: method.outputType)
-    }
-
-    init(_ method: MethodDescriptor, locatedIn service: GRPCService) {
-        self.service = service
-        self.method = method
-    }
-
+extension GRPCMethodRenderable where Self: GRPCMethodRepresentable {
     @SourceCodeBuilder
     var clientProtocolSignature: String {
         var arguments: [String] = []
@@ -87,12 +27,12 @@ struct GRPCMethod {
         case .unary, .serverStreaming:
             arguments = [
                 "_ request: \(inputMessageName)",
-                "callOptions: \(Types.clientCallOptions)?",
+                "callOptions: \(Types.clientCallOptions)?"
             ]
 
         case .clientStreaming, .bidirectionalStreaming:
             arguments = [
-                "callOptions: \(Types.clientCallOptions)?",
+                "callOptions: \(Types.clientCallOptions)?"
             ]
         }
 
@@ -127,7 +67,6 @@ struct GRPCMethod {
                     "request: request,"
                 }
                 "callOptions: callOptions ?? defaultCallOptions"
-                // TODO interceptors: []
             }
             ")"
         }
@@ -148,9 +87,10 @@ struct GRPCMethod {
                 ? "RequestStream"
                 : inputMessageName
 
-            let comments = method.protoSourceComments()
-            comments.dropFirst()
-            comments // placing comments into source code!
+            if let comments = sourceCodeComments {
+                comments.dropFirst() // TODO why to we drop lol?
+                comments // placing comments into source code!
+            }
 
             SwiftFunction(
                 name: streamingType.isStreamingRequest
@@ -177,7 +117,6 @@ struct GRPCMethod {
                     \(requestParameterName): \(requestParameterName),
                     callOptions: callOptions ?? defaultCallOptions
                     """
-                    // TODO interceptors!
                 }
                 ")"
             }

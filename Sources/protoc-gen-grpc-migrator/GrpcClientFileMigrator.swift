@@ -16,6 +16,9 @@ class GRPCClientFile: SourceCodeRenderable {
 
     let protobufNamer: SwiftProtobufNamer
 
+
+    var services: [String: GRPCService] = [:]
+
     init(_ file: FileDescriptor, migrationGuide: MigrationGuide) {
         self.protoFile = file
         self.migrationGuide = migrationGuide
@@ -23,6 +26,13 @@ class GRPCClientFile: SourceCodeRenderable {
             currentFile: file,
             protoFileToModuleMappings: .init() // TODO pass some options?
         )
+
+        for service in protoFile.services {
+            self.services[service.name] = GRPCService(service, locatedIn: self)
+        }
+
+        // TODO ensure endpoint changes are only considered for the first one!
+        parseEndpointChanges()
     }
 
     var renderableContent: String {
@@ -35,14 +45,57 @@ class GRPCClientFile: SourceCodeRenderable {
 
         Import("NIO")
         Import("GRPC")
-        // TODO other imports
+        // TODO other imports?
         ""
 
-        // TODO search through the list off "added endpoints", derrive there identifiers (Client Name + rpcName)
-        //  => group them into the below services!
-        //  => such that they can be generated (just by the endpoint/typeInfo description!)
-        for service in protoFile.services {
-            GRPCService(service, locatedIn: self)
+        for service in self.services.values {
+            service
+        }
+    }
+
+    func parseEndpointChanges() {
+        var addedEndpoints: [EndpointChange.AdditionChange] = []
+        var updatedEndpoints: [EndpointChange.UpdateChange] = []
+        var removedEndpoints: [EndpointChange.RemovalChange] = []
+
+        // TODO how do we decide to which file we add the added endpoints?
+        // TODO do we need to store them all in advance?
+        for change in migrationGuide.endpointChanges {
+            // we ignore idChange updates. Why? Because we always work with the older identifiers.
+            // And client library should not modify identifiers, to maintain code compatibility
+
+            if let addition = change.modeledAdditionChange {
+                addedEndpoints.append(addition)
+            } else if let update = change.modeledUpdateChange {
+                updatedEndpoints.append(update)
+            } else if let removal = change.modeledRemovalChange {
+                removedEndpoints.append(removal)
+            }
+        }
+
+        for addedEndpoint in addedEndpoints {
+            let endpoint = addedEndpoint.added
+            let serviceName = endpoint.identifier(for: GRPCServiceName.self).rawValue
+
+            if let existingService = self.services[serviceName] {
+                existingService.addEndpoint(endpoint)
+            } else {
+                let service = GRPCService(named: serviceName, locatedIn: self)
+                service.addEndpoint(endpoint)
+                self.services[serviceName] = service
+            }
+        }
+
+        for updatedEndpoint in updatedEndpoints {
+            for service in services.values {
+                service.handleEndpointUpdate(updatedEndpoint)
+            }
+        }
+
+        for removedEndpoint in removedEndpoints {
+            for service in services.values {
+                service.handleEndpointRemoval(removedEndpoint)
+            }
         }
     }
 }

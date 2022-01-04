@@ -48,7 +48,7 @@ struct ProtocPluginBoostrap: ParsableCommand {
 
         var plugin = try ProtocPlugin(request: request, options: options)
 
-        // TODO add support for any (debug) command line flags?
+        // TODO add support for a (debug) command line flags?
         try plugin.generate()
 
         let response = try plugin.response.serializedData()
@@ -101,7 +101,9 @@ struct ProtocPlugin {
 
     @discardableResult
     private func generateFromStdin() throws -> Int32 {
-        let requestData = try FileHandle.standardInput.readToEnd()! // TODO unwrap
+        guard let requestData = try FileHandle.standardInput.readToEnd() else {
+            fatalError("Failed to readToEnd() from stdIn!")
+        }
 
         // TODO "PROTOC_GEN_SWIFT_LOG_REQUEST"
 
@@ -113,8 +115,7 @@ struct ProtocPlugin {
             return 1
         }
 
-        // TODO parse potential options
-        request.parameter
+        // TODO parse potential options: `request.parameter`
 
         let generator = CodePrinter()
 

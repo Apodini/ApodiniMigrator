@@ -15,14 +15,14 @@ struct ProtocGenerator: LibraryNode {
     let protoPath: String
     let protoFile: String
     let options: [String: String]
-    let environment: [String: String]?
+    let environment: [String: String]? // swiftlint:disable:this discouraged_optional_collection
 
     init(
         pluginName: String,
         protoPath: String,
         protoFile: String,
         options: [String: String],
-        environment: [String: String]? = nil
+        environment: [String: String]? = nil // swiftlint:disable:this discouraged_optional_collection
     ) {
         self.pluginName = pluginName
         self.protoPath = protoPath
@@ -35,6 +35,11 @@ struct ProtocGenerator: LibraryNode {
         guard let protocBinary = findExecutable(named: "protoc") else {
             // TODO raise migrator error
             fatalError("It seems like the `protoc` compiler isn't installed!")
+        }
+
+        guard let protocGenBinary = findExecutable(named: "protoc-gen-grpc-migrator") else {
+            // TODO raise migrator error
+            fatalError("It seems that the `protoc-gen-grpc-migrator` is not installed.")
         }
 
         var args: [String] = [
