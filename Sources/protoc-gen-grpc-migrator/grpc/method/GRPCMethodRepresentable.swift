@@ -13,6 +13,9 @@ protocol GRPCMethodRepresentable {
     var methodName: String { get }
     var sourceCodeComments: String? { get }
 
+    /// If true, this Method was removed in the latest version.
+    var unavailable: Bool { get }
+
     var methodPath: String { get }
 
     var methodMakeFunctionName: String { get }

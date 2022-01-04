@@ -37,7 +37,6 @@ class GRPCService: SourceCodeRenderable {
         self.serviceName = service.name
         self.methods = []
 
-        // TODO we can control to remove the ///
         self.serviceSourceComments = service.protoSourceComments()
 
         for method in service.methods {
@@ -67,7 +66,9 @@ class GRPCService: SourceCodeRenderable {
     }
 
     func handleEndpointRemoval(_ removal: EndpointChange.RemovalChange) {
-        methods.removeAll(where: { $0.apodiniIdentifiers.deltaIdentifier == removal.id })
+        methods
+            .filter { $0.apodiniIdentifiers.deltaIdentifier == removal.id }
+            .forEach { $0.unavailable = true }
     }
 
     var renderableContent: String {
@@ -75,7 +76,7 @@ class GRPCService: SourceCodeRenderable {
         joinedMethods.append(contentsOf: Array(addedEndpoints.values))
         joinedMethods.sorted(by: \.methodName)
 
-        // TODO do we need #if directovies (>= 5.5 and _Concurrency)? and @available?
+        // TODO do we need #if directives (>= 5.5 and _Concurrency)? and @available?
 
         // TODO we don't actually need any SERVICE comments(?)
         if var comments = self.serviceSourceComments {
@@ -83,7 +84,7 @@ class GRPCService: SourceCodeRenderable {
             comments
         }
 
-        // TODO visibilit + service name!!
+        // TODO visibility + service name!!
         "protocol \(serviceName)AsyncClientProtocol: GRPCClient {"
         Indent {
             "var serviceName: String { get }"

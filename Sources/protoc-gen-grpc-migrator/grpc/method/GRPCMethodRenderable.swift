@@ -21,6 +21,14 @@ protocol GRPCMethodRenderable { // TODO remove?
 
 extension GRPCMethodRenderable where Self: GRPCMethodRepresentable {
     @SourceCodeBuilder
+    private var unavailableAnnotation: String {
+        if unavailable {
+            let message = "This method is not available in the new version anymore. Calling this method will fail!"
+            "@available(*, deprecated, message: \"\(message)\")"
+        }
+    }
+
+    @SourceCodeBuilder
     var clientProtocolSignature: String {
         var arguments: [String] = []
         switch streamingType {
@@ -36,6 +44,7 @@ extension GRPCMethodRenderable where Self: GRPCMethodRepresentable {
             ]
         }
 
+        unavailableAnnotation
         SwiftFunction(
             name: "make\(methodMakeFunctionName)Call",
             arguments: arguments,
@@ -54,12 +63,14 @@ extension GRPCMethodRenderable where Self: GRPCMethodRepresentable {
         }
         arguments.append("callOptions: \(Types.clientCallOptions)? = nil")
 
+        unavailableAnnotation
         SwiftFunction(
             name: "make\(methodMakeFunctionName)Call",
             arguments: arguments,
             returnType: "\(callType)<\(inputMessageName), \(outputMessageName)>",
             access: access
         ) {
+            // TODO we will rise deprecation warning when calling self!
             "self.make\(callTypeWithoutPrefix)("
             Indent {
                 "path: \"\(methodPath)\","
@@ -92,6 +103,7 @@ extension GRPCMethodRenderable where Self: GRPCMethodRepresentable {
                 comments // placing comments into source code!
             }
 
+            unavailableAnnotation
             SwiftFunction(
                 name: streamingType.isStreamingRequest
                     ? "\(methodWrapperFunctionName)<RequestStream>"

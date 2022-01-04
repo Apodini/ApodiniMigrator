@@ -22,6 +22,8 @@ class GRPCMethod: GRPCMethodRepresentable, GRPCMethodRenderable {
         method.name
     }
 
+    var unavailable = false
+
     var sourceCodeComments: String? {
         method.protoSourceComments()
     }

@@ -14,6 +14,10 @@ extension Endpoint: GRPCMethodRepresentable, GRPCMethodRenderable {
         identifier(for: GRPCMethodName.self).rawValue
     }
 
+    var unavailable: Bool {
+        false
+    }
+
     var sourceCodeComments: String? {
         nil
     }
@@ -26,7 +30,7 @@ extension Endpoint: GRPCMethodRepresentable, GRPCMethodRenderable {
     var streamingType: StreamingType {
         switch communicationalPattern {
         case .requestResponse:
-            return .unary;
+            return .unary
         case .clientSideStream:
             return .clientStreaming
         case .serviceSideStream:
