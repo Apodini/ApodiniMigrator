@@ -10,7 +10,7 @@ import Foundation
 
 struct LegacyServiceInformation: Codable {
     enum MigrationError: Error {
-        case failedMath(path: String)
+        case failedMatch(path: String)
         case failedHostnameExtraction(path: String)
         case failedPortConversion(path: String)
     }
@@ -31,7 +31,7 @@ extension HTTPInformation {
         let regex = try! NSRegularExpression(pattern: "^http://(.+):([0-9]+)(/(\\w|\\d)+)?$")
 
         guard let match = regex.firstMatch(in: serverPath, range: range) else {
-            throw LegacyServiceInformation.MigrationError.failedMath(path: serverPath)
+            throw LegacyServiceInformation.MigrationError.failedMatch(path: serverPath)
         }
 
         guard let hostname = serverPath.retrieveMatch(match: match, at: 1),
