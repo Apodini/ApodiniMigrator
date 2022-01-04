@@ -24,7 +24,9 @@ let package = Package(
         .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"]),
         .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
         .library(name: "RESTMigrator", targets: ["RESTMigrator"]),
-        .executable(name: "migrator", targets: ["ApodiniMigratorCLI"])
+        .library(name: "gRPCMigrator", targets: ["gRPCMigrator"]),
+        .executable(name: "migrator", targets: ["ApodiniMigratorCLI"]),
+        .executable(name: "protoc-gen-grpc-migrator", targets: ["protoc-gen-grpc-migrator"])
     ],
     dependencies: [
         .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .upToNextMinor(from: "0.3.0")),
@@ -34,6 +36,9 @@ let package = Package(
         .package(url: "https://github.com/omochi/FineJSON.git", from: "1.14.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "4.0.0"),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
+
+        // gRPC
+        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.18.0"),
 
         // testing runtime crashes
         .package(url: "https://github.com/norio-nomura/XCTAssertCrash.git", from: "0.2.0")
@@ -104,6 +109,18 @@ let package = Package(
             ]
         ),
 
+        // This target packages the gRPC client library generator and migrator.
+        .target(
+            name: "gRPCMigrator",
+            dependencies: [
+                .target(name: "ApodiniMigrator"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf")
+            ],
+            resources: [
+                .process("Resources")
+            ]
+        ),
+
         // This target implements the command line interface of the ApodiniMigrator utility.
         // It offers command to generate and migrate client libraries and a sub command
         // to compare API documents.
@@ -113,6 +130,16 @@ let package = Package(
                 .target(name: "RESTMigrator"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log")
+            ]
+        ),
+
+        .executableTarget(
+            name: "protoc-gen-grpc-migrator",
+            dependencies: [
+                .target(name: "ApodiniMigrator"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
+                .product(name: "SwiftProtobuf", package: "swift-protobuf"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
 
