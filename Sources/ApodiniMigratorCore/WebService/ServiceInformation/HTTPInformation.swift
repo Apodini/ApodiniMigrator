@@ -13,8 +13,8 @@ public struct HTTPInformation: Value, LosslessStringConvertible {
         "\(hostname):\(port)"
     }
 
-    let hostname: String
-    let port: Int
+    public let hostname: String
+    public let port: Int
 
     public init(hostname: String, port: Int = 80) {
         self.hostname = hostname
