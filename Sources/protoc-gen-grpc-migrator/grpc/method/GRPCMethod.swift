@@ -33,15 +33,33 @@ class GRPCMethod: GRPCMethodRepresentable, GRPCMethodRenderable {
         service.servicePath
     }
 
-    var updatedMethodPath: String? {
+    var updatedMethodName: String? {
         for change in identifierChanges {
             // we ignore addition and removal change (assumption is, as long as there is a grpc
             // exporter, all endpoints have service name and rpc method identifiers!)
-            guard let update = change.modeledUpdateChange else {
+            guard change.id.rawValue == GRPCMethodName.identifierType,
+                  let update = change.modeledUpdateChange else {
                 continue
             }
 
+            precondition(update.updated.from.value == methodName)
+            return update.updated.to.value
+        }
 
+        return nil
+    }
+
+    var updatedServiceName: String? {
+        for change in identifierChanges {
+            // we ignore addition and removal change (assumption is, as long as there is a grpc
+            // exporter, all endpoints have service name and rpc method identifiers!)
+            guard change.id.rawValue == GRPCServiceName.identifierType,
+                  let update = change.modeledUpdateChange else {
+                continue
+            }
+
+            precondition(update.updated.from.value == serviceName)
+            return update.updated.to.value
         }
 
         return nil

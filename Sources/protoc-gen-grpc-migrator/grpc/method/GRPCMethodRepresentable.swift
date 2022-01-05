@@ -30,8 +30,6 @@ protocol GRPCMethodRepresentable {
     )? { get }
     // TODO parameterChange?
 
-
-
     var methodPath: String { get }
     var updatedMethodPath: String? { get }
 
@@ -54,6 +52,13 @@ extension GRPCMethodRepresentable {
         "\(serviceName)/\(methodName)"
     }
 
+    var updatedMethodName: String? {
+        nil
+    }
+
+    var updatedServiceName: String? {
+        nil
+    }
     var updatedMethodPath: String? {
         let serviceName = updatedServiceName
         let methodName = updatedMethodName
