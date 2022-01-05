@@ -14,17 +14,16 @@ extension Endpoint: GRPCMethodRepresentable, GRPCMethodRenderable {
         identifier(for: GRPCMethodName.self).rawValue
     }
 
+    var serviceName: String {
+        identifier(for: GRPCServiceName.self).rawValue
+    }
+
     var unavailable: Bool {
         false
     }
 
     var sourceCodeComments: String? {
         nil
-    }
-
-    var methodPath: String {
-        // TODO "\(service.servicePath)/\(method.name)"
-        methodName
     }
 
     var streamingType: StreamingType {

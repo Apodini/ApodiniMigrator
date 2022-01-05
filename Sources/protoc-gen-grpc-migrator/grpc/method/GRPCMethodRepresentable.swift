@@ -11,6 +11,11 @@ import ApodiniMigrator
 
 protocol GRPCMethodRepresentable {
     var methodName: String { get }
+    var updatedMethodName: String? { get }
+
+    var serviceName: String { get }
+    var updatedServiceName: String? { get }
+
     var sourceCodeComments: String? { get }
 
     /// If true, this Method was removed in the latest version.
@@ -25,7 +30,10 @@ protocol GRPCMethodRepresentable {
     )? { get }
     // TODO parameterChange?
 
+
+
     var methodPath: String { get }
+    var updatedMethodPath: String? { get }
 
     var methodWrapperFunctionName: String { get }
 
@@ -41,6 +49,21 @@ extension GRPCMethodRepresentable {
         name = name.prefix(1).lowercased() + name.dropFirst()
         return sanitize(fieldName: name)
     }
+
+    var methodPath: String {
+        "\(serviceName)/\(methodName)"
+    }
+
+    var updatedMethodPath: String? {
+        let serviceName = updatedServiceName
+        let methodName = updatedMethodName
+        if serviceName == nil && methodName == nil {
+            return nil
+        }
+
+        return "\(serviceName ?? self.serviceName)/\(methodName ?? self.methodName)"
+    }
+
     var unavailable: Bool {
         false
     }

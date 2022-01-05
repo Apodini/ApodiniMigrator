@@ -29,14 +29,28 @@ class GRPCMethod: GRPCMethodRepresentable, GRPCMethodRenderable {
         method.name
     }
 
+    var serviceName: String {
+        service.servicePath
+    }
+
+    var updatedMethodPath: String? {
+        for change in identifierChanges {
+            // we ignore addition and removal change (assumption is, as long as there is a grpc
+            // exporter, all endpoints have service name and rpc method identifiers!)
+            guard let update = change.modeledUpdateChange else {
+                continue
+            }
+
+
+        }
+
+        return nil
+    }
+
     var unavailable = false
 
     var sourceCodeComments: String? {
         method.protoSourceComments()
-    }
-
-    var methodPath: String {
-        "\(service.servicePath)/\(method.name)"
     }
 
     var streamingType: StreamingType {

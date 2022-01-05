@@ -189,9 +189,8 @@ extension GRPCMethodRenderable {
                 + "perform\(streamingType.grpcCallTypeString)("
 
             Indent {
-                // TODO migration of methodPath
                 """
-                path: \"\(methodPath)\",
+                path: \"\(updatedMethodPath ?? methodPath)\",
                 \(streamingType.requestParameterName): \(streamingType.requestParameterName),
                 callOptions: callOptions ?? defaultCallOptions,
                 responseType: \(outputMessageName).self
