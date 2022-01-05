@@ -22,6 +22,7 @@
  * limitations under the License.
  */
 import SwiftProtobufPluginLibrary
+import ApodiniMigratorCore
 
 internal enum StreamingType {
     case unary
@@ -44,6 +45,42 @@ internal enum StreamingType {
             return true
         default:
             return false
+        }
+    }
+}
+
+extension StreamingType {
+    var grpcCallTypeString: String {
+        switch self {
+        case .unary:
+            return "AsyncUnaryCall"
+        case .clientStreaming:
+            return "AsyncClientStreamingCall"
+        case .serverStreaming:
+            return "AsyncServerStreamingCall"
+        case .bidirectionalStreaming:
+            return "AsyncBidirectionalStreamingCall"
+        }
+    }
+
+    var requestParameterName: String {
+        self.isStreamingRequest
+            ? "requests"
+            : "request"
+    }
+}
+
+extension StreamingType {
+    init(from pattern: CommunicationalPattern) {
+        switch pattern {
+        case .requestResponse:
+            self = .unary
+        case .clientSideStream:
+            self = .clientStreaming
+        case .serviceSideStream:
+            self = .serverStreaming
+        case .bidirectionalStream:
+            self = .bidirectionalStreaming
         }
     }
 }

@@ -5,12 +5,3 @@
 //
 // SPDX-License-Identifier: MIT
 //
-
-import Foundation
-
-/// An empty ``SourceCodeRenderable``.
-public struct EmptyLine: SourceCodeRenderable {
-    public init() {}
-
-    public let renderableContent: String = ""
-}

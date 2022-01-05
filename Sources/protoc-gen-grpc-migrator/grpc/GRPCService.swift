@@ -76,50 +76,20 @@ class GRPCService: SourceCodeRenderable {
         joinedMethods.append(contentsOf: Array(addedEndpoints.values))
         joinedMethods.sorted(by: \.methodName)
 
-        // TODO do we need #if directives (>= 5.5 and _Concurrency)? and @available?
-
         // TODO we don't actually need any SERVICE comments(?)
         if var comments = self.serviceSourceComments {
             comments.removeLast()
             comments
         }
 
-        // TODO visibility + service name!!
-        "protocol \(serviceName)AsyncClientProtocol: GRPCClient {"
-        Indent {
-            "var serviceName: String { get }"
-
-            for method in joinedMethods {
-                EmptyLine()
-                method.clientProtocolSignature
-            }
-        }
-        "}"
-
-        EmptyLine()
-
-        "extension \(serviceName)AsyncClientProtocol {"
+        // TODO visibilit + service name!!
+        "public struct \(serviceName)AsyncClient: \(serviceName)AsyncClientProtocol {"
         Indent {
             "var serviceName: String {"
             Indent("\"\(servicePath)\"")
-            "}"
-
-            for method in joinedMethods {
-                EmptyLine()
-
-                method.clientProtocolExtensionFunction
-            }
-        }
-        "}"
-
-        EmptyLine()
-
-        // TODO protocol extension with the "safe" wrapper stuff? huh?
-
-        // TODO visibilit + service name!!
-        "struct \(serviceName)AsyncClient: \(serviceName)AsyncClientProtocol {"
-        Indent {
             """
+            }
+
             var channel: GRPCChannel
             var defaultCallOptions: CallOptions
             """

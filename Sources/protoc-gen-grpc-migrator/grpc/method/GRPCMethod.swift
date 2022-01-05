@@ -16,7 +16,14 @@ class GRPCMethod: GRPCMethodRepresentable, GRPCMethodRenderable {
     var apodiniIdentifiers: GRPCMethodApodiniAnnotations
 
     // we track the content of all `update` EndpointChanges here
-    private var endpointUpdates: [EndpointChange.UpdateChange] = []
+    var identifierChanges: [EndpointIdentifierChange] = []
+    var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)?
+    var responseChangeChange: (
+        from: TypeInformation,
+        to: TypeInformation,
+        backwardsMigration: Int,
+        migrationWarning: String?
+    )?
 
     var methodName: String {
         method.name
@@ -61,6 +68,17 @@ class GRPCMethod: GRPCMethodRepresentable, GRPCMethodRenderable {
     }
 
     func registerUpdateChange(_ change: EndpointChange.UpdateChange) {
-        self.endpointUpdates.append(change)
+        precondition(apodiniIdentifiers.deltaIdentifier == change.id)
+
+        switch change.updated {
+        case let .identifier(identifier):
+            self.identifierChanges.append(identifier)
+        case let .communicationalPattern(from, to):
+            self.communicationPatternChange = (from, to)
+        case let .response(from, to, backwardsMigration, migrationWarning):
+            self.responseChangeChange = (from, to, backwardsMigration, migrationWarning)
+        default:
+            print("Ignoring change for now: \(change.updated)") // TODO handle .parameter
+        }
     }
 }

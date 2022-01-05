@@ -8,9 +8,11 @@
 
 import Foundation
 
-/// An empty ``SourceCodeRenderable``.
-public struct EmptyLine: SourceCodeRenderable {
+/// An empty ``SourceCodeComponent``.
+public struct EmptyComponent: SourceCodeComponent {
     public init() {}
 
-    public let renderableContent: String = ""
+    public func render() -> [String] {
+        []
+    }
 }

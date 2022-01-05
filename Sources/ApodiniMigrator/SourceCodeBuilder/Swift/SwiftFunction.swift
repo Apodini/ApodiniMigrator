@@ -15,6 +15,7 @@ public struct SwiftFunction: SourceCodeRenderable {
     private static let indent: String = "    "
 
     private let name: String
+    private let generics: [String]
     private let arguments: [String]
     private let returnType: String?
     private let access: String?
@@ -30,6 +31,7 @@ public struct SwiftFunction: SourceCodeRenderable {
     ///
     /// - Parameters:
     ///   - name: The function name
+    ///   - generics: Array of generics name. Empty if none.
     ///   - arguments: Array of function arguments (e.g. `["_ someString: String", "number: Int"]`)
     ///   - returnType: The string representation of a return type. `nil` for `Void`.
     ///   - access: The optional access level as a string representation.
@@ -39,6 +41,7 @@ public struct SwiftFunction: SourceCodeRenderable {
     ///   - whereClause: A string representation of a where clause.
     public init(
         name: String,
+        generics: [String] = [],
         arguments: [String] = [],
         returnType: String? = nil,
         access: String? = nil,
@@ -48,6 +51,7 @@ public struct SwiftFunction: SourceCodeRenderable {
         whereClause: String? = nil
     ) {
         self.name = name
+        self.generics = generics
         self.arguments = arguments
         self.returnType = returnType
         self.access = access
@@ -61,6 +65,7 @@ public struct SwiftFunction: SourceCodeRenderable {
     /// Create a new SwiftFunction.
     /// - Parameters:
     ///   - name: The function name
+    ///   - generics: Array of generics name. Empty if none.
     ///   - arguments: Array of function arguments (e.g. `["_ someString: String", "number: Int"]`)
     ///   - returnType: The string representation of a return type. `nil` for `Void`.
     ///   - access: The optional access level as a string representation.
@@ -71,6 +76,7 @@ public struct SwiftFunction: SourceCodeRenderable {
     ///   - functionBody: A ``SourceCodeBuilder`` closure to render the function body.
     public init(
         name: String,
+        generics: [String] = [], // TODO make optional type instead of empty?
         arguments: [String] = [],
         returnType: String? = nil,
         access: String? = nil,
@@ -81,6 +87,7 @@ public struct SwiftFunction: SourceCodeRenderable {
         @SourceCodeBuilder functionBody: () -> String
     ) {
         self.name = name
+        self.generics = generics
         self.arguments = arguments
         self.returnType = returnType
         self.access = access
@@ -102,6 +109,7 @@ public struct SwiftFunction: SourceCodeRenderable {
         }
     }
 
+    // swiftlint:disable cyclomatic_complexity
     private func functionHead() -> String {
         var head = ""
 
@@ -113,7 +121,13 @@ public struct SwiftFunction: SourceCodeRenderable {
             head += "@Sendable "
         }
 
-        head += "func \(name)("
+        head += "func \(name)"
+
+        if !generics.isEmpty {
+            head += "<\(generics.joined(separator: ", "))>"
+        }
+
+        head += "("
 
         var firstArgument = true
         for argument in arguments {

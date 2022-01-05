@@ -15,41 +15,46 @@ protocol GRPCMethodRepresentable {
 
     /// If true, this Method was removed in the latest version.
     var unavailable: Bool { get }
+    var identifierChanges: [EndpointIdentifierChange] { get } // TODO serviceName and servicePath!
+    var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)? { get }
+    var responseChangeChange: (
+        from: TypeInformation,
+        to: TypeInformation,
+        backwardsMigration: Int,
+        migrationWarning: String?
+    )? { get }
+    // TODO parameterChange?
 
     var methodPath: String { get }
-
-    var methodMakeFunctionName: String { get }
 
     var methodWrapperFunctionName: String { get }
 
     var streamingType: StreamingType { get }
-
-    var callType: String { get }
-    var callTypeWithoutPrefix: String { get }
 
     var inputMessageName: String { get }
     var outputMessageName: String { get }
 }
 
 extension GRPCMethodRepresentable {
-    var methodMakeFunctionName: String {
-        var name = methodName
-        name = name.prefix(1).uppercased() + name.dropFirst()
-        return sanitize(fieldName: name)
-    }
-
     var methodWrapperFunctionName: String {
         var name = methodName
         name = name.prefix(1).lowercased() + name.dropFirst()
         return sanitize(fieldName: name)
     }
-
-    var callType: String {
-        // TODO make this part of the streamingType overload
-        Types.call(for: streamingType)
+    var unavailable: Bool {
+        false
     }
-    var callTypeWithoutPrefix: String {
-        Types.call(for: streamingType, withGRPCPrefix: false)
+
+    var identifierChanges: [EndpointIdentifierChange] {
+        []
+    }
+
+    var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)? {
+        nil
+    }
+
+    var responseChangeChange: (from: TypeInformation, to: TypeInformation, backwardsMigration: Int, migrationWarning: String?)? {
+        nil
     }
 }
 
