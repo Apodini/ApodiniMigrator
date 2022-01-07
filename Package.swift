@@ -140,7 +140,8 @@ let package = Package(
                 .target(name: "ApodiniMigrator"),
                 .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
                 .product(name: "SwiftProtobuf", package: "swift-protobuf"),
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "OrderedCollections", package: "swift-collections")
             ]
         ),
 

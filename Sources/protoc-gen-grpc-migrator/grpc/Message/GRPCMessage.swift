@@ -9,17 +9,22 @@
 import Foundation
 import ApodiniMigrator
 import SwiftProtobufPluginLibrary
+import OrderedCollections
 
 class GRPCMessage {
     let descriptor: Descriptor
     let namer: SwiftProtobufNamer
 
-    // TODO contains message or enums again!
-
     var relativeName: String
     var fullName: String
 
     var fields: [GRPCMessageField] = []
+    lazy var sortedFields: [GRPCMessageField] = {
+        fields.sorted(by: \.number)
+    }()
+
+    var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
+    var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
     init(descriptor: Descriptor, namer: SwiftProtobufNamer) {
         self.descriptor = descriptor
@@ -30,21 +35,21 @@ class GRPCMessage {
         self.relativeName = namer.relativeName(message: descriptor)
         self.fullName = namer.relativeName(message: descriptor)
 
-        // TODO isExtensible
-
         for field in descriptor.fields {
             fields.append(GRPCMessageField(descriptor: field, namer: namer))
         }
 
-        // TODO nested enums
-        // TODO nested messages
+        for `enum` in descriptor.enums {
+            nestedEnums[`enum`.name] = GRPCEnum(descriptor: `enum`, namer: namer)
+        }
 
-        // TODO `storage` stuff?
+        for message in descriptor.messages {
+            nestedMessages[message.name] = GRPCMessage(descriptor: message, namer: namer)
+        }
     }
 
     @SourceCodeBuilder
-    var primaryStruct: String {
-        // TODO ExtensibleMessage
+    var primaryModelType: String {
         ""
         // TODO visibility
         "public struct \(relativeName) {"
@@ -52,23 +57,26 @@ class GRPCMessage {
             for field in fields {
                 field.propertyInterface
             }
-            // TODO fields
 
-            // TODO unknownFilds
+            ""
+            "public var unknownFields = \(namer.swiftProtobufModuleName).UnknownStorage()"
 
-            // TODO oneOfs
+            // TODO spacing!
 
-            // TODO nested enums
+            for `enum` in nestedEnums.values {
+                `enum`.primaryModelType
+            }
 
-            // TODO nested messages
-
-            // TODO extension support; storageClass thingy!
+            for message in nestedMessages.values {
+                message.primaryModelType
+            }
         }
         "}"
     }
 
     @SourceCodeBuilder
-    var runtimeSupport: String {
+    var protobufferRuntimeSupport: String {
+        ""
         "extension \(fullName): \(namer.swiftProtobufModuleName).Message, \(namer.swiftProtobufModuleName)._MessageImplementationBase, \(namer.swiftProtobufModuleName)._ProtoNameProviding {"
         Indent {
             "static let protoMessageName: String = \"\(descriptor.name)\"" // TODO respect parent descriptor file + file package name!
@@ -86,7 +94,6 @@ class GRPCMessage {
                 }
                 "]"
             }
-            // TODO heap storage stuff?
             // TODO isInitialized?
 
             decodeMessageMethod
@@ -94,26 +101,26 @@ class GRPCMessage {
             traverseMessageMethod
         }
         "}"
-        ""
-        "extension \(fullName): Codable {}" // TODO unknown fields must conform to codable?
+
+        for `enum` in nestedMessages.values {
+            `enum`.protobufferRuntimeSupport
+        }
+
+        for message in nestedMessages.values {
+            message.protobufferRuntimeSupport
+        }
     }
 
     @SourceCodeBuilder
     private var decodeMessageMethod: String {
         "public mutating func decodeMessage<D: \(namer.swiftProtobufModuleName).Decoder>(decoder: inout D) throws {"
         Indent {
-            // TODO uniqueStorage?
-
-            // TODO generateWithLifetimeExtension if using storage?
-
             "while let \(fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
             Indent {
-                // TODO handle Extensible for empty fields and for non empty fields
                 // TODO print https://github.com/apple/swift-protobuf/issues/1034
                 "switch fieldNumber {"
                 Indent {
-                    // TODO sort once and not for every access
-                    for field in fields.sorted(by: \.number) {
+                    for field in sortedFields {
                         field.fieldDecodeCase
                     }
                 }
@@ -128,12 +135,6 @@ class GRPCMessage {
     private var traverseMessageMethod: String {
         "public traverse<V: \(namer.swiftProtobufModuleName).Visitor>(visitor: inout V) throws {"
         Indent {
-            // TODO "generateWithLifetimeExtension"
-
-            // TODO we don't support storage, extensions nor useMessageSetWireFormat, nor oneOf (we don't support enums with associated values!)
-            let visitExtensionsName =
-                descriptor.useMessageSetWireFormat ? "visitExtensionFieldsAsMessageSet" : "visitExtensionFields"
-
             if fields.contains { $0.generateTraverseUsesLocals } {
                 // TODO  "// The use of inline closures is to circumvent an issue where the compiler\n",
                 //          "// allocates stack space for every if/case branch local when no optimizations\n",
@@ -141,8 +142,7 @@ class GRPCMessage {
                 //          "// https://github.com/apple/swift-protobuf/issues/1182\n")
             }
 
-            // TODO var ranges = descriptor.normalizedExtensionRanges.makeIterator() (no need to handle extensions?)
-            for field in fields.sorted(by: \.number) {
+            for field in sortedFields {
                 field.traverseExpression
             }
             ""
@@ -150,6 +150,4 @@ class GRPCMessage {
         }
         "}"
     }
-
-    // TODO message equality method
 }
