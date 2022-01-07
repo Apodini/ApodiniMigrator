@@ -104,29 +104,22 @@ class GRPCMessage {
         Indent {
             // TODO uniqueStorage?
 
-            if descriptor.useMessageSetWireFormat && isExtensible {
-                // MessageSet hands off the decode to the decoder to do the custom logic into the extensions.
-                "try decoder.decodeExtensionFieldsAsMessageSet(values: &_protobuf_extensionFieldValues, messageType: \(fullName).self)"
-            } else {
-                let varName = fields.isEmpty && !isExtensible ? "_" : "fieldNumber"
+            // TODO generateWithLifetimeExtension if using storage?
 
-                // TODO generateWithLifetimeExtension if using storage?
-
-                "while let \(fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
+            "while let \(fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
+            Indent {
+                // TODO handle Extensible for empty fields and for non empty fields
+                // TODO print https://github.com/apple/swift-protobuf/issues/1034
+                "switch fieldNumber {"
                 Indent {
-                    // TODO handle Extensible for empty fields and for non empty fields
-                    // TODO print https://github.com/apple/swift-protobuf/issues/1034
-                    "switch fieldNumber {"
-                    Indent {
-                        // TODO sort once and not for every access
-                        for field in fields.sorted(by: \.number) {
-                            field.fieldDecodeCase
-                        }
+                    // TODO sort once and not for every access
+                    for field in fields.sorted(by: \.number) {
+                        field.fieldDecodeCase
                     }
-                    "}"
                 }
                 "}"
             }
+            "}"
         }
         "}"
     }

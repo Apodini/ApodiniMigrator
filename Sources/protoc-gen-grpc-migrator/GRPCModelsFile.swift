@@ -26,7 +26,7 @@ class GRPCModelsFile: SourceCodeRenderable {
         )
 
         for message in file.messages {
-            self.messages[message.name] = GRPCMessage(descriptor: message)
+            self.messages[message.name] = GRPCMessage(descriptor: message, namer: protobufNamer)
         }
     }
 
