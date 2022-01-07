@@ -39,14 +39,17 @@ extension Endpoint: GRPCMethodRepresentable, GRPCMethodRenderable {
         }
     }
 
-    var inputMessageName: String {
+    var inputMessageName: String { // TODO generate message from parameters!
         // TODO packageName!
         handlerName.buildName() + "___INPUT" // TODO magic constant from ApodiniGRPC
+
+        // TODO service.protobufNamer.fullName(message: method.inputType)
     }
 
     var outputMessageName: String {
         // TODO packageName
         // TODO handle reference types
         response.typeName.buildName()
+        // TODO service.protobufNamer.fullName(message: method.inputType)
     }
 }

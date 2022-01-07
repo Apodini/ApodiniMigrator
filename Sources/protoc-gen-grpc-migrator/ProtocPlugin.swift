@@ -83,20 +83,36 @@ struct ProtocPlugin {
     mutating func generate() throws {
         for name in request.fileToGenerate {
             let fileDescriptor = descriptorSet.lookupFileDescriptor(protoName: name)
-            if fileDescriptor.services.isEmpty {
-                continue
-            }
 
-            let grpcFileName = "webservice.grpc.swift" // TODO generate
-
-            let file = GRPCClientFile(fileDescriptor, migrationGuide: migrationGuide)
-
-            let generatedFile = Google_Protobuf_Compiler_CodeGeneratorResponse.File(
-                name: grpcFileName,
-                content: file.renderableContent
-            )
-            response.file.append(generatedFile)
+            try generateModelsFile(for: fileDescriptor)
+            try generateServiceFile(for: fileDescriptor)
         }
+    }
+
+    mutating func generateServiceFile(for descriptor: FileDescriptor) throws {
+        if descriptor.services.isEmpty {
+            return
+        }
+
+        let grpcFileName = "\(descriptor.name).grpc.swift" // TODO generate
+
+        let file = GRPCClientsFile(descriptor, migrationGuide: migrationGuide)
+
+        let generatedFile = Google_Protobuf_Compiler_CodeGeneratorResponse.File(
+            name: grpcFileName,
+            content: file.renderableContent
+        )
+        response.file.append(generatedFile)
+    }
+
+    mutating func generateModelsFile(for descriptor: FileDescriptor) throws {
+        if descriptor.messages.isEmpty && descriptor.enums.isEmpty {
+            return // TODO complete check above?
+        }
+
+        let fileName = "\(descriptor.name).pb.swift" // TODO generate?
+
+
     }
 
     @discardableResult

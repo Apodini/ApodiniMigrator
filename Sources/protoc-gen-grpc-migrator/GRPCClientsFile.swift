@@ -10,12 +10,10 @@ import Foundation
 import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 
-class GRPCClientFile: SourceCodeRenderable {
+class GRPCClientsFile: SourceCodeRenderable {
     let protoFile: FileDescriptor
     let migrationGuide: MigrationGuide
-
     let protobufNamer: SwiftProtobufNamer
-
 
     var services: [String: GRPCService] = [:]
 
@@ -48,7 +46,7 @@ class GRPCClientFile: SourceCodeRenderable {
         // TODO other imports?
         ""
 
-        for service in self.services.values {
+        for service in self.services.values.sorted(by: \.serviceName) {
             service
         }
     }

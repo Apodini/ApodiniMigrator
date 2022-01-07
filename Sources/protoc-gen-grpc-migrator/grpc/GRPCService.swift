@@ -12,9 +12,9 @@ import ApodiniMigrator
 
 class GRPCService: SourceCodeRenderable {
     // TODO interceptors?
-    private unowned let file: GRPCClientFile
+    private unowned let file: GRPCClientsFile
 
-    private let serviceName: String
+    let serviceName: String
     private let serviceSourceComments: String? // TODO needed?
 
     private var methods: [GRPCMethod]
@@ -32,7 +32,7 @@ class GRPCService: SourceCodeRenderable {
         }
     }
 
-    init(_ service: ServiceDescriptor, locatedIn file: GRPCClientFile) {
+    init(_ service: ServiceDescriptor, locatedIn file: GRPCClientsFile) {
         self.file = file
         self.serviceName = service.name
         self.methods = []
@@ -44,7 +44,7 @@ class GRPCService: SourceCodeRenderable {
         }
     }
 
-    init(named serviceName: String, locatedIn file: GRPCClientFile) {
+    init(named serviceName: String, locatedIn file: GRPCClientsFile) {
         self.file = file
         self.serviceName = serviceName
         self.methods = []

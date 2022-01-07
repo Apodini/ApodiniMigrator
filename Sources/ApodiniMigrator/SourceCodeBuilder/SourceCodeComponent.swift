@@ -11,7 +11,7 @@ import Foundation
 /// Represents any element which can be part of source code.
 ///
 /// This is the core building block of the ``SourceCodeComponentBuilder`` and ``SourceCodeBuilder``.
-public protocol SourceCodeComponent {
+public protocol SourceCodeComponent { // TODO build string interpolation supporting SourceCodeComponents?
     /// Called to render the source code of the `SourceCodeComponent`.
     /// - Returns: Returns an array of lines.
     func render() -> [String]
