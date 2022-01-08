@@ -89,8 +89,8 @@ struct ProtocPlugin {
                  protoFileToModuleMappings: .init() // TODO pass some options?
             )
 
-            try generateModelsFile(for: fileDescriptor)
-            try generateServiceFile(for: fileDescriptor)
+            try generateModelsFile(for: fileDescriptor, namer: namer)
+            try generateServiceFile(for: fileDescriptor, namer: namer)
         }
     }
 
@@ -169,8 +169,8 @@ struct ProtocPlugin {
 }
 
 class Stderr { // TODO rename/redo?
-    static func print(_ s: String) {
-        let out = "\(s)\n"
+    static func print(_ string: String) {
+        let out = "\(string)\n"
         if let data = out.data(using: .utf8) {
             FileHandle.standardError.write(data)
         }

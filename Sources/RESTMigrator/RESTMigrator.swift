@@ -48,7 +48,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
             )
         }
 
-        if document.serviceInformation.exporterIfPresent(for: RESTExporterConfiguration.self, migrationGuide: migrationGuide) == nil {
+        guard document.serviceInformation.exporterIfPresent(for: RESTExporterConfiguration.self, migrationGuide: migrationGuide) != nil else {
             throw MigratorError.incompatible(
                 message: """
                          RESTMigrator is not compatible with the provided documents. The web service either \

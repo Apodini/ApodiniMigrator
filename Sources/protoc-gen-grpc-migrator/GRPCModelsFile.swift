@@ -94,4 +94,9 @@ class GRPCModelsFile: SourceCodeRenderable {
         }
         "}"
     }
+
+    private func parseModelChanges() {
+        var addedModels: [ModelChange.AdditionChange] = []
+        var updatedModels: [ModelChange.UpdateChange] = []
+    }
 }

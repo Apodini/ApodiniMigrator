@@ -43,7 +43,7 @@ class GRPCClientsFile: SourceCodeRenderable {
         }
     }
 
-    func parseEndpointChanges() {
+    private func parseEndpointChanges() {
         var addedEndpoints: [EndpointChange.AdditionChange] = []
         var updatedEndpoints: [EndpointChange.UpdateChange] = []
         var removedEndpoints: [EndpointChange.RemovalChange] = []

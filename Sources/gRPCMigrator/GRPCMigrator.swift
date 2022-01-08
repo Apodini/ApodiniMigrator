@@ -12,6 +12,10 @@ import ApodiniMigratorCompare
 import Logging
 
 public struct GRPCMigrator: Migrator {
+    enum MigratorError: Error {
+        case incompatible(message: String)
+    }
+
     private static let DUMP_PATH = "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES/dump.pbinary"
 
     public var bundle: Bundle = .module
@@ -29,19 +33,37 @@ public struct GRPCMigrator: Migrator {
     public init(protoFile: String, migrationGuidePath: String? = nil) throws {
         let path = Path(protoFile)
 
+        let documentPath: String = "/asdf.txt" // TODO we need access to the documentPath!
+        let document = try APIDocument.decode(from: Path(documentPath))
+
         // TODO support multiple proto file (non priority though)
         self.protoFile = path.lastComponent
         self.protoFilePath = Path(path.absolute().description.replacingOccurrences(of: path.lastComponent, with: ""))
-
-        // TODO verify MigrationGuide ID(?)
-        // TODO create generalized Migrator error thrown by below migrators!
 
         if let path = migrationGuidePath {
             try self.migrationGuide = MigrationGuide.decode(from: Path(path))
             self.migrationGuidePath = migrationGuidePath
         } else {
-            self.migrationGuide = .empty()
+            self.migrationGuide = .empty(id: document.id)
             self.migrationGuidePath = nil
+        }
+
+        guard migrationGuide.id == document.id else {
+            throw MigratorError.incompatible(
+                message: """
+                         Migration guide is not compatible with the provided document. Apparently another old document version, \
+                         has been used to generate the migration guide!
+                         """
+            )
+        }
+
+        guard document.serviceInformation.exporterIfPresent(for: GRPCExporterConfiguration.self, migrationGuide: migrationGuide) != nil else {
+            throw MigratorError.incompatible(
+                message: """
+                         GRPCMigrator is not compatible with the provided documents. The web service either \
+                         hasn't a GRPC interface configured, or it was removed in the latest version!
+                         """
+            )
         }
     }
 
