@@ -21,7 +21,7 @@ class GRPCService: SourceCodeRenderable {
     private var addedEndpoints: [String: Endpoint] = [:]
 
     var protobufNamer: SwiftProtobufNamer {
-        file.protobufNamer
+        file.namer
     }
 
     var servicePath: String {
@@ -72,6 +72,8 @@ class GRPCService: SourceCodeRenderable {
     }
 
     var renderableContent: String {
+        ""
+
         var joinedMethods: [GRPCMethodRenderable & GRPCMethodRepresentable] = methods
         joinedMethods.append(contentsOf: Array(addedEndpoints.values))
         joinedMethods.sorted(by: \.methodName)

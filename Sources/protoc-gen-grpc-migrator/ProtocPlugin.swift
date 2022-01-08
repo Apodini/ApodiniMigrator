@@ -84,19 +84,24 @@ struct ProtocPlugin {
         for name in request.fileToGenerate {
             let fileDescriptor = descriptorSet.lookupFileDescriptor(protoName: name)
 
+            let namer = SwiftProtobufNamer(
+                 currentFile: fileDescriptor,
+                 protoFileToModuleMappings: .init() // TODO pass some options?
+            )
+
             try generateModelsFile(for: fileDescriptor)
             try generateServiceFile(for: fileDescriptor)
         }
     }
 
-    mutating func generateServiceFile(for descriptor: FileDescriptor) throws {
+    mutating func generateServiceFile(for descriptor: FileDescriptor, namer: SwiftProtobufNamer) throws {
         if descriptor.services.isEmpty {
             return
         }
 
         let grpcFileName = "\(descriptor.name).grpc.swift" // TODO generate
 
-        let file = GRPCClientsFile(descriptor, migrationGuide: migrationGuide)
+        let file = GRPCClientsFile(descriptor, migrationGuide: migrationGuide, namer: namer)
 
         let generatedFile = Google_Protobuf_Compiler_CodeGeneratorResponse.File(
             name: grpcFileName,
@@ -105,14 +110,20 @@ struct ProtocPlugin {
         response.file.append(generatedFile)
     }
 
-    mutating func generateModelsFile(for descriptor: FileDescriptor) throws {
+    mutating func generateModelsFile(for descriptor: FileDescriptor, namer: SwiftProtobufNamer) throws {
         if descriptor.messages.isEmpty && descriptor.enums.isEmpty {
             return // TODO complete check above?
         }
 
         let fileName = "\(descriptor.name).pb.swift" // TODO generate?
 
+        let file = GRPCModelsFile(descriptor, migrationGuide: migrationGuide, namer: namer)
 
+        let generatedFile = Google_Protobuf_Compiler_CodeGeneratorResponse.File(
+            name: fileName,
+            content: file.renderableContent
+        )
+        response.file.append(generatedFile)
     }
 
     @discardableResult

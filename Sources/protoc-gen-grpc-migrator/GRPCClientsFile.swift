@@ -13,38 +13,30 @@ import SwiftProtobufPluginLibrary
 class GRPCClientsFile: SourceCodeRenderable {
     let protoFile: FileDescriptor
     let migrationGuide: MigrationGuide
-    let protobufNamer: SwiftProtobufNamer
+    let namer: SwiftProtobufNamer
 
     var services: [String: GRPCService] = [:]
 
-    init(_ file: FileDescriptor, migrationGuide: MigrationGuide) {
+    init(_ file: FileDescriptor, migrationGuide: MigrationGuide, namer: SwiftProtobufNamer) {
         self.protoFile = file
         self.migrationGuide = migrationGuide
-        self.protobufNamer = SwiftProtobufNamer(
-            currentFile: file,
-            protoFileToModuleMappings: .init() // TODO pass some options?
-        )
+        self.namer = namer
 
         for service in protoFile.services {
             self.services[service.name] = GRPCService(service, locatedIn: self)
         }
 
-        // TODO ensure endpoint changes are only considered for the first one!
+        // TODO ensure endpoint changes are only considered for the first file!
         parseEndpointChanges()
     }
 
     var renderableContent: String {
-        """
-        // DO NOT EDIT.
-        //
-        // This file is machine generated!
+        FileHeaderComment()
 
-        """
-
+        Import(.foundation)
         Import("NIO")
         Import("GRPC")
         // TODO other imports?
-        ""
 
         for service in self.services.values.sorted(by: \.serviceName) {
             service
@@ -56,8 +48,6 @@ class GRPCClientsFile: SourceCodeRenderable {
         var updatedEndpoints: [EndpointChange.UpdateChange] = []
         var removedEndpoints: [EndpointChange.RemovalChange] = []
 
-        // TODO how do we decide to which file we add the added endpoints?
-        // TODO do we need to store them all in advance?
         for change in migrationGuide.endpointChanges {
             // we ignore idChange updates. Why? Because we always work with the older identifiers.
             // And client library should not modify identifiers, to maintain code compatibility

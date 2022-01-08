@@ -24,39 +24,31 @@ import OrderedCollections
 class GRPCModelsFile: SourceCodeRenderable {
     let protoFile: FileDescriptor
     let migrationGuide: MigrationGuide
-    let protobufNamer: SwiftProtobufNamer
+    let namer: SwiftProtobufNamer
 
     var enums: OrderedDictionary<String, GRPCEnum> = [:]
     var messages: OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(_ file: FileDescriptor, migrationGuide: MigrationGuide) {
+    init(_ file: FileDescriptor, migrationGuide: MigrationGuide, namer: SwiftProtobufNamer) {
         self.protoFile = file
         self.migrationGuide = migrationGuide
-        self.protobufNamer = SwiftProtobufNamer( // TODO generate a single namer for clients and models!
-            currentFile: file,
-            protoFileToModuleMappings: .init() // TODO pass some options?
-        )
+        self.namer = namer
 
         for `enum` in file.enums {
-            self.enums[`enum`.name] = GRPCEnum(descriptor: `enum`, namer: protobufNamer)
+            self.enums[`enum`.name] = GRPCEnum(descriptor: `enum`, namer: namer)
         }
 
         for message in file.messages {
-            self.messages[message.name] = GRPCMessage(descriptor: message, namer: protobufNamer)
+            self.messages[message.name] = GRPCMessage(descriptor: message, namer: namer)
         }
     }
 
     var renderableContent: String {
-        """
-        // DO NOT EDIT:
-        //
-        // This file is machine generated!
-
-        """
+        FileHeaderComment()
 
         Import(.foundation)
         if !SwiftProtobufInfo.isBundledProto(file: protoFile.proto) {
-            Import("\(protobufNamer.swiftProtobufModuleName)")
+            Import("\(namer.swiftProtobufModuleName)")
         }
         ""
         // TODO generatorOptions.protoToModuleMappings.neededModules(forFile: fileDescriptor)
@@ -95,9 +87,9 @@ class GRPCModelsFile: SourceCodeRenderable {
         // Please ensure that you are building against the same version of the API
         // that was used to generate this file.
         """
-        "fileprivate strut _GeneratedWithProtocGenSwiftVersion: \(protobufNamer.swiftProtobufModuleName).ProtobufAPIVersionCheck {"
+        "fileprivate strut _GeneratedWithProtocGenSwiftVersion: \(namer.swiftProtobufModuleName).ProtobufAPIVersionCheck {"
         Indent {
-            "struct _2: \(protobufNamer.swiftProtobufModuleName).ProtobufAPIVersion2 {}"
+            "struct _2: \(namer.swiftProtobufModuleName).ProtobufAPIVersion2 {}"
             "typealias Version = _2"
         }
         "}"
