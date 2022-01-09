@@ -60,6 +60,7 @@ struct ProtocPlugin {
     let request: Google_Protobuf_Compiler_CodeGeneratorRequest
     let options: PluginOptions
 
+    let apiDocument: APIDocument
     let migrationGuide: MigrationGuide
     let descriptorSet: DescriptorSet
 
@@ -71,6 +72,11 @@ struct ProtocPlugin {
     public init(request: Google_Protobuf_Compiler_CodeGeneratorRequest, options: PluginOptions) throws {
         self.request = request
         self.options = options
+
+        guard let documentPath = options.documentPath else {
+            fatalError("Tried to boot protoc plugin without specifying the APIDocument path!")
+        }
+        self.apiDocument = try APIDocument.decode(from: Path(documentPath))
 
         if let path = options.migrationGuidePath {
             try self.migrationGuide = MigrationGuide.decode(from: Path(path))
@@ -117,7 +123,7 @@ struct ProtocPlugin {
 
         let fileName = "\(descriptor.name).pb.swift" // TODO generate?
 
-        let file = GRPCModelsFile(descriptor, migrationGuide: migrationGuide, namer: namer)
+        let file = GRPCModelsFile(descriptor, document: apiDocument, migrationGuide: migrationGuide, namer: namer)
 
         let generatedFile = Google_Protobuf_Compiler_CodeGeneratorResponse.File(
             name: fileName,

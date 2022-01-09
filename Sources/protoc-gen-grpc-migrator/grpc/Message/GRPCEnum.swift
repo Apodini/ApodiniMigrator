@@ -20,10 +20,14 @@ class GRPCEnum {
     let fullname: String
     let relativeName: String
 
+    var unavailable = false // TODO set!
+    var containsRootTypeChange = false // TODO use!
+
     var enumCases: [EnumValueDescriptor] = []
     lazy var enumCasesSorted: [EnumValueDescriptor] = {
         enumCases.sorted(by: \.number)
     }()
+    // TODO addedCases!
 
     var hasUnknownPreservingSemantics: Bool {
         descriptor.file.syntax == .proto3
@@ -45,11 +49,48 @@ class GRPCEnum {
         }
     }
 
+    func applyUpdateChange(_ change: ModelChange.UpdateChange) {
+        // TODO deltaIdentifier
+        switch change.updated {
+        case .rootType: // TODO model it as removal and addition?
+            containsRootTypeChange = true // root type changes are unsupported!
+        case .property:
+            fatalError("Tried updating enum with message-only change type!")
+        case let .case(`case`):
+            // TODO we ignore additions right?
+            if let caseAddition = `case`.modeledAdditionChange {
+                // TODO how to derive the index/number?
+
+                // TODO add a case!
+            } else if let caseRemoval = `case`.modeledRemovalChange {
+                // TODO deltaIdentifier match right?
+                // TODO enumCases.removeAll(where: { $0.name == caseRemoval.id.rawValue })
+                // TODO just mark them as removed (aka deprecated them!)
+                // TODO prevent encoding of removed cases(?)
+            } else if let caseUpdate = `case`.modeledUpdateChange {
+                // case statement is used to generate compiler error should enum be updated with new change types
+                switch caseUpdate.updated {
+                case .rawValue:
+                    // same argument as in the `rawValueType` case
+                    break
+                }
+            }
+        case .rawValueType:
+            // no need to handle this. if we generate a enum it is one without associated values
+            // and cases are only encoded via their proto number. Therefore, it isn't relevant
+            // if the server interprets the value of the enum case differently.
+            break
+        }
+    }
+
     @SourceCodeBuilder
     var primaryModelType: String {
-        "// GENERATION OF ENUM \(descriptor.name) UNSUPPORTED"
         ""
         descriptor.protoSourceComments()
+        if unavailable {
+            "@available(*, message: \"This enum was removed in the latest version!\")"
+        }
+        // TODO added cases annotation!
         "public enum \(relativeName): \(namer.swiftProtobufModuleName).Enum, CaseIterable {"
         Indent { // swiftlint:disable:this closure_body_length
             "public typealias RawValue = Int"
@@ -111,8 +152,8 @@ class GRPCEnum {
             "public init\(hasUnknownPreservingSemantics ? "": "?")(rawValue: Int) {"
             Indent {
                 "switch rawValue {"
-                for enuMCase in enumCasesSorted {
-                    "case \(enuMCase.number): self = \(namer.dottedRelativeName(enumValue: enuMCase))"
+                for enumCase in enumCasesSorted {
+                    "case \(enumCase.number): self = \(namer.dottedRelativeName(enumValue: enumCase))"
                 }
 
                 if hasUnknownPreservingSemantics {

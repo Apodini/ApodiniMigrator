@@ -14,6 +14,7 @@ struct PluginOptions {
         case unknownParameter(key: String)
         case invalidParameterValue(name: String, value: String)
         case wrappedError(message: String, error: Error)
+        case missingParameter(parameter: String)
     }
 
     enum Visibility: String {
@@ -31,7 +32,8 @@ struct PluginOptions {
         case DropPath
     }
 
-    private(set) var migrationGuidePath: String? = nil
+    private(set) var documentPath: String?
+    private(set) var migrationGuidePath: String?
 
     private(set) var visibility: Visibility = .internal
     private(set) var keepMethodCasing = false
@@ -41,6 +43,9 @@ struct PluginOptions {
     init(parameter: String) throws {
         for (key, value) in Self.parseParameterString(parameter) {
             switch key {
+            case "APIDocument":
+                self.documentPath = value
+                // TODO path validation?
             case "MigrationGuide":
                 self.migrationGuidePath = value
                 // TODO path validation?
@@ -80,6 +85,10 @@ struct PluginOptions {
             default:
                 throw ParserError.unknownParameter(key: key)
             }
+        }
+
+        if documentPath == nil {
+            throw ParserError.missingParameter(parameter: "APIDocument")
         }
     }
 

@@ -18,6 +18,9 @@ class GRPCMessage {
     var relativeName: String
     var fullName: String
 
+    var unavailable = false // TODO set
+    var containsRootTypeChange = false // TODO use!
+
     var fields: [GRPCMessageField] = []
     lazy var sortedFields: [GRPCMessageField] = {
         fields.sorted(by: \.number)
@@ -48,11 +51,43 @@ class GRPCMessage {
         }
     }
 
+    func applyUpdateChange(_ change: ModelChange.UpdateChange) {
+        // TODO deltaIdentifier verification!
+
+        switch change.updated {
+        case .rootType: // TODO model it as removal and addition?
+            containsRootTypeChange = true // root type changes are unsupported
+        case let .property(property):
+            // TODO we ignore idChange right?
+            if let addedProperty = property.modeledAdditionChange {
+                // TODO how to we know the number? (guess?
+            } else if let removedProperty = property.modeledRemovalChange {
+                // TODO mark removed (just don't encode anymore?)
+            } else if let updatedProperty = property.modeledUpdateChange {
+                switch updatedProperty.updated {
+                case let .necessity(from, to, necessityMigration):
+                    // TODO update change!
+                    break
+                case let .type(from, to, forwardMigration, backwardMigration, conversionWarning):
+                    // TODO first time handling type change!
+                    // TODO requires Codable support!
+                    break
+                }
+            }
+        case .case, .rawValueType:
+            fatalError("Tried updating message with enum-only change type!")
+        }
+    }
+
     @SourceCodeBuilder
     var primaryModelType: String {
         ""
-        // TODO visibility
-        "public struct \(relativeName) {"
+        descriptor.protoSourceComments()
+        if unavailable {
+            "@available(*, message: \"This message was removed in the latest version!\")"
+        }
+
+        "public struct \(relativeName) {" // TODO visibility
         Indent {
             for field in fields {
                 field.propertyInterface
