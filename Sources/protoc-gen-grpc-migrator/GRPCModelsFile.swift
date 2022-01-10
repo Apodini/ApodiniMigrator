@@ -21,7 +21,7 @@ import OrderedCollections
 /// * We don't respect `useMessageSetWireFormat` as we are not interested in providing legacy compatibility
 /// * We don't support `oneOf`s (used by `ApodiniGRPC` to render enums with associated values) as they are not
 ///   supported by the `ApodiniTypeInformation` framework. Thus, if you use ApodiniMigration you won't use enums with associated values.
-class GRPCModelsFile: SourceCodeRenderable {
+class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     let protoFile: FileDescriptor
     let document: APIDocument
     let migrationGuide: MigrationGuide
@@ -29,8 +29,8 @@ class GRPCModelsFile: SourceCodeRenderable {
 
     var modelIdTranslation: [DeltaIdentifier: TypeName] = [:]
 
-    var enums: OrderedDictionary<String, GRPCEnum> = [:]
-    var messages: OrderedDictionary<String, GRPCMessage> = [:]
+    var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
+    var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
     init(_ file: FileDescriptor, document: APIDocument, migrationGuide: MigrationGuide, namer: SwiftProtobufNamer) {
         self.protoFile = file
@@ -39,11 +39,11 @@ class GRPCModelsFile: SourceCodeRenderable {
         self.namer = namer
 
         for `enum` in file.enums {
-            self.enums[`enum`.name] = GRPCEnum(descriptor: `enum`, namer: namer)
+            self.nestedEnums[`enum`.name] = GRPCEnum(descriptor: `enum`, namer: namer)
         }
 
         for message in file.messages {
-            self.messages[message.name] = GRPCMessage(descriptor: message, namer: namer)
+            self.nestedMessages[message.name] = GRPCMessage(ProtoGRPCMessage(descriptor: message, namer: namer), namer: namer)
         }
 
         for model in document.models {
@@ -65,22 +65,21 @@ class GRPCModelsFile: SourceCodeRenderable {
 
         protobufAPIVersionCheck
 
-        for `enum` in enums.values {
+        for `enum` in nestedEnums.values {
             `enum`.primaryModelType
         }
 
-        for message in messages.values {
-            message.primaryModelType
-            // TODO generateCaseIterable for nested enums?
+        for message in nestedMessages.values {
+            message
         }
 
         // TODO `_protobuf_package` thingy?
 
-        for `enum` in messages.values {
+        for `enum` in nestedEnums.values {
             `enum`.protobufferRuntimeSupport
         }
 
-        for message in messages.values {
+        for message in nestedMessages.values {
             message.protobufferRuntimeSupport
         }
 
@@ -128,24 +127,35 @@ class GRPCModelsFile: SourceCodeRenderable {
 
         // TODO we need empty message for nesting!
 
-        for addedModel in addedModels {
+        // we sort them such that we don't cause any conflicts with our EmptyGRPCMessage structs
+        for addedModel in addedModels.sorted(by: \.added.typeName.nestedTypes.count) {
             let model = addedModel.added
-            let typeName = model.typeName // TODO we don't have refernece types right?
+            // TODO we don't have .reference types right? (otherwise we would crash)
 
-            for component in typeName {
-                // TODO handle types nested into enums?
-            }
-            // TODO nested types?
+            // TODO handle types nested into enums? (oneOfs?)
+            //  => we might just not nest?
+
+            // see https://stackoverflow.com/questions/51623693/cannot-use-mutating-member-on-immutable-value-self-is-immutable
+            var this = self // we are a class so this works!
+            this.add(model: model)
         }
 
         for updatedModel in updatedModels {
-            // TODO deltaIdentifier to TypeName translation!
+            guard let typeName = modelIdTranslation[updatedModel.id] else {
+                fatalError("Encountered update change with id \(updatedModel.id) which isn't present in our typeName lookup!")
+            }
+
             // TODO Search Model file!
+            let result = find(for: typeName)
         }
 
         for removedModel in removedModels {
-            // TODO deltaIdentifier to TypeName translation!
+            guard let typeName = modelIdTranslation[removedModel.id] else {
+                fatalError("Encountered remove change with id \(removedModel.id) which isn't present in our typeName lookup!")
+            }
+
             // TODO search model file!
+            let result = find(for: typeName)
         }
     }
 }

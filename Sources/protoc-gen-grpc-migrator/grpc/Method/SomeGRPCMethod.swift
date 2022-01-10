@@ -20,7 +20,8 @@ protocol SomeGRPCMethod {
 
     /// If true, this Method was removed in the latest version.
     var unavailable: Bool { get }
-    var identifierChanges: [EndpointIdentifierChange] { get } // TODO serviceName and servicePath!
+    /// Carrying ``EndpointIdentifierChange`` changes (e.g. serviceName or servicePath changes)
+    var identifierChanges: [EndpointIdentifierChange] { get }
     var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)? { get }
     var responseChangeChange: (
         from: TypeInformation,
