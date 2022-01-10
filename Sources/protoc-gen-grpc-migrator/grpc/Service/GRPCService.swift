@@ -11,14 +11,12 @@ import SwiftProtobufPluginLibrary
 import ApodiniMigrator
 
 class GRPCService: SourceCodeRenderable {
-    // TODO interceptors?
     private unowned let file: GRPCClientsFile
 
     let serviceName: String
-    private let serviceSourceComments: String? // TODO needed?
+    private let serviceSourceComments: String?
 
-    private var methods: [GRPCMethod]
-    private var addedEndpoints: [String: Endpoint] = [:]
+    private var methods: [GRPCMethod] = []
 
     var protobufNamer: SwiftProtobufNamer {
         file.namer
@@ -40,7 +38,7 @@ class GRPCService: SourceCodeRenderable {
         self.serviceSourceComments = service.protoSourceComments()
 
         for method in service.methods {
-            self.methods.append(GRPCMethod(method, locatedIn: self))
+            self.methods.append(GRPCMethod(ProtoGRPCMethod(method, locatedIn: self)))
         }
     }
 
@@ -52,35 +50,30 @@ class GRPCService: SourceCodeRenderable {
     }
 
     func addEndpoint(_ endpoint: Endpoint) {
-        let methodName = endpoint.identifier(for: GRPCMethodName.self).rawValue
+        let methodName = endpoint.methodName
         precondition(!self.methods.contains(where: { $0.methodName == methodName }), "Added endpoint collides with existing method \(serviceName).\(methodName)")
-        precondition(self.addedEndpoints[methodName] == nil, "Added endpoint collides with added endpoint \(serviceName).\(methodName)")
 
-        self.addedEndpoints[methodName] = endpoint
+        self.methods.append(GRPCMethod(endpoint))
     }
 
     func handleEndpointUpdate(_ update: EndpointChange.UpdateChange) {
         methods
+            .compactMap { $0.tryTyped(as: ProtoGRPCMethod.self) }
             .filter { $0.apodiniIdentifiers.deltaIdentifier == update.id }
             .forEach { $0.registerUpdateChange(update) }
     }
 
     func handleEndpointRemoval(_ removal: EndpointChange.RemovalChange) {
         methods
+            .compactMap { $0.tryTyped(as: ProtoGRPCMethod.self) }
             .filter { $0.apodiniIdentifiers.deltaIdentifier == removal.id }
             .forEach { $0.unavailable = true }
     }
 
     var renderableContent: String {
         ""
-
-        var joinedMethods: [GRPCMethodRenderable & GRPCMethodRepresentable] = methods
-        joinedMethods.append(contentsOf: Array(addedEndpoints.values))
-        joinedMethods.sorted(by: \.methodName)
-
-        // TODO we don't actually need any SERVICE comments(?)
         if var comments = self.serviceSourceComments {
-            comments.removeLast()
+            comments.removeLast() // TODO really remove?
             comments
         }
 
@@ -118,8 +111,8 @@ class GRPCService: SourceCodeRenderable {
 
         "extension \(serviceName)AsyncClient {"
         Indent {
-            for method in joinedMethods {
-                method.clientProtocolExtensionSafeWrappers
+            for method in methods.sorted(by: \.methodName) {
+                method
             }
         }
         "}"

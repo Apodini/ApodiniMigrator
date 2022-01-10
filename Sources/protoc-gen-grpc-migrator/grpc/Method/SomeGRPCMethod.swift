@@ -9,7 +9,7 @@
 import Foundation
 import ApodiniMigrator
 
-protocol GRPCMethodRepresentable {
+protocol SomeGRPCMethod {
     var methodName: String { get }
     var updatedMethodName: String? { get }
 
@@ -41,7 +41,7 @@ protocol GRPCMethodRepresentable {
     var outputMessageName: String { get }
 }
 
-extension GRPCMethodRepresentable {
+extension SomeGRPCMethod {
     var methodWrapperFunctionName: String {
         var name = methodName
         name = name.prefix(1).lowercased() + name.dropFirst()
@@ -83,15 +83,5 @@ extension GRPCMethodRepresentable {
 
     var responseChangeChange: (from: TypeInformation, to: TypeInformation, backwardsMigration: Int, migrationWarning: String?)? {
         nil
-    }
-}
-
-extension GRPCMethodRepresentable {
-    // TODO placement
-    internal func sanitize(fieldName string: String) -> String {
-        if quotableFieldNames.contains(string) {
-            return "`\(string)`"
-        }
-        return string
     }
 }

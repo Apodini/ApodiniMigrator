@@ -13,20 +13,20 @@ let swiftKeywordsUsedInDeclarations: Set<String> = [
     "associatedtype", "class", "deinit", "enum", "extension",
     "fileprivate", "func", "import", "init", "inout", "internal",
     "let", "open", "operator", "private", "protocol", "public",
-    "static", "struct", "subscript", "typealias", "var",
+    "static", "struct", "subscript", "typealias", "var"
 ]
 
 let swiftKeywordsUsedInStatements: Set<String> = [
     "break", "case",
     "continue", "default", "defer", "do", "else", "fallthrough",
     "for", "guard", "if", "in", "repeat", "return", "switch", "where",
-    "while",
+    "while"
 ]
 
 let swiftKeywordsUsedInExpressionsAndTypes: Set<String> = [
     "as",
     "Any", "catch", "false", "is", "nil", "rethrows", "super", "self",
-    "Self", "throw", "throws", "true", "try",
+    "Self", "throw", "throws", "true", "try"
 ]
 
 let quotableFieldNames: Set<String> = { () -> Set<String> in
@@ -37,3 +37,10 @@ let quotableFieldNames: Set<String> = { () -> Set<String> in
     names = names.union(swiftKeywordsUsedInExpressionsAndTypes)
     return names
 }()
+
+func sanitize(fieldName string: String) -> String {
+    if quotableFieldNames.contains(string) {
+        return "`\(string)`"
+    }
+    return string
+}

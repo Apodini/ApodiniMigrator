@@ -47,10 +47,10 @@ struct GRPCMethodApodiniAnnotations {
         }
 
         guard let identifier = identifier else {
-            fatalError("Comment secion of method \(method.name) doesn't contain APODINI-identifier: \(comments)")
+            fatalError("Proto comment section of method \(method.name) doesn't contain APODINI-identifier: \(comments)")
         }
         guard let handlerName = handlerName else {
-            fatalError("Comment section of method \(method.name) doesn't contain APODINI-handlerName: \(comments)")
+            fatalError("Proto comment section of method \(method.name) doesn't contain APODINI-handlerName: \(comments)")
         }
 
         self.apodiniIdentifier = identifier

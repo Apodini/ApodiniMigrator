@@ -9,7 +9,7 @@
 import Foundation
 import ApodiniMigratorCore
 
-extension Endpoint: GRPCMethodRepresentable, GRPCMethodRenderable {
+extension Endpoint: SomeGRPCMethod {
     var methodName: String {
         identifier(for: GRPCMethodName.self).rawValue
     }
