@@ -18,7 +18,7 @@ struct ApodiniGRPCMessage: SomeGRPCMessage {
     let relativeName: String
     let fullName: String
 
-    let fields: [GRPCMessageField] = []
+    let fields: [GRPCMessageField]
 
     // those two fields may be populated in `GRPCMessage`
     var nestedEnums: OrderedCollections.OrderedDictionary<String, GRPCEnum> = [:]
@@ -45,6 +45,8 @@ struct ApodiniGRPCMessage: SomeGRPCMessage {
             .last
             .unsafelyUnwrapped
 
-        // TODO fields
+        fields = type.objectProperties
+            .enumerated()
+            .map { GRPCMessageField(ApodiniMessageField($1, number: $0, context: context)) }
     }
 }

@@ -10,17 +10,18 @@
 
 import SwiftProtobufPluginLibrary
 
-extension FieldDescriptor {
+// TODO rename file!
+extension FieldDescriptorLike {
     // swiftlint:disable:next cyclomatic_complexity
     func swiftType(namer: SwiftProtobufNamer) -> String {
-        if case let (keyField, valueField)? = messageType?.mapKeyAndValue {
-            let keyType = keyField.swiftType(namer: namer)
-            let valueType = valueField.swiftType(namer: namer)
+        if let (key, value) = mapKeyAndValueDescription {
+            let keyType = key.swiftType(namer: namer)
+            let valueType = value.swiftType(namer: namer)
             return "Dictionary<" + keyType + "," + valueType + ">"
         }
 
         let result: String
-        switch type {
+        switch protoType {
         case .double: result = "Double"
         case .float: result = "Float"
         case .int64: result = "Int64"
@@ -30,11 +31,11 @@ extension FieldDescriptor {
         case .fixed32: result = "UInt32"
         case .bool: result = "Bool"
         case .string: result = "String"
-        case .group: result = namer.fullName(message: messageType)
-        case .message: result = namer.fullName(message: messageType)
+        case .group: result = retrieveFullName(namer: namer).unsafelyUnwrapped
+        case .message: result = retrieveFullName(namer: namer).unsafelyUnwrapped
         case .bytes: result = "Data"
         case .uint32: result = "UInt32"
-        case .enum: result = namer.fullName(enum: enumType)
+        case .enum: result = retrieveFullName(namer: namer).unsafelyUnwrapped
         case .sfixed32: result = "Int32"
         case .sfixed64: result = "Int64"
         case .sint32: result = "Int32"
@@ -47,10 +48,10 @@ extension FieldDescriptor {
         return result
     }
 
-    var protoGenericType: String {
+    func deriveProtoGenericType() -> String { // swiftlint:disable:this cyclomatic_complexity
         precondition(!isMap)
 
-        switch type {
+        switch protoType {
         case .double: return "Double"
         case .float: return "Float"
         case .int64: return "Int64"
@@ -78,9 +79,10 @@ extension FieldDescriptor {
         case .repeated:
             return swiftType
         case .optional, .required:
-            guard realOneof == nil else {
-                return swiftType
-            }
+            // oneOfs aren't supported by us TODO tracked
+            // guard realOneof == nil else {
+            //     return swiftType
+            // }
             if hasPresence {
                 return "\(swiftType)?"
             } else {
@@ -99,7 +101,7 @@ extension FieldDescriptor {
         }
 
         if let defaultValue = explicitDefaultValue {
-            switch type {
+            switch protoType {
             case .double:
                 switch defaultValue {
                 case "inf": return "Double.infinity"
@@ -119,21 +121,20 @@ extension FieldDescriptor {
             case .bytes:
                 return escapedToDataLiteral(defaultValue)
             case .enum:
-                let enumValue = enumType.value(named: defaultValue)!
-                return namer.dottedRelativeName(enumValue: enumValue)
+                return enumDefaultValueDottedRelativeName(namer: namer, for: defaultValue).unsafelyUnwrapped
             default:
                 return defaultValue
             }
         }
 
-        switch type {
+        switch protoType {
         case .bool: return "false"
         case .string: return "String()"
         case .bytes: return "Data()"
         case .group, .message:
-            return namer.fullName(message: messageType) + "()"
+            return retrieveFullName(namer: namer).unsafelyUnwrapped + "()"
         case .enum:
-            return namer.dottedRelativeName(enumValue: enumType.defaultValue)
+            return enumDefaultValueDottedRelativeName(namer: namer, for: nil).unsafelyUnwrapped
         default:
             return "0"
         }
@@ -141,10 +142,10 @@ extension FieldDescriptor {
 
     // swiftlint:disable:next cyclomatic_complexity
     func traitsType(namer: SwiftProtobufNamer) -> String {
-        if case let (keyField, valueField)? = messageType?.mapKeyAndValue {
-            let keyTraits = keyField.traitsType(namer: namer)
-            let valueTraits = valueField.traitsType(namer: namer)
-            switch valueField.type {
+        if let (key, value) = mapKeyAndValueDescription {
+            let keyTraits = key.traitsType(namer: namer)
+            let valueTraits = value.traitsType(namer: namer)
+            switch value.protoType {
             case .message:  // Map's can't have a group as the value
                 return "\(namer.swiftProtobufModuleName)._ProtobufMessageMap<\(keyTraits),\(valueTraits)>"
             case .enum:
@@ -153,7 +154,7 @@ extension FieldDescriptor {
                 return "\(namer.swiftProtobufModuleName)._ProtobufMap<\(keyTraits),\(valueTraits)>"
             }
         }
-        switch type {
+        switch protoType {
         case .double: return "\(namer.swiftProtobufModuleName).ProtobufDouble"
         case .float: return "\(namer.swiftProtobufModuleName).ProtobufFloat"
         case .int64: return "\(namer.swiftProtobufModuleName).ProtobufInt64"
@@ -163,24 +164,15 @@ extension FieldDescriptor {
         case .fixed32: return "\(namer.swiftProtobufModuleName).ProtobufFixed32"
         case .bool: return "\(namer.swiftProtobufModuleName).ProtobufBool"
         case .string: return "\(namer.swiftProtobufModuleName).ProtobufString"
-        case .group, .message: return namer.fullName(message: messageType)
+        case .group, .message: return retrieveFullName(namer: namer).unsafelyUnwrapped
         case .bytes: return "\(namer.swiftProtobufModuleName).ProtobufBytes"
         case .uint32: return "\(namer.swiftProtobufModuleName).ProtobufUInt32"
-        case .enum: return namer.fullName(enum: enumType)
+        case .enum: return retrieveFullName(namer: namer).unsafelyUnwrapped
         case .sfixed32: return "\(namer.swiftProtobufModuleName).ProtobufSFixed32"
         case .sfixed64: return "\(namer.swiftProtobufModuleName).ProtobufSFixed64"
         case .sint32: return "\(namer.swiftProtobufModuleName).ProtobufSInt32"
         case .sint64: return "\(namer.swiftProtobufModuleName).ProtobufSInt64"
         }
-    }
-}
-
-extension EnumDescriptor {
-    func value(named: String) -> EnumValueDescriptor? {
-        for value in values where value.name == named {
-            return value
-        }
-        return nil
     }
 }
 

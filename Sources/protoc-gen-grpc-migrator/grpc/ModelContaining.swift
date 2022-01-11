@@ -11,11 +11,6 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
-enum ModelSearchResult {
-    case `enum`(_ enum: GRPCEnum)
-    case message(_ message: GRPCMessage)
-}
-
 protocol ModelContaining {
     var context: ProtoFileContext { get }
 

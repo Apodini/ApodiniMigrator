@@ -10,7 +10,7 @@ import Foundation
 import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 
-struct ProtoGRPCEnumCase: SomeGRPCEnumCase {
+class ProtoGRPCEnumCase: SomeGRPCEnumCase, Changeable {
     let descriptor: EnumValueDescriptor
 
     var name: String
@@ -18,6 +18,8 @@ struct ProtoGRPCEnumCase: SomeGRPCEnumCase {
     var dottedRelativeName: String
 
     var sourceCodeComments: String?
+
+    var unavailable = false
 
     let number: Int
 
@@ -39,5 +41,18 @@ struct ProtoGRPCEnumCase: SomeGRPCEnumCase {
             .map { .init(ProtoGRPCEnumCase(descriptor: $0, context: context)) }
         self.aliases = descriptor.aliases
             .map { .init(ProtoGRPCEnumCase(descriptor: $0, context: context)) }
+    }
+
+    func applyUpdateChange(_ change: EnumCaseChange.UpdateChange) {
+        // case statement is used to generate compiler error should enum be updated with new change types
+        switch change.updated {
+        case .rawValue:
+            // same argument as in the `rawValueType` case
+            break
+        }
+    }
+
+    func applyRemovalChange(_ change: EnumCaseChange.RemovalChange) {
+        unavailable = true
     }
 }

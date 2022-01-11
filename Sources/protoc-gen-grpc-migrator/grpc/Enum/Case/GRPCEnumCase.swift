@@ -22,5 +22,7 @@ struct GRPCEnumCase {
         enumCase[keyPath: member]
     }
 
-    // TODO tryTyped?
+    func tryTyped<EnumCase: SomeGRPCEnumCase>(for type: EnumCase.Type = EnumCase.self) -> EnumCase? {
+        enumCase as? EnumCase
+    }
 }

@@ -28,6 +28,7 @@ extension FileDescriptor {
 /// * We don't respect `useMessageSetWireFormat` as we are not interested in providing legacy compatibility
 /// * We don't support `oneOf`s (used by `ApodiniGRPC` to render enums with associated values) as they are not
 ///   supported by the `ApodiniTypeInformation` framework. Thus, if you use ApodiniMigration you won't use enums with associated values.
+/// * We don't support nesting types into enums (as the proto spec doesn't support this).
 class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     let protoFile: FileDescriptor
     let document: APIDocument
@@ -116,7 +117,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         "}"
     }
 
-    private func parseModelChanges() {
+    private func parseModelChanges() { // swiftlint:disable:this cyclomatic_complexity
         var addedModels: [ModelChange.AdditionChange] = []
         var updatedModels: [ModelChange.UpdateChange] = []
         var removedModels: [ModelChange.RemovalChange] = []
@@ -137,15 +138,10 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             }
         }
 
-        // TODO we need empty message for nesting!
-
         // we sort them such that we don't cause any conflicts with our EmptyGRPCMessage structs
         for addedModel in addedModels.sorted(by: \.added.typeName.nestedTypes.count) {
             let model = addedModel.added
-            // TODO we don't have .reference types right? (otherwise we would crash)
-
-            // TODO handle types nested into enums? (oneOfs?)
-            //  => we might just not nest?
+            precondition(!model.isReference) // we know for sure, with the current architecture that it doesn't happen
 
             // see https://stackoverflow.com/questions/51623693/cannot-use-mutating-member-on-immutable-value-self-is-immutable
             var this = self // we are a class so this works!
@@ -157,8 +153,11 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
                 fatalError("Encountered update change with id \(updatedModel.id) which isn't present in our typeName lookup!")
             }
 
-            // TODO Search Model file!
-            let result = find(for: typeName)
+            guard let result = find(for: typeName) else {
+                fatalError("Failed to locate updated model with typeName \(typeName) and id: \(updatedModel.id) (\(updatedModel))!")
+            }
+
+            result.handleUpdateChange(change: updatedModel)
         }
 
         for removedModel in removedModels {
@@ -166,8 +165,11 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
                 fatalError("Encountered remove change with id \(removedModel.id) which isn't present in our typeName lookup!")
             }
 
-            // TODO search model file!
-            let result = find(for: typeName)
+            guard let result = find(for: typeName) else {
+                fatalError("Failed to locate removed model with typeName \(typeName) and id: \(removedModel.id) (\(removedModel))!")
+            }
+
+            result.handleRemovalChange(change: removedModel)
         }
     }
 }

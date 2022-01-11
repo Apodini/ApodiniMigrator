@@ -11,7 +11,7 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
-class ProtoGRPCEnum: SomeGRPCEnum {
+class ProtoGRPCEnum: SomeGRPCEnum, Changeable {
     let descriptor: EnumDescriptor
     let context: ProtoFileContext
 
@@ -19,16 +19,11 @@ class ProtoGRPCEnum: SomeGRPCEnum {
     let relativeName: String
     var sourceCodeComments: String?
 
-    var unavailable = false // TODO set!
-    var containsRootTypeChange = false // TODO use!
+    var unavailable = false
+    var containsRootTypeChange = false
 
     var enumCases: [GRPCEnumCase] = []
-
-    lazy var uniquelyNamedValues: [GRPCEnumCase] = {
-        context.namer
-            .uniquelyNamedValues(enum: descriptor)
-            .map { .init(ProtoGRPCEnumCase(descriptor: $0, context: context)) }
-    }()
+    var uniquelyNamedValues: [GRPCEnumCase] = []
 
     var defaultValue: GRPCEnumCase
 
@@ -42,11 +37,25 @@ class ProtoGRPCEnum: SomeGRPCEnum {
         relativeName = context.namer.relativeName(enum: descriptor)
         sourceCodeComments = descriptor.protoSourceComments()
 
+        var protoEnumCases: [ProtoGRPCEnumCase] = []
         for enumCase in descriptor.values where enumCase.aliasOf == nil {
-            enumCases.append(GRPCEnumCase(
-                ProtoGRPCEnumCase(descriptor: enumCase, context: context)
-            ))
+            protoEnumCases.append(ProtoGRPCEnumCase(descriptor: enumCase, context: context))
         }
+
+        enumCases = protoEnumCases
+            .map { GRPCEnumCase($0) }
+
+        uniquelyNamedValues = context.namer
+            .uniquelyNamedValues(enum: descriptor)
+            .map { descriptor in
+                // this ensure that `uniquelyNamedValues` contains the same reference values as in `enumCases`
+                // this is required to be consistent with modifications to `enumCases` (e.g. UpdateChange or RemovalChange)
+                guard let enumCase = protoEnumCases.first(where: { ObjectIdentifier($0.descriptor) == ObjectIdentifier(descriptor) }) else {
+                    fatalError("Failed to find reference for \(descriptor.fullName) enum case!")
+                }
+
+                return GRPCEnumCase(enumCase)
+            }
 
         self.defaultValue = GRPCEnumCase(
             ProtoGRPCEnumCase(descriptor: descriptor.defaultValue, context: context)
@@ -58,26 +67,28 @@ class ProtoGRPCEnum: SomeGRPCEnum {
         switch change.updated {
         case .rootType: // TODO model it as removal and addition?
             containsRootTypeChange = true // root type changes are unsupported!
+            // TODO use value in encoding!
         case .property:
             fatalError("Tried updating enum with message-only change type!")
         case let .case(`case`):
-            // TODO we ignore additions right?
             if let caseAddition = `case`.modeledAdditionChange {
-                // TODO how to derive the index/number?
+                // TODO add a warning that cases were added and switch statements need to be adjusted?
+                // TODO we currently GUESS the enum case number!
+                let addedCase = GRPCEnumCase(ApodiniEnumCase(caseAddition.added, number: enumCases.count))
 
-                // TODO add a case!
+                enumCases.append(addedCase)
+                uniquelyNamedValues.append(addedCase)
             } else if let caseRemoval = `case`.modeledRemovalChange {
-                // TODO deltaIdentifier match right?
-                // TODO enumCases.removeAll(where: { $0.name == caseRemoval.id.rawValue })
-                // TODO just mark them as removed (aka deprecated them!)
+                enumCases
+                    .filter { $0.name == caseRemoval.id.rawValue }
+                    .compactMap { $0.tryTyped(for: ProtoGRPCEnumCase.self) } // TODO we don't force type! (and below)
+                    .forEach { $0.applyRemovalChange(caseRemoval) }
                 // TODO prevent encoding of removed cases(?)
             } else if let caseUpdate = `case`.modeledUpdateChange {
-                // case statement is used to generate compiler error should enum be updated with new change types
-                switch caseUpdate.updated {
-                case .rawValue:
-                    // same argument as in the `rawValueType` case
-                    break
-                }
+                enumCases
+                    .filter { $0.name == caseUpdate.id.rawValue }
+                    .compactMap { $0.tryTyped(for: ProtoGRPCEnumCase.self) }
+                    .forEach { $0.applyUpdateChange(caseUpdate) }
             }
         case .rawValueType:
             // no need to handle this. if we generate a enum it is one without associated values
@@ -85,5 +96,9 @@ class ProtoGRPCEnum: SomeGRPCEnum {
             // if the server interprets the value of the enum case differently.
             break
         }
+    }
+
+    func applyRemovalChange(_ change: ModelChange.RemovalChange) {
+        unavailable = true
     }
 }

@@ -11,7 +11,7 @@ import ApodiniMigrator
 import SwiftProtobuf
 import SwiftProtobufPluginLibrary
 
-struct ProtoGRPCMessageField: SomeGRPCMessageField {
+class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
     let descriptor: FieldDescriptor
 
     let hasFieldPresence: Bool
@@ -34,19 +34,8 @@ struct ProtoGRPCMessageField: SomeGRPCMessageField {
 
     let number: Int
 
-    var fieldMapNames: String { // TODO what kind of monstrosity is this?
-        // Protobuf Text uses the unqualified group name for the field
-        // name instead of the field name provided by protoc.  As far
-        // as I can tell, no one uses the fieldName provided by protoc,
-        // so let's just put the field name that Protobuf Text
-        // actually uses here.
-        let protoName: String
-        if descriptor.type == .group {
-            protoName = descriptor.messageType.name
-        } else {
-            protoName = descriptor.name
-        }
-
+    var fieldMapNames: String {
+        let protoName: String = descriptor.name
         let jsonName = descriptor.jsonName ?? protoName
         if jsonName == protoName {
             // The proto and JSON names are identical:
@@ -77,6 +66,7 @@ struct ProtoGRPCMessageField: SomeGRPCMessageField {
     }
 
     init(descriptor: FieldDescriptor, context: ProtoFileContext) {
+        precondition(descriptor.protoType != .group, ".group field types are not supported!")
         self.descriptor = descriptor
 
         precondition(descriptor.realOneof == nil, "OneOfs aren't supported!")
@@ -90,16 +80,78 @@ struct ProtoGRPCMessageField: SomeGRPCMessageField {
         self.propertyHasName = names.has
         self.funcClearName = names.clear
 
-        self.type = descriptor.type
+        self.type = descriptor.protoType
 
-        typeName = descriptor.swiftType(namer: context.namer)
-        storageType = descriptor.swiftStorageType(namer: context.namer)
-        defaultValue = descriptor.swiftDefaultValue(namer: context.namer)
-        traitsType = descriptor.traitsType(namer: context.namer)
-        protoGenericType = descriptor.protoGenericType
+        self.typeName = descriptor.swiftType(namer: context.namer)
+        self.storageType = descriptor.swiftStorageType(namer: context.namer)
+        self.defaultValue = descriptor.swiftDefaultValue(namer: context.namer)
+        self.traitsType = descriptor.traitsType(namer: context.namer)
+        self.protoGenericType = descriptor.deriveProtoGenericType()
 
         sourceCodeComments = descriptor.protoSourceComments()
         
         self.number = Int(descriptor.number)
+    }
+
+    func applyUpdateChange(_ change: PropertyChange.UpdateChange) {
+        // TODO apply update!
+        /*
+         switch updatedProperty.updated {
+                case let .necessity(from, to, necessityMigration):
+                    // TODO update change!
+                    break
+                case let .type(from, to, forwardMigration, backwardMigration, conversionWarning):
+                    // TODO first time handling type change!
+                    // TODO requires Codable support!
+                    break
+                }
+         */
+    }
+
+    func applyRemovalChange(_ change: PropertyChange.RemovalChange) {
+        // TODO unavailable
+    }
+}
+
+// TODO move into file!
+extension FieldDescriptor: FieldDescriptorLike {
+    var protoType: Google_Protobuf_FieldDescriptorProto.TypeEnum {
+        type
+    }
+
+    var mapKeyAndValueDescription: (key: FieldDescriptorLike, value: FieldDescriptorLike)? {
+        if let message = messageType,
+           let map = message.mapKeyAndValue {
+            return (map.key, map.value)
+        }
+
+        return nil
+    }
+
+    func retrieveFullName(namer: SwiftProtobufNamer) -> String? {
+        switch protoType {
+        case .message,
+             .group:
+            return namer.fullName(message: messageType)
+        case .enum:
+            return namer.fullName(enum: enumType)
+        default:
+            return nil
+        }
+    }
+
+    func enumDefaultValueDottedRelativeName(namer: SwiftProtobufNamer, for caseValue: String?) -> String? {
+        guard let enumType = enumType else {
+            return nil
+        }
+
+        if let caseValue = caseValue {
+            for value in enumType.values where value.name == caseValue {
+                return namer.dottedRelativeName(enumValue: value)
+            }
+            return nil
+        }
+
+        return namer.dottedRelativeName(enumValue: enumType.defaultValue)
     }
 }

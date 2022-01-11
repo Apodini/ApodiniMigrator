@@ -11,7 +11,7 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
-class ProtoGRPCMessage: SomeGRPCMessage {
+class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
     let descriptor: Descriptor
     let context: ProtoFileContext
 
@@ -23,8 +23,8 @@ class ProtoGRPCMessage: SomeGRPCMessage {
 
     var sourceCodeComments: String?
 
-    var unavailable = false // TODO set
-    var containsRootTypeChange = false // TODO use!
+    var unavailable = false
+    var containsRootTypeChange = false
 
     var fields: [GRPCMessageField] = []
 
@@ -69,24 +69,27 @@ class ProtoGRPCMessage: SomeGRPCMessage {
         case .rootType: // TODO model it as removal and addition?
             containsRootTypeChange = true // root type changes are unsupported
         case let .property(property):
-            // TODO we ignore idChange right?
             if let addedProperty = property.modeledAdditionChange {
-                // TODO how to we know the number? (guess?
+                // TODO we currently GUESS the property number!
+                fields.append(GRPCMessageField(ApodiniMessageField(addedProperty.added, number: fields.count, context: context)))
             } else if let removedProperty = property.modeledRemovalChange {
-                // TODO mark removed (just don't encode anymore?)
+                fields
+                    .filter { $0.name == removedProperty.id.rawValue }
+                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) } // TODO we don't force type! (and below)
+                    .forEach { $0.applyRemovalChange(removedProperty) }
+                // TODO prevent encoding!
             } else if let updatedProperty = property.modeledUpdateChange {
-                switch updatedProperty.updated {
-                case let .necessity(from, to, necessityMigration):
-                    // TODO update change!
-                    break
-                case let .type(from, to, forwardMigration, backwardMigration, conversionWarning):
-                    // TODO first time handling type change!
-                    // TODO requires Codable support!
-                    break
-                }
+                fields
+                    .filter { $0.name == updatedProperty.id.rawValue }
+                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) }
+                    .forEach { $0.applyUpdateChange(updatedProperty) }
             }
         case .case, .rawValueType:
             fatalError("Tried updating message with enum-only change type!")
         }
+    }
+
+    func applyRemovalChange(_ change: ModelChange.RemovalChange) {
+        unavailable = true
     }
 }

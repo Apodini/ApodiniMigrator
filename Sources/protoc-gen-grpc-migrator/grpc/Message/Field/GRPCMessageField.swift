@@ -25,7 +25,9 @@ struct GRPCMessageField {
         field[keyPath: member]
     }
 
-    // TODO tryTyped?
+    func tryTyped<Field: SomeGRPCMessageField>(for type: Field.Type = Field.self) -> Field? {
+        field as? Field
+    }
 
     @SourceCodeBuilder
     var propertyInterface: String {

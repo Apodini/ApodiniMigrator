@@ -17,6 +17,8 @@ protocol SomeGRPCEnumCase {
 
     var sourceCodeComments: String? { get }
 
+    var unavailable: Bool { get }
+
     var number: Int { get }
 
     var aliasOf: GRPCEnumCase? { get } // TODO default implt
@@ -26,6 +28,10 @@ protocol SomeGRPCEnumCase {
 extension SomeGRPCEnumCase {
     var sourceCodeComments: String? {
         nil
+    }
+
+    var unavailable: Bool {
+        false
     }
 
     var aliasOf: GRPCEnumCase? {
