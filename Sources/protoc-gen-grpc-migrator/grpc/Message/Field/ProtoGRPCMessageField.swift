@@ -37,7 +37,7 @@ struct ProtoGRPCMessageField: SomeGRPCMessageField {
     var fieldMapNames: String { // TODO what kind of monstrosity is this?
         // Protobuf Text uses the unqualified group name for the field
         // name instead of the field name provided by protoc.  As far
-        // as I can tell, no one uses the fieldname provided by protoc,
+        // as I can tell, no one uses the fieldName provided by protoc,
         // so let's just put the field name that Protobuf Text
         // actually uses here.
         let protoName: String
@@ -76,26 +76,26 @@ struct ProtoGRPCMessageField: SomeGRPCMessageField {
         descriptor.label == .repeated
     }
 
-    init(descriptor: FieldDescriptor, namer: SwiftProtobufNamer) {
+    init(descriptor: FieldDescriptor, context: ProtoFileContext) {
         self.descriptor = descriptor
 
-        precondition(descriptor.realOneof == nil, "OneOfs aren't supported yet") // TODO ever?
+        precondition(descriptor.realOneof == nil, "OneOfs aren't supported!")
 
         self.hasFieldPresence = descriptor.hasPresence && descriptor.realOneof == nil
 
-        let names = namer.messagePropertyNames(field: descriptor, prefixed: "_", includeHasAndClear: hasFieldPresence)
+        let names = context.namer.messagePropertyNames(field: descriptor, prefixed: "_", includeHasAndClear: hasFieldPresence)
         self.name = names.name
         self.privateName = names.prefixed
-        self.storedProperty = hasFieldPresence ? privateName : name // TODO depends on heap storage thing!
+        self.storedProperty = hasFieldPresence ? privateName : name
         self.propertyHasName = names.has
         self.funcClearName = names.clear
 
         self.type = descriptor.type
 
-        typeName = descriptor.swiftType(namer: namer)
-        storageType = descriptor.swiftStorageType(namer: namer)
-        defaultValue = descriptor.swiftDefaultValue(namer: namer)
-        traitsType = descriptor.traitsType(namer: namer)
+        typeName = descriptor.swiftType(namer: context.namer)
+        storageType = descriptor.swiftStorageType(namer: context.namer)
+        defaultValue = descriptor.swiftDefaultValue(namer: context.namer)
+        traitsType = descriptor.traitsType(namer: context.namer)
         protoGenericType = descriptor.protoGenericType
 
         sourceCodeComments = descriptor.protoSourceComments()

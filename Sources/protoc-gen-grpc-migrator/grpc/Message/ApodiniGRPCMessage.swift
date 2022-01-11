@@ -12,23 +12,28 @@ import SwiftProtobufPluginLibrary
 import OrderedCollections
 
 struct ApodiniGRPCMessage: SomeGRPCMessage {
+    let context: ProtoFileContext
+
     let name: String
     let relativeName: String
     let fullName: String
 
     let fields: [GRPCMessageField] = []
 
+    // those two fields may be populated in `GRPCMessage`
     var nestedEnums: OrderedCollections.OrderedDictionary<String, GRPCEnum> = [:]
     var nestedMessages: OrderedCollections.OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(of type: TypeInformation) {
+    init(of type: TypeInformation, context: ProtoFileContext) {
         precondition(type.isObject, "Cannot instantiate a GRPCMessage from a non object: \(type.rootType) \(type.typeName)")
+        // TODO consider sanitizing, prefixing, sufixing the name etc (Generics Name to uniqueify)?
+
+        self.context = context
 
         let typeName = type.typeName
-        self.name = typeName.mangledName
+        self.name = typeName.mangledName // TODO generics?
 
-        // TODO consider sanitizing, prefixing, sufixing the name etc?
-        self.fullName = type.typeName.buildName(
+        self.fullName = typeName.buildName(
             printTargetName: false,
             componentSeparator: ".",
             genericsStart: "Of",

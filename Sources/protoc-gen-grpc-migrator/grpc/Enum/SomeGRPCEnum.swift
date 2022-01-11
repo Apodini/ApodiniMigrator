@@ -9,28 +9,25 @@
 import Foundation
 import ApodiniMigrator
 import SwiftProtobufPluginLibrary
-import OrderedCollections
 
-protocol SomeGRPCMessage {
+protocol SomeGRPCEnum {
     var context: ProtoFileContext { get }
 
-    var name: String { get }
     var relativeName: String { get }
     var fullName: String { get }
     var sourceCodeComments: String? { get }
 
-    /// If true, this Message was removed in the latest version.
     var unavailable: Bool { get }
-    // TODO changes (e.g. containsRootTypeChange)
+    var containsRootTypeChange: Bool { get }
 
-    var fields: [GRPCMessageField] { get }
-    var sortedFields: [GRPCMessageField] { get }
+    var enumCases: [GRPCEnumCase] { get }
+    var uniquelyNamedValues: [GRPCEnumCase] { get } // TODO bro?
+    var enumCasesSorted: [GRPCEnumCase] { get }
 
-    var nestedEnums: OrderedDictionary<String, GRPCEnum> { get } // TODO create abstraction!
-    var nestedMessages: OrderedDictionary<String, GRPCMessage> { get }
+    var defaultValue: GRPCEnumCase { get } // TODO how is this calculcated?
 }
 
-extension SomeGRPCMessage {
+extension SomeGRPCEnum {
     var sourceCodeComments: String? {
         nil
     }
@@ -39,7 +36,10 @@ extension SomeGRPCMessage {
         false
     }
 
-    var sortedFields: [GRPCMessageField] {
-        fields.sorted(by: \.number)
+    var containsRootTypeChange: Bool {
+        false
+    }
+    var enumCasesSorted: [GRPCEnumCase] {
+        enumCases.sorted(by: \.number)
     }
 }

@@ -13,6 +13,7 @@ import OrderedCollections
 
 class ProtoGRPCMessage: SomeGRPCMessage {
     let descriptor: Descriptor
+    let context: ProtoFileContext
 
     var name: String {
         descriptor.name
@@ -30,26 +31,34 @@ class ProtoGRPCMessage: SomeGRPCMessage {
     var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
     var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(descriptor: Descriptor, namer: SwiftProtobufNamer) {
+    init(descriptor: Descriptor, context: ProtoFileContext) {
         self.descriptor = descriptor
+        self.context = context
 
         precondition(descriptor.extensionRanges.isEmpty, "proto extensions are unsupported by the migrator")
 
-        self.relativeName = namer.relativeName(message: descriptor)
-        self.fullName = namer.fullName(message: descriptor)
+        self.relativeName = context.namer.relativeName(message: descriptor)
+        self.fullName = context.namer.fullName(message: descriptor)
 
         self.sourceCodeComments = descriptor.protoSourceComments()
 
         for field in descriptor.fields {
-            fields.append(.init(ProtoGRPCMessageField(descriptor: field, namer: namer)))
+            fields.append(GRPCMessageField(
+                ProtoGRPCMessageField(descriptor: field, context: context))
+            )
         }
 
+
         for `enum` in descriptor.enums {
-            nestedEnums[`enum`.name] = GRPCEnum(descriptor: `enum`, namer: namer)
+            nestedEnums[`enum`.name] = GRPCEnum(
+                ProtoGRPCEnum(descriptor: `enum`, context: context)
+            )
         }
 
         for message in descriptor.messages {
-            nestedMessages[message.name] = GRPCMessage(ProtoGRPCMessage(descriptor: message, namer: namer), namer: namer)
+            nestedMessages[message.name] = GRPCMessage(
+                ProtoGRPCMessage(descriptor: message, context: context)
+            )
         }
     }
 

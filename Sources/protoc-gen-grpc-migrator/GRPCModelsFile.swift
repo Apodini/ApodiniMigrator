@@ -11,6 +11,13 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
+// TODO placement?
+extension FileDescriptor {
+    var hasUnknownPreservingSemantics: Bool {
+        syntax == .proto3
+    }
+}
+
 /// This file will generate and migrate models of a Proto file.
 ///
 /// It aims to do a very basic proto file generation.
@@ -25,7 +32,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     let protoFile: FileDescriptor
     let document: APIDocument
     let migrationGuide: MigrationGuide
-    let namer: SwiftProtobufNamer
+    let context: ProtoFileContext
 
     var modelIdTranslation: [DeltaIdentifier: TypeName] = [:]
 
@@ -36,14 +43,19 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         self.protoFile = file
         self.document = document
         self.migrationGuide = migrationGuide
-        self.namer = namer
+
+        self.context = ProtoFileContext(namer: namer, hasUnknownPreservingSemantics: file.hasUnknownPreservingSemantics)
 
         for `enum` in file.enums {
-            self.nestedEnums[`enum`.name] = GRPCEnum(descriptor: `enum`, namer: namer)
+            self.nestedEnums[`enum`.name] = GRPCEnum(
+                ProtoGRPCEnum(descriptor: `enum`, context: context)
+            )
         }
 
         for message in file.messages {
-            self.nestedMessages[message.name] = GRPCMessage(ProtoGRPCMessage(descriptor: message, namer: namer), namer: namer)
+            self.nestedMessages[message.name] = GRPCMessage(
+                ProtoGRPCMessage(descriptor: message, context: context)
+            )
         }
 
         for model in document.models {
@@ -58,7 +70,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
 
         Import(.foundation)
         if !SwiftProtobufInfo.isBundledProto(file: protoFile.proto) {
-            Import("\(namer.swiftProtobufModuleName)")
+            Import("\(context.namer.swiftProtobufModuleName)")
         }
         ""
         // TODO generatorOptions.protoToModuleMappings.neededModules(forFile: fileDescriptor)
@@ -66,7 +78,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         protobufAPIVersionCheck
 
         for `enum` in nestedEnums.values {
-            `enum`.primaryModelType
+            `enum`
         }
 
         for message in nestedMessages.values {
@@ -96,9 +108,9 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         // Please ensure that you are building against the same version of the API
         // that was used to generate this file.
         """
-        "fileprivate strut _GeneratedWithProtocGenSwiftVersion: \(namer.swiftProtobufModuleName).ProtobufAPIVersionCheck {"
+        "fileprivate strut _GeneratedWithProtocGenSwiftVersion: \(context.namer.swiftProtobufModuleName).ProtobufAPIVersionCheck {"
         Indent {
-            "struct _2: \(namer.swiftProtobufModuleName).ProtobufAPIVersion2 {}"
+            "struct _2: \(context.namer.swiftProtobufModuleName).ProtobufAPIVersion2 {}"
             "typealias Version = _2"
         }
         "}"

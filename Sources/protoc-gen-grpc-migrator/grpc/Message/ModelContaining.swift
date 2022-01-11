@@ -17,8 +17,9 @@ enum ModelSearchResult {
 }
 
 protocol ModelContaining {
+    var context: ProtoFileContext { get }
+
     var fullName: String { get }
-    var namer: SwiftProtobufNamer { get }
 
     var nestedMessages: OrderedDictionary<String, GRPCMessage> { get set }
     var nestedEnums: OrderedDictionary<String, GRPCEnum> { get set }
@@ -54,10 +55,13 @@ extension ModelContaining {
 
             switch model.rootType {
             case .object:
-                nestedMessages[nextName.name] = GRPCMessage(ApodiniGRPCMessage(of: model), namer: namer)
+                nestedMessages[nextName.name] = GRPCMessage(
+                    ApodiniGRPCMessage(of: model, context: context)
+                )
             case .enum:
-                // TODO add nested enum
-                fatalError("Nesting enums isn't supported yet!")
+                nestedEnums[nextName.name] = GRPCEnum(
+                    ApodiniGRPCEnum(of: model, context: context)
+                )
             default:
                 fatalError("Encountered unexpected root type: \(model.rootType) of type \(model.typeName)")
             }
@@ -65,11 +69,17 @@ extension ModelContaining {
             // map mutating requires exclusive access to `self`. Therefore we can't access
             // the values in the `default:` closure and must compute those beforehand
             let fullName = fullName
-            let namer = namer
+            let context = context
 
             nestedMessages[
                 nextName.name,
-                default: GRPCMessage(EmptyGRPCMessage(name: nextName.name, nestedIn: fullName, namer: namer), namer: namer)
+                default: GRPCMessage(
+                    EmptyGRPCMessage(
+                        name: nextName.name,
+                        nestedIn: fullName,
+                        context: context
+                    )
+                )
             ].add(model: model, using: &nameIterator, depth: depth + 1)
         }
     }

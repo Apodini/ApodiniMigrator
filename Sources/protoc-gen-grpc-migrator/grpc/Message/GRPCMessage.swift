@@ -9,12 +9,14 @@
 import Foundation
 import ApodiniMigrator
 import SwiftProtobufPluginLibrary
-import OrderedCollections // TODO required?
+import OrderedCollections
 
 @dynamicMemberLookup
 struct GRPCMessage: SourceCodeRenderable, ModelContaining {
     private let message: SomeGRPCMessage
-    let namer: SwiftProtobufNamer
+    var context: ProtoFileContext {
+        message.context
+    }
 
     // TODO access!
     var nestedEnums: OrderedDictionary<String, GRPCEnum> {
@@ -46,9 +48,8 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
         }
     }
 
-    init(_ message: SomeGRPCMessage, namer: SwiftProtobufNamer) {
+    init(_ message: SomeGRPCMessage) {
         self.message = message
-        self.namer = namer
     }
 
     subscript<T>(dynamicMember member: KeyPath<SomeGRPCMessage, T>) -> T {
@@ -75,12 +76,10 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
             }
 
             ""
-            "public var unknownFields = \(namer.swiftProtobufModuleName).UnknownStorage()"
-
-            // TODO spacing!
+            "public var unknownFields = \(context.namer.swiftProtobufModuleName).UnknownStorage()"
 
             for `enum` in message.nestedEnums.values {
-                `enum`.primaryModelType
+                `enum`
             }
 
             for message in message.nestedMessages.values {
@@ -92,15 +91,17 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
 
     @SourceCodeBuilder
     var protobufferRuntimeSupport: String {
+        let moduleName = context.namer.swiftProtobufModuleName
+
         ""
-        "extension \(message.fullName): \(namer.swiftProtobufModuleName).Message, \(namer.swiftProtobufModuleName)._MessageImplementationBase, \(namer.swiftProtobufModuleName)._ProtoNameProviding {"
+        "extension \(message.fullName): \(moduleName).Message, \(moduleName)._MessageImplementationBase, \(moduleName)._ProtoNameProviding {"
         Indent {
             "static let protoMessageName: String = \"\(message.name)\"" // TODO respect parent descriptor file + file package name!
 
             if message.fields.isEmpty {
-                "public static let _protobuf_nameMap = \(namer.swiftProtobufModuleName)._NameMap()"
+                "public static let _protobuf_nameMap = \(moduleName)._NameMap()"
             } else {
-                "public static let _protobuf_nameMap: \(namer.swiftProtobufModuleName)._NameMap = ["
+                "public static let _protobuf_nameMap: \(moduleName)._NameMap = ["
                 Indent {
                     Joined(by: ",") { // TODO does the joined work here?
                         for field in message.fields {
@@ -129,7 +130,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
 
     @SourceCodeBuilder
     private var decodeMessageMethod: String {
-        "public mutating func decodeMessage<D: \(namer.swiftProtobufModuleName).Decoder>(decoder: inout D) throws {"
+        "public mutating func decodeMessage<D: \(context.namer.swiftProtobufModuleName).Decoder>(decoder: inout D) throws {"
         Indent {
             "while let \(message.fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
             Indent {
@@ -149,7 +150,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
 
     @SourceCodeBuilder
     private var traverseMessageMethod: String {
-        "public traverse<V: \(namer.swiftProtobufModuleName).Visitor>(visitor: inout V) throws {"
+        "public traverse<V: \(context.namer.swiftProtobufModuleName).Visitor>(visitor: inout V) throws {"
         Indent {
             if message.fields.contains { $0.generateTraverseUsesLocals } {
                 // TODO  "// The use of inline closures is to circumvent an issue where the compiler\n",

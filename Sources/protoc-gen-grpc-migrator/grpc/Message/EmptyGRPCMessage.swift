@@ -14,20 +14,20 @@ import OrderedCollections
 /// Describes an empty grpc message.
 /// We use this type in cases, where a added `TypeInformation` is nested into a type
 /// which we don't control.
-struct EmptyGRPCMessage: SomeGRPCMessage, ModelContaining {
-    private(set) var namer: SwiftProtobufNamer
+struct EmptyGRPCMessage: SomeGRPCMessage {
+    let context: ProtoFileContext
 
-    var name: String = ""
-    var relativeName: String = ""
-    var fullName: String = ""
+    var name: String
+    var relativeName: String
+    var fullName: String
 
     let fields: [GRPCMessageField] = []
 
     var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
     var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(name: String, nestedIn baseName: String?, namer: SwiftProtobufNamer) {
-        self.namer = namer
+    init(name: String, nestedIn baseName: String?, context: ProtoFileContext) {
+        self.context = context
 
         self.name = name
 
