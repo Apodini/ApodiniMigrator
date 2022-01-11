@@ -138,7 +138,7 @@ struct GRPCMethod: SourceCodeRenderable {
                 EmptyComponent() // did not change
             }
 
-            if (!alreadyBuiltCall || method.streamingType.isStreamingResponse, updatedStreamingType.isStreamingResponse) != (false, true) {
+            if !alreadyBuiltCall || (method.streamingType.isStreamingResponse, updatedStreamingType.isStreamingResponse) != (true, false) {
                 // unless its a conversion from `\(outputMessageName) -> GRPCResponseStream` build the call
                 // we need to handle that single case differently, as we aren't in a `async throws` context
                 // and therefore need to wrap that thing into Task and try-catch.
@@ -147,23 +147,6 @@ struct GRPCMethod: SourceCodeRenderable {
 
             switch (method.streamingType.isStreamingResponse, updatedStreamingType.isStreamingResponse) {
             case (true, false): // GRPCAsyncResponseStream -> \(outputMessageName)
-                // TODO add deprecation warning, that it might throw in certain conditions!
-
-                """
-                var iterator = result.makeAsyncIterator()
-                guard let response = try await iterator.next() else {
-                """
-                Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didNotReceiveAnyResponse)")
-                """
-                }
-                guard try await iterator.next() == nil else {
-                """
-                Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didReceiveToManyResponses)")
-                """
-                }
-                return response
-                """
-            case (false, true): // \(outputMessageName) -> GRPCResponseStream
                 "return GRPCResponseStream { continuation in"
                 Indent {
                     "Task.detached {"
@@ -181,8 +164,24 @@ struct GRPCMethod: SourceCodeRenderable {
                     "}"
                 }
                 "}"
+            case (false, true): // \(outputMessageName) -> GRPCResponseStream
+                // TODO add deprecation warning, that it might throw in certain conditions!
+                """
+                var iterator = result.makeAsyncIterator()
+                guard let response = try await iterator.next() else {
+                """
+                Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didNotReceiveAnyResponse)")
+                """
+                }
+                guard try await iterator.next() == nil else {
+                """
+                Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didReceiveToManyResponses)")
+                """
+                }
+                return response
+                """
             case (true, true):
-                // convert to our custom AsyncSequence wrapper type (required as we can't instantiate a GRPCAsnycResponseStream)
+                // convert to our custom AsyncSequence wrapper type (required as we can't instantiate a GRPCAsyncResponseStream)
                 "return GRPCResponseStream(wrapping: result)"
             default:
                 "return result"
