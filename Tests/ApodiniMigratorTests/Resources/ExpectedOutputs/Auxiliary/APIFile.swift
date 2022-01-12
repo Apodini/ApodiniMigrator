@@ -10,7 +10,7 @@ public enum API {}
 
 // MARK: - Endpoints
 public extension API {
-    /// API call for TestHandler at: hello
+    /// API call for TestHandler at: v1/hello
     static func sayHelloWorld(
         authorization: String? = nil,
         httpHeaders: HTTPHeaders = [:]
