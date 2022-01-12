@@ -76,7 +76,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
         let string2 = "/v2/{param}/users/{param}" // still considered equal, change is delegated to networking due to version change
 
         XCTAssertNotEqual(EndpointPath(string), EndpointPath(string1))
-        XCTAssertEqual(EndpointPath(string1), EndpointPath(string2))
+        XCTAssertNotEqual(EndpointPath(string1), EndpointPath(string2))
     }
     
     func testVersion() throws {
