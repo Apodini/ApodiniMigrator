@@ -43,7 +43,8 @@ public struct EndpointPath: Value, CustomStringConvertible, EndpointIdentifier {
     
     /// String representation of the path
     public var description: String {
-        Self.separator + components.sorted(by: \.key)
+        Self.separator + components
+            .sorted(by: \.key)
             .map { "\($0.value)" }
             .joined(separator: Self.separator)
     }
@@ -51,11 +52,9 @@ public struct EndpointPath: Value, CustomStringConvertible, EndpointIdentifier {
     public var rawValue: String {
         description
     }
-    
-    /// Path excluding the first component which corresponds to the version of the web service
+
     public var resourcePath: String {
         components
-            .filter { $0.key != 0 }
             .sorted(by: \.key)
             .map { "\($0.value)" }
             .joined(separator: Self.separator)

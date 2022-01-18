@@ -28,7 +28,7 @@ extension HTTPInformation {
     public init(fromLegacyServerPath serverPath: String) throws {
         let range = NSRange(serverPath.startIndex..., in: serverPath)
         // swiftlint:disable:next force_try
-        let regex = try! NSRegularExpression(pattern: "^http://(.+):([0-9]+)(/(\\w|\\d)+)?$")
+        let regex = try! NSRegularExpression(pattern: "^http://(.+):([0-9]+)(/.*)?$")
 
         guard let match = regex.firstMatch(in: serverPath, range: range) else {
             throw LegacyServiceInformation.MigrationError.failedMatch(path: serverPath)

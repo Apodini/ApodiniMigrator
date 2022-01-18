@@ -7,7 +7,7 @@ import Foundation
 
 // MARK: - Endpoints
 public extension Bool {
-    /// API call for someHandler at: test
+    /// API call for someHandler at: v1/test
     static func id(
         wrappedContentParameter: SomeWrappedContent,
         authorization: String? = nil,
@@ -19,7 +19,7 @@ public extension Bool {
         var errors: [ApodiniError] = []
         
         let handler = Handler<Bool>(
-            path: "test",
+            path: "v1/test",
             httpMethod: .post,
             parameters: [:],
             headers: headers,

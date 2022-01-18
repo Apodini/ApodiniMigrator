@@ -8,7 +8,7 @@ import Foundation
 
 // MARK: - Endpoints
 public extension TestResponse {
-    /// API call for TestHandler at: tests/{second}
+    /// API call for TestHandler at: v1/tests/{second}
     @available(*, deprecated, message: "This endpoint is not available in the new version anymore. Calling this method results in a failing promise!")
     static func testEndpoint(
         first: String,
