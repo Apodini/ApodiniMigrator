@@ -12,7 +12,7 @@ import ApodiniMigratorCompare
 import SwiftProtobuf
 import SwiftProtobufPluginLibrary
 
-struct ProtobufFacadeGenerator: LibraryNode {
+struct ProtobufFacadeGenerator: LibraryNode { // TODO remove this!
     private let dumpBinaryPath: Path
     private let migrationGuide: MigrationGuide
 

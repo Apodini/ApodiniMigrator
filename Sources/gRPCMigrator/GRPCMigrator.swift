@@ -16,8 +16,6 @@ public struct GRPCMigrator: Migrator {
         case incompatible(message: String)
     }
 
-    private static let DUMP_PATH = "/Users/andi/XcodeProjects/TUM/ApodiniMigrator/TESTFILES/dump.pbinary"
-
     public var bundle: Bundle = .module
 
     public static let logger: Logger = {
@@ -27,14 +25,17 @@ public struct GRPCMigrator: Migrator {
     private let protoFilePath: Path
     private let protoFile: String
 
+    private let document: APIDocument
+    private let documentPath: String
+
     private let migrationGuide: MigrationGuide
     private let migrationGuidePath: String?
 
-    public init(protoFile: String, migrationGuidePath: String? = nil) throws {
+    public init(protoFile: String, documentPath: String, migrationGuidePath: String? = nil) throws {
         let path = Path(protoFile)
 
-        let documentPath: String = "/asdf.txt" // TODO we need access to the documentPath!
-        let document = try APIDocument.decode(from: Path(documentPath))
+        self.document = try APIDocument.decode(from: Path(documentPath))
+        self.documentPath = documentPath
 
         // TODO support multiple proto file (non priority though)
         self.protoFile = path.lastComponent
@@ -69,19 +70,20 @@ public struct GRPCMigrator: Migrator {
 
     public var library: RootDirectory {
         Sources {
+            /*
+             TODO REMOVE
             Target("_PB_GENERATED") {
                 ProtocGenerator(
                     pluginName: "swift",
                     protoPath: protoFilePath.description,
                     protoFile: protoFile,
                     options: ["Visibility": "Public"],
-                    // TODO find a intermediate file storage path!
+                    // to-do find a intermediate file storage path!
                     environment: ["PROTOC_GEN_SWIFT_LOG_REQUEST": GRPCMigrator.DUMP_PATH]
                 )
             }
                 .dependency(product: "GRPC", of: "grpc-swift")
 
-            // TODO facade generator! => wee need access to the dump.pbinary
             Target("_PB_FACADE") {
                 ResourceFile(copy: "PBFacadeAPI.swift", to: "PBUtils.swift")
 
@@ -91,25 +93,7 @@ public struct GRPCMigrator: Migrator {
                 )
             }
                 .dependency(target: "_PB_GENERATED")
-
-
-            Target("_GRPC") {
-                ProtocGenerator(
-                    pluginName: "grpc-migrator",
-                    protoPath: protoFilePath.description,
-                    protoFile: protoFile,
-                    options: [
-                        "Visibility": "Public",
-                        "MigrationGuide": migrationGuidePath ?? ""
-                        // "ExperimentalAsyncClient": "true",
-                        // "Server": "false"
-                    ]
-                )
-
-                // we use that as a workaround avoid putting an import statement in every file
-                ResourceFile(copy: "GRPCExports.swift", to: "Exports.swift")
-            }
-                .dependency(product: "GRPC", of: "grpc-swift")
+            */
 
 
             Target(.packageName) {
@@ -118,16 +102,25 @@ public struct GRPCMigrator: Migrator {
                     ResourceFile(copy: "GRPCNetworkingError.swift")
                     ResourceFile(copy: "GRPCResponseStream.swift")
                 }
+
+                ProtocGenerator(
+                    pluginName: "grpc-migrator",
+                    protoPath: protoFilePath.description,
+                    protoFile: protoFile,
+                    options: [
+                        "Visibility": "Public",
+                        "MigrationGuide": migrationGuidePath ?? "", // empty as migrationGuide might be nil
+                        "APIDocument": documentPath
+                    ]
+                )
             }
-                .dependency(target: "_PB_FACADE")
-                .dependency(target: "_GRPC")
                 .dependency(product: "GRPC", of: "grpc-swift")
         }
 
         SwiftPackageFile(swiftTools: "5.5")
             .platform(".macOS(.v11)", ".iOS(.v15)")
             .dependency(url: "https://github.com/grpc/grpc-swift.git", ".exact(\"1.6.1-async-await.1\")")
-            // TODO migrator dependency
+            .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.2.0\")")
             .product(library: .packageName, targets: .packageName)
 
 
