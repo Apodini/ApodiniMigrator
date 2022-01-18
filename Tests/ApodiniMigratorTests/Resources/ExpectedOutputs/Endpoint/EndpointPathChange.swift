@@ -7,7 +7,7 @@ import Foundation
 
 // MARK: - Endpoints
 public extension TestResponse {
-    /// API call for TestHandler at: updatedTests/{second}
+    /// API call for TestHandler at: v1/updatedTests/{second}
     static func testEndpoint(
         first: String,
         isDriving: String?,
@@ -27,7 +27,7 @@ public extension TestResponse {
         errors.addError(404, message: "Not found")
         
         let handler = Handler<TestResponse>(
-            path: "updatedTests/\(second)",
+            path: "v1/updatedTests/\(second)",
             httpMethod: .get,
             parameters: parameters,
             headers: headers,

@@ -132,8 +132,8 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         }
 
         SwiftPackageFile(swiftTools: "5.5")
-            .platform(".macOS(.v12)", ".iOS(.v14)")
-            .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.1.0\")")
+            .platform(".macOS(.v11)", ".iOS(.v13)")
+            .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.2.0\")")
             .product(library: .packageName, targets: .packageName)
 
         ReadMeFile("Readme.md")

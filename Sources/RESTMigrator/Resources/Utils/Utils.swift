@@ -1,4 +1,5 @@
 import Foundation
+import PathKit
 import ApodiniMigratorClientSupport
 
 /// A typealias of `ApodiniMigratorDecodable`, a `Decodable` protocol
@@ -38,7 +39,7 @@ extension JSScript: Codable {}
 /// JSONValue conformance to `ApodiniMigratorCodable`
 extension JSONValue: Codable {}
 
-/// Holds distincts resource cases with the name of the resource as raw value
+/// Holds distinct resource cases with the name of the resource as raw value
 private enum Resource: String {
     /// Javascript convert methods
     case jsScripts = "js-convert-scripts"
@@ -52,7 +53,7 @@ fileprivate extension Bundle {
     func resource<D: Decodable>(_ resource: Resource) -> D {
         guard
             let path = path(forResource: resource.rawValue, ofType: "json"),
-            let instance = try? D.decode(from: path.asPath) else {
+            let instance = try? D.decode(from: Path(path)) else {
             fatalError("Resource \(resource.rawValue) is malformed")
         }
         return instance
