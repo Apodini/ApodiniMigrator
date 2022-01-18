@@ -41,9 +41,9 @@ struct GRPCEnum: SourceCodeRenderable {
             "@available(*, message: \"This enum was removed in the latest version!\")"
         }
         // TODO added cases annotation!
-        "public enum \(`enum`.relativeName): \(context.namer.swiftProtobufModuleName).Enum, CaseIterable {"
+        "\(context.options.visibility) enum \(`enum`.relativeName): \(context.namer.swiftProtobufModuleName).Enum, CaseIterable {"
         Indent { // swiftlint:disable:this closure_body_length
-            "public typealias RawValue = Int"
+            "\(context.options.visibility) typealias RawValue = Int"
             ""
 
             for enumCase in `enum`.uniquelyNamedValues {
@@ -52,7 +52,7 @@ struct GRPCEnum: SourceCodeRenderable {
                 }
 
                 if let aliasOf = enumCase.aliasOf {
-                    "public static let \(enumCase.relativeName) = \(aliasOf.relativeName)"
+                    "\(context.options.visibility) static let \(enumCase.relativeName) = \(aliasOf.relativeName)"
                 } else {
                     "case \(enumCase.relativeName) // = \(enumCase.number)"
                 }
@@ -63,7 +63,7 @@ struct GRPCEnum: SourceCodeRenderable {
 
             // rawValue property
             ""
-            "var rawValue: Int {"
+            "\(context.options.visibility) var rawValue: Int {"
             Indent {
                 "switch self {"
                 for enumCase in `enum`.enumCasesSorted {
@@ -80,7 +80,7 @@ struct GRPCEnum: SourceCodeRenderable {
             // CaseIterable
             if context.hasUnknownPreservingSemantics {
                 ""
-                "public static var allCases: [\(`enum`.fullName)] = ["
+                "\(context.options.visibility) static var allCases: [\(`enum`.fullName)] = ["
                 Indent {
                     Joined(by: ",") { // TODO does Joined work here?
                         for enumCase in `enum`.enumCasesSorted {
@@ -94,13 +94,13 @@ struct GRPCEnum: SourceCodeRenderable {
 
             // default value init
             ""
-            "public init() {"
+            "\(context.options.visibility) init() {"
             Indent("self = \(`enum`.defaultValue.dottedRelativeName)")
             "}"
 
             // RawValue init
             ""
-            "public init\(context.hasUnknownPreservingSemantics ? "": "?")(rawValue: Int) {"
+            "\(context.options.visibility) init\(context.hasUnknownPreservingSemantics ? "": "?")(rawValue: Int) {"
             Indent {
                 "switch rawValue {"
                 for enumCase in `enum`.enumCasesSorted {
@@ -124,7 +124,7 @@ struct GRPCEnum: SourceCodeRenderable {
         ""
         "extension \(`enum`.fullName): \(context.namer.swiftProtobufModuleName)._ProtoNameProviding {"
         Indent {
-            "public static let _protobuf_nameMap: \(context.namer.swiftProtobufModuleName)._NameMap = ["
+            "\(context.options.visibility) static let _protobuf_nameMap: \(context.namer.swiftProtobufModuleName)._NameMap = ["
             for enumCase in `enum`.enumCasesSorted {
                 // TODO use `Joined` operator?
                 if enumCase.aliases.isEmpty {

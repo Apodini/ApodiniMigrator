@@ -12,10 +12,12 @@ import SwiftProtobufPluginLibrary
 /// This type holds some context information about a proto file descriptor
 struct ProtoFileContext {
     let namer: SwiftProtobufNamer
+    let options: PluginOptions
     let hasUnknownPreservingSemantics: Bool
 
-    init(namer: SwiftProtobufNamer, hasUnknownPreservingSemantics: Bool) {
+    init(namer: SwiftProtobufNamer, options: PluginOptions, hasUnknownPreservingSemantics: Bool) {
         self.namer = namer
+        self.options = options
         self.hasUnknownPreservingSemantics = hasUnknownPreservingSemantics
     }
 }

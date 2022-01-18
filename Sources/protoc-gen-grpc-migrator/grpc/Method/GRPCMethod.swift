@@ -17,6 +17,7 @@ struct GRPCMethod: SourceCodeRenderable {
     }
 
     private let method: SomeGRPCMethod
+    let options: PluginOptions
 
     var requestParameterType: String {
         method.streamingType.isStreamingRequest
@@ -24,8 +25,9 @@ struct GRPCMethod: SourceCodeRenderable {
             : method.inputMessageName
     }
 
-    init(_ method: SomeGRPCMethod) {
+    init(_ method: SomeGRPCMethod, options: PluginOptions) {
         self.method = method
+        self.options = options
     }
 
     subscript<T>(dynamicMember member: KeyPath<SomeGRPCMethod, T>) -> T {
@@ -71,7 +73,7 @@ struct GRPCMethod: SourceCodeRenderable {
                 returnType: method.streamingType.isStreamingResponse
                     ? "GRPCResponseStream<\(method.outputMessageName)>"
                     : method.outputMessageName,
-                access: "public", // TODO visibility
+                access: options.visibility.description,
                 async: !method.streamingType.isStreamingResponse, // we return AsyncSequence instantly on streaming response!
                 throws: !method.streamingType.isStreamingResponse,
                 whereClause: sequenceProtocol.map {

@@ -107,7 +107,7 @@ struct ProtocPlugin {
 
         let grpcFileName = "\(descriptor.name).grpc.swift" // TODO generate
 
-        let file = GRPCClientsFile(descriptor, migrationGuide: migrationGuide, namer: namer)
+        let file = GRPCClientsFile(descriptor, options: options, migrationGuide: migrationGuide, namer: namer)
 
         let generatedFile = Google_Protobuf_Compiler_CodeGeneratorResponse.File(
             name: grpcFileName,
@@ -123,7 +123,7 @@ struct ProtocPlugin {
 
         let fileName = "\(descriptor.name).pb.swift" // TODO generate?
 
-        let file = GRPCModelsFile(descriptor, document: apiDocument, migrationGuide: migrationGuide, namer: namer)
+        let file = GRPCModelsFile(descriptor, options: options, document: apiDocument, migrationGuide: migrationGuide, namer: namer)
 
         let generatedFile = Google_Protobuf_Compiler_CodeGeneratorResponse.File(
             name: fileName,

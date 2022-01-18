@@ -12,6 +12,9 @@ import ApodiniMigrator
 @dynamicMemberLookup
 struct GRPCMessageField {
     private let field: SomeGRPCMessageField
+    var context: ProtoFileContext {
+        field.context
+    }
 
     var generateTraverseUsesLocals: Bool { // TODO what the hell is this
         !field.isRepeated && field.hasFieldPresence
@@ -31,7 +34,6 @@ struct GRPCMessageField {
 
     @SourceCodeBuilder
     var propertyInterface: String {
-        // TODO visibility on all generated thingys
         if let comments = field.sourceCodeComments {
             comments
         }
@@ -39,7 +41,7 @@ struct GRPCMessageField {
         // TODO heapStorage thingy?
 
         if field.hasFieldPresence {
-            "public var \(field.name): \(field.typeName) {"
+            "\(context.options.visibility) var \(field.name): \(field.typeName) {"
             Indent {
                 "get {"
                 Indent("return \(field.privateName) ?? \(field.defaultValue)")
@@ -50,16 +52,16 @@ struct GRPCMessageField {
             }
             "}"
         } else {
-            "public var \(field.name): \(field.storageType) = \(field.defaultValue)"
+            "\(context.options.visibility) var \(field.name): \(field.storageType) = \(field.defaultValue)"
         }
 
         if field.hasFieldPresence {
             ""
-            "public var \(field.propertyHasName): Bool {"
+            "\(context.options.visibility) var \(field.propertyHasName): Bool {"
             Indent("return \(field.privateName) != nil")
             "}"
             ""
-            "public mutating func \(field.funcClearName)() {"
+            "\(context.options.visibility) mutating func \(field.funcClearName)() {"
             Indent("\(field.privateName) = nil")
             "}"
         }

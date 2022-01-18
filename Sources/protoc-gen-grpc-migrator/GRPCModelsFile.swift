@@ -40,12 +40,12 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
     var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(_ file: FileDescriptor, document: APIDocument, migrationGuide: MigrationGuide, namer: SwiftProtobufNamer) {
+    init(_ file: FileDescriptor, options: PluginOptions, document: APIDocument, migrationGuide: MigrationGuide, namer: SwiftProtobufNamer) {
         self.protoFile = file
         self.document = document
         self.migrationGuide = migrationGuide
 
-        self.context = ProtoFileContext(namer: namer, hasUnknownPreservingSemantics: file.hasUnknownPreservingSemantics)
+        self.context = ProtoFileContext(namer: namer, options: options, hasUnknownPreservingSemantics: file.hasUnknownPreservingSemantics)
 
         for `enum` in file.enums {
             self.nestedEnums[`enum`.name] = GRPCEnum(
@@ -109,7 +109,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         // Please ensure that you are building against the same version of the API
         // that was used to generate this file.
         """
-        "fileprivate strut _GeneratedWithProtocGenSwiftVersion: \(context.namer.swiftProtobufModuleName).ProtobufAPIVersionCheck {"
+        "private strut _GeneratedWithProtocGenSwiftVersion: \(context.namer.swiftProtobufModuleName).ProtobufAPIVersionCheck {"
         Indent {
             "struct _2: \(context.namer.swiftProtobufModuleName).ProtobufAPIVersion2 {}"
             "typealias Version = _2"

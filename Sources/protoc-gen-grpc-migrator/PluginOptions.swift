@@ -17,11 +17,11 @@ struct PluginOptions {
         case missingParameter(parameter: String)
     }
 
-    enum Visibility: String {
+    enum Visibility: String, CustomStringConvertible {
         case `internal` = "Internal"
         case `public` = "Public"
 
-        var sourceModifier: String {
+        var description: String {
             rawValue.lowercased()
         }
     }

@@ -13,6 +13,7 @@ import SwiftProtobufPluginLibrary
 
 class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
     let descriptor: FieldDescriptor
+    let context: ProtoFileContext
 
     let hasFieldPresence: Bool
 
@@ -68,6 +69,7 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
     init(descriptor: FieldDescriptor, context: ProtoFileContext) {
         precondition(descriptor.protoType != .group, ".group field types are not supported!")
         self.descriptor = descriptor
+        self.context = context
 
         precondition(descriptor.realOneof == nil, "OneOfs aren't supported!")
 

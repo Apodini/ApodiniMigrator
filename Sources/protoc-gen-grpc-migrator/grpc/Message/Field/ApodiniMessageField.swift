@@ -13,6 +13,7 @@ import SwiftProtobufPluginLibrary
 
 struct ApodiniMessageField: SomeGRPCMessageField {
     private let property: TypeProperty
+    let context: ProtoFileContext
 
     var hasFieldPresence: Bool
 
@@ -54,6 +55,7 @@ struct ApodiniMessageField: SomeGRPCMessageField {
     init(_ property: TypeProperty, number: Int, context: ProtoFileContext) {
         // we ignore fluent property annotations
         self.property = property
+        self.context = context
 
         self.name = property.name
 

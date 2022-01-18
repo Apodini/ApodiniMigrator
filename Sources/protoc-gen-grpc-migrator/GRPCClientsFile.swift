@@ -12,13 +12,15 @@ import SwiftProtobufPluginLibrary
 
 class GRPCClientsFile: SourceCodeRenderable {
     let protoFile: FileDescriptor
+    let options: PluginOptions
     let migrationGuide: MigrationGuide
     let namer: SwiftProtobufNamer
 
     var services: [String: GRPCService] = [:]
 
-    init(_ file: FileDescriptor, migrationGuide: MigrationGuide, namer: SwiftProtobufNamer) {
+    init(_ file: FileDescriptor, options: PluginOptions, migrationGuide: MigrationGuide, namer: SwiftProtobufNamer) {
         self.protoFile = file
+        self.options = options
         self.migrationGuide = migrationGuide
         self.namer = namer
 

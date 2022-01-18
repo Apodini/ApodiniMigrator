@@ -11,6 +11,8 @@ import SwiftProtobufPluginLibrary
 import SwiftProtobuf
 
 protocol SomeGRPCMessageField {
+    var context: ProtoFileContext { get }
+
     var hasFieldPresence: Bool { get }
 
     var name: String { get }

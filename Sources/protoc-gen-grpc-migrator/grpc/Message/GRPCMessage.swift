@@ -69,14 +69,14 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
             "@available(*, message: \"This message was removed in the latest version!\")"
         }
 
-        "public struct \(message.relativeName) {" // TODO visibility
+        "\(context.options.visibility) struct \(message.relativeName) {"
         Indent {
             for field in message.fields {
                 field.propertyInterface
             }
 
             ""
-            "public var unknownFields = \(context.namer.swiftProtobufModuleName).UnknownStorage()"
+            "\(context.options.visibility) var unknownFields = \(context.namer.swiftProtobufModuleName).UnknownStorage()"
 
             for `enum` in message.nestedEnums.values {
                 `enum`
@@ -96,12 +96,12 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
         ""
         "extension \(message.fullName): \(moduleName).Message, \(moduleName)._MessageImplementationBase, \(moduleName)._ProtoNameProviding {"
         Indent {
-            "static let protoMessageName: String = \"\(message.name)\"" // TODO respect parent descriptor file + file package name!
+            "\(context.options.visibility) static let protoMessageName: String = \"\(message.name)\"" // TODO respect parent descriptor file + file package name!
 
             if message.fields.isEmpty {
-                "public static let _protobuf_nameMap = \(moduleName)._NameMap()"
+                "\(context.options.visibility) static let _protobuf_nameMap = \(moduleName)._NameMap()"
             } else {
-                "public static let _protobuf_nameMap: \(moduleName)._NameMap = ["
+                "\(context.options.visibility) static let _protobuf_nameMap: \(moduleName)._NameMap = ["
                 Indent {
                     Joined(by: ",") { // TODO does the joined work here?
                         for field in message.fields {
@@ -130,7 +130,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
 
     @SourceCodeBuilder
     private var decodeMessageMethod: String {
-        "public mutating func decodeMessage<D: \(context.namer.swiftProtobufModuleName).Decoder>(decoder: inout D) throws {"
+        "\(context.options.visibility) mutating func decodeMessage<D: \(context.namer.swiftProtobufModuleName).Decoder>(decoder: inout D) throws {"
         Indent {
             "while let \(message.fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
             Indent {
@@ -150,7 +150,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
 
     @SourceCodeBuilder
     private var traverseMessageMethod: String {
-        "public traverse<V: \(context.namer.swiftProtobufModuleName).Visitor>(visitor: inout V) throws {"
+        "\(context.options.visibility) traverse<V: \(context.namer.swiftProtobufModuleName).Visitor>(visitor: inout V) throws {"
         Indent {
             if message.fields.contains { $0.generateTraverseUsesLocals } {
                 // TODO  "// The use of inline closures is to circumvent an issue where the compiler\n",

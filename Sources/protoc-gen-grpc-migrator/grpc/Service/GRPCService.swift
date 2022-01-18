@@ -12,6 +12,7 @@ import ApodiniMigrator
 
 class GRPCService: SourceCodeRenderable {
     private unowned let file: GRPCClientsFile
+    let options: PluginOptions
 
     let serviceName: String
     private let serviceSourceComments: String?
@@ -32,18 +33,20 @@ class GRPCService: SourceCodeRenderable {
 
     init(_ service: ServiceDescriptor, locatedIn file: GRPCClientsFile) {
         self.file = file
+        self.options = file.options
         self.serviceName = service.name
         self.methods = []
 
         self.serviceSourceComments = service.protoSourceComments()
 
         for method in service.methods {
-            self.methods.append(GRPCMethod(ProtoGRPCMethod(method, locatedIn: self)))
+            self.methods.append(GRPCMethod(ProtoGRPCMethod(method, locatedIn: self), options: options))
         }
     }
 
     init(named serviceName: String, locatedIn file: GRPCClientsFile) {
         self.file = file
+        self.options = file.options
         self.serviceName = serviceName
         self.methods = []
         self.serviceSourceComments = nil
@@ -53,7 +56,7 @@ class GRPCService: SourceCodeRenderable {
         let methodName = endpoint.methodName
         precondition(!self.methods.contains(where: { $0.methodName == methodName }), "Added endpoint collides with existing method \(serviceName).\(methodName)")
 
-        self.methods.append(GRPCMethod(endpoint))
+        self.methods.append(GRPCMethod(endpoint, options: options))
     }
 
     func handleEndpointUpdate(_ update: EndpointChange.UpdateChange) {
@@ -77,19 +80,18 @@ class GRPCService: SourceCodeRenderable {
             comments
         }
 
-        // TODO visibilit + service name!!
-        "public struct \(serviceName)AsyncClient: \(serviceName)AsyncClientProtocol {"
+        "\(options.visibility) struct \(serviceName)AsyncClient: \(serviceName)AsyncClientProtocol {"
         Indent {
-            "var serviceName: String {"
+            "\(options.visibility) var serviceName: String {"
             Indent("\"\(servicePath)\"")
             """
             }
 
-            var channel: GRPCChannel
-            var defaultCallOptions: CallOptions
+            \(options.visibility) var channel: GRPCChannel
+            \(options.visibility) var defaultCallOptions: CallOptions
             """
 
-            "init("
+            "\(options.visibility) init("
             Indent {
                 """
                 channel: GRPCChannel,

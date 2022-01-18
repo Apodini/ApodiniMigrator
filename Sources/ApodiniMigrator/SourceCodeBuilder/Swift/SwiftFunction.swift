@@ -76,7 +76,7 @@ public struct SwiftFunction: SourceCodeRenderable {
     ///   - functionBody: A ``SourceCodeBuilder`` closure to render the function body.
     public init(
         name: String,
-        generics: [String] = [], // TODO make optional type instead of empty?
+        generics: [String] = [],
         arguments: [String] = [],
         returnType: String? = nil,
         access: String? = nil,
@@ -114,7 +114,7 @@ public struct SwiftFunction: SourceCodeRenderable {
         var head = ""
 
         if let access = access {
-            head += access + " "
+            head += access.trimmingCharacters(in: .whitespaces) + " "
         }
 
         if sendable {
