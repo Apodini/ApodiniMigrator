@@ -117,15 +117,20 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     }
 
     private func parseModelChanges() { // swiftlint:disable:this cyclomatic_complexity
+        var renamedModels: [ModelChange.IdentifierChange] = []
         var addedModels: [ModelChange.AdditionChange] = []
         var updatedModels: [ModelChange.UpdateChange] = []
         var removedModels: [ModelChange.RemovalChange] = []
 
         for change in migrationGuide.modelChanges {
-            // we ignore idChange updates. Why? Because we always work with the older identifiers.
-            // And client library should not modify identifiers, to maintain code compatibility
+            if let rename = change.modeledIdentifierChange {
+                // we ignore idChange updates. Why? Because we always work with the older identifiers.
+                // And client library should not modify identifiers, to maintain code compatibility
+                // Nonetheless, as this is all built around the central `Changeable` protocol,
+                // we still forward those changes to the `ProtoGRPCMessage` or `ProtoGRPCEnum`.
 
-            if let addition = change.modeledAdditionChange {
+                renamedModels.append(rename)
+            } else if let addition = change.modeledAdditionChange {
                 precondition(modelIdTranslation[addition.id] == nil, "Encountered model identifier conflict")
                 modelIdTranslation[addition.id] = addition.added.typeName
 
@@ -137,7 +142,19 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             }
         }
 
-        // we sort them such that we don't cause any conflicts with our EmptyGRPCMessage structs
+        for renamedModel in renamedModels {
+            guard let typeName = modelIdTranslation[renamedModel.from] else {
+                fatalError("Encountered identifier change with id \(renamedModel.from) which isn't present in our typeName lookup!")
+            }
+
+            guard let result = find(for: typeName) else {
+                fatalError("Failed to locate renamed model with typeName \(typeName) and id: \(renamedModel.from) (\(renamedModel))!")
+            }
+
+            result.handleIdChange(change: renamedModel)
+        }
+
+        // we sort them such that we don't cause any conflicts with creation of `EmptyGRPCMessage` structs
         for addedModel in addedModels.sorted(by: \.added.typeName.nestedTypes.count) {
             let model = addedModel.added
             precondition(!model.isReference) // we know for sure, with the current architecture that it doesn't happen

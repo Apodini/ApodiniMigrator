@@ -62,6 +62,8 @@ class ProtoGRPCEnum: SomeGRPCEnum, Changeable {
         )
     }
 
+    // TODO record id change?
+
     func applyUpdateChange(_ change: ModelChange.UpdateChange) {
         // TODO deltaIdentifier
         switch change.updated {
@@ -70,7 +72,12 @@ class ProtoGRPCEnum: SomeGRPCEnum, Changeable {
         case .property:
             fatalError("Tried updating enum with message-only change type!")
         case let .case(`case`):
-            if let caseAddition = `case`.modeledAdditionChange {
+            if let renamedEnumCase = `case`.modeledIdentifierChange {
+                enumCases
+                    .filter { $0.name == renamedEnumCase.from.rawValue }
+                    .compactMap { $0.tryTyped(for: ProtoGRPCEnumCase.self) }
+                    .forEach { $0.applyIdChange(renamedEnumCase) }
+            } else if let caseAddition = `case`.modeledAdditionChange {
                 // TODO we currently GUESS the enum case number!
                 let addedCase = GRPCEnumCase(ApodiniEnumCase(caseAddition.added, number: enumCases.count))
 

@@ -98,6 +98,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
         let moduleName = context.namer.swiftProtobufModuleName
 
         ""
+        MARKComment("RuntimeSupport")
         "extension \(message.fullName): \(moduleName).Message, \(moduleName)._MessageImplementationBase, \(moduleName)._ProtoNameProviding {"
         Indent {
             "\(context.options.visibility) static let protoMessageName: String = \"\(message.name)\"" // TODO respect parent descriptor file + file package name!
@@ -123,6 +124,8 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
         }
         "}"
 
+        MessageCodableSupport(message: self)
+
         for `enum` in message.nestedMessages.values {
             `enum`.protobufferRuntimeSupport
         }
@@ -142,7 +145,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
                 "switch fieldNumber {"
                 Indent {
                     for field in message.sortedFields where !field.unavailable { // filtering out removed properties
-                        field.fieldDecodeCase
+                        field.fieldDecodeCase // TODO handle migration!
                     }
                 }
                 "}"
@@ -164,11 +167,152 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
             }
 
             for field in message.sortedFields {
-                field.traverseExpression
+                field.traverseExpression // TODO handle migration!
             }
             ""
             "try unknownFields.traverse(visitor: %visitor)"
         }
         "}"
+    }
+
+    struct MessageCodableSupport: SourceCodeRenderable {
+        let message: GRPCMessage
+
+        var renderableContent: String {
+            ""
+            MARKComment("Codable")
+            "extension \(message.fullName): Codable {"
+            Indent {
+                CodingKeys(message: message)
+
+                EncodeMethod(message: message)
+
+                DecodeInit(message: message)
+            }
+            "}"
+        }
+
+        private struct CodingKeys: SourceCodeRenderable {
+            let message: GRPCMessage
+
+            var renderableContent: String {
+                "private enum CodingKeys: String, CodingKey {"
+                Indent {
+                    for field in message.fields {
+                        if let updatedName = field.updatedName {
+                            "case \(field.name) = \"\(updatedName)\""
+                        } else {
+                            "case \(field.name)"
+                        }
+                    }
+
+                    // we deliberately skip encoding and decoding of `unknownStorage`!
+                    // its required by the `Message` protocol, but we can't initialize it from the "outside"
+                }
+                "}"
+            }
+        }
+
+        struct EncodeMethod: SourceCodeRenderable {
+            let message: GRPCMessage
+
+            var renderableContent: String {
+                ""
+                "public func encode(to encoder: Encoder) throws {"
+                Indent {
+                    "var container = encoder.container(keyedBy: CodingKeys.self)"
+                    ""
+
+                    for field in message.fields {
+                        // TODO move into field!
+
+                        if let change = field.necessityUpdate {
+                            if change.to != .required {
+                                defaultEncodeLine(for: field)
+                            } else {
+                                """
+                                try container.encode(\
+                                \(field.storedProperty) ?? (try \(field.typeName).instance(from: \(change.necessityMigration))), \
+                                forKey: .\(field.name)\
+                                )
+                                """
+                            }
+                        } else if let change = field.typeUpdate {
+                            let encodeMethodString = "encode\(change.to.isOptional ? "IfPresent": "")"
+                            let newTypeName = change.to.swiftType(namer: message.context.namer)
+
+                            """
+                            try container.\(encodeMethodString)(\
+                            try \(newTypeName).from(\(field.storedProperty), script: \(change.forwardMigration))\
+                            forKey: .\(field.name)\
+                            )
+                            """
+                        } else {
+                            defaultEncodeLine(for: field)
+                        }
+                    }
+                }
+                "}"
+            }
+
+            func defaultEncodeLine(for field: GRPCMessageField) -> String {
+                let encodeMethodString = "encode\(field.hasFieldPresence ? "IfPresent": "")"
+                return "try container.\(encodeMethodString)(\(field.storedProperty), forKey: .\(field.name)"
+            }
+        }
+
+        struct DecodeInit: SourceCodeRenderable {
+            let message: GRPCMessage
+
+            var renderableContent: String {
+                ""
+                "public init(from decoder: Decoder) throws {"
+                Indent {
+                    "let container = try decoder.container(keyedBy: CodingKeys.self)"
+                    ""
+
+                    for field in message.fields {
+                        // TODO move into field!
+
+                        if field.unavailable {
+                            if let fallbackValue = field.fallbackValue {
+                                "\(field.storedProperty) = try \(field.typeName).instance(from: \(fallbackValue))"
+                            } else {
+                                "\(field.storedProperty) = nil"
+                            }
+                        } else if let change = field.necessityUpdate {
+                            if change.to != .optional {
+                                defaultDecodeLine(for: field)
+                            } else {
+                                """
+                                \(field.storedProperty) = try container.decodeIfPresent(\
+                                \(field.typeName).self, \
+                                forKey: .\(field.name)\
+                                ) ?? (try \(field.typeName).instance(from: \(change.necessityMigration)))
+                                """
+                            }
+                        } else if let change = field.typeUpdate {
+                            let decodeMethodString = "decode\(change.to.isOptional ? "IfPresent" : "")"
+                            let newTypeName = change.to.swiftType(namer: message.context.namer)
+
+                            """
+                            \(field.storedProperty) = try \(field.typeName).from(\
+                            try container.\(decodeMethodString)(\(newTypeName).self, forKey: .\(field.name),\
+                            script: \(change.backwardMigration)\
+                            )
+                            """
+                        } else {
+                            defaultDecodeLine(for: field)
+                        }
+                    }
+                }
+                "}"
+            }
+
+            func defaultDecodeLine(for field: GRPCMessageField) -> String {
+                let decodeMethodString = "decode\(field.hasFieldPresence ? "IfPresent" : "")"
+                return "\(field.storedProperty) = try container.\(decodeMethodString)(\(field.typeName).self, forKey: .\(field.name))"
+            }
+        }
     }
 }

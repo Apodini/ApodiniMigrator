@@ -97,12 +97,6 @@ public struct GRPCMigrator: Migrator {
 
 
             Target(.packageName) {
-                Directory("Networking") {
-                    ResourceFile(copy: "GRPCNetworking.swift")
-                    ResourceFile(copy: "GRPCNetworkingError.swift")
-                    ResourceFile(copy: "GRPCResponseStream.swift")
-                }
-
                 ProtocGenerator(
                     pluginName: "grpc-migrator",
                     protoPath: protoFilePath.description,
@@ -113,6 +107,16 @@ public struct GRPCMigrator: Migrator {
                         "APIDocument": documentPath
                     ]
                 )
+
+                Directory("Networking") {
+                    ResourceFile(copy: "GRPCNetworking.swift")
+                    ResourceFile(copy: "GRPCNetworkingError.swift")
+                    ResourceFile(copy: "GRPCResponseStream.swift")
+                }
+
+                Directory("Utils") {
+                    ResourceFile(copy: "Utils.swift")
+                }
             }
                 .dependency(product: "GRPC", of: "grpc-swift")
         }

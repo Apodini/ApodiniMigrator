@@ -42,6 +42,8 @@ struct GRPCMessageField {
             // we do no deprecation warning, as we can handle removed properties
             "@available(*, message: \"This property was removed in the latest version.\")"
         }
+
+        // TODO for added fields, consider the default value provided by the migration guide!
         if field.hasFieldPresence {
             "\(context.options.visibility) var \(field.name): \(field.typeName) {"
             Indent {

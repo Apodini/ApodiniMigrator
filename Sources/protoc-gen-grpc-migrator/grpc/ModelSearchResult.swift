@@ -15,6 +15,21 @@ enum ModelSearchResult {
 }
 
 extension ModelSearchResult {
+    func handleIdChange(change: ModelChange.IdentifierChange) {
+        switch self {
+        case let .enum(grpcEnum):
+            guard let protoEnum = grpcEnum.tryTyped(for: ProtoGRPCEnum.self) else {
+                fatalError("Renamed model isn't a native proto model. For change: \(change)!")
+            }
+            protoEnum.applyIdChange(change)
+        case let .message(message):
+            guard let protoMessage = message.tryTyped(for: ProtoGRPCMessage.self) else {
+                fatalError("Renamed model isn't a native proto model. For change: \(change)!")
+            }
+            protoMessage.applyIdChange(change)
+        }
+    }
+
     func handleUpdateChange(change: ModelChange.UpdateChange) {
         switch self {
         case let .enum(grpcEnum):

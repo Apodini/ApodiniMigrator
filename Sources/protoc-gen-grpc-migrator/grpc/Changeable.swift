@@ -12,7 +12,15 @@ import ApodiniMigrator
 protocol Changeable {
     associatedtype Element: ChangeableElement
 
+    func applyIdChange(_ change: Change<Element>.IdentifierChange)
+
     func applyUpdateChange(_ change: Change<Element>.UpdateChange)
 
     func applyRemovalChange(_ change: Change<Element>.RemovalChange)
+}
+
+extension Changeable {
+    func applyIdChange(_ change: Change<Element>.IdentifierChange) {
+        // default is to do nothing. Identifier changes typically don't have any effects for grpc
+    }
 }

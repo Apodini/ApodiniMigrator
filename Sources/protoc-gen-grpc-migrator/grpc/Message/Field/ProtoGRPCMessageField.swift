@@ -66,7 +66,11 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
         descriptor.label == .repeated
     }
 
-    var unavailable: Bool = false
+    var updatedName: String?
+    var unavailable = false
+    var fallbackValue: Int?
+    var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)?
+    var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)?
 
     init(descriptor: FieldDescriptor, context: ProtoFileContext) {
         precondition(descriptor.protoType != .group, ".group field types are not supported!")
@@ -97,19 +101,22 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
         self.number = Int(descriptor.number)
     }
 
+    func applyIdChange(_ change: PropertyChange.IdentifierChange) {
+        precondition(change.from.rawValue == name, "Identifier change isn't in sync with property name!")
+        self.updatedName = change.to.rawValue
+    }
+
     func applyUpdateChange(_ change: PropertyChange.UpdateChange) {
         switch change.updated {
         case let .necessity(from, to, necessityMigration):
-            // TODO requires Codable support!
-            break // TODO handle
-        case let .type(from, to, forwardMigration, backwardMigration, conversionWarning):
-            // TODO requires Codable support!
-            break // TODO handle
+            self.necessityUpdate = (from, to, necessityMigration)
+        case let .type(from, to, forwardMigration, backwardMigration, _):
+            self.typeUpdate = (from, to, forwardMigration, backwardMigration)
         }
     }
 
     func applyRemovalChange(_ change: PropertyChange.RemovalChange) {
         unavailable = true
-        // TODO record fallbackValue
+        self.fallbackValue = change.fallbackValue
     }
 }

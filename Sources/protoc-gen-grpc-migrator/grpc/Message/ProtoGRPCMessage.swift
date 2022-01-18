@@ -62,6 +62,8 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
         }
     }
 
+    // TODO record id change?
+
     func applyUpdateChange(_ change: ModelChange.UpdateChange) {
         // TODO deltaIdentifier verification!
 
@@ -69,7 +71,12 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
         case .rootType:
             containsRootTypeChange = true // root type changes are unsupported
         case let .property(property):
-            if let addedProperty = property.modeledAdditionChange {
+            if let renamedProperty = property.modeledIdentifierChange {
+                fields
+                    .filter { $0.name == renamedProperty.from.rawValue }
+                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) }
+                    .forEach { $0.applyIdChange(renamedProperty) }
+            } else if let addedProperty = property.modeledAdditionChange {
                 // TODO we currently GUESS the property number!
                 fields.append(GRPCMessageField(ApodiniMessageField(addedProperty.added, number: fields.count, context: context)))
             } else if let removedProperty = property.modeledRemovalChange {

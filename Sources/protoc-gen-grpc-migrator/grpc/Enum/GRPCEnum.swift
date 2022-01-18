@@ -144,6 +144,7 @@ struct GRPCEnum: SourceCodeRenderable {
     @SourceCodeBuilder
     var protobufferRuntimeSupport: String {
         ""
+        MARKComment("RuntimeSupport")
         "extension \(`enum`.fullName): \(context.namer.swiftProtobufModuleName)._ProtoNameProviding {"
         Indent {
             "\(context.options.visibility) static let _protobuf_nameMap: \(context.namer.swiftProtobufModuleName)._NameMap = ["
@@ -159,6 +160,51 @@ struct GRPCEnum: SourceCodeRenderable {
                 }
             }
             "]"
+        }
+        "}"
+        ""
+        MARKComment("Codable")
+        "extension \(`enum`.fullName): Codable {"
+        Indent {
+            "private nameRawValue: String {"
+            Indent {
+                "switch self {"
+                for enumCase in `enum`.enumCasesSorted {
+                    // we follow here the assumption of the `TypeInformation` framework that `name`=`rawValue`.
+                    // All the Codable migration based stuff is build around this assumption.
+                    // Therefore, we introduce this additional raw value type.
+                    "case \(enumCase.dottedRelativeName): \"\(enumCase.name)\""
+                }
+                // handling the `unrecognizedCase`
+                "default: fatalError(\"Can't derive nameRawValue for \\(self)\")"
+                "}"
+            }
+            "}"
+
+            ""
+            "public func encode(to encoder: Encoder) throws {"
+            Indent {
+                """
+                var container = encoder.singleValueContainer()
+
+                try container.encode(try self.nameRawValue)
+                """
+                // TODO filter deprecated cases?
+            }
+            "}"
+
+            ""
+            "public init(from decoder: Decoder) throws {"
+            Indent {
+                "let nameRawValue: String = try decoder.singleValueContainer().decode(String.self)"
+                "switch nameRawValue {"
+                for enumCase in `enum`.enumCasesSorted {
+                    "case \"\(enumCase.name)\": self = \(enumCase.dottedRelativeName)"
+                }
+                "default: self = \(`enum`.defaultValue.dottedRelativeName)"
+                "}"
+            }
+            "}"
         }
         "}"
     }
