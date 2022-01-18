@@ -21,7 +21,7 @@ struct Compare: ParsableCommand {
     @Option(name: .shortAndLong, help: "Path to API document of the new version, e.g. /path/to/api_v1.2.0.yaml")
     var newDocumentPath: String
     
-    @Option(name: .shortAndLong, help: "Path to a directoy where the migration guide should be persisted, e.g. /path/to/directory")
+    @Option(name: .shortAndLong, help: "Path to a directory where the migration guide should be persisted, e.g. /path/to/directory")
     var migrationGuidePath: String
     
     @Option(name: .shortAndLong, help: "Output format of the migration guide, either JSON or YAML. JSON by default")

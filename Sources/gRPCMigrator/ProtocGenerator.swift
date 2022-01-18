@@ -11,6 +11,11 @@ import PathKit
 import ApodiniMigrator
 
 struct ProtocGenerator: LibraryNode {
+    enum HandleError: Error {
+        case missingProtocBinary(message: String)
+        case missingGRPCMigratorPlugin(message: String)
+    }
+
     let pluginName: String
     let protoPath: String
     let protoFile: String
@@ -31,15 +36,13 @@ struct ProtocGenerator: LibraryNode {
         self.environment = environment
     }
 
-    public func handle(at path: Path, with context: MigrationContext) throws {
+    func handle(at path: Path, with context: MigrationContext) throws {
         guard let protocBinary = findExecutable(named: "protoc") else {
-            // TODO raise migrator error
-            fatalError("It seems like the `protoc` compiler isn't installed!")
+            throw HandleError.missingProtocBinary(message: "It seems like the `protoc` compiler isn't installed!")
         }
 
-        guard let protocGenBinary = findExecutable(named: "protoc-gen-grpc-migrator") else {
-            // TODO raise migrator error
-            fatalError("It seems that the `protoc-gen-grpc-migrator` is not installed.")
+        guard let protocGenBinary = findExecutable(named: "protoc-gen-\(pluginName)") else {
+            throw HandleError.missingGRPCMigratorPlugin(message: "It seems that the `protoc-gen-\(pluginName)` is not installed.")
         }
 
         var args: [String] = [
