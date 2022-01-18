@@ -6,12 +6,10 @@
 // SPDX-License-Identifier: MIT
 //
 
+import Foundation
 import ArgumentParser
 
-@main
-struct Migrator: ParsableCommand {
-    static var configuration = CommandConfiguration(
-        abstract: "Automatically generate migration guides and migrate client libraries.",
-        subcommands: [Compare.self, Migrate.self, Generate.self]
-    )
+struct GRPCSpecificOptions: ParsableArguments {
+    @Option(name: .shortAndLong, help: "Path where the grpc proto file is located, e.g. /path/to/MyWebService.proto")
+    var protoPath: String // TODO multiple files?
 }

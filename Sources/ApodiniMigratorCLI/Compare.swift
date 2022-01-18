@@ -12,7 +12,7 @@ import RESTMigrator
 
 struct Compare: ParsableCommand {
     static var configuration = CommandConfiguration(
-        abstract: "A utility to compare API documents and automatically generate a migration guide between two versions"
+        abstract: "Compare API documents and automatically generate a migration guide between two versions."
     )
     
     @Option(name: .shortAndLong, help: "Path to API document of the old version, e.g. /path/to/api_v1.0.0.json")

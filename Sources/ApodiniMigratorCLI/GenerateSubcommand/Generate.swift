@@ -6,12 +6,13 @@
 // SPDX-License-Identifier: MIT
 //
 
+import Foundation
 import ArgumentParser
+import RESTMigrator
 
-@main
-struct Migrator: ParsableCommand {
+struct Generate: ParsableCommand {
     static var configuration = CommandConfiguration(
-        abstract: "Automatically generate migration guides and migrate client libraries.",
-        subcommands: [Compare.self, Migrate.self, Generate.self]
+        abstract: "Generate a client library from an API document.",
+        subcommands: [GenerateREST.self, GenerateGRPC.self]
     )
 }
