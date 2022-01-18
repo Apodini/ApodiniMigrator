@@ -41,7 +41,7 @@ struct PluginOptions {
     private(set) var protoToModuleMappings = ProtoFileToModuleMappings()
     private(set) var fileNaming = FileNaming.FullPath
 
-    init(parameter: String) throws {
+    init(parameter: String) throws { // swiftlint:disable:this cyclomatic_complexity
         for (key, value) in Self.parseParameterString(parameter) {
             switch key {
             case "APIDocument":
@@ -49,7 +49,7 @@ struct PluginOptions {
                 precondition(Path(value).exists, "APIDocument path doesn't exist!")
             case "MigrationGuide":
                 self.migrationGuidePath = value
-                precondition(Path(value).exists. "MigrationGuide path doesn't exist!")
+                precondition(Path(value).exists, "MigrationGuide path doesn't exist!")
 
             case "Visibility":
                 if let value = Visibility(rawValue: value) {
@@ -69,10 +69,10 @@ struct PluginOptions {
                 if !value.isEmpty {
                     do {
                         try self.protoToModuleMappings = ProtoFileToModuleMappings(path: value)
-                    } catch let e {
+                    } catch {
                         throw ParserError.wrappedError(
                             message: "Parameter 'ProtoPathModuleMappings=\(value)'",
-                            error: e
+                            error: error
                         )
                     }
                 }
