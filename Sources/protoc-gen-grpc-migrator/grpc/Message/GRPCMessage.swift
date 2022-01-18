@@ -224,40 +224,10 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
                     ""
 
                     for field in message.fields {
-                        // TODO move into field!
-
-                        if let change = field.necessityUpdate {
-                            if change.to != .required {
-                                defaultEncodeLine(for: field)
-                            } else {
-                                """
-                                try container.encode(\
-                                \(field.storedProperty) ?? (try \(field.typeName).instance(from: \(change.necessityMigration))), \
-                                forKey: .\(field.name)\
-                                )
-                                """
-                            }
-                        } else if let change = field.typeUpdate {
-                            let encodeMethodString = "encode\(change.to.isOptional ? "IfPresent": "")"
-                            let newTypeName = change.to.swiftType(namer: message.context.namer)
-
-                            """
-                            try container.\(encodeMethodString)(\
-                            try \(newTypeName).from(\(field.storedProperty), script: \(change.forwardMigration))\
-                            forKey: .\(field.name)\
-                            )
-                            """
-                        } else {
-                            defaultEncodeLine(for: field)
-                        }
+                        field.codableEncodeMethodLine
                     }
                 }
                 "}"
-            }
-
-            func defaultEncodeLine(for field: GRPCMessageField) -> String {
-                let encodeMethodString = "encode\(field.hasFieldPresence ? "IfPresent": "")"
-                return "try container.\(encodeMethodString)(\(field.storedProperty), forKey: .\(field.name)"
             }
         }
 
@@ -272,46 +242,10 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
                     ""
 
                     for field in message.fields {
-                        // TODO move into field!
-
-                        if field.unavailable {
-                            if let fallbackValue = field.fallbackValue {
-                                "\(field.storedProperty) = try \(field.typeName).instance(from: \(fallbackValue))"
-                            } else {
-                                "\(field.storedProperty) = nil"
-                            }
-                        } else if let change = field.necessityUpdate {
-                            if change.to != .optional {
-                                defaultDecodeLine(for: field)
-                            } else {
-                                """
-                                \(field.storedProperty) = try container.decodeIfPresent(\
-                                \(field.typeName).self, \
-                                forKey: .\(field.name)\
-                                ) ?? (try \(field.typeName).instance(from: \(change.necessityMigration)))
-                                """
-                            }
-                        } else if let change = field.typeUpdate {
-                            let decodeMethodString = "decode\(change.to.isOptional ? "IfPresent" : "")"
-                            let newTypeName = change.to.swiftType(namer: message.context.namer)
-
-                            """
-                            \(field.storedProperty) = try \(field.typeName).from(\
-                            try container.\(decodeMethodString)(\(newTypeName).self, forKey: .\(field.name),\
-                            script: \(change.backwardMigration)\
-                            )
-                            """
-                        } else {
-                            defaultDecodeLine(for: field)
-                        }
+                        field.codableDecodeInit
                     }
                 }
                 "}"
-            }
-
-            func defaultDecodeLine(for field: GRPCMessageField) -> String {
-                let decodeMethodString = "decode\(field.hasFieldPresence ? "IfPresent" : "")"
-                return "\(field.storedProperty) = try container.\(decodeMethodString)(\(field.typeName).self, forKey: .\(field.name))"
             }
         }
     }

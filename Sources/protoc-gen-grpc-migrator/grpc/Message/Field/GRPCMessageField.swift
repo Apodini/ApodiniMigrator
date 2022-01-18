@@ -140,4 +140,76 @@ struct GRPCMessageField {
         Indent("try visitor.\(visitMethod)(\(traitsArg)value: \(varName), fieldNumber: \(field.number))")
         "}\(suffix)"
     }
+
+    @SourceCodeBuilder
+    var codableEncodeMethodLine: String {
+        let defaultEncodeLine: () -> String = {
+            let encodeMethodString = "encode\(field.hasFieldPresence ? "IfPresent": "")"
+            return "try container.\(encodeMethodString)(\(field.storedProperty), forKey: .\(field.name)"
+        }
+
+        if let change = field.necessityUpdate {
+            if change.to != .required {
+                defaultEncodeLine()
+            } else {
+                """
+                try container.encode(\
+                \(field.storedProperty) ?? (try \(field.typeName).instance(from: \(change.necessityMigration))), \
+                forKey: .\(field.name)\
+                )
+                """
+            }
+        } else if let change = field.typeUpdate {
+            let encodeMethodString = "encode\(change.to.isOptional ? "IfPresent": "")"
+            let newTypeName = change.to.swiftType(namer: context.namer)
+
+            """
+            try container.\(encodeMethodString)(\
+            try \(newTypeName).from(\(field.storedProperty), script: \(change.forwardMigration))\
+            forKey: .\(field.name)\
+            )
+            """
+        } else {
+            defaultEncodeLine()
+        }
+    }
+
+    @SourceCodeBuilder
+    var codableDecodeInit: String {
+        let defaultDecodeLine: () -> String = {
+            let decodeMethodString = "decode\(field.hasFieldPresence ? "IfPresent" : "")"
+            return "\(field.storedProperty) = try container.\(decodeMethodString)(\(field.typeName).self, forKey: .\(field.name))"
+        }
+
+        if field.unavailable {
+            if let fallbackValue = field.fallbackValue {
+                "\(field.storedProperty) = try \(field.typeName).instance(from: \(fallbackValue))"
+            } else {
+                "\(field.storedProperty) = nil"
+            }
+        } else if let change = field.necessityUpdate {
+            if change.to != .optional {
+                defaultDecodeLine()
+            } else {
+                """
+                \(field.storedProperty) = try container.decodeIfPresent(\
+                \(field.typeName).self, \
+                forKey: .\(field.name)\
+                ) ?? (try \(field.typeName).instance(from: \(change.necessityMigration)))
+                """
+            }
+        } else if let change = field.typeUpdate {
+            let decodeMethodString = "decode\(change.to.isOptional ? "IfPresent" : "")"
+            let newTypeName = change.to.swiftType(namer: field.context.namer)
+
+            """
+            \(field.storedProperty) = try \(field.typeName).from(\
+            try container.\(decodeMethodString)(\(newTypeName).self, forKey: .\(field.name),\
+            script: \(change.backwardMigration)\
+            )
+            """
+        } else {
+            defaultDecodeLine()
+        }
+    }
 }
