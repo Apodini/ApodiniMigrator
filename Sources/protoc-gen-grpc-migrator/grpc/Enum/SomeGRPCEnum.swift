@@ -21,10 +21,11 @@ protocol SomeGRPCEnum {
     var containsRootTypeChange: Bool { get }
 
     var enumCases: [GRPCEnumCase] { get }
-    var uniquelyNamedValues: [GRPCEnumCase] { get } // TODO bro?
+    var uniquelyNamedValues: [GRPCEnumCase] { get }
     var enumCasesSorted: [GRPCEnumCase] { get }
 
-    var defaultValue: GRPCEnumCase { get } // TODO how is this calculcated?
+    /// For enums, the default value is the first value listed in the enum's type definition.
+    var defaultValue: GRPCEnumCase { get }
 }
 
 extension SomeGRPCEnum {

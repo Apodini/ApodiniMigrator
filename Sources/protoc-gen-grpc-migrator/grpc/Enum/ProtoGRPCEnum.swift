@@ -65,14 +65,12 @@ class ProtoGRPCEnum: SomeGRPCEnum, Changeable {
     func applyUpdateChange(_ change: ModelChange.UpdateChange) {
         // TODO deltaIdentifier
         switch change.updated {
-        case .rootType: // TODO model it as removal and addition?
+        case .rootType:
             containsRootTypeChange = true // root type changes are unsupported!
-            // TODO use value in encoding!
         case .property:
             fatalError("Tried updating enum with message-only change type!")
         case let .case(`case`):
             if let caseAddition = `case`.modeledAdditionChange {
-                // TODO add a warning that cases were added and switch statements need to be adjusted?
                 // TODO we currently GUESS the enum case number!
                 let addedCase = GRPCEnumCase(ApodiniEnumCase(caseAddition.added, number: enumCases.count))
 
@@ -81,9 +79,8 @@ class ProtoGRPCEnum: SomeGRPCEnum, Changeable {
             } else if let caseRemoval = `case`.modeledRemovalChange {
                 enumCases
                     .filter { $0.name == caseRemoval.id.rawValue }
-                    .compactMap { $0.tryTyped(for: ProtoGRPCEnumCase.self) } // TODO we don't force type! (and below)
+                    .compactMap { $0.tryTyped(for: ProtoGRPCEnumCase.self) }
                     .forEach { $0.applyRemovalChange(caseRemoval) }
-                // TODO prevent encoding of removed cases(?)
             } else if let caseUpdate = `case`.modeledUpdateChange {
                 enumCases
                     .filter { $0.name == caseUpdate.id.rawValue }

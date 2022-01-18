@@ -66,7 +66,7 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
         // TODO deltaIdentifier verification!
 
         switch change.updated {
-        case .rootType: // TODO model it as removal and addition?
+        case .rootType:
             containsRootTypeChange = true // root type changes are unsupported
         case let .property(property):
             if let addedProperty = property.modeledAdditionChange {
@@ -75,9 +75,8 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
             } else if let removedProperty = property.modeledRemovalChange {
                 fields
                     .filter { $0.name == removedProperty.id.rawValue }
-                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) } // TODO we don't force type! (and below)
+                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) }
                     .forEach { $0.applyRemovalChange(removedProperty) }
-                // TODO prevent encoding!
             } else if let updatedProperty = property.modeledUpdateChange {
                 fields
                     .filter { $0.name == updatedProperty.id.rawValue }

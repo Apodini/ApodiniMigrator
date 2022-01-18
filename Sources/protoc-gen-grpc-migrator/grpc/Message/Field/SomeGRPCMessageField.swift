@@ -38,4 +38,13 @@ protocol SomeGRPCMessageField {
     var isMap: Bool { get }
     var isPacked: Bool { get }
     var isRepeated: Bool { get }
+
+    /// If true, it indicates that this property was removed in the latest version
+    var unavailable: Bool { get }
+}
+
+extension SomeGRPCMessageField {
+    var unavailable: Bool {
+        false
+    }
 }

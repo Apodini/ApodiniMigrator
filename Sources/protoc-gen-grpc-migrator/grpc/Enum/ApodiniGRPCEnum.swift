@@ -47,6 +47,8 @@ struct ApodiniGRPCEnum: SomeGRPCEnum {
         self.enumCases = type.enumCases
             .enumerated()
             .map { .init(ApodiniEnumCase($1, number: $0)) }
+
+        // there is always at least one case!
         self.defaultValue = enumCases.first.unsafelyUnwrapped
     }
 }

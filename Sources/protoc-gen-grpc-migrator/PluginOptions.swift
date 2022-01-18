@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftProtobufPluginLibrary
+import PathKit
 
 struct PluginOptions {
     enum ParserError: Error {
@@ -45,10 +46,10 @@ struct PluginOptions {
             switch key {
             case "APIDocument":
                 self.documentPath = value
-                // TODO path validation?
+                precondition(Path(value).exists, "APIDocument path doesn't exist!")
             case "MigrationGuide":
                 self.migrationGuidePath = value
-                // TODO path validation?
+                precondition(Path(value).exists. "MigrationGuide path doesn't exist!")
 
             case "Visibility":
                 if let value = Visibility(rawValue: value) {

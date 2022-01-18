@@ -16,7 +16,7 @@ struct ApodiniEnumCase: SomeGRPCEnumCase {
         enumCase.name
     }
 
-    // TODO check that naming is consitent with ApodiniGRPC
+    // TODO check that naming is consistent with ApodiniGRPC
     var relativeName: String {
         enumCase.name
     }

@@ -50,7 +50,6 @@ struct GRPCMethod: SourceCodeRenderable {
         }
 
         for sequenceProtocol in sequenceProtocols {
-            // TODO remove first spacing!
             EmptyLine()
 
             if let comments = method.sourceCodeComments {
@@ -117,7 +116,6 @@ struct GRPCMethod: SourceCodeRenderable {
                     }
                     // "return result" is generated below
                 } else {
-                    // TODO add deprecation warning, that it might throw in certain conditions!
                     "let stream = \(sequence == .sequence ? "AsyncThrowingSequence(wrapping: requests)": "requests")"
                     Indent {
                         ".map { request -> \(method.outputMessageName) in"
@@ -167,17 +165,11 @@ struct GRPCMethod: SourceCodeRenderable {
                 }
                 "}"
             case (false, true): // \(outputMessageName) -> GRPCResponseStream
-                // TODO add deprecation warning, that it might throw in certain conditions!
                 """
                 var iterator = result.makeAsyncIterator()
                 guard let response = try await iterator.next() else {
                 """
                 Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didNotReceiveAnyResponse)")
-                """
-                }
-                guard try await iterator.next() == nil else {
-                """
-                Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didReceiveToManyResponses)")
                 """
                 }
                 return response

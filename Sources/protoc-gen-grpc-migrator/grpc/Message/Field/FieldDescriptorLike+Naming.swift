@@ -10,7 +10,6 @@
 
 import SwiftProtobufPluginLibrary
 
-// TODO rename file!
 extension FieldDescriptorLike {
     // swiftlint:disable:next cyclomatic_complexity
     func swiftType(namer: SwiftProtobufNamer) -> String {
@@ -177,7 +176,6 @@ extension FieldDescriptorLike {
 }
 
 
-// TODO below are string utils
 // swiftlint:disable identifier_name
 
 /// The protoc parser emits byte literals using an escaped C convention.

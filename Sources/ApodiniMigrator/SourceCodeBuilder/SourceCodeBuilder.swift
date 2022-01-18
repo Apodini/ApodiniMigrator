@@ -44,6 +44,12 @@ extension SourceCodeComponentBuilderProtocol {
         []
     }
 
+    /// Builds a `Never` expression.
+    /// This overload allows to place e.g. method calls which will never return (e.g. like `fatalError`).
+    public static func buildExpression(_ expression: Never) -> [SourceCodeComponent] {
+        // will never be executed
+    }
+
     /// Build the block of ``SourceCodeComponent``s.
     public static func buildBlock(_ components: [SourceCodeComponent]...) -> [SourceCodeComponent] {
         components.flatten()

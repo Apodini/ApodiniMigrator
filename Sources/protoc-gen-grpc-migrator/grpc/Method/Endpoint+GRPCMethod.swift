@@ -40,7 +40,7 @@ extension Endpoint: SomeGRPCMethod {
     }
 
     var inputMessageName: String { // TODO generate message from parameters!
-        // TODO packageName!
+        // TODO packageName?
         handlerName.buildName() + "___INPUT" // TODO magic constant from ApodiniGRPC
 
         // TODO service.protobufNamer.fullName(message: method.inputType)

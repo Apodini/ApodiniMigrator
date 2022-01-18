@@ -38,7 +38,6 @@ class GRPCClientsFile: SourceCodeRenderable {
         Import(.foundation)
         Import("NIO")
         Import("GRPC")
-        // TODO other imports?
 
         for service in self.services.values.sorted(by: \.serviceName) {
             service

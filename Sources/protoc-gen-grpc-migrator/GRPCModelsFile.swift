@@ -11,7 +11,6 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
-// TODO placement?
 extension FileDescriptor {
     var hasUnknownPreservingSemantics: Bool {
         syntax == .proto3

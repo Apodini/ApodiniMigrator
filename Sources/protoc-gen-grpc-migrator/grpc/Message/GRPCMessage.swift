@@ -18,7 +18,6 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
         message.context
     }
 
-    // TODO access!
     var nestedEnums: OrderedDictionary<String, GRPCEnum> {
         get {
             guard let message = tryTyped(for: ProtoGRPCMessage.self) else {
@@ -67,6 +66,11 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
         }
         if message.unavailable {
             "@available(*, message: \"This message was removed in the latest version!\")"
+        } else if message.containsRootTypeChange {
+            """
+            @available(*, deprecated, message: \"ApodiniMigrator is not able to handle the migration of this message. \
+            Change from enum to struct or vice versa is currently not supported.\")
+            """
         }
 
         "\(context.options.visibility) struct \(message.relativeName) {"
@@ -137,7 +141,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
                 // TODO print https://github.com/apple/swift-protobuf/issues/1034
                 "switch fieldNumber {"
                 Indent {
-                    for field in message.sortedFields {
+                    for field in message.sortedFields where !field.unavailable { // filtering out removed properties
                         field.fieldDecodeCase
                     }
                 }

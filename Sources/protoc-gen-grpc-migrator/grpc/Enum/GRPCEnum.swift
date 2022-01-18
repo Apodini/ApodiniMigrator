@@ -32,23 +32,41 @@ struct GRPCEnum: SourceCodeRenderable {
     }
 
     var renderableContent: String {
+        var deprecatedCases: [GRPCEnumCase] = []
+
         ""
         if let comments = `enum`.sourceCodeComments {
             comments
         }
 
         if `enum`.unavailable {
-            "@available(*, message: \"This enum was removed in the latest version!\")"
+            "@available(*, deprecated, message: \"This enum was removed in the latest version!\")"
+        } else if `enum`.containsRootTypeChange {
+            """
+            @available(*, deprecated, message: \"ApodiniMigrator is not able to handle the migration of this enum. \
+            Change from enum to object or vice versa is currently not supported.\")
+            """
         }
-        // TODO added cases annotation!
+
         "\(context.options.visibility) enum \(`enum`.relativeName): \(context.namer.swiftProtobufModuleName).Enum, CaseIterable {"
         Indent { // swiftlint:disable:this closure_body_length
             "\(context.options.visibility) typealias RawValue = Int"
             ""
 
             for enumCase in `enum`.uniquelyNamedValues {
+                if enumCase.unavailable {
+                    deprecatedCases.append(enumCase)
+                }
+
+                // if new cases are added, the client developer will be made aware of
+                // through compiler errors to when it is required to adjust switch statements!
+
                 if let comments = enumCase.sourceCodeComments {
                     comments
+                }
+
+                if enumCase.unavailable {
+                    "@available(*, deprecated, message: \"This enum case was removed in the latest version!\")"
                 }
 
                 if let aliasOf = enumCase.aliasOf {
@@ -65,6 +83,10 @@ struct GRPCEnum: SourceCodeRenderable {
             ""
             "\(context.options.visibility) var rawValue: Int {"
             Indent {
+                // TODO do we need to handle removed enum cases?
+                //  => does Apodini support the \(unrecognizedCaseName) case?
+                //   => we could also use default case? or throw in rawValue (ensure client doesn't use rawValue?)
+
                 "switch self {"
                 for enumCase in `enum`.enumCasesSorted {
                     "case \(enumCase.dottedRelativeName): return \(enumCase.number)"

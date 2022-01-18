@@ -14,7 +14,8 @@ extension TypeName: Sequence {
 
     public func makeIterator() -> Iterator {
         var components: [TypeNameComponent] = nestedTypes
-        components.append(TypeNameComponent(name: mangledName, generics: generics)) // TODO port to TypeInformation framework
+        // TODO port to TypeInformation framework
+        components.append(TypeNameComponent(name: mangledName, generics: generics))
 
         return components.makeIterator()
     }

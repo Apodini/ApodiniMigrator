@@ -16,7 +16,7 @@ struct GRPCMessageField {
         field.context
     }
 
-    var generateTraverseUsesLocals: Bool { // TODO what the hell is this
+    var generateTraverseUsesLocals: Bool {
         !field.isRepeated && field.hasFieldPresence
     }
 
@@ -38,8 +38,10 @@ struct GRPCMessageField {
             comments
         }
 
-        // TODO heapStorage thingy?
-
+        if field.unavailable {
+            // we do no deprecation warning, as we can handle removed properties
+            "@available(*, message: \"This property was removed in the latest version.\")"
+        }
         if field.hasFieldPresence {
             "\(context.options.visibility) var \(field.name): \(field.typeName) {"
             Indent {
@@ -69,6 +71,10 @@ struct GRPCMessageField {
 
     @SourceCodeBuilder
     var fieldDecodeCase: String {
+        if field.unavailable { // this builder is never called for unavailable properties
+            preconditionFailure("Tried to build `fieldDecodeCase` for unavailable property!")
+        }
+
         var decoderMethod: String = ""
         var fieldTypeArg: String = ""
 
@@ -86,6 +92,13 @@ struct GRPCMessageField {
 
     @SourceCodeBuilder
     var traverseExpression: String {
+        // TODO if unavailable use fallback Value: => requires Codable support!
+        // if let fallbackValue = removalChange.fallbackValue {
+        //                return "\(property.name) = try \(property.type.unsafeTypeString).instance(from: \(fallbackValue))"
+        //            } else {
+        //                return "\(property.name) = nil"
+        //            }
+
         var visitMethod: String = ""
         var traitsArg: String = ""
         if field.isMap {

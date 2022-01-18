@@ -21,12 +21,12 @@ protocol SomeGRPCMessage {
 
     /// If true, this Message was removed in the latest version.
     var unavailable: Bool { get }
-    // TODO changes (e.g. containsRootTypeChange)
+    var containsRootTypeChange: Bool { get }
 
     var fields: [GRPCMessageField] { get }
     var sortedFields: [GRPCMessageField] { get }
 
-    var nestedEnums: OrderedDictionary<String, GRPCEnum> { get } // TODO create abstraction!
+    var nestedEnums: OrderedDictionary<String, GRPCEnum> { get }
     var nestedMessages: OrderedDictionary<String, GRPCMessage> { get }
 }
 
@@ -36,6 +36,10 @@ extension SomeGRPCMessage {
     }
 
     var unavailable: Bool {
+        false
+    }
+
+    var containsRootTypeChange: Bool {
         false
     }
 

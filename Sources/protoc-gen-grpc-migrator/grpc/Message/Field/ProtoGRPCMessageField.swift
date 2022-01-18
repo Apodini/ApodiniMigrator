@@ -66,6 +66,8 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
         descriptor.label == .repeated
     }
 
+    var unavailable: Bool = false
+
     init(descriptor: FieldDescriptor, context: ProtoFileContext) {
         precondition(descriptor.protoType != .group, ".group field types are not supported!")
         self.descriptor = descriptor
@@ -96,64 +98,18 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
     }
 
     func applyUpdateChange(_ change: PropertyChange.UpdateChange) {
-        // TODO apply update!
-        /*
-         switch updatedProperty.updated {
-                case let .necessity(from, to, necessityMigration):
-                    // TODO update change!
-                    break
-                case let .type(from, to, forwardMigration, backwardMigration, conversionWarning):
-                    // TODO first time handling type change!
-                    // TODO requires Codable support!
-                    break
-                }
-         */
+        switch change.updated {
+        case let .necessity(from, to, necessityMigration):
+            // TODO requires Codable support!
+            break // TODO handle
+        case let .type(from, to, forwardMigration, backwardMigration, conversionWarning):
+            // TODO requires Codable support!
+            break // TODO handle
+        }
     }
 
     func applyRemovalChange(_ change: PropertyChange.RemovalChange) {
-        // TODO unavailable
-    }
-}
-
-// TODO move into file!
-extension FieldDescriptor: FieldDescriptorLike {
-    var protoType: Google_Protobuf_FieldDescriptorProto.TypeEnum {
-        type
-    }
-
-    var mapKeyAndValueDescription: (key: FieldDescriptorLike, value: FieldDescriptorLike)? {
-        if let message = messageType,
-           let map = message.mapKeyAndValue {
-            return (map.key, map.value)
-        }
-
-        return nil
-    }
-
-    func retrieveFullName(namer: SwiftProtobufNamer) -> String? {
-        switch protoType {
-        case .message,
-             .group:
-            return namer.fullName(message: messageType)
-        case .enum:
-            return namer.fullName(enum: enumType)
-        default:
-            return nil
-        }
-    }
-
-    func enumDefaultValueDottedRelativeName(namer: SwiftProtobufNamer, for caseValue: String?) -> String? {
-        guard let enumType = enumType else {
-            return nil
-        }
-
-        if let caseValue = caseValue {
-            for value in enumType.values where value.name == caseValue {
-                return namer.dottedRelativeName(enumValue: value)
-            }
-            return nil
-        }
-
-        return namer.dottedRelativeName(enumValue: enumType.defaultValue)
+        unavailable = true
+        // TODO record fallbackValue
     }
 }

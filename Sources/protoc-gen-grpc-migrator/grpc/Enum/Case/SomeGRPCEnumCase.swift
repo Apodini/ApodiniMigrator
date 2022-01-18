@@ -12,7 +12,7 @@ import SwiftProtobufPluginLibrary
 
 protocol SomeGRPCEnumCase {
     var name: String { get }
-    var relativeName: String { get } // TODO namer.relativeName(enumValue: enumCase)
+    var relativeName: String { get }
     var dottedRelativeName: String { get }
 
     var sourceCodeComments: String? { get }
@@ -21,8 +21,8 @@ protocol SomeGRPCEnumCase {
 
     var number: Int { get }
 
-    var aliasOf: GRPCEnumCase? { get } // TODO default implt
-    var aliases: [GRPCEnumCase] { get } // TODO default implt
+    var aliasOf: GRPCEnumCase? { get }
+    var aliases: [GRPCEnumCase] { get }
 }
 
 extension SomeGRPCEnumCase {

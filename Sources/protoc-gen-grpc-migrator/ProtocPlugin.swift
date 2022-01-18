@@ -11,14 +11,6 @@ import ApodiniMigrator
 import ArgumentParser
 import SwiftProtobufPluginLibrary
 
-func logError(_ message: String) { // TODO needed?
-    guard let data = message.appending("\n").data(using: .utf8) else {
-        fatalError("Failed to write error log: \(message)")
-    }
-    FileHandle.standardError.write(data)
-    // TODO instead make response file with an error!
-}
-
 @main
 struct ProtocPluginBoostrap: ParsableCommand {
     static var configuration = CommandConfiguration(
@@ -66,10 +58,10 @@ struct ProtocPlugin {
 
     var response = Google_Protobuf_Compiler_CodeGeneratorResponse(
         files: [],
-        supportedFeatures: [.proto3Optional] // TODO do we really?
+        supportedFeatures: [.proto3Optional]
     )
 
-    public init(request: Google_Protobuf_Compiler_CodeGeneratorRequest, options: PluginOptions) throws {
+    init(request: Google_Protobuf_Compiler_CodeGeneratorRequest, options: PluginOptions) throws {
         self.request = request
         self.options = options
 
@@ -105,7 +97,7 @@ struct ProtocPlugin {
             return
         }
 
-        let grpcFileName = "\(descriptor.name).grpc.swift" // TODO generate
+        let grpcFileName = "\(descriptor.name).grpc.swift" // TODO generate filename
 
         let file = GRPCClientsFile(descriptor, options: options, migrationGuide: migrationGuide, namer: namer)
 
@@ -118,10 +110,10 @@ struct ProtocPlugin {
 
     mutating func generateModelsFile(for descriptor: FileDescriptor, namer: SwiftProtobufNamer) throws {
         if descriptor.messages.isEmpty && descriptor.enums.isEmpty {
-            return // TODO complete check above?
+            return
         }
 
-        let fileName = "\(descriptor.name).pb.swift" // TODO generate?
+        let fileName = "\(descriptor.name).pb.swift" // TODO generate filename
 
         let file = GRPCModelsFile(descriptor, options: options, document: apiDocument, migrationGuide: migrationGuide, namer: namer)
 
@@ -130,55 +122,5 @@ struct ProtocPlugin {
             content: file.renderableContent
         )
         response.file.append(generatedFile)
-    }
-
-    @discardableResult
-    private func generateFromStdin() throws -> Int32 {
-        guard let requestData = try FileHandle.standardInput.readToEnd() else {
-            fatalError("Failed to readToEnd() from stdIn!")
-        }
-
-        // TODO "PROTOC_GEN_SWIFT_LOG_REQUEST"
-
-        let request: Google_Protobuf_Compiler_CodeGeneratorRequest
-        do {
-            try request = Google_Protobuf_Compiler_CodeGeneratorRequest(serializedData: requestData)
-        } catch {
-            Stderr.print("Request failed to decode: \(error)")
-            return 1
-        }
-
-        // TODO parse potential options: `request.parameter`
-
-        let generator = CodePrinter()
-
-        // request.protoFile.first?.sourceCodeInfo
-
-        let json: String
-        do {
-            try json = request.jsonString()
-        } catch {
-            Stderr.print("Failed to convert to json string: \(error)")
-            return 1
-        }
-
-        let url = URL(fileURLWithPath: "./TESTFILES/dump.json")
-        do {
-            try json.write(to: url, atomically: false, encoding: .utf8)
-        } catch {
-            Stderr.print("Failed to write dump data: \(error)")
-            return 1
-        }
-
-        return 0
-    }
-}
-
-class Stderr { // TODO rename/redo?
-    static func print(_ string: String) {
-        let out = "\(string)\n"
-        if let data = out.data(using: .utf8) {
-            FileHandle.standardError.write(data)
-        }
     }
 }
