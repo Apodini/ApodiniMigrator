@@ -43,7 +43,6 @@ struct GRPCMessageField {
             "@available(*, message: \"This property was removed in the latest version.\")"
         }
 
-        // TODO for added fields, consider the default value provided by the migration guide!
         if field.hasFieldPresence {
             "\(context.options.visibility) var \(field.name): \(field.typeName) {"
             Indent {
@@ -73,43 +72,96 @@ struct GRPCMessageField {
 
     @SourceCodeBuilder
     var fieldDecodeCase: String {
-        if field.unavailable { // this builder is never called for unavailable properties
-            preconditionFailure("Tried to build `fieldDecodeCase` for unavailable property!")
-        }
+        precondition(!field.unavailable, "fieldDecodeCase was called for field \(field.name) which is unavailable!")
 
         var decoderMethod: String = ""
         var fieldTypeArg: String = ""
 
-        if field.isMap {
-            decoderMethod = "decodeMapField"
-            fieldTypeArg = "fieldType: \(field.traitsType).self, "
+        if let change = field.typeUpdate {
+            if change.to.isMap {
+                decoderMethod = "decodeMapField"
+                fieldTypeArg = "fieldType: \(change.to.traitsType(namer: context.namer)).self, "
+            } else {
+                let modifier = change.to.isRepeated ? "Repeated" : "Singular"
+                decoderMethod = "decode\(modifier)\(change.to.deriveProtoGenericType())Field"
+                fieldTypeArg = ""
+            }
         } else {
-            let modifier = field.isRepeated ? "Repeated" : "Singular"
-            decoderMethod = "decode\(modifier)\(field.protoGenericType)Field"
-            fieldTypeArg = ""
+            if field.isMap {
+                decoderMethod = "decodeMapField"
+                fieldTypeArg = "fieldType: \(field.traitsType).self, "
+            } else {
+                let modifier = field.isRepeated ? "Repeated" : "Singular"
+                decoderMethod = "decode\(modifier)\(field.protoGenericType)Field"
+                fieldTypeArg = ""
+            }
         }
 
-        "case \(field.number): try { try decoder.\(decoderMethod)(\(fieldTypeArg)value: &\(field.storedProperty)) }()"
+        "case \(field.number): try {"
+        Indent {
+            let decodeLine = "try decoder.\(decoderMethod)(\(fieldTypeArg)value: &\(field.storedProperty))"
+
+            if let change = field.typeUpdate {
+                "var \(field.storedProperty): \(change.to.swiftStorageType(namer: context.namer)) = \(change.to.swiftDefaultValue(namer: context.namer))"
+                decodeLine
+                "self.\(field.storedProperty) = try \(field.typeName).from(\(field.storedProperty), script: \(change.backwardMigration)"
+            } else {
+                decodeLine
+            }
+        }
+        "}()"
+    }
+
+    @SourceCodeBuilder
+    var fieldDecodeCaseStatements: String {
+        if field.unavailable {
+            if let fallbackValue = field.fallbackValue {
+                "\(field.storedProperty) = try \(field.typeName).instance(from: \(fallbackValue))"
+            } else {
+                "// field \(field.name) was removed and no fallback value was supplied. Handling it like a missing property"
+            }
+        } else if let change = field.necessityUpdate, change.to == .optional {
+            // field value might not be delivered anymore by the web service!
+            "if !decodedFieldNumbers.contains(\(field.number)) {"
+            Indent("\(field.storedProperty) = try \(field.typeName).instance(from: \(change.necessityMigration))")
+            "}"
+        } else {
+            EmptyComponent()
+        }
     }
 
     @SourceCodeBuilder
     var traverseExpression: String {
-        // TODO if unavailable use fallback Value: => requires Codable support!
-        // if let fallbackValue = removalChange.fallbackValue {
-        //                return "\(property.name) = try \(property.type.unsafeTypeString).instance(from: \(fallbackValue))"
-        //            } else {
-        //                return "\(property.name) = nil"
-        //            }
+        // removed fields won't ever be encoded into the proto message
+        precondition(!field.unavailable, "Unavailability of fields must be handled on the outside: \(field.name)!")
 
         var visitMethod: String = ""
         var traitsArg: String = ""
-        if field.isMap {
-            visitMethod = "visitMapField"
-            traitsArg = "fieldType: \(field.traitsType).self, "
+        var typeMigrationClosure: (String) -> String = { $0 }
+
+        if let change = field.typeUpdate {
+            if change.to.isMap {
+                visitMethod = "visitMapField"
+                traitsArg = "fieldType: \(change.to.traitsType(namer: context.namer)).self, "
+            } else {
+                let modifier = field.isPacked ? "Packed" : change.to.isRepeated ? "Repeated" : "Singular"
+                visitMethod = "visit\(modifier)\(change.to.deriveProtoGenericType())Field"
+                traitsArg = ""
+            }
+
+            let newTypeName = change.to.swiftType(namer: context.namer)
+            typeMigrationClosure = { varName in
+                "try \(newTypeName).from(\(varName), script: \(change.forwardMigration))"
+            }
         } else {
-            let modifier = field.isPacked ? "Packed" : field.isRepeated ? "Repeated" : "Singular"
-            visitMethod = "visit\(modifier)\(field.protoGenericType)Field"
-            traitsArg = ""
+            if field.isMap {
+                visitMethod = "visitMapField"
+                traitsArg = "fieldType: \(field.traitsType).self, "
+            } else {
+                let modifier = field.isPacked ? "Packed" : field.isRepeated ? "Repeated" : "Singular"
+                visitMethod = "visit\(modifier)\(field.protoGenericType)Field"
+                traitsArg = ""
+            }
         }
 
         let varName = field.hasFieldPresence ? "value" : field.storedProperty
@@ -137,7 +189,21 @@ struct GRPCMessageField {
         let suffix = usesLocals ? " }()" : ""
 
         "\(prefix)if \(conditional) {"
-        Indent("try visitor.\(visitMethod)(\(traitsArg)value: \(varName), fieldNumber: \(field.number))")
+        Indent("try visitor.\(visitMethod)(\(traitsArg)value: \(typeMigrationClosure(varName)), fieldNumber: \(field.number))")
+
+        if let change = field.necessityUpdate, change.to == .required {
+            let migratedValue = "try \(field.typeName).from(from: \(change.necessityMigration))"
+
+            "} else {"
+            Indent("""
+                   try visitor.\(visitMethod)(\
+                   \(traitsArg)\
+                   value: \(typeMigrationClosure(migratedValue)), \
+                   fieldNumber: \(field.number)\
+                   )
+                   """)
+        }
+
         "}\(suffix)"
     }
 

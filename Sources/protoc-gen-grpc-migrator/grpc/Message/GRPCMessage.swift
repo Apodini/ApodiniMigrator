@@ -101,7 +101,8 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
         MARKComment("RuntimeSupport")
         "extension \(message.fullName): \(moduleName).Message, \(moduleName)._MessageImplementationBase, \(moduleName)._ProtoNameProviding {"
         Indent {
-            "\(context.options.visibility) static let protoMessageName: String = \"\(message.name)\"" // TODO respect parent descriptor file + file package name!
+            // TODO respect parent descriptor file + file package name!
+            "\(context.options.visibility) static let protoMessageName: String = \"\(message.name)\""
 
             if message.fields.isEmpty {
                 "\(context.options.visibility) static let _protobuf_nameMap = \(moduleName)._NameMap()"
@@ -138,19 +139,28 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
     @SourceCodeBuilder
     private var decodeMessageMethod: String {
         "\(context.options.visibility) mutating func decodeMessage<D: \(context.namer.swiftProtobufModuleName).Decoder>(decoder: inout D) throws {"
+        // we record which fields were decoded. We use this information when generating our necessity migrations!
+        "var decodedFieldNumbers: Set<Int> = []"
+
         Indent {
             "while let \(message.fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
             Indent {
                 // TODO print https://github.com/apple/swift-protobuf/issues/1034
+                "decodedFieldNumbers.insert(fieldNumber)"
                 "switch fieldNumber {"
                 Indent {
-                    for field in message.sortedFields where !field.unavailable { // filtering out removed properties
-                        field.fieldDecodeCase // TODO handle migration!
+                    for field in message.sortedFields where !field.unavailable { // unavailable fields are handled below
+                        field.fieldDecodeCase
                     }
                 }
                 "}"
             }
             "}"
+
+            for field in message.sortedFields {
+                // this handles migration to assign default values (e.g. when field was removed or necessity was migrated)
+                field.fieldDecodeCaseStatements
+            }
         }
         "}"
     }
@@ -166,8 +176,8 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
                 //          "// https://github.com/apple/swift-protobuf/issues/1182\n")
             }
 
-            for field in message.sortedFields {
-                field.traverseExpression // TODO handle migration!
+            for field in message.sortedFields where !field.unavailable { // just send non-removed fields!
+                field.traverseExpression
             }
             ""
             "try unknownFields.traverse(visitor: %visitor)"

@@ -82,11 +82,11 @@ struct GRPCEnum: SourceCodeRenderable {
             // rawValue property
             ""
             "\(context.options.visibility) var rawValue: Int {"
+            // rawValue is directly put into the proto encoder.
+            // Therefore, as we otherwise can't handle it, rely on the web service parser to ignore removed fields
+            // (which is the case for Apodini). This way, we also avoid to break any client applications which rely on `rawValue`.
+            // Another option would be to use the enum `defaultValue`. Though the risk of breaking something is probably higher.
             Indent {
-                // TODO do we need to handle removed enum cases?
-                //  => does Apodini support the \(unrecognizedCaseName) case?
-                //   => we could also use default case? or throw in rawValue (ensure client doesn't use rawValue?)
-
                 "switch self {"
                 for enumCase in `enum`.enumCasesSorted {
                     "case \(enumCase.dottedRelativeName): return \(enumCase.number)"
@@ -189,7 +189,6 @@ struct GRPCEnum: SourceCodeRenderable {
 
                 try container.encode(try self.nameRawValue)
                 """
-                // TODO filter deprecated cases?
             }
             "}"
 

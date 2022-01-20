@@ -78,7 +78,9 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
                     .forEach { $0.applyIdChange(renamedProperty) }
             } else if let addedProperty = property.modeledAdditionChange {
                 // TODO we currently GUESS the property number!
-                fields.append(GRPCMessageField(ApodiniMessageField(addedProperty.added, number: fields.count, context: context)))
+                fields.append(GRPCMessageField(
+                    ApodiniMessageField(addedProperty.added, number: fields.count, defaultValue: addedProperty.defaultValue, context: context)
+                ))
             } else if let removedProperty = property.modeledRemovalChange {
                 fields
                     .filter { $0.name == removedProperty.id.rawValue }

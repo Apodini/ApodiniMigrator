@@ -52,7 +52,7 @@ struct ApodiniMessageField: SomeGRPCMessageField {
     var isPacked: Bool
     var isRepeated: Bool
 
-    init(_ property: TypeProperty, number: Int, context: ProtoFileContext) {
+    init(_ property: TypeProperty, number: Int, defaultValue: Int? = nil, context: ProtoFileContext) {
         // we ignore fluent property annotations
         self.property = property
         self.context = context
@@ -61,9 +61,15 @@ struct ApodiniMessageField: SomeGRPCMessageField {
 
         self.type = property.protoType
 
-        self.typeName = property.swiftType(namer: context.namer)
+        let typeName = property.swiftType(namer: context.namer)
+
+        self.typeName = typeName
         self.storageType = property.swiftStorageType(namer: context.namer)
-        self.defaultValue = property.swiftDefaultValue(namer: context.namer)
+        if let defaultValue = defaultValue {
+            self.defaultValue = "(try! \(typeName).instance(from: \(defaultValue)))"
+        } else {
+            self.defaultValue = property.swiftDefaultValue(namer: context.namer)
+        }
         self.traitsType = property.traitsType(namer: context.namer)
         self.protoGenericType = property.deriveProtoGenericType()
 
