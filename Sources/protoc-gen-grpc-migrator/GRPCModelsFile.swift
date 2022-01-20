@@ -11,6 +11,7 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
+// TODO move!
 extension FileDescriptor {
     var hasUnknownPreservingSemantics: Bool {
         syntax == .proto3
@@ -39,12 +40,12 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
     var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(_ file: FileDescriptor, options: PluginOptions, document: APIDocument, migrationGuide: MigrationGuide, namer: SwiftProtobufNamer) {
+    init(_ file: FileDescriptor, context: ProtoFileContext, document: APIDocument, migrationGuide: MigrationGuide) {
         self.protoFile = file
         self.document = document
         self.migrationGuide = migrationGuide
 
-        self.context = ProtoFileContext(namer: namer, options: options, hasUnknownPreservingSemantics: file.hasUnknownPreservingSemantics)
+        self.context = context
 
         for `enum` in file.enums {
             self.nestedEnums[`enum`.name] = GRPCEnum(

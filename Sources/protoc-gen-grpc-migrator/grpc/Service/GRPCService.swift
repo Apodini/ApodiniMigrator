@@ -12,7 +12,7 @@ import ApodiniMigrator
 
 class GRPCService: SourceCodeRenderable {
     private unowned let file: GRPCClientsFile
-    let options: PluginOptions
+    let context: ProtoFileContext
 
     let serviceName: String
     private let serviceSourceComments: String?
@@ -20,7 +20,7 @@ class GRPCService: SourceCodeRenderable {
     private var methods: [GRPCMethod] = []
 
     var protobufNamer: SwiftProtobufNamer {
-        file.namer
+        context.namer
     }
 
     var servicePath: String {
@@ -33,30 +33,33 @@ class GRPCService: SourceCodeRenderable {
 
     init(_ service: ServiceDescriptor, locatedIn file: GRPCClientsFile) {
         self.file = file
-        self.options = file.options
+        self.context = file.context
         self.serviceName = service.name
         self.methods = []
 
         self.serviceSourceComments = service.protoSourceComments()
 
         for method in service.methods {
-            self.methods.append(GRPCMethod(ProtoGRPCMethod(method, locatedIn: self), options: options))
+            self.methods.append(GRPCMethod(ProtoGRPCMethod(method, locatedIn: self), context: context))
         }
     }
 
     init(named serviceName: String, locatedIn file: GRPCClientsFile) {
         self.file = file
-        self.options = file.options
+        self.context = file.context
         self.serviceName = serviceName
         self.methods = []
         self.serviceSourceComments = nil
     }
 
     func addEndpoint(_ endpoint: Endpoint) {
-        let methodName = endpoint.methodName
-        precondition(!self.methods.contains(where: { $0.methodName == methodName }), "Added endpoint collides with existing method \(serviceName).\(methodName)")
+        let method = ApodiniGrpcMethod(endpoint, context: context)
+        precondition(
+            !self.methods.contains(where: { $0.methodName == method.methodName }),
+            "Added endpoint collides with existing method \(serviceName).\(method.methodName)"
+        )
 
-        self.methods.append(GRPCMethod(endpoint, options: options))
+        self.methods.append(GRPCMethod(method, context: context))
     }
 
     func handleEndpointUpdate(_ update: EndpointChange.UpdateChange) {
@@ -80,18 +83,18 @@ class GRPCService: SourceCodeRenderable {
             comments
         }
 
-        "\(options.visibility) struct \(serviceName)AsyncClient: \(serviceName)AsyncClientProtocol {"
+        "\(context.options.visibility) struct \(serviceName)AsyncClient: \(serviceName)AsyncClientProtocol {"
         Indent {
-            "\(options.visibility) var serviceName: String {"
+            "\(context.options.visibility) var serviceName: String {"
             Indent("\"\(servicePath)\"")
             """
             }
 
-            \(options.visibility) var channel: GRPCChannel
-            \(options.visibility) var defaultCallOptions: CallOptions
+            \(context.options.visibility) var channel: GRPCChannel
+            \(context.options.visibility) var defaultCallOptions: CallOptions
             """
 
-            "\(options.visibility) init("
+            "\(context.options.visibility) init("
             Indent {
                 """
                 channel: GRPCChannel,

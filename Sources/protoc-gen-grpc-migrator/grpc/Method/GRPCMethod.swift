@@ -17,7 +17,7 @@ struct GRPCMethod: SourceCodeRenderable {
     }
 
     private let method: SomeGRPCMethod
-    let options: PluginOptions
+    let context: ProtoFileContext
 
     var requestParameterType: String {
         method.streamingType.isStreamingRequest
@@ -25,9 +25,9 @@ struct GRPCMethod: SourceCodeRenderable {
             : method.inputMessageName
     }
 
-    init(_ method: SomeGRPCMethod, options: PluginOptions) {
+    init(_ method: SomeGRPCMethod, context: ProtoFileContext) {
         self.method = method
-        self.options = options
+        self.context = context
     }
 
     subscript<T>(dynamicMember member: KeyPath<SomeGRPCMethod, T>) -> T {
@@ -58,6 +58,12 @@ struct GRPCMethod: SourceCodeRenderable {
             }
 
             if method.unavailable {
+                // this is the only thing what we do when removing a method.
+                // we rely on the web service to return its "standard" non-found error.
+                // Most likely, a client library has a handler to catch the non-found error of the web service,
+                // but it won't expect a custom error from our side which we would introduce to signal "not found".
+                // Therefore, the risk of stuff not breaking things is lower if we rely on the web service to generate this error.
+
                 let message = "This method is not available in the new version anymore. Calling this method will fail!"
                 "@available(*, deprecated, message: \"\(message)\")"
             }
@@ -68,11 +74,10 @@ struct GRPCMethod: SourceCodeRenderable {
                     "_ \(method.streamingType.requestParameterName): \(requestParameterType)",
                     "callOptions: CallOptions? = nil"
                 ],
-                // TODO update repsonse on migration!
                 returnType: method.streamingType.isStreamingResponse
                     ? "GRPCResponseStream<\(method.outputMessageName)>"
                     : method.outputMessageName,
-                access: options.visibility.description,
+                access: context.options.visibility.description,
                 async: !method.streamingType.isStreamingResponse, // we return AsyncSequence instantly on streaming response!
                 throws: !method.streamingType.isStreamingResponse,
                 whereClause: sequenceProtocol.map {
@@ -100,6 +105,17 @@ struct GRPCMethod: SourceCodeRenderable {
                 updatedStreamingType = StreamingType(from: change.to)
             }
 
+            // this closure is used to insert a call to the migration closure generated below
+            var responseMigration: (String) -> String = { $0 }
+            if let change = method.responseChange {
+                "let migrateResponse: (\(method.updatedOutputMessageName!)) throws -> (\(method.outputMessageName) = {"
+                Indent("try \(method.outputMessageName).from($0, script: \(change.backwardsMigration))")
+                "}"
+                responseMigration = {
+                    "try migrateResponse(\($0))"
+                }
+            }
+
             var alreadyBuiltCall = false
 
             switch (method.streamingType.isStreamingRequest, updatedStreamingType.isStreamingRequest) {
@@ -111,6 +127,7 @@ struct GRPCMethod: SourceCodeRenderable {
                         Indent {
                             GRPCCall(for: method, streamingType: updatedStreamingType)
                             alreadyBuiltCall = true
+                            "return result"
                         }
                         "})"
                     }
@@ -122,6 +139,7 @@ struct GRPCMethod: SourceCodeRenderable {
                         Indent {
                             GRPCCall(for: method, streamingType: updatedStreamingType)
                             alreadyBuiltCall = true
+                            "return result"
                         }
                         "}"
                     }
@@ -138,7 +156,8 @@ struct GRPCMethod: SourceCodeRenderable {
                 EmptyComponent() // did not change
             }
 
-            if !alreadyBuiltCall || (method.streamingType.isStreamingResponse, updatedStreamingType.isStreamingResponse) != (true, false) {
+            let goingToGenerateCallLater = (method.streamingType.isStreamingResponse, updatedStreamingType.isStreamingResponse) == (true, false)
+            if !alreadyBuiltCall || goingToGenerateCallLater {
                 // unless its a conversion from `\(outputMessageName) -> GRPCResponseStream` build the call
                 // we need to handle that single case differently, as we aren't in a `async throws` context
                 // and therefore need to wrap that thing into Task and try-catch.
@@ -154,7 +173,7 @@ struct GRPCMethod: SourceCodeRenderable {
                         "do {"
                         Indent {
                             GRPCCall(for: method, streamingType: method.streamingType)
-                            "continuation.yield(result)"
+                            "continuation.yield(\(responseMigration("result"))"
                             "continuation.finish()"
                         }
                         "} catch {"
@@ -172,16 +191,18 @@ struct GRPCMethod: SourceCodeRenderable {
                 Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didNotReceiveAnyResponse)")
                 """
                 }
-                return response
+                return \(responseMigration("response"))
                 """
             case (true, true):
                 // convert to our custom AsyncSequence wrapper type (required as we can't instantiate a GRPCAsyncResponseStream)
-                "return GRPCResponseStream(wrapping: result)"
+                if method.responseChange != nil {
+                    "return GRPCResponseStream(wrapping: result.compactMap { \(responseMigration("$0")) })"
+                } else {
+                    "return GRPCResponseStream(wrapping: result)"
+                }
             default:
-                "return result"
+                "return \(responseMigration("result"))"
             }
-
-            // TODO response type migration (if its not just a rename!)
         }
     }
 
@@ -204,7 +225,7 @@ struct GRPCMethod: SourceCodeRenderable {
                 path: \"\(method.updatedMethodPath ?? method.methodPath)\",
                 \(streamingType.requestParameterName): \(streamingType.requestParameterName),
                 callOptions: callOptions ?? defaultCallOptions,
-                responseType: \(method.outputMessageName).self
+                responseType: \(method.updatedOutputMessageName ?? method.outputMessageName).self
                 """
             }
             ")"

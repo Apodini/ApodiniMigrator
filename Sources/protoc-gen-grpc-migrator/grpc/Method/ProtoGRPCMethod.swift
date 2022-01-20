@@ -18,20 +18,15 @@ class ProtoGRPCMethod: SomeGRPCMethod {
     // we track the content of all `update` EndpointChanges here
     var identifierChanges: [EndpointIdentifierChange] = []
     var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)?
-    var responseChangeChange: (
+    var responseChange: (
         from: TypeInformation,
         to: TypeInformation,
         backwardsMigration: Int,
         migrationWarning: String?
     )?
 
-    var methodName: String {
-        method.name
-    }
-
-    var serviceName: String {
-        service.servicePath
-    }
+    var methodName: String
+    var serviceName: String
 
     var updatedMethodName: String? {
         for change in identifierChanges {
@@ -67,36 +62,44 @@ class ProtoGRPCMethod: SomeGRPCMethod {
 
     var unavailable = false
 
-    var sourceCodeComments: String? {
-        method.protoSourceComments()
-    }
+    var sourceCodeComments: String?
 
-    var streamingType: StreamingType {
-        switch (method.proto.clientStreaming, method.proto.serverStreaming) {
-        case (true, true):
-            return .bidirectionalStreaming
-        case (true, false):
-            return .clientStreaming
-        case (false, true):
-            return .serverStreaming
-        case (false, false):
-            return .unary
+    var streamingType: StreamingType
+
+    var inputMessageName: String
+    var outputMessageName: String
+
+    var updatedOutputMessageName: String? {
+        guard let change = responseChange else {
+            return nil
         }
-    }
 
-    var inputMessageName: String {
-        service.protobufNamer.fullName(message: method.inputType)
-    }
-
-    var outputMessageName: String {
-        service.protobufNamer.fullName(message: method.outputType)
+        return change.to.swiftType(namer: service.protobufNamer)
     }
 
     init(_ method: MethodDescriptor, locatedIn service: GRPCService) {
         self.service = service
         self.method = method
-
         self.apodiniIdentifiers = .init(of: method)
+
+        self.methodName = method.name
+        self.serviceName = service.servicePath
+
+        self.sourceCodeComments = method.protoSourceComments()
+
+        switch (method.proto.clientStreaming, method.proto.serverStreaming) {
+        case (true, true):
+            self.streamingType = .bidirectionalStreaming
+        case (true, false):
+            self.streamingType = .clientStreaming
+        case (false, true):
+            self.streamingType = .serverStreaming
+        case (false, false):
+            self.streamingType = .unary
+        }
+
+        self.inputMessageName = service.protobufNamer.fullName(message: method.inputType)
+        self.outputMessageName = service.protobufNamer.fullName(message: method.outputType)
     }
 
     func registerUpdateChange(_ change: EndpointChange.UpdateChange) {
@@ -108,7 +111,7 @@ class ProtoGRPCMethod: SomeGRPCMethod {
         case let .communicationalPattern(from, to):
             self.communicationPatternChange = (from, to)
         case let .response(from, to, backwardsMigration, migrationWarning):
-            self.responseChangeChange = (from, to, backwardsMigration, migrationWarning)
+            self.responseChange = (from, to, backwardsMigration, migrationWarning)
         default:
             print("Ignoring change for now: \(change.updated)") // TODO handle .parameter
         }

@@ -12,17 +12,15 @@ import SwiftProtobufPluginLibrary
 
 class GRPCClientsFile: SourceCodeRenderable {
     let protoFile: FileDescriptor
-    let options: PluginOptions
+    let context: ProtoFileContext
     let migrationGuide: MigrationGuide
-    let namer: SwiftProtobufNamer
 
     var services: [String: GRPCService] = [:]
 
-    init(_ file: FileDescriptor, options: PluginOptions, migrationGuide: MigrationGuide, namer: SwiftProtobufNamer) {
+    init(_ file: FileDescriptor, context: ProtoFileContext, migrationGuide: MigrationGuide) {
         self.protoFile = file
-        self.options = options
+        self.context = context
         self.migrationGuide = migrationGuide
-        self.namer = namer
 
         for service in protoFile.services {
             self.services[service.name] = GRPCService(service, locatedIn: self)
@@ -51,7 +49,7 @@ class GRPCClientsFile: SourceCodeRenderable {
 
         for change in migrationGuide.endpointChanges {
             // we ignore idChange updates. Why? Because we always work with the older identifiers.
-            // And client library should not modify identifiers, to maintain code compatibility
+            // And for the client library identifiers should not be modified to maintain code compatibility.
 
             if let addition = change.modeledAdditionChange {
                 addedEndpoints.append(addition)
