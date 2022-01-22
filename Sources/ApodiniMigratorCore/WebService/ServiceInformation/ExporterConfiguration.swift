@@ -8,7 +8,6 @@
 
 import Foundation
 
-// TODO remove
 /// Describes an Apodini exporter type.
 public enum ApodiniExporterType: String, Value, CodingKey, CaseIterable {
     /// The `ApodiniREST` exporter.

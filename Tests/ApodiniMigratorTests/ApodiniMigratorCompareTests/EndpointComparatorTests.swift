@@ -336,8 +336,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(from, .optional)
         XCTAssertEqual(to, .required)
 
-        if let id = necessityMigration,
-           let json = comparisonContext.jsonValues[id] {
+        if let json = comparisonContext.jsonValues[necessityMigration] {
             let instance = XCTAssertNoThrowWithResult(try String.instance(from: json))
             XCTAssertEqual(instance, "")
         }

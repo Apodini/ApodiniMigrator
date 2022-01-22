@@ -39,12 +39,13 @@ public struct MigrationGuide {
         self._compareConfiguration ?? .default
     }
 
+    // TODO instead of public var, make it private(set) with method?
     /// Captures any changes happening to the `ServiceInformation`, describing the web service.
-    public let serviceChanges: [ServiceInformationChange]
+    public var serviceChanges: [ServiceInformationChange]
     /// Captures any changes done to web service models.
-    public let modelChanges: [ModelChange]
+    public var modelChanges: [ModelChange]
     /// Captures any changes done to web service endpoints.
-    public let endpointChanges: [EndpointChange]
+    public var endpointChanges: [EndpointChange]
 
 
     /// Dictionary holding all registered convert scripts which are referenced from change objects

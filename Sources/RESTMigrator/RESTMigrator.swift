@@ -21,8 +21,8 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         .init(label: "org.apodini.migrator.rest")
     }()
 
-    private let document: APIDocument
-    private let migrationGuide: MigrationGuide
+    private var document: APIDocument
+    private var migrationGuide: MigrationGuide
 
     /// Networking migrator
     private let networkingMigrator: NetworkingMigrator
@@ -60,6 +60,12 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         networkingMigrator = NetworkingMigrator(
             baseServiceInformation: document.serviceInformation,
             serviceChanges: migrationGuide.serviceChanges
+        )
+
+        // combine multiple content parameters into a single content parameter
+        document.combineEndpointParametersIntoWrappedType(
+            considering: &migrationGuide,
+            using: RESTContentParameterCombination()
         )
     }
 

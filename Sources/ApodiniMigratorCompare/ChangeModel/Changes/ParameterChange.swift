@@ -27,7 +27,7 @@ public enum ParameterUpdateChange: Equatable {
     case necessity(
         from: Necessity,
         to: Necessity,
-        necessityMigration: Int?
+        necessityMigration: Int
     )
 
     /// Describes an update of the parameter type.
@@ -83,7 +83,7 @@ extension ParameterUpdateChange: Codable {
             self = .necessity(
                 from: try container.decode(Necessity.self, forKey: .from),
                 to: try container.decode(Necessity.self, forKey: .to),
-                necessityMigration: try container.decodeIfPresent(Int.self, forKey: .necessityMigration)
+                necessityMigration: try container.decode(Int.self, forKey: .necessityMigration)
             )
         case .type:
             self = .type(

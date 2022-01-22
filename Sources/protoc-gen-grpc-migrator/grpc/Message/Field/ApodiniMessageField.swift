@@ -137,7 +137,7 @@ extension TypeInformation {
             return primitiveType.protoFieldType
         case let .repeated(element):
             return element.protoFieldType
-        case let .dictionary(key, value):
+        case .dictionary:
             // while proto maps this to a message with two properties (key and value), swift source code
             // generation will properly generate a Dictionary out of it!
             // TODO this maps to message right?
@@ -282,7 +282,7 @@ extension PrimitiveType {
             // TODO this is mapped to a `message Date { double _time = 1; }`
             //  problem is that `Date` must be generated accordingly!
             fatalError("Dates are currently unsupported!")
-            return .message
+            // return .message
         case .data:
             return .bytes
         case .int8,

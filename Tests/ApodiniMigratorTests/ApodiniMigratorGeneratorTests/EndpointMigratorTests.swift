@@ -196,7 +196,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
                 updated: .necessity(
                     from: .required,
                     to: .optional,
-                    necessityMigration: nil
+                    necessityMigration: 0
                 ),
                 breaking: true,
                 solvable: true
@@ -336,10 +336,16 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     }
 
     func testWrappedContentParameter() throws {
+        // TODO this doesn't test the migrationGuide Migration!
         let param1 = Parameter(name: "first", typeInformation: .scalar(.string), parameterType: .content, isRequired: true)
         let param2 = Parameter(name: "second", typeInformation: .scalar(.int), parameterType: .content, isRequired: false)
 
-        let endpoint = Endpoint(
+        var document = APIDocument(
+            serviceInformation: .init(version: .default, http: HTTPInformation(hostname: "localhost", port: 80), exporters: [])
+        )
+        var migrationGuide: MigrationGuide = .empty(id: document.id)
+
+        document.add(endpoint: Endpoint(
             handlerName: "someHandler",
             deltaIdentifier: "id",
             operation: .create,
@@ -348,7 +354,11 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
             parameters: [param1, param2],
             response: .scalar(.bool),
             errors: []
-        )
+        ))
+
+        document.combineEndpointParametersIntoWrappedType(considering: &migrationGuide, using: RESTContentParameterCombination())
+
+        let endpoint = try XCTUnwrap(document.endpoints.first)
 
         let file = EndpointFile(
             migratedEndpointsReference: SharedNodeReference(with: []),

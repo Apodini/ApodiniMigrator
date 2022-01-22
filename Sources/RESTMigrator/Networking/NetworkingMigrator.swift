@@ -28,7 +28,7 @@ struct NetworkingMigrator {
 
         for change in serviceChanges {
             if let update = change.modeledUpdateChange,
-               case let .http(from, to) = update.updated {
+               case let .http(_, to) = update.updated {
                 serverPath = to.urlFormatted
             }
         }

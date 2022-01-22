@@ -41,7 +41,7 @@ struct ProtocGenerator: LibraryNode {
             throw HandleError.missingProtocBinary(message: "It seems like the `protoc` compiler isn't installed!")
         }
 
-        guard let protocGenBinary = findExecutable(named: "protoc-gen-\(pluginName)") else {
+        guard findExecutable(named: "protoc-gen-\(pluginName)") != nil else {
             throw HandleError.missingGRPCMigratorPlugin(message: "It seems that the `protoc-gen-\(pluginName)` is not installed.")
         }
 

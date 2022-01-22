@@ -26,8 +26,8 @@ public struct APIDocument: Value {
     public let id: UUID
     /// Metadata
     public var serviceInformation: ServiceInformation
-    /// Endpoints
     private var _endpoints: [Endpoint]
+    /// Endpoints
     public var endpoints: [Endpoint] {
         _endpoints
             .map {
@@ -35,6 +35,18 @@ public struct APIDocument: Value {
                 endpoint.dereference(in: types)
                 return endpoint
             }
+    }
+
+    /// This is an unsafe access to the `_endpoints` property.
+    /// Returned endpoints won't have dereferenced types.
+    /// Write only with care to not introduce inconsistencies.
+    public var unsafeEndpoints: [Endpoint] {
+        get {
+            _endpoints
+        }
+        set {
+            _endpoints = newValue
+        }
     }
 
     private var types: TypesStore
@@ -68,6 +80,11 @@ public struct APIDocument: Value {
         var endpoint = endpoint
         endpoint.reference(in: &types)
         _endpoints.append(endpoint)
+    }
+
+    // TODO document returning reference!
+    public mutating func add(type: TypeInformation) -> TypeInformation {
+        types.store(type)
     }
 
     public mutating func add<Configuration: ExporterConfiguration>(exporter: Configuration) {

@@ -78,7 +78,7 @@ struct EnumMigrator: GeneratedFile {
                     removedCases.append(deletedCase)
                 }
             } else if let caseUpdate = caseChange.modeledUpdateChange,
-                      case let .rawValue(from, to) = caseUpdate.updated {
+                      case let .rawValue(_, to) = caseUpdate.updated {
                 self.rawValueUpdates[caseUpdate.id] = to
             }
         }

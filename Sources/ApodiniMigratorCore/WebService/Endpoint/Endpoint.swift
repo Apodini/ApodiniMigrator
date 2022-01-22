@@ -68,7 +68,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.deltaIdentifier = .init(identifier)
         self.identifiers = [:]
 
-        self.parameters = Self.wrapContentParameters(from: parameters, with: typeName.buildName())
+        self.parameters = parameters
         self.communicationalPattern = communicationalPattern
         self.response = response
         self.errors = errors
@@ -222,47 +222,5 @@ extension Endpoint: Equatable {
             && lhs.parameters == rhs.parameters
             && lhs.response == rhs.response
             && lhs.errors == rhs.errors
-    }
-}
-
-private extension Endpoint {
-    // TODO this is REST specific! we have something similar (Parameter Wrapping) for GRPC
-    static func wrapContentParameters(from parameters: [Parameter], with handlerName: String) -> [Parameter] {
-        let contentParameters = parameters.filter { $0.parameterType == .content }
-        guard !contentParameters.isEmpty else {
-            return parameters
-        }
-        
-        var contentParameter: Parameter?
-        
-        switch contentParameters.count {
-        case 1:
-            contentParameter = contentParameters.first
-        default:
-            let typeInformation = TypeInformation.object(
-                name: Parameter.wrappedContentParameterTypeName(from: handlerName),
-                properties: contentParameters.map {
-                    TypeProperty(
-                        name: $0.name,
-                        type: $0.necessity == .optional ? $0.typeInformation.asOptional : $0.typeInformation
-                    )
-                }
-            )
-            
-            contentParameter = .init(
-                name: Parameter.wrappedContentParameter,
-                typeInformation: typeInformation,
-                parameterType: .content,
-                isRequired: contentParameters.contains(where: { $0.necessity == .required })
-            )
-        }
-        
-        var result = parameters.filter { $0.parameterType != .content }
-        
-        contentParameter.map {
-            result.append($0)
-        }
-        
-        return result
     }
 }
