@@ -29,7 +29,6 @@ protocol SomeGRPCMethod {
         backwardsMigration: Int,
         migrationWarning: String?
     )? { get }
-    // TODO parameterChange?
 
     var methodPath: String { get }
     var updatedMethodPath: String? { get }
