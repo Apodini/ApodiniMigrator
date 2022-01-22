@@ -154,6 +154,7 @@ extension TypeInformation {
     }
 }
 
+// TODO move!
 extension TypeInformation: FieldDescriptorLike {
     var protoType: Google_Protobuf_FieldDescriptorProto.TypeEnum {
         protoFieldType

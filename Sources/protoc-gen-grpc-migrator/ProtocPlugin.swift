@@ -49,12 +49,12 @@ struct ProtocPluginBoostrap: ParsableCommand {
 }
 
 struct ProtocPlugin {
-    let request: Google_Protobuf_Compiler_CodeGeneratorRequest
-    let options: PluginOptions
+    private let request: Google_Protobuf_Compiler_CodeGeneratorRequest
+    private let options: PluginOptions
 
-    let apiDocument: APIDocument
-    let migrationGuide: MigrationGuide
-    let descriptorSet: DescriptorSet
+    private let apiDocument: APIDocument
+    private let migrationGuide: MigrationGuide
+    private let descriptorSet: DescriptorSet
 
     var response = Google_Protobuf_Compiler_CodeGeneratorResponse(
         files: [],
@@ -68,14 +68,24 @@ struct ProtocPlugin {
         guard let documentPath = options.documentPath else {
             fatalError("Tried to boot protoc plugin without specifying the APIDocument path!")
         }
-        self.apiDocument = try APIDocument.decode(from: Path(documentPath))
+
+        var apiDocument = try APIDocument.decode(from: Path(documentPath))
+        var migrationGuide: MigrationGuide
 
         if let path = options.migrationGuidePath {
-            try self.migrationGuide = MigrationGuide.decode(from: Path(path))
+            try migrationGuide = MigrationGuide.decode(from: Path(path))
         } else {
-            self.migrationGuide = .empty()
+            migrationGuide = .empty()
         }
         self.descriptorSet = DescriptorSet(protos: request.protoFile)
+
+        apiDocument.combineEndpointParametersIntoWrappedType(
+            considering: &migrationGuide,
+            using: GRPCMethodParameterCombination()
+        )
+
+        self.apiDocument = apiDocument
+        self.migrationGuide = migrationGuide
     }
 
     mutating func generate() throws {

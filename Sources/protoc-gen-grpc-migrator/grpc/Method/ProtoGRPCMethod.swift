@@ -112,8 +112,8 @@ class ProtoGRPCMethod: SomeGRPCMethod {
             self.communicationPatternChange = (from, to)
         case let .response(from, to, backwardsMigration, migrationWarning):
             self.responseChange = (from, to, backwardsMigration, migrationWarning)
-        default:
-            print("Ignoring change for now: \(change.updated)") // TODO handle .parameter
+        case .parameter:
+            fatalError("Encountered parameter update for grpc method \(methodPath) which wasn't mapped to a property update: \(change.updated)")
         }
     }
 }

@@ -37,10 +37,11 @@ struct ApodiniGrpcMethod: SomeGRPCMethod {
 
         self.streamingType = StreamingType(from: endpoint.communicationalPattern)
 
-        // TODO generate message from parameters!
+        precondition(endpoint.parameters.count == 1, "Received unexpected endpoint state for \(endpoint.handlerName) with multiple parameters: \(endpoint.parameters)")
+        let endpointInput = endpoint.parameters.first! // swiftlint:disable:this force_unwrapping
+
         // TODO packageName?
-        self.inputMessageName = endpoint.handlerName.buildName() + "___INPUT" // TODO service.protobufNamer.fullName(message: method.inputType)
-        // TODO magic constant from ApodiniGRPC
+        self.inputMessageName = endpointInput.typeInformation.swiftType(namer: context.namer)
 
         // TODO packageName?
         self.outputMessageName = endpoint.response.swiftType(namer: context.namer)
