@@ -8,7 +8,10 @@
 
 import Foundation
 
-@_exported import PathKit
-@_exported import ApodiniMigratorShared
-@_exported import ApodiniMigratorExporterSupport
-@_exported import ApodiniTypeInformation
+/// Describes an Apodini exporter type.
+public enum ApodiniExporterType: String, Codable, Hashable, CodingKey, CaseIterable {
+    /// The `ApodiniREST` exporter.
+    case rest
+    /// The `ApodiniGRPC` exporter.
+    case grpc
+}

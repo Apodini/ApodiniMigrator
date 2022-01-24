@@ -90,6 +90,10 @@ public struct APIDocument: Value {
     public mutating func add<Configuration: ExporterConfiguration>(exporter: Configuration) {
         serviceInformation.add(exporter: exporter)
     }
+
+    public mutating func add(anyExporter: AnyExporterConfiguration) {
+        serviceInformation.add(anyExporter: anyExporter)
+    }
 }
 
 // MARK: Codable

@@ -8,7 +8,8 @@
 
 import Foundation
 
-@_exported import PathKit
-@_exported import ApodiniMigratorShared
-@_exported import ApodiniMigratorExporterSupport
-@_exported import ApodiniTypeInformation
+extension AnyEndpointIdentifier: Value, DeltaIdentifiable {
+    public var deltaIdentifier: DeltaIdentifier {
+        DeltaIdentifier(rawValue: id)
+    }
+}

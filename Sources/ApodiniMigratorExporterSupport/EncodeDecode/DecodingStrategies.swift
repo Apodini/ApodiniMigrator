@@ -23,18 +23,32 @@ public enum DateDecodingStrategy: String, Codable, Equatable {
     /// Encode the `Date` as an ISO-8601-formatted string (in RFC 3339 format) on available platforms. If not available, `.deferredToDate` is used
     case iso8601
 
+    fileprivate init(from strategy: JSONDecoder.DateDecodingStrategy) {
+        switch strategy {
+        case .deferredToDate:
+            self = .deferredToDate
+        case .secondsSince1970:
+            self = .secondsSince1970
+        case .millisecondsSince1970:
+            self = .millisecondsSince1970
+        case .iso8601:
+            self = .iso8601
+        default:
+            self = .deferredToDate
+        }
+    }
+
     /// Corresponding strategy of `JSONDecoder`
     fileprivate var toJSONDecoderStrategy: JSONDecoder.DateDecodingStrategy {
         switch self {
-        case .deferredToDate: return .deferredToDate
-        case .secondsSince1970: return .secondsSince1970
-        case .millisecondsSince1970: return .millisecondsSince1970
+        case .deferredToDate:
+            return .deferredToDate
+        case .secondsSince1970:
+            return .secondsSince1970
+        case .millisecondsSince1970:
+            return .millisecondsSince1970
         case .iso8601:
-            if #available(iOS 10, *) {
-                return .iso8601
-            } else {
-                return .deferredToDate
-            }
+            return .iso8601
         }
     }
 }
@@ -48,11 +62,24 @@ public enum DataDecodingStrategy: String, Codable, Equatable {
     /// Decode the `Data` from a Base64-encoded string. This is the default strategy.
     case base64
 
+    fileprivate init(from strategy: JSONDecoder.DataDecodingStrategy) {
+        switch strategy {
+        case .deferredToData:
+            self = .deferredToData
+        case .base64:
+            self = .deferredToData
+        default:
+            self = .deferredToData
+        }
+    }
+
     /// Corresponding strategy of `JSONDecoder`
     fileprivate var toJSONDecoderStrategy: JSONDecoder.DataDecodingStrategy {
         switch self {
-        case .deferredToData: return .deferredToData
-        case .base64: return .base64
+        case .deferredToData:
+            return .deferredToData
+        case .base64:
+            return .base64
         }
     }
 }
@@ -69,6 +96,11 @@ public struct DecoderConfiguration: Codable, Hashable {
     public init(dateDecodingStrategy: DateDecodingStrategy, dataDecodingStrategy: DataDecodingStrategy) {
         self.dateDecodingStrategy = dateDecodingStrategy
         self.dataDecodingStrategy = dataDecodingStrategy
+    }
+
+    public init(derivedFrom decoder: JSONDecoder) {
+        self.dateDecodingStrategy = .init(from: decoder.dateDecodingStrategy)
+        self.dataDecodingStrategy = .init(from: decoder.dataDecodingStrategy)
     }
     
     /// `default` configuration of a `JSONDecoder`

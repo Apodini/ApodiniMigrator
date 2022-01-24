@@ -50,6 +50,12 @@ public struct ServiceInformation: Value, Hashable {
         return self
     }
 
+    @discardableResult
+    public mutating func add(anyExporter: AnyExporterConfiguration) -> Self {
+        exporters[anyExporter.type] = anyExporter
+        return self
+    }
+
     public func exporter<Exporter: ExporterConfiguration>(for type: Exporter.Type = Exporter.self) -> Exporter {
         guard let exporter = exporters[Exporter.type] else {
             fatalError("Failed to retrieve exporter from ServiceInformation: \(type)")

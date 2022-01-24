@@ -105,6 +105,10 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.identifiers[Identifier.identifierType] = AnyEndpointIdentifier(from: identifier)
     }
 
+    public mutating func add(anyIdentifier: AnyEndpointIdentifier) {
+        self.identifiers[anyIdentifier.id] = anyIdentifier
+    }
+
     public func identifierIfPresent<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier? {
         guard let rawValue = self.identifiers[Identifier.identifierType]?.value else {
             return nil

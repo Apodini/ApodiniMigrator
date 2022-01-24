@@ -8,7 +8,9 @@
 
 import Foundation
 
-@_exported import PathKit
-@_exported import ApodiniMigratorShared
-@_exported import ApodiniMigratorExporterSupport
-@_exported import ApodiniTypeInformation
+// MARK: Handler Name
+extension TypeName: EndpointIdentifier {
+    public static var identifierType: String {
+        "HandlerName"
+    }
+}

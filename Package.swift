@@ -21,6 +21,7 @@ let package = Package(
         .library(name: "ApodiniMigratorShared", targets: ["ApodiniMigratorShared"]),
         .library(name: "ApodiniMigratorCore", targets: ["ApodiniMigratorCore"]),
         .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"]),
+        .library(name: "ApodiniMigratorExporterSupport", targets: ["ApodiniMigratorExporterSupport"]),
         .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"]),
         .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
         .library(name: "RESTMigrator", targets: ["RESTMigrator"]),
@@ -55,26 +56,31 @@ let package = Package(
             ]
         ),
 
+        // This target provides any necessary interfaces for Apodini exporters.
+        .target(
+            name: "ApodiniMigratorExporterSupport"
+        ),
+
         // The core ApodiniMigrator package. It provides access to the TypeInformation framework and introduces
         // the generalized API document.
         .target(
             name: "ApodiniMigratorCore",
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
+                .target(name: "ApodiniMigratorExporterSupport"),
                 .product(name: "ApodiniTypeInformation", package: "ApodiniTypeInformation"),
                 .product(name: "Yams", package: "Yams"),
                 .product(name: "OrderedCollections", package: "swift-collections")
             ]
         ),
 
-        // This target provides any necessary interfaces for REST client libraries!
+        // This target provides any necessary interfaces for the generated client libraries!
         .target(
             name: "ApodiniMigratorClientSupport",
             dependencies: [
                 .target(name: "ApodiniMigratorCore")
             ]
         ),
-
         // The Compare target builds upon the Core package containing the generalized MigrationGuide
         // and all the necessary utilities for the comparison algorithms.
         .target(

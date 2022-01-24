@@ -21,21 +21,10 @@ public extension EndpointIdentifier {
     }
 }
 
-// MARK: Handler Name
-extension TypeName: EndpointIdentifier {
-    public static var identifierType: String {
-        "HandlerName"
-    }
-}
 
-
-public struct AnyEndpointIdentifier: Value, DeltaIdentifiable, Hashable {
+public struct AnyEndpointIdentifier: Codable, Hashable {
     public let id: String
     public let value: String
-
-    public var deltaIdentifier: DeltaIdentifier {
-        DeltaIdentifier(rawValue: id)
-    }
 
     public init(id: String, value: String) {
         self.id = id
