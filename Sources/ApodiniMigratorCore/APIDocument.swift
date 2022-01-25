@@ -82,7 +82,10 @@ public struct APIDocument: Value {
         _endpoints.append(endpoint)
     }
 
-    // TODO document returning reference!
+
+    /// This method is called to add a new `TypeInformation` to the `TypeStore` of the `APIDocument`.
+    /// - Parameter type: The `TypeInformation` which should be referenced in the `TypeStore`.
+    /// - Returns: Returns the reference (if stored) to the passed `TypeInformation`.
     public mutating func add(type: TypeInformation) -> TypeInformation {
         typeStore.store(type)
     }

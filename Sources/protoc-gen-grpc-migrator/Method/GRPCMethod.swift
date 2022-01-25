@@ -53,7 +53,6 @@ struct GRPCMethod: SourceCodeRenderable {
             EmptyLine()
 
             if let comments = method.sourceCodeComments {
-                comments.dropFirst() // TODO why to we drop lol?
                 comments // placing comments into source code!
             }
 

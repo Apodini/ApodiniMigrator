@@ -8,7 +8,6 @@
 
 import Foundation
 
-// TODO placement!
 let swiftKeywordsUsedInDeclarations: Set<String> = [
     "associatedtype", "class", "deinit", "enum", "extension",
     "fileprivate", "func", "import", "init", "inout", "internal",

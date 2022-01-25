@@ -7,9 +7,15 @@
 //
 
 import Foundation
-import ArgumentParser
+import SwiftProtobufPluginLibrary
 
-struct GRPCSpecificOptions: ParsableArguments {
-    @Option(name: .shortAndLong, help: "Path where the grpc proto file is located, e.g. /path/to/MyWebService.proto")
-    var protoPath: String
+extension FileDescriptor {
+    /// FileName used for the generated file
+    var fileName: String {
+        !package.isEmpty ? package : name
+    }
+
+    var hasUnknownPreservingSemantics: Bool {
+        syntax == .proto3
+    }
 }

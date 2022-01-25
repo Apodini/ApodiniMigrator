@@ -62,10 +62,7 @@ class ProtoGRPCEnum: SomeGRPCEnum, Changeable {
         )
     }
 
-    // TODO record id change?
-
     func applyUpdateChange(_ change: ModelChange.UpdateChange) {
-        // TODO deltaIdentifier
         switch change.updated {
         case .rootType:
             containsRootTypeChange = true // root type changes are unsupported!

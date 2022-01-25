@@ -6,8 +6,6 @@
 // SPDX-License-Identifier: MIT
 //
 
-// TODO Copyright notice!
-
 import SwiftProtobufPluginLibrary
 
 extension FieldDescriptorLike {
@@ -78,7 +76,7 @@ extension FieldDescriptorLike {
         case .repeated:
             return swiftType
         case .optional, .required:
-            // oneOfs aren't supported by us TODO tracked
+            // oneOfs aren't supported by us
             // guard realOneof == nil else {
             //     return swiftType
             // }

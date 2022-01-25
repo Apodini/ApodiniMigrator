@@ -108,6 +108,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
         MARKComment("RuntimeSupport")
         "extension \(message.fullName): \(moduleName).Message, \(moduleName)._MessageImplementationBase, \(moduleName)._ProtoNameProviding {"
         Indent {
+            // TODO CHECK PARENT!
             // TODO respect parent descriptor file + file package name!
             "\(context.options.visibility) static let protoMessageName: String = \"\(message.name)\""
 
@@ -116,7 +117,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
             } else {
                 "\(context.options.visibility) static let _protobuf_nameMap: \(moduleName)._NameMap = ["
                 Indent {
-                    Joined(by: ",") { // TODO does the joined work here?
+                    Joined(by: ",") {
                         for field in message.fields {
                             "\(field.number): \(field.fieldMapNames)"
                         }
@@ -124,7 +125,9 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
                 }
                 "]"
             }
-            // TODO isInitialized?
+
+
+            // we don't generate `isInitialized` as we don't support proto2 or extensions
 
             decodeMessageMethod
             ""
@@ -153,7 +156,6 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
             Indent {
                 "while let \(message.fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
                 Indent {
-                    // TODO print https://github.com/apple/swift-protobuf/issues/1034
                     "decodedFieldNumbers.insert(fieldNumber)"
                     "switch fieldNumber {"
                     for field in message.sortedFields where !field.unavailable { // unavailable fields are handled below
@@ -177,13 +179,6 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
     private var traverseMessageMethod: String {
         "\(context.options.visibility) func traverse<V: \(context.namer.swiftProtobufModuleName).Visitor>(visitor: inout V) throws {"
         Indent {
-            if message.fields.contains { $0.generateTraverseUsesLocals } {
-                // TODO  "// The use of inline closures is to circumvent an issue where the compiler\n",
-                //          "// allocates stack space for every if/case branch local when no optimizations\n",
-                //          "// are enabled. https://github.com/apple/swift-protobuf/issues/1034 and\n",
-                //          "// https://github.com/apple/swift-protobuf/issues/1182\n")
-            }
-
             for field in message.sortedFields where !field.unavailable { // just send non-removed fields!
                 field.traverseExpression
             }

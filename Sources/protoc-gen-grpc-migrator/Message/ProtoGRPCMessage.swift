@@ -62,11 +62,7 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
         }
     }
 
-    // TODO record id change?
-
     func applyUpdateChange(_ change: ModelChange.UpdateChange) {
-        // TODO deltaIdentifier verification!
-
         switch change.updated {
         case .rootType:
             containsRootTypeChange = true // root type changes are unsupported

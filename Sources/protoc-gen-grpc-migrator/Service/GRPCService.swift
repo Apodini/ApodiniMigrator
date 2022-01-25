@@ -78,7 +78,7 @@ class GRPCService: SourceCodeRenderable {
 
     var renderableContent: String {
         ""
-        if let comments = self.serviceSourceComments { // TODO handle empty collections
+        if let comments = self.serviceSourceComments {
             comments
         }
 

@@ -19,8 +19,6 @@ extension ApodiniExporterType: Value {
     }
 }
 
-// TODO Exporter stuff
-
 extension _ExporterConfiguration {
     /// The `DeltaIdentifier` of the Exporter.
     public static var deltaIdentifier: DeltaIdentifier {

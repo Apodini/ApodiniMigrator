@@ -1,60 +1,42 @@
-import Foundation
 import NIO
 import NIOSSL
 import GRPC
 
-public class GRPCNetworking {
-    private let eventLoopGroup: EventLoopGroup
+open class GRPCNetworking {
+    public static let verification: CertificateVerification = .none
 
-    private static let HOSTNAME = "127.0.0.1" // TODO CONFIG
-    private static let PORT = 8080 // TODO CONFIG
+    public static let hostname = ___HOSTNAME___
+    public static let port = ___PORT___
 
-    // TODO SSL Configuration CERT!
-    private static let VERIFICATION: CertificateVerification = .none // TODO CONFIG
+    public let eventLoopGroup: EventLoopGroup
 
-    private var _channel: ClientConnection?
-    var channel: ClientConnection {
-        guard let channel = _channel else {
-            // TODO channelPools are now a thing in version 1.6.1
-            let channel = ClientConnection
-                .usingTLSBackedByNIOSSL(on: eventLoopGroup)
-                .withTLS(certificateVerification: Self.VERIFICATION)
-                .connect(host: Self.HOSTNAME, port: Self.PORT)
-            self._channel = channel
+    private var _defaultChannel: GRPCChannel?
+    public var defaultChannel: GRPCChannel {
+        get throws {
+            guard let channel = _defaultChannel else {
+                let channel = try GRPCChannelPool.with(
+                    target: .host(Self.hostname, port: Self.port),
+                    transportSecurity: .tls(.makeClientConfigurationBackedByNIOSSL(certificateVerification: Self.verification)),
+                    eventLoopGroup: eventLoopGroup
+                )
+                self._defaultChannel = channel
+                return channel
+            }
+
             return channel
         }
-
-        // TODO close channel when this object is destroyed
-
-        return channel
     }
-
-    // TODO GENERATED CLIENTS HERE!
-    /*
-    private var _greeterClient: GreeterAsyncClient?
-    var greeterClient: GreeterAsyncClient {
-        guard let client = _greeterClient else {
-            let client = GreeterAsyncClient(channel: self.channel)
-            self._greeterClient = client
-            return client
-        }
-
-        return client
-    }
-    */
-    // TODO other generated clients!!
 
     public init(eventLoopGroup: EventLoopGroup) {
         self.eventLoopGroup = eventLoopGroup
     }
 
-    // TODO upgrade to channel pools? once 1.5. arrives with async support!
-
     public func close() -> EventLoopFuture<Void> {
-        guard let channel = _channel else {
+        guard let channel = _defaultChannel else {
             return eventLoopGroup.next().makeSucceededVoidFuture()
         }
 
+        self._defaultChannel = nil
         return channel.close()
     }
 

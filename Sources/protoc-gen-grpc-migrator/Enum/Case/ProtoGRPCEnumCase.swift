@@ -43,8 +43,6 @@ class ProtoGRPCEnumCase: SomeGRPCEnumCase, Changeable {
             .map { .init(ProtoGRPCEnumCase(descriptor: $0, context: context)) }
     }
 
-    // TODO do we need to handle id changes?
-
     func applyUpdateChange(_ change: EnumCaseChange.UpdateChange) {
         // case statement is used to generate compiler error should enum be updated with new change types
         switch change.updated {

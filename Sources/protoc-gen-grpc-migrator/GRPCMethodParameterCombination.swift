@@ -19,7 +19,7 @@ struct GRPCMethodParameterCombination: ParameterCombination {
            var first = parameters.first {
             first.dereference(in: document.typeStore)
 
-            if first.typeInformation.protoType == .message { // TODO what is the exact heuristic here? (group?)
+            if first.typeInformation.protoType == .message || first.typeInformation.protoType == .group {
                 return nil
             }
         }

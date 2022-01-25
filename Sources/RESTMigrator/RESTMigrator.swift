@@ -10,6 +10,20 @@ import Foundation
 import Logging
 import ApodiniMigrator
 
+extension Placeholder {
+    static var serverPath: Placeholder {
+        Placeholder("serverpath")
+    }
+
+    static var encoderConfiguration: Placeholder {
+        Placeholder("encoder___configuration")
+    }
+
+    static var decoderConfiguration: Placeholder {
+        Placeholder("decoder___configuration")
+    }
+}
+
 public struct RESTMigrator: ApodiniMigrator.Migrator {
     enum MigratorError: Error {
         case incompatible(message: String)
@@ -101,9 +115,9 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
                 Directory("Networking") {
                     ResourceFile(copy: "Handler.swift", filePrefix: { FileHeaderComment() })
                     ResourceFile(copy: "NetworkingService.swift", filePrefix: { FileHeaderComment() })
-                        .replacing(Placeholder("serverpath"), with: networkingMigrator.serverPath())
-                        .replacing(Placeholder("encoder___configuration"), with: encoderConfiguration.networkingDescription)
-                        .replacing(Placeholder("decoder___configuration"), with: decoderConfiguration.networkingDescription)
+                        .replacing(.serverPath, with: networkingMigrator.serverPath())
+                        .replacing(.encoderConfiguration, with: encoderConfiguration.networkingDescription)
+                        .replacing(.decoderConfiguration, with: decoderConfiguration.networkingDescription)
                 }
 
                 Directory("Resources") {

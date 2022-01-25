@@ -93,7 +93,7 @@ extension TypeProperty: FieldDescriptorLike {
     var label: Google_Protobuf_FieldDescriptorProto.Label {
         if type.isRepeated {
             return .repeated
-        } else if type.isOptional || necessity == .optional { // TODO proto2?
+        } else if type.isOptional || necessity == .optional {
             return .optional
         } else {
             return .required
@@ -140,7 +140,6 @@ extension TypeInformation {
         case .dictionary:
             // while proto maps this to a message with two properties (key and value), swift source code
             // generation will properly generate a Dictionary out of it!
-            // TODO this maps to message right?
             return .message
         case let .optional(wrappedValue):
             return wrappedValue.protoFieldType
@@ -163,7 +162,7 @@ extension TypeInformation: FieldDescriptorLike {
     var label: Google_Protobuf_FieldDescriptorProto.Label {
         if self.isRepeated {
             return .repeated
-        } else if self.isOptional { // TODO proto2?
+        } else if self.isOptional {
             return .optional
         } else {
             return .required
@@ -282,14 +281,9 @@ extension PrimitiveType {
         case .float:
             return .float
         case .date:
-            // TODO this is mapped to a `message Date { double _time = 1; }`
-            //  problem is that `Date` must be generated accordingly!
-
-            // TODO uses SwiftProtobuf.Google_Protobuf_Timestamp
-            fatalError("Dates are currently unsupported!")
-            return .message
-        case .uuid:
-            return .string // TODO we generate a string here!
+            return .message // ApodiniGRPC uses SwiftProtobuf.Google_Protobuf_Timestamp
+        case .uuid: // TODO how is this handled with our migration stuff?
+            return .string // ApodiniGRPC uses a string in the encoding!
         case .data:
             return .bytes
         case .int8,

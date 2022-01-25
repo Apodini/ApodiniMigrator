@@ -130,7 +130,6 @@ extension APIDocument {
 
             var migratedPropertyChange: PropertyChange?
 
-            // it can't be an add change?
             if let rename = parameterChange.modeledIdentifierChange {
                 guard context.wrappedParameters.contains(parameterChange.id) else {
                     continue

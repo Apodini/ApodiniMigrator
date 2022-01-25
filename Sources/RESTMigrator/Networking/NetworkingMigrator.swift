@@ -26,11 +26,24 @@ struct NetworkingMigrator {
     func serverPath() -> String {
         var serverPath = baseServiceInformation.http.urlFormatted
 
+        var rootPath = baseServiceInformation.exporter(for: RESTExporterConfiguration.self)
+            .rootPath
+
         for change in serviceChanges {
-            if let update = change.modeledUpdateChange,
-               case let .http(_, to) = update.updated {
-                serverPath = to.urlFormatted
+            if let update = change.modeledUpdateChange {
+                if case let .http(_, to) = update.updated {
+                    serverPath = to.urlFormatted
+                } else if case let .exporter(exporter) = update.updated,
+                    let updatedExporter = exporter.modeledUpdateChange, // we already ensured exporter isn't removed in RESTMigrator initializer
+                    updatedExporter.updated.to.type == .rest {
+                    rootPath = updatedExporter.updated.to.typed(of: RESTExporterConfiguration.self)
+                        .rootPath
+                }
             }
+        }
+
+        if let rootPath = rootPath {
+            serverPath += "/" + rootPath
         }
 
         return serverPath

@@ -39,7 +39,6 @@ public struct MigrationGuide {
         self._compareConfiguration ?? .default
     }
 
-    // TODO instead of public var, make it private(set) with method?
     /// Captures any changes happening to the `ServiceInformation`, describing the web service.
     public var serviceChanges: [ServiceInformationChange]
     /// Captures any changes done to web service models.

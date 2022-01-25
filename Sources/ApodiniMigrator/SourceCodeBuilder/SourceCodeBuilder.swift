@@ -76,7 +76,7 @@ extension SourceCodeComponentBuilderProtocol {
 
     /// Build an array (for loops).
     public static func buildArray(_ components: [[SourceCodeComponent]]) -> [SourceCodeComponent] {
-        components.flatten() // TODO group?
+        components.flatten()
     }
 }
 

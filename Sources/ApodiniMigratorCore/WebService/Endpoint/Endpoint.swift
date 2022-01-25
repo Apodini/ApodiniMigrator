@@ -11,6 +11,16 @@ import OrderedCollections
 
 /// Represents an endpoint
 public struct Endpoint: Value, DeltaIdentifiable {
+    public static func deriveEndpointIdentifier(apodiniIdentifier: String, handlerName: TypeName) -> DeltaIdentifier {
+        var identifier = apodiniIdentifier
+        // checks for "x.x.x." style Apodini identifiers!
+        if !identifier.split(separator: ".").compactMap({ Int($0) }).isEmpty {
+            identifier = handlerName.buildName()
+        }
+
+        return DeltaIdentifier(identifier)
+    }
+
     /// Identifier of the handler
     public let deltaIdentifier: DeltaIdentifier
 
@@ -59,13 +69,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
     ) {
         let typeName = TypeName(rawValue: handlerName)
 
-        var identifier = deltaIdentifier
-        // checks for "x.x.x." style Apodini identifiers!
-        if !identifier.split(separator: ".").compactMap({ Int($0) }).isEmpty {
-            identifier = typeName.buildName()
-        }
-
-        self.deltaIdentifier = .init(identifier)
+        self.deltaIdentifier = Self.deriveEndpointIdentifier(apodiniIdentifier: deltaIdentifier, handlerName: typeName)
         self.identifiers = [:]
 
         self.parameters = parameters

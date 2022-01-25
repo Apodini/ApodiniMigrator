@@ -104,7 +104,7 @@ struct GRPCEnum: SourceCodeRenderable {
                 ""
                 "\(context.options.visibility) static var allCases: [\(`enum`.fullName)] = ["
                 Indent {
-                    Joined(by: ",") { // TODO does Joined work here?
+                    Joined(by: ",") {
                         for enumCase in `enum`.enumCasesSorted {
                             "\(enumCase.dottedRelativeName)"
                         }
@@ -151,7 +151,6 @@ struct GRPCEnum: SourceCodeRenderable {
             Indent {
                 Joined(by: ",") {
                     for enumCase in `enum`.enumCasesSorted {
-                        // TODO use `Joined` operator?
                         if enumCase.aliases.isEmpty {
                             "\(enumCase.number): .same(proto: \"\(enumCase.name)\")"
                         } else {

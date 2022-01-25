@@ -20,14 +20,7 @@ struct GRPCMethodApodiniAnnotations {
     let handlerName: TypeName
 
     var deltaIdentifier: DeltaIdentifier {
-        // see init of `Endpoint` TODO reduce code duplication
-        var identifier = apodiniIdentifier
-        // checks for "x.x.x." style Apodini identifiers!
-        if !identifier.split(separator: ".").compactMap({ Int($0) }).isEmpty {
-            identifier = handlerName.buildName()
-        }
-
-        return DeltaIdentifier(identifier)
+        Endpoint.deriveEndpointIdentifier(apodiniIdentifier: apodiniIdentifier, handlerName: handlerName)
     }
 
     init(of method: MethodDescriptor) {

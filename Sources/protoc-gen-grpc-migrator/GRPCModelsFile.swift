@@ -11,13 +11,6 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
-// TODO move!
-extension FileDescriptor {
-    var hasUnknownPreservingSemantics: Bool {
-        syntax == .proto3
-    }
-}
-
 /// This file will generate and migrate models of a Proto file.
 ///
 /// It aims to do a very basic proto file generation.
@@ -45,6 +38,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
     init(_ file: FileDescriptor, context: ProtoFileContext, document: APIDocument, migrationGuide: MigrationGuide) {
+        precondition(file.syntax != .proto2, "Proto2 syntax is unuspported!")
         self.protoFile = file
         self.document = document
         self.migrationGuide = migrationGuide
@@ -78,7 +72,6 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             Import("\(context.namer.swiftProtobufModuleName)")
         }
         ""
-        // TODO generatorOptions.protoToModuleMappings.neededModules(forFile: fileDescriptor)
 
         protobufAPIVersionCheck
 
@@ -90,7 +83,11 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             message
         }
 
-        // TODO `_protobuf_package` thingy?
+        if !protoFile.package.isEmpty && !nestedMessages.isEmpty {
+            // TODO check update grpc configuration for updated package name!
+            ""
+            "fileprivate let _protobuf_package = \"\(protoFile.package)\""
+        }
 
         for `enum` in nestedEnums.values {
             `enum`.protobufferRuntimeSupport
@@ -99,9 +96,6 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         for message in nestedMessages.values {
             message.protobufferRuntimeSupport
         }
-
-        // TODO generate codable support
-        //  "extension \(fullName): Codable {}" // TODO unknown fields must conform to codable?
     }
 
     @SourceCodeBuilder

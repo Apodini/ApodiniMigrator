@@ -11,6 +11,16 @@ import ApodiniMigrator
 import ApodiniMigratorCompare
 import Logging
 
+extension Placeholder {
+    static var hostname: Placeholder {
+        Placeholder("HOSTNAME")
+    }
+
+    static var port: Placeholder {
+        Placeholder("PORT")
+    }
+}
+
 public struct GRPCMigrator: Migrator {
     enum MigratorError: Error {
         case incompatible(message: String)
@@ -30,6 +40,8 @@ public struct GRPCMigrator: Migrator {
 
     private let migrationGuide: MigrationGuide
     private let migrationGuidePath: String?
+
+    private let httpServer: HTTPInformation
 
     public init(protoFile: String, documentPath: String, migrationGuidePath: String? = nil) throws {
         let path = Path(protoFile)
@@ -66,36 +78,19 @@ public struct GRPCMigrator: Migrator {
                          """
             )
         }
+
+        var httpInformation = document.serviceInformation.http
+        for change in migrationGuide.serviceChanges {
+            if let update = change.modeledUpdateChange,
+               case let .http(_, to) = update.updated {
+                httpInformation = to
+            }
+        }
+        self.httpServer = httpInformation
     }
 
     public var library: RootDirectory {
         Sources {
-            /*
-             TODO REMOVE
-            Target("_PB_GENERATED") {
-                ProtocGenerator(
-                    pluginName: "swift",
-                    protoPath: protoFilePath.description,
-                    protoFile: protoFile,
-                    options: ["Visibility": "Public"],
-                    // to-do find a intermediate file storage path!
-                    environment: ["PROTOC_GEN_SWIFT_LOG_REQUEST": GRPCMigrator.DUMP_PATH]
-                )
-            }
-                .dependency(product: "GRPC", of: "grpc-swift")
-
-            Target("_PB_FACADE") {
-                ResourceFile(copy: "PBFacadeAPI.swift", to: "PBUtils.swift")
-
-                ProtobufFacadeGenerator(
-                    dumpPath: GRPCMigrator.DUMP_PATH,
-                    guide: migrationGuide
-                )
-            }
-                .dependency(target: "_PB_GENERATED")
-            */
-
-
             Target(.packageName) {
                 ProtocGenerator(
                     pluginName: "grpc-migrator",
@@ -113,6 +108,8 @@ public struct GRPCMigrator: Migrator {
 
                 Directory("Networking") {
                     ResourceFile(copy: "GRPCNetworking.swift")
+                        .replacing(.hostname, with: httpServer.hostname)
+                        .replacing(.port, with: httpServer.port.description)
                     ResourceFile(copy: "GRPCNetworkingError.swift")
                     ResourceFile(copy: "GRPCResponseStream.swift")
                 }
@@ -121,10 +118,15 @@ public struct GRPCMigrator: Migrator {
                     ResourceFile(copy: "Utils.swift")
                     ResourceFile(copy: "Google_Protobuf_Timestamp+Codable.swift")
                 }
-                // TODO generate the scripts!
+
+                Directory("Resources") {
+                    StringFile(name: "js-convert-scripts.json", content: migrationGuide.scripts.json)
+                    StringFile(name: "json-values.json", content: migrationGuide.jsonValues.json)
+                }
             }
                 .dependency(product: "GRPC", of: "grpc-swift")
                 .dependency(product: "ApodiniMigratorClientSupport", of: "ApodiniMigrator")
+                .resource(type: .process, path: "Resources")
         }
 
         SwiftPackageFile(swiftTools: "5.5")

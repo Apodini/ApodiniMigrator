@@ -12,9 +12,9 @@ import ApodiniTypeInformation
 extension TypeName: Sequence {
     public typealias Iterator = Array<TypeNameComponent>.Iterator
 
+    // TODO port to TypeInformation framework
     public func makeIterator() -> Iterator {
         var components: [TypeNameComponent] = nestedTypes
-        // TODO port to TypeInformation framework
         components.append(TypeNameComponent(name: mangledName, generics: generics))
 
         return components.makeIterator()

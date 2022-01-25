@@ -54,7 +54,6 @@ struct ProtocPluginBoostrap: ParsableCommand {
 
         var plugin = try ProtocPlugin(request: request, options: options)
 
-        // TODO add support for a (debug) command line flags?
         try plugin.generate()
 
         let response = try plugin.response.serializedData()
@@ -108,7 +107,7 @@ struct ProtocPlugin {
 
             let namer = SwiftProtobufNamer(
                  currentFile: fileDescriptor,
-                 protoFileToModuleMappings: .init() // TODO pass some options?
+                 protoFileToModuleMappings: .init() // protoFileToModuleMappings is unsupported
             )
             let context = ProtoFileContext(
                 namer: namer,
@@ -126,7 +125,7 @@ struct ProtocPlugin {
             return
         }
 
-        let grpcFileName = "\(descriptor.name).grpc.swift" // TODO generate filename
+        let grpcFileName = "\(descriptor.fileName).grpc.swift"
 
         let file = GRPCClientsFile(descriptor, context: context, migrationGuide: migrationGuide)
 
@@ -142,7 +141,7 @@ struct ProtocPlugin {
             return
         }
 
-        let fileName = "\(descriptor.name).pb.swift" // TODO generate filename
+        let fileName = "\(descriptor.fileName).pb.swift"
 
         let file = GRPCModelsFile(descriptor, context: context, document: apiDocument, migrationGuide: migrationGuide)
 
