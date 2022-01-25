@@ -125,7 +125,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         return identifier
     }
     
-    mutating func dereference(in typeStore: TypesStore) {
+    public mutating func dereference(in typeStore: TypesStore) {
         response = typeStore.construct(from: response)
         self.parameters = parameters.map {
             var param = $0
@@ -134,7 +134,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         }
     }
     
-    mutating func reference(in typeStore: inout TypesStore) {
+    public mutating func reference(in typeStore: inout TypesStore) {
         response = typeStore.store(response)
         self.parameters = parameters.map {
             var param = $0

@@ -35,6 +35,10 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     let migrationGuide: MigrationGuide
     let context: ProtoFileContext
 
+    var fullName: String {
+        ""
+    }
+
     var modelIdTranslation: [DeltaIdentifier: TypeName] = [:]
 
     var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
@@ -109,9 +113,9 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         // Please ensure that you are building against the same version of the API
         // that was used to generate this file.
         """
-        "private strut _GeneratedWithProtocGenSwiftVersion: \(context.namer.swiftProtobufModuleName).ProtobufAPIVersionCheck {"
+        "private struct _GeneratedWithProtocGenSwiftVersion: \(context.namer.swiftProtobufModuleName).ProtobufAPIVersionCheck {"
         Indent {
-            "struct _2: \(context.namer.swiftProtobufModuleName).ProtobufAPIVersion2 {}"
+            "struct _2: \(context.namer.swiftProtobufModuleName).ProtobufAPIVersion_2 {}"
             "typealias Version = _2"
         }
         "}"

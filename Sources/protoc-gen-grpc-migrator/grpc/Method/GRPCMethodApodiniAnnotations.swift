@@ -12,8 +12,8 @@ import ApodiniMigrator
 
 struct GRPCMethodApodiniAnnotations {
     // swiftlint:disable force_try
-    private static let identifierRegex = try! NSRegularExpression(pattern: "^APODINI-identifier: (.+)$")
-    private static let handlerNameRegex = try! NSRegularExpression(pattern: "^APODINI-handlerName: (.+)$")
+    private static let identifierRegex = try! NSRegularExpression(pattern: " APODINI-identifier: (.+)$")
+    private static let handlerNameRegex = try! NSRegularExpression(pattern: " APODINI-handlerName: (.+)$")
     // swiftlint:enable force_try
 
     let apodiniIdentifier: String

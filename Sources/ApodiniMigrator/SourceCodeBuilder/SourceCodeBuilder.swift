@@ -18,7 +18,7 @@ public enum SourceCodeBuilder: SourceCodeBuilderProtocol {}
 public enum SourceCodeComponentBuilder: SourceCodeComponentBuilderProtocol {}
 
 
-/// The ``SourecCodeBuilder`` protocol.
+/// The ``SourceCodeBuilder`` protocol.
 public protocol SourceCodeComponentBuilderProtocol {}
 
 extension SourceCodeComponentBuilderProtocol {
@@ -76,7 +76,7 @@ extension SourceCodeComponentBuilderProtocol {
 
     /// Build an array (for loops).
     public static func buildArray(_ components: [[SourceCodeComponent]]) -> [SourceCodeComponent] {
-        [Group(content: components.flatten())]
+        components.flatten() // TODO group?
     }
 }
 

@@ -32,7 +32,7 @@ public struct APIDocument: Value {
         _endpoints
             .map {
                 var endpoint = $0
-                endpoint.dereference(in: types)
+                endpoint.dereference(in: typeStore)
                 return endpoint
             }
     }
@@ -49,12 +49,12 @@ public struct APIDocument: Value {
         }
     }
 
-    private var types: TypesStore
+    public var typeStore: TypesStore
 
     public var models: [TypeInformation] {
-        Array(types.keys)
+        Array(typeStore.keys)
             .map { TypeInformation.reference($0) }
-            .map { types.construct(from: $0) }
+            .map { typeStore.construct(from: $0) }
     }
     
     /// Name of the file, constructed as `api_{version}`
@@ -67,7 +67,7 @@ public struct APIDocument: Value {
         self.id = .init()
         self.serviceInformation = serviceInformation
         self._endpoints = []
-        self.types = TypesStore()
+        self.typeStore = TypesStore()
     }
     
     /// Adds a new endpoint
@@ -78,13 +78,13 @@ public struct APIDocument: Value {
         )
 
         var endpoint = endpoint
-        endpoint.reference(in: &types)
+        endpoint.reference(in: &typeStore)
         _endpoints.append(endpoint)
     }
 
     // TODO document returning reference!
     public mutating func add(type: TypeInformation) -> TypeInformation {
-        types.store(type)
+        typeStore.store(type)
     }
 
     public mutating func add<Configuration: ExporterConfiguration>(exporter: Configuration) {
@@ -136,11 +136,11 @@ extension APIDocument: Codable {
             let endpoints = try container.decode([LegacyEndpoint].self, forKey: .endpoints)
             self._endpoints = endpoints.map { Endpoint(from: $0) }
 
-            try types = container.decode(TypesStore.self, forKey: .legacyTypes)
+            try typeStore = container.decode(TypesStore.self, forKey: .legacyTypes)
         case .v2:
             try serviceInformation = container.decode(ServiceInformation.self, forKey: .serviceInformation)
             try _endpoints = container.decode([Endpoint].self, forKey: .endpoints)
-            try types = container.decode(TypesStore.self, forKey: .types)
+            try typeStore = container.decode(TypesStore.self, forKey: .types)
         }
     }
 
@@ -152,6 +152,6 @@ extension APIDocument: Codable {
         try container.encode(APIDocumentVersion.v2, forKey: .documentVersion)
         try container.encode(serviceInformation, forKey: .serviceInformation)
         try container.encode(_endpoints, forKey: .endpoints)
-        try container.encode(types, forKey: .types)
+        try container.encode(typeStore, forKey: .types)
     }
 }

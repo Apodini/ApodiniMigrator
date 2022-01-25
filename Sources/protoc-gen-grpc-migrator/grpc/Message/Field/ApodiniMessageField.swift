@@ -149,7 +149,7 @@ extension TypeInformation {
         case .object:
             return .message
         case .reference:
-            fatalError("Can't derive `protoFieldType` for .reference type!")
+            fatalError("Can't derive `protoFieldType` for .reference type: \(self)")
         }
     }
 }
@@ -196,6 +196,8 @@ extension TypeInformation: FieldDescriptorLike {
         switch self {
         case .enum, .object:
             return typeName.buildName(componentSeparator: ".")
+        case .scalar(.date):
+            return "Google_Protobuf_Timestamp" // TODO print "SwiftProtobuffer" target name?
         default:
             return nil
         }
@@ -282,15 +284,18 @@ extension PrimitiveType {
         case .date:
             // TODO this is mapped to a `message Date { double _time = 1; }`
             //  problem is that `Date` must be generated accordingly!
+
+            // TODO uses SwiftProtobuf.Google_Protobuf_Timestamp
             fatalError("Dates are currently unsupported!")
-            // return .message
+            return .message
+        case .uuid:
+            return .string // TODO we generate a string here!
         case .data:
             return .bytes
         case .int8,
              .int16,
              .uint8,
              .uint16,
-             .uuid,
              .url:
             // those primitive types are all unsupported by ApodiniGRPC
             fatalError("PrimitiveType is unsupported by ApodiniGRPC: \(self)")

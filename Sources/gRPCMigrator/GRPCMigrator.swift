@@ -105,6 +105,9 @@ public struct GRPCMigrator: Migrator {
                         "Visibility": "Public",
                         "MigrationGuide": migrationGuidePath ?? "", // empty as migrationGuide might be nil
                         "APIDocument": documentPath
+                    ],
+                    environment: [
+                        "PROTOC_GEN_GRPC_DUMP": "./dump.binary"
                     ]
                 )
 
@@ -116,14 +119,17 @@ public struct GRPCMigrator: Migrator {
 
                 Directory("Utils") {
                     ResourceFile(copy: "Utils.swift")
+                    ResourceFile(copy: "Google_Protobuf_Timestamp+Codable.swift")
                 }
+                // TODO generate the scripts!
             }
                 .dependency(product: "GRPC", of: "grpc-swift")
+                .dependency(product: "ApodiniMigratorClientSupport", of: "ApodiniMigrator")
         }
 
         SwiftPackageFile(swiftTools: "5.5")
-            .platform(".macOS(.v11)", ".iOS(.v15)")
-            .dependency(url: "https://github.com/grpc/grpc-swift.git", ".exact(\"1.6.1-async-await.1\")")
+            .platform(".macOS(.v12)", ".iOS(.v15)") // async-await support is annotated with availability, therefore v12 requirement
+            .dependency(url: "https://github.com/grpc/grpc-swift.git", ".exact(\"1.6.0-async-await.1\")")
             .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.2.0\")")
             .product(library: .packageName, targets: .packageName)
 

@@ -27,7 +27,7 @@ public extension Decodable {
             throw DecodingError.dataCorrupted(
                 .init(
                     codingPath: [],
-                    debugDescription: "`ApodiniMigrator` only supports decoding of files in either json or yaml format"
+                    debugDescription: "`ApodiniMigrator` only supports decoding of files in either json or yaml format: \"\(path)\""
                 )
             )
         }

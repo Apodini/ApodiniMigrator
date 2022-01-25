@@ -30,6 +30,7 @@ public class GRPCNetworking {
     }
 
     // TODO GENERATED CLIENTS HERE!
+    /*
     private var _greeterClient: GreeterAsyncClient?
     var greeterClient: GreeterAsyncClient {
         guard let client = _greeterClient else {
@@ -40,6 +41,7 @@ public class GRPCNetworking {
 
         return client
     }
+    */
     // TODO other generated clients!!
 
     public init(eventLoopGroup: EventLoopGroup) {

@@ -46,11 +46,12 @@ struct PluginOptions {
             switch key {
             case "APIDocument":
                 self.documentPath = value
-                precondition(Path(value).exists, "APIDocument path doesn't exist!")
+                precondition(Path(value).exists, "APIDocument path doesn't exist at: \(value)")
             case "MigrationGuide":
-                self.migrationGuidePath = value
-                precondition(Path(value).exists, "MigrationGuide path doesn't exist!")
-
+                if !value.isEmpty {
+                    self.migrationGuidePath = value
+                    precondition(Path(value).exists, "MigrationGuide path doesn't exist: \(value)")
+                }
             case "Visibility":
                 if let value = Visibility(rawValue: value) {
                     self.visibility = value

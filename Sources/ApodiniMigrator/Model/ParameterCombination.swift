@@ -23,12 +23,14 @@ public protocol ParameterCombination {
     /// Any changes done here must be **additional**. Meaning you must not e.g. remove a parameter or a type.
     /// You may abort the merge completely by returning `nil`.
     ///
+    /// - Parameter document: The `APIDocument` this operation is performed on.
+    ///     You may use this to dereference types. Though ALWAYS return the referenced types again.
     /// - Parameter endpoint: The `Endpoint` whose `Parameter`s get merged.
     ///     Use this to generate a unique Endpoint dependent type name.
     ///     Note: All `TypeInformation` of the provided endpoint is NOT dereferenced.
     /// - Parameter parameters: All the `Parameter`s which are to be combined.
     /// - Returns: The merged `Parameter`. Return `nil` to abort the merge (e.g. not merging a single parameter).
-    func merge(endpoint: Endpoint, parameters: [Parameter]) -> Parameter?
+    func merge(document: APIDocument, endpoint: Endpoint, parameters: [Parameter]) -> Parameter?
 }
 
 // MARK: ParameterCombination
@@ -94,7 +96,7 @@ extension APIDocument {
                 return endpoint
             }
 
-            guard var wrappedParameter = combination.merge(endpoint: endpoint, parameters: electedParameters) else {
+            guard var wrappedParameter = combination.merge(document: self, endpoint: endpoint, parameters: electedParameters) else {
                 // merge was aborted by returning nil
                 endpoint.parameters = previousState // this way we preserve the original order
                 return endpoint

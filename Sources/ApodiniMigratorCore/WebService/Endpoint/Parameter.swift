@@ -48,11 +48,11 @@ public struct Parameter: Value {
         self.necessity = isRequired ? .required : .optional
     }
 
-    mutating func reference(in typeStore: inout TypesStore) {
+    public mutating func reference(in typeStore: inout TypesStore) {
         typeInformation = typeStore.store(typeInformation)
     }
 
-    mutating func dereference(in typeStore: TypesStore) {
+    public mutating func dereference(in typeStore: TypesStore) {
         typeInformation = typeStore.construct(from: typeInformation)
     }
     

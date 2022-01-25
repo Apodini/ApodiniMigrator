@@ -25,12 +25,6 @@ protocol ModelContaining {
 }
 
 extension ModelContaining {
-    var fullName: String {
-        ""
-    }
-}
-
-extension ModelContaining {
     mutating func add(model: TypeInformation) {
         var typeNameIterator = model.typeName.makeIterator()
         add(model: model, using: &typeNameIterator, depth: 0)

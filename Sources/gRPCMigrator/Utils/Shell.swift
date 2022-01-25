@@ -8,7 +8,6 @@
 
 import Foundation
 
-// TODO duplication
 func findExecutable(named binaryName: String) -> URL? {
     guard let searchPaths = ProcessInfo.processInfo.environment["PATH"]?.components(separatedBy: ":") else {
         return nil
@@ -23,6 +22,7 @@ func findExecutable(named binaryName: String) -> URL? {
     return nil
 }
 
+// swiftlint:disable:next discouraged_optional_collection
 internal func shell(executableURL: URL, _ args: [String], environment: [String: String]? = nil) throws {
     let process = Process()
     process.arguments = args

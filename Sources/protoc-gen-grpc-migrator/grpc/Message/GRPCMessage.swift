@@ -18,6 +18,10 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
         message.context
     }
 
+    var fullName: String {
+        message.fullName
+    }
+
     var nestedEnums: OrderedDictionary<String, GRPCEnum> {
         get {
             guard let message = tryTyped(for: ProtoGRPCMessage.self) else {
@@ -82,6 +86,9 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
             ""
             "\(context.options.visibility) var unknownFields = \(context.namer.swiftProtobufModuleName).UnknownStorage()"
 
+            ""
+            "\(context.options.visibility) init() {}"
+
             for `enum` in message.nestedEnums.values {
                 `enum`
             }
@@ -139,27 +146,28 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
     @SourceCodeBuilder
     private var decodeMessageMethod: String {
         "\(context.options.visibility) mutating func decodeMessage<D: \(context.namer.swiftProtobufModuleName).Decoder>(decoder: inout D) throws {"
-        // we record which fields were decoded. We use this information when generating our necessity migrations!
-        "var decodedFieldNumbers: Set<Int> = []"
-
         Indent {
-            "while let \(message.fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
+            // we record which fields were decoded. We use this information when generating our necessity migrations!
+            "var decodedFieldNumbers: Set<Int> = []"
+
             Indent {
-                // TODO print https://github.com/apple/swift-protobuf/issues/1034
-                "decodedFieldNumbers.insert(fieldNumber)"
-                "switch fieldNumber {"
+                "while let \(message.fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
                 Indent {
+                    // TODO print https://github.com/apple/swift-protobuf/issues/1034
+                    "decodedFieldNumbers.insert(fieldNumber)"
+                    "switch fieldNumber {"
                     for field in message.sortedFields where !field.unavailable { // unavailable fields are handled below
                         field.fieldDecodeCase
                     }
+                    "default: break"
+                    "}"
                 }
                 "}"
-            }
-            "}"
 
-            for field in message.sortedFields {
-                // this handles migration to assign default values (e.g. when field was removed or necessity was migrated)
-                field.fieldDecodeCaseStatements
+                for field in message.sortedFields {
+                    // this handles migration to assign default values (e.g. when field was removed or necessity was migrated)
+                    field.fieldDecodeCaseStatements
+                }
             }
         }
         "}"
@@ -167,7 +175,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
 
     @SourceCodeBuilder
     private var traverseMessageMethod: String {
-        "\(context.options.visibility) traverse<V: \(context.namer.swiftProtobufModuleName).Visitor>(visitor: inout V) throws {"
+        "\(context.options.visibility) func traverse<V: \(context.namer.swiftProtobufModuleName).Visitor>(visitor: inout V) throws {"
         Indent {
             if message.fields.contains { $0.generateTraverseUsesLocals } {
                 // TODO  "// The use of inline closures is to circumvent an issue where the compiler\n",
@@ -180,7 +188,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
                 field.traverseExpression
             }
             ""
-            "try unknownFields.traverse(visitor: %visitor)"
+            "try unknownFields.traverse(visitor: &visitor)"
         }
         "}"
     }
@@ -228,7 +236,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
 
             var renderableContent: String {
                 ""
-                "public func encode(to encoder: Encoder) throws {"
+                "\(message.context.options.visibility) func encode(to encoder: Encoder) throws {"
                 Indent {
                     "var container = encoder.container(keyedBy: CodingKeys.self)"
                     ""
@@ -246,7 +254,7 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
 
             var renderableContent: String {
                 ""
-                "public init(from decoder: Decoder) throws {"
+                "\(message.context.options.visibility) init(from decoder: Swift.Decoder) throws {"
                 Indent {
                     "let container = try decoder.container(keyedBy: CodingKeys.self)"
                     ""

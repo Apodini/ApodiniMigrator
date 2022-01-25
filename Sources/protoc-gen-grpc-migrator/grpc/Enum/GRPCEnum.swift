@@ -148,15 +148,19 @@ struct GRPCEnum: SourceCodeRenderable {
         "extension \(`enum`.fullName): \(context.namer.swiftProtobufModuleName)._ProtoNameProviding {"
         Indent {
             "\(context.options.visibility) static let _protobuf_nameMap: \(context.namer.swiftProtobufModuleName)._NameMap = ["
-            for enumCase in `enum`.enumCasesSorted {
-                // TODO use `Joined` operator?
-                if enumCase.aliases.isEmpty {
-                    "\(enumCase.number): .same(proto: \"\(enumCase.name)\"),"
-                } else {
-                    let aliasNames = enumCase.aliases
-                        .map { "\"\($0.name)\"" }
-                        .joined(separator: ", ")
-                    "\(enumCase.number): .aliased(proto: \"\(enumCase.name)\", aliases: [\(aliasNames)]),"
+            Indent {
+                Joined(by: ",") {
+                    for enumCase in `enum`.enumCasesSorted {
+                        // TODO use `Joined` operator?
+                        if enumCase.aliases.isEmpty {
+                            "\(enumCase.number): .same(proto: \"\(enumCase.name)\")"
+                        } else {
+                            let aliasNames = enumCase.aliases
+                                .map { "\"\($0.name)\"" }
+                                .joined(separator: ", ")
+                            "\(enumCase.number): .aliased(proto: \"\(enumCase.name)\", aliases: [\(aliasNames)])"
+                        }
+                    }
                 }
             }
             "]"
@@ -166,14 +170,14 @@ struct GRPCEnum: SourceCodeRenderable {
         MARKComment("Codable")
         "extension \(`enum`.fullName): Codable {"
         Indent {
-            "private nameRawValue: String {"
+            "private var nameRawValue: String {"
             Indent {
                 "switch self {"
                 for enumCase in `enum`.enumCasesSorted {
                     // we follow here the assumption of the `TypeInformation` framework that `name`=`rawValue`.
                     // All the Codable migration based stuff is build around this assumption.
                     // Therefore, we introduce this additional raw value type.
-                    "case \(enumCase.dottedRelativeName): \"\(enumCase.name)\""
+                    "case \(enumCase.dottedRelativeName): return \"\(enumCase.name)\""
                 }
                 // handling the `unrecognizedCase`
                 "default: fatalError(\"Can't derive nameRawValue for \\(self)\")"
@@ -182,18 +186,18 @@ struct GRPCEnum: SourceCodeRenderable {
             "}"
 
             ""
-            "public func encode(to encoder: Encoder) throws {"
+            "\(context.options.visibility) func encode(to encoder: Encoder) throws {"
             Indent {
                 """
                 var container = encoder.singleValueContainer()
 
-                try container.encode(try self.nameRawValue)
+                try container.encode(self.nameRawValue)
                 """
             }
             "}"
 
             ""
-            "public init(from decoder: Decoder) throws {"
+            "\(context.options.visibility) init(from decoder: Swift.Decoder) throws {"
             Indent {
                 "let nameRawValue: String = try decoder.singleValueContainer().decode(String.self)"
                 "switch nameRawValue {"

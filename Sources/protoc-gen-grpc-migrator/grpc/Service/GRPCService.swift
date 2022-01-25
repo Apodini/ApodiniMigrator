@@ -78,12 +78,11 @@ class GRPCService: SourceCodeRenderable {
 
     var renderableContent: String {
         ""
-        if var comments = self.serviceSourceComments {
-            comments.removeLast() // TODO really remove?
+        if let comments = self.serviceSourceComments { // TODO handle empty collections
             comments
         }
 
-        "\(context.options.visibility) struct \(serviceName)AsyncClient: \(serviceName)AsyncClientProtocol {"
+        "\(context.options.visibility) struct \(serviceName)AsyncClient: GRPCClient {"
         Indent {
             "\(context.options.visibility) var serviceName: String {"
             Indent("\"\(servicePath)\"")

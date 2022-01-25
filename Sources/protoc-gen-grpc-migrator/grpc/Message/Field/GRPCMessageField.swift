@@ -67,6 +67,8 @@ struct GRPCMessageField {
             "\(context.options.visibility) mutating func \(field.funcClearName)() {"
             Indent("\(field.privateName) = nil")
             "}"
+            ""
+            "fileprivate var \(field.privateName): \(field.storageType) = \(field.defaultValue)"
         }
     }
 
@@ -211,7 +213,7 @@ struct GRPCMessageField {
     var codableEncodeMethodLine: String {
         let defaultEncodeLine: () -> String = {
             let encodeMethodString = "encode\(field.hasFieldPresence ? "IfPresent": "")"
-            return "try container.\(encodeMethodString)(\(field.storedProperty), forKey: .\(field.name)"
+            return "try container.\(encodeMethodString)(\(field.storedProperty), forKey: .\(field.name))"
         }
 
         if let change = field.necessityUpdate {

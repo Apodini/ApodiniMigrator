@@ -14,11 +14,14 @@ struct GRPCMethodParameterCombination: ParameterCombination {
         true // in grpc all parameters are combined!
     }
 
-    func merge(endpoint: Endpoint, parameters: [Parameter]) -> Parameter? {
+    func merge(document: APIDocument, endpoint: Endpoint, parameters: [Parameter]) -> Parameter? {
         if parameters.count == 1,
-           let first = parameters.first,
-           first.typeInformation.protoType == .message { // TODO what is the exact heuristic here? (group?)
-            return nil
+           var first = parameters.first {
+            first.dereference(in: document.typeStore)
+
+            if first.typeInformation.protoType == .message { // TODO what is the exact heuristic here? (group?)
+                return nil
+            }
         }
 
         let typeName = TypeName(

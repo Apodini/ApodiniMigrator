@@ -36,6 +36,7 @@ class GRPCClientsFile: SourceCodeRenderable {
         Import(.foundation)
         Import("NIO")
         Import("GRPC")
+        Import("\(context.namer.swiftProtobufModuleName)")
 
         for service in self.services.values.sorted(by: \.serviceName) {
             service

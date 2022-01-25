@@ -25,13 +25,27 @@ struct ProtocPluginBoostrap: ParsableCommand {
         let requestData: Data
 
         if !path.isEmpty { // for debug purposes, file can be supplied by cli argument
-            print("Reading data from location: \(path)")
-            try requestData = Data(contentsOf: URL(fileURLWithPath: path))
+            let typedPath = Path(path).absolute()
+            print("Proto request was provided by command line argument: \(typedPath)")
+            guard typedPath.exists else {
+                fatalError("Desired proto file doesn't exist at \(typedPath)")
+            }
+            try requestData = Data(contentsOf: URL(fileURLWithPath: typedPath.description))
         } else {
             guard let stdInData = try FileHandle.standardInput.readToEnd() else {
                 fatalError("Failed to read from stdin!")
             }
             requestData = stdInData
+
+            if let debugDumpPath = ProcessInfo.processInfo.environment["PROTOC_GEN_GRPC_DUMP"],
+               !debugDumpPath.isEmpty {
+                let dumpURL = URL(fileURLWithPath: Path(debugDumpPath).absolute().description)
+                do {
+                    try requestData.write(to: dumpURL)
+                } catch {
+                    FileHandle.standardError.write("Failed to write PROTOC_GEN_GRPC_DUMP to \(debugDumpPath): \(error)".data(using: .utf8)!)
+                }
+            }
         }
 
         let request = try Google_Protobuf_Compiler_CodeGeneratorRequest(serializedData: requestData)
@@ -44,7 +58,7 @@ struct ProtocPluginBoostrap: ParsableCommand {
         try plugin.generate()
 
         let response = try plugin.response.serializedData()
-        try  FileHandle.standardOutput.write(contentsOf: response)
+        try FileHandle.standardOutput.write(contentsOf: response)
     }
 }
 
