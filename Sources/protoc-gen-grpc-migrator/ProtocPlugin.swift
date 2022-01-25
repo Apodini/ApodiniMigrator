@@ -65,8 +65,7 @@ struct ProtocPlugin {
     private let request: Google_Protobuf_Compiler_CodeGeneratorRequest
     private let options: PluginOptions
 
-    private let apiDocument: APIDocument
-    private let migrationGuide: MigrationGuide
+    private let migration: MigrationContext
     private let descriptorSet: DescriptorSet
 
     var response = Google_Protobuf_Compiler_CodeGeneratorResponse(
@@ -82,23 +81,17 @@ struct ProtocPlugin {
             fatalError("Tried to boot protoc plugin without specifying the APIDocument path!")
         }
 
-        var apiDocument = try APIDocument.decode(from: Path(documentPath))
-        var migrationGuide: MigrationGuide
+        let apiDocument = try APIDocument.decode(from: Path(documentPath))
+        let migrationGuide: MigrationGuide
 
         if let path = options.migrationGuidePath {
             try migrationGuide = MigrationGuide.decode(from: Path(path))
         } else {
             migrationGuide = .empty()
         }
+
+        self.migration = MigrationContext(document: apiDocument, migrationGuide: migrationGuide)
         self.descriptorSet = DescriptorSet(protos: request.protoFile)
-
-        apiDocument.combineEndpointParametersIntoWrappedType(
-            considering: &migrationGuide,
-            using: GRPCMethodParameterCombination()
-        )
-
-        self.apiDocument = apiDocument
-        self.migrationGuide = migrationGuide
     }
 
     mutating func generate() throws {
@@ -127,7 +120,7 @@ struct ProtocPlugin {
 
         let grpcFileName = "\(descriptor.fileName).grpc.swift"
 
-        let file = GRPCClientsFile(descriptor, context: context, migrationGuide: migrationGuide)
+        let file = GRPCClientsFile(descriptor, context: context, migration: migration)
 
         let generatedFile = Google_Protobuf_Compiler_CodeGeneratorResponse.File(
             name: grpcFileName,
@@ -143,7 +136,7 @@ struct ProtocPlugin {
 
         let fileName = "\(descriptor.fileName).pb.swift"
 
-        let file = GRPCModelsFile(descriptor, context: context, document: apiDocument, migrationGuide: migrationGuide)
+        let file = GRPCModelsFile(descriptor, context: context, migration: migration)
 
         let generatedFile = Google_Protobuf_Compiler_CodeGeneratorResponse.File(
             name: fileName,

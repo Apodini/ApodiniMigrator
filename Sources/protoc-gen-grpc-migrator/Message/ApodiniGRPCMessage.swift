@@ -33,13 +33,7 @@ struct ApodiniGRPCMessage: SomeGRPCMessage {
         let typeName = type.typeName
         self.name = typeName.mangledName // TODO generics?
 
-        self.fullName = typeName.buildName(
-            printTargetName: false,
-            componentSeparator: ".",
-            genericsStart: "Of",
-            genericsSeparator: "And",
-            genericsDelimiter: ""
-        )
+        self.fullName = type.retrieveFullName(namer: context.namer)!
         self.relativeName = fullName
             .components(separatedBy: ".")
             .last

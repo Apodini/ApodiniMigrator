@@ -5,7 +5,7 @@ import GRPC
 open class GRPCNetworking {
     public static let verification: CertificateVerification = .none
 
-    public static let hostname = ___HOSTNAME___
+    public static let hostname = "___HOSTNAME___"
     public static let port = ___PORT___
 
     public let eventLoopGroup: EventLoopGroup

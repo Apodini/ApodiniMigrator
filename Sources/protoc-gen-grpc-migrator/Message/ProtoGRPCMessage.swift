@@ -14,6 +14,7 @@ import OrderedCollections
 class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
     let descriptor: Descriptor
     let context: ProtoFileContext
+    let migration: MigrationContext
 
     var name: String {
         descriptor.name
@@ -31,9 +32,10 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
     var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
     var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(descriptor: Descriptor, context: ProtoFileContext) {
+    init(descriptor: Descriptor, context: ProtoFileContext, migration: MigrationContext) {
         self.descriptor = descriptor
         self.context = context
+        self.migration = migration
 
         precondition(descriptor.extensionRanges.isEmpty, "proto extensions are unsupported by the migrator")
 
@@ -44,7 +46,7 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
 
         for field in descriptor.fields {
             fields.append(GRPCMessageField(
-                ProtoGRPCMessageField(descriptor: field, context: context))
+                ProtoGRPCMessageField(descriptor: field, context: context, migration: migration))
             )
         }
 
@@ -57,7 +59,7 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
 
         for message in descriptor.messages {
             nestedMessages[message.name] = GRPCMessage(
-                ProtoGRPCMessage(descriptor: message, context: context)
+                ProtoGRPCMessage(descriptor: message, context: context, migration: migration)
             )
         }
     }
@@ -74,8 +76,14 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
                     .forEach { $0.applyIdChange(renamedProperty) }
             } else if let addedProperty = property.modeledAdditionChange {
                 // TODO we currently GUESS the property number!
+                let property = TypeProperty(
+                    name: addedProperty.added.name,
+                    type: migration.typeStore.construct(from: addedProperty.added.type),
+                    annotation: addedProperty.added.annotation
+                )
+
                 fields.append(GRPCMessageField(
-                    ApodiniMessageField(addedProperty.added, number: fields.count, defaultValue: addedProperty.defaultValue, context: context)
+                    ApodiniMessageField(property, number: fields.count + 1, defaultValue: addedProperty.defaultValue, context: context)
                 ))
             } else if let removedProperty = property.modeledRemovalChange {
                 fields

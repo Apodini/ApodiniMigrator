@@ -14,6 +14,7 @@ import SwiftProtobufPluginLibrary
 class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
     let descriptor: FieldDescriptor
     let context: ProtoFileContext
+    let migration: MigrationContext
 
     let hasFieldPresence: Bool
 
@@ -72,10 +73,11 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
     var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)?
     var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)?
 
-    init(descriptor: FieldDescriptor, context: ProtoFileContext) {
+    init(descriptor: FieldDescriptor, context: ProtoFileContext, migration: MigrationContext) {
         precondition(descriptor.protoType != .group, ".group field types are not supported!")
         self.descriptor = descriptor
         self.context = context
+        self.migration = migration
 
         precondition(descriptor.realOneof == nil, "OneOfs aren't supported!")
 
@@ -111,7 +113,12 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
         case let .necessity(from, to, necessityMigration):
             self.necessityUpdate = (from, to, necessityMigration)
         case let .type(from, to, forwardMigration, backwardMigration, _):
-            self.typeUpdate = (from, to, forwardMigration, backwardMigration)
+            self.typeUpdate = (
+                migration.typeStore.construct(from: from),
+                migration.typeStore.construct(from: to),
+                forwardMigration,
+                backwardMigration
+            )
         }
     }
 

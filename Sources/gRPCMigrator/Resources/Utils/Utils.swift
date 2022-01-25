@@ -17,7 +17,7 @@ public typealias Codable = ApodiniMigratorCodable
 public extension Encodable {
     /// `JSONEncoder` used to encode `self`
     static var encoder: JSONEncoder {
-        NetworkingService.encoder
+        JSONEncoder()
     }
 }
 
@@ -25,7 +25,7 @@ public extension Encodable {
 public extension Decodable {
     /// `JSONDecoder` used to decode `Self.self`
     static var decoder: JSONDecoder {
-        NetworkingService.decoder
+        JSONDecoder()
     }
 }
 

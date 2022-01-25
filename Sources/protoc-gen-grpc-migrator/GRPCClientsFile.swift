@@ -11,18 +11,18 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 
 class GRPCClientsFile: SourceCodeRenderable {
-    private static var evaluatedMirgationGuide = false
+    private static var evaluatedMigrationGuide = false
 
     let protoFile: FileDescriptor
     let context: ProtoFileContext
-    let migrationGuide: MigrationGuide
+    let migration: MigrationContext
 
     var services: [String: GRPCService] = [:]
 
-    init(_ file: FileDescriptor, context: ProtoFileContext, migrationGuide: MigrationGuide) {
+    init(_ file: FileDescriptor, context: ProtoFileContext, migration: MigrationContext) {
         self.protoFile = file
         self.context = context
-        self.migrationGuide = migrationGuide
+        self.migration = migration
 
         for service in protoFile.services {
             self.services[service.name] = GRPCService(service, locatedIn: self)
@@ -45,14 +45,14 @@ class GRPCClientsFile: SourceCodeRenderable {
     }
 
     private func parseEndpointChanges() {
-        precondition(!Self.evaluatedMirgationGuide, "Some assumptions about the implementation changed. Tried to evaluate migration guide twice!")
-        Self.evaluatedMirgationGuide = true
+        precondition(!Self.evaluatedMigrationGuide, "Some assumptions about the implementation changed. Tried to evaluate migration guide twice!")
+        Self.evaluatedMigrationGuide = true
 
         var addedEndpoints: [EndpointChange.AdditionChange] = []
         var updatedEndpoints: [EndpointChange.UpdateChange] = []
         var removedEndpoints: [EndpointChange.RemovalChange] = []
 
-        for change in migrationGuide.endpointChanges {
+        for change in migration.migrationGuide.endpointChanges {
             // we ignore idChange updates. Why? Because we always work with the older identifiers.
             // And for the client library identifiers should not be modified to maintain code compatibility.
 
@@ -66,7 +66,9 @@ class GRPCClientsFile: SourceCodeRenderable {
         }
 
         for addedEndpoint in addedEndpoints {
-            let endpoint = addedEndpoint.added
+            var endpoint = addedEndpoint.added
+            endpoint.dereference(in: migration.typeStore)
+
             let serviceName = endpoint.identifier(for: GRPCServiceName.self).rawValue
 
             if let existingService = self.services[serviceName] {

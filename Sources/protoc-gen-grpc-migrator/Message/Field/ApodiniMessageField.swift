@@ -59,7 +59,7 @@ struct ApodiniMessageField: SomeGRPCMessageField {
 
         self.name = property.name
 
-        self.type = property.protoType
+        self.type = property.protoType // TODO properties of added objects may be REFERENCED!!!
 
         let typeName = property.swiftType(namer: context.namer)
 
@@ -193,10 +193,16 @@ extension TypeInformation: FieldDescriptorLike {
     func retrieveFullName(namer: SwiftProtobufNamer) -> String? {
         // TODO is this sync?
         switch self {
+        // repeated and optional are handled separately in the protobuf name builder
+        case let .repeated(element):
+            return element.retrieveFullName(namer: namer)
+        case let .optional(wrappedValue):
+            return wrappedValue.retrieveFullName(namer: namer)
         case .enum, .object:
-            return typeName.buildName(componentSeparator: ".")
+            // TODO prepend package name!
+            return "QONECTIQ_" + typeName.buildName(componentSeparator: ".")
         case .scalar(.date):
-            return "Google_Protobuf_Timestamp" // TODO print "SwiftProtobuffer" target name?
+            return "Google_Protobuf_Timestamp"
         default:
             return nil
         }

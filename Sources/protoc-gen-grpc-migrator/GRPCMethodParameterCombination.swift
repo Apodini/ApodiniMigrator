@@ -9,17 +9,30 @@
 import Foundation
 import ApodiniMigrator
 
-struct GRPCMethodParameterCombination: ParameterCombination {
+class GRPCMethodParameterCombination: ParameterCombination {
+    let typeStore: TypesStore
+
+    // with this variable we track which models got added. We require this information,
+    // as we need to update our deltaIdentifier->TypeName mapping (used when processing model changes)
+    var newlyCreatedModels: [TypeInformation] = []
+
+    init(typeStore: TypesStore) {
+        self.typeStore = typeStore
+    }
+
     func shouldBeMapped(parameter: Parameter) -> Bool {
         true // in grpc all parameters are combined!
     }
 
-    func merge(document: APIDocument, endpoint: Endpoint, parameters: [Parameter]) -> Parameter? {
+    func merge(endpoint: Endpoint, parameters: [Parameter]) -> Parameter? {
         if parameters.count == 1,
            var first = parameters.first {
-            first.dereference(in: document.typeStore)
+            first.dereference(in: typeStore)
 
-            if first.typeInformation.protoType == .message || first.typeInformation.protoType == .group {
+            if (first.typeInformation.protoType == .message || first.typeInformation.protoType == .group)
+                && !first.typeInformation.isOptional {
+                // TODO how does ApodiniGRPC react to optional single parameters,
+                //   => does it introduce a wrapper type on necessity changes?
                 return nil
             }
         }
@@ -36,6 +49,8 @@ struct GRPCMethodParameterCombination: ParameterCombination {
             properties: parameters.map(TypeProperty.init),
             context: Context() // TODO grpc Context keys if we ever get this way
         )
+
+        newlyCreatedModels.append(typeInformation)
 
         return Parameter(
             name: "request", // never used anywhere

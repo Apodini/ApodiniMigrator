@@ -15,7 +15,7 @@ struct RESTContentParameterCombination: ParameterCombination {
         parameter.parameterType == .content
     }
 
-    func merge(document: APIDocument, endpoint: Endpoint, parameters: [Parameter]) -> Parameter? {
+    func merge(endpoint: Endpoint, parameters: [Parameter]) -> Parameter? {
         if parameters.count == 1 { // we don't need to merge if its just a single parameter
             return nil
         }

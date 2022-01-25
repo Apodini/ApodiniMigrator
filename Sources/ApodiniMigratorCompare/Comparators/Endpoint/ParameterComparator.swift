@@ -50,7 +50,7 @@ struct ParameterComparator: Comparator {
                     from: lhs.typeInformation.asReference(),
                     to: rhs.typeInformation.asReference(),
                     forwardMigration: migrationId,
-                    conversionWarning: jsScriptBuilder.hint
+                    migrationWarning: jsScriptBuilder.hint
                 )
             ))
         }

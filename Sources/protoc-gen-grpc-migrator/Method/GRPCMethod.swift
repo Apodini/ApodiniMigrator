@@ -107,7 +107,7 @@ struct GRPCMethod: SourceCodeRenderable {
             // this closure is used to insert a call to the migration closure generated below
             var responseMigration: (String) -> String = { $0 }
             if let change = method.responseChange {
-                "let migrateResponse: (\(method.updatedOutputMessageName!)) throws -> (\(method.outputMessageName) = {"
+                "let migrateResponse: (\(method.updatedOutputMessageName!)) throws -> \(method.outputMessageName) = {"
                 Indent("try \(method.outputMessageName).from($0, script: \(change.backwardsMigration))")
                 "}"
                 responseMigration = {

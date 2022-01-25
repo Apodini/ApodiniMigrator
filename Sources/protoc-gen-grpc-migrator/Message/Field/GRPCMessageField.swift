@@ -104,9 +104,10 @@ struct GRPCMessageField {
             let decodeLine = "try decoder.\(decoderMethod)(\(fieldTypeArg)value: &\(field.storedProperty))"
 
             if let change = field.typeUpdate {
+                // TODO seemingly we need to append "?"
                 "var \(field.storedProperty): \(change.to.swiftStorageType(namer: context.namer)) = \(change.to.swiftDefaultValue(namer: context.namer))"
                 decodeLine
-                "self.\(field.storedProperty) = try \(field.typeName).from(\(field.storedProperty), script: \(change.backwardMigration)"
+                "self.\(field.storedProperty) = try \(field.typeName).from(\(field.storedProperty), script: \(change.backwardMigration))"
             } else {
                 decodeLine
             }
@@ -233,7 +234,7 @@ struct GRPCMessageField {
 
             """
             try container.\(encodeMethodString)(\
-            try \(newTypeName).from(\(field.storedProperty), script: \(change.forwardMigration))\
+            try \(newTypeName).from(\(field.storedProperty), script: \(change.forwardMigration)), \
             forKey: .\(field.name)\
             )
             """
@@ -272,7 +273,7 @@ struct GRPCMessageField {
 
             """
             \(field.storedProperty) = try \(field.typeName).from(\
-            try container.\(decodeMethodString)(\(newTypeName).self, forKey: .\(field.name),\
+            try container.\(decodeMethodString)(\(newTypeName).self, forKey: .\(field.name)), \
             script: \(change.backwardMigration)\
             )
             """

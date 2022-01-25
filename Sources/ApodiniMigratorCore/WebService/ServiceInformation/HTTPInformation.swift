@@ -18,6 +18,12 @@ public enum HTTPProtocol: String, CustomStringConvertible, Value {
 }
 
 public struct HTTPInformation: Value, CustomStringConvertible {
+    private enum CodingKeys: String, CodingKey {
+        case `protocol`
+        case hostname
+        case port
+    }
+
     public var description: String {
         "\(`protocol`)\(hostname):\(port)"
     }
@@ -30,5 +36,14 @@ public struct HTTPInformation: Value, CustomStringConvertible {
         self.protocol = `protocol`
         self.hostname = hostname
         self.port = port
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.hostname = try container.decode(String.self, forKey: .hostname)
+        self.port = try container.decode(Int.self, forKey: .port)
+        self.protocol = try container.decodeIfPresent(HTTPProtocol.self, forKey: .protocol)
+            ?? (port == 443 ? .https : .http)
     }
 }

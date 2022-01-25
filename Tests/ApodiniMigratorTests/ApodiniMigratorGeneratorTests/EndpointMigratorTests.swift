@@ -160,7 +160,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
                     from: .scalar(.string),
                     to: .scalar(.bool),
                     forwardMigration: 1,
-                    conversionWarning: nil
+                    migrationWarning: nil
                 ),
                 breaking: true,
                 solvable: true

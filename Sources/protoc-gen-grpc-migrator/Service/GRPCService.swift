@@ -11,7 +11,7 @@ import SwiftProtobufPluginLibrary
 import ApodiniMigrator
 
 class GRPCService: SourceCodeRenderable {
-    private unowned let file: GRPCClientsFile
+    unowned let file: GRPCClientsFile
     let context: ProtoFileContext
 
     let serviceName: String

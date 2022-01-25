@@ -458,7 +458,7 @@ struct LegacyChangeArray: Decodable {
                                 from: fromType,
                                 to: toType,
                                 forwardMigration: convertFromTo,
-                                conversionWarning: change.convertionWarning
+                                migrationWarning: change.convertionWarning
                             )
                         }
 

@@ -24,9 +24,8 @@ import OrderedCollections
 /// * We don't support nesting types into enums (as the proto spec doesn't support this).
 class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     let protoFile: FileDescriptor
-    let document: APIDocument
-    let migrationGuide: MigrationGuide
     let context: ProtoFileContext
+    let migration: MigrationContext
 
     var fullName: String {
         ""
@@ -37,13 +36,11 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
     var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
     var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(_ file: FileDescriptor, context: ProtoFileContext, document: APIDocument, migrationGuide: MigrationGuide) {
-        precondition(file.syntax != .proto2, "Proto2 syntax is unuspported!")
+    init(_ file: FileDescriptor, context: ProtoFileContext, migration: MigrationContext) {
+        precondition(file.syntax != .proto2, "Proto2 syntax is unsupported!")
         self.protoFile = file
-        self.document = document
-        self.migrationGuide = migrationGuide
-
         self.context = context
+        self.migration = migration
 
         for `enum` in file.enums {
             self.nestedEnums[`enum`.name] = GRPCEnum(
@@ -53,11 +50,11 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
 
         for message in file.messages {
             self.nestedMessages[message.name] = GRPCMessage(
-                ProtoGRPCMessage(descriptor: message, context: context)
+                ProtoGRPCMessage(descriptor: message, context: context, migration: migration)
             )
         }
 
-        for model in document.models {
+        for model in migration.document.models {
             modelIdTranslation[model.deltaIdentifier] = model.typeName
         }
 
@@ -121,7 +118,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         var updatedModels: [ModelChange.UpdateChange] = []
         var removedModels: [ModelChange.RemovalChange] = []
 
-        for change in migrationGuide.modelChanges {
+        for change in migration.migrationGuide.modelChanges {
             if let rename = change.modeledIdentifierChange {
                 // we ignore idChange updates. Why? Because we always work with the older identifiers.
                 // And client library should not modify identifiers, to maintain code compatibility
@@ -141,6 +138,14 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             }
         }
 
+        /*
+        TODO this needs to be hnadleld!
+        for model in migration.newlyCreatedModels {
+            // TODO rework this once Endpoint additions are also properly hankded!
+            addedModels.append(ModelChange.addition(id: model.deltaIdentifier, added: model, defaultValue: nil, breaking: false, solvable: true).modeledAdditionChange!)
+        }
+        */
+
         for renamedModel in renamedModels {
             guard let typeName = modelIdTranslation[renamedModel.from] else {
                 fatalError("Encountered identifier change with id \(renamedModel.from) which isn't present in our typeName lookup!")
@@ -155,8 +160,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
 
         // we sort them such that we don't cause any conflicts with creation of `EmptyGRPCMessage` structs
         for addedModel in addedModels.sorted(by: \.added.typeName.nestedTypes.count) {
-            let model = addedModel.added
-            precondition(!model.isReference) // we know for sure, with the current architecture that it doesn't happen
+            let model = migration.typeStore.construct(from: addedModel.added)
 
             // see https://stackoverflow.com/questions/51623693/cannot-use-mutating-member-on-immutable-value-self-is-immutable
             var this = self // we are a class so this works!
@@ -169,7 +173,8 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             }
 
             guard let result = find(for: typeName) else {
-                fatalError("Failed to locate updated model with typeName \(typeName) and id: \(updatedModel.id) (\(updatedModel))!")
+                // fatalError("Failed to locate updated model with typeName '\(typeName.rawValue)' and id: \(updatedModel.id) (\(updatedModel))!")
+                continue // TODO this is most likely a parameter upadte which got modeled as a property update, we can't handle as we expect to only update PROTO messages!!!
             }
 
             result.handleUpdateChange(change: updatedModel)

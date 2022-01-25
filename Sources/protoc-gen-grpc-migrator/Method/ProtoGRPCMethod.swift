@@ -11,13 +11,23 @@ import SwiftProtobufPluginLibrary
 import ApodiniMigrator
 
 class ProtoGRPCMethod: SomeGRPCMethod {
-    private unowned let service: GRPCService
+    unowned let service: GRPCService
     private let method: MethodDescriptor
     var apodiniIdentifiers: GRPCMethodApodiniAnnotations
+
+    var migration: MigrationContext {
+        service.file.migration
+    }
 
     // we track the content of all `update` EndpointChanges here
     var identifierChanges: [EndpointIdentifierChange] = []
     var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)?
+    var parameterChange: ( // TODO support generating this change!
+        from: TypeInformation,
+        to: TypeInformation,
+        forwardMigration: Int,
+        conversionWarning: String?
+    )?
     var responseChange: (
         from: TypeInformation,
         to: TypeInformation,
@@ -67,6 +77,12 @@ class ProtoGRPCMethod: SomeGRPCMethod {
     var streamingType: StreamingType
 
     var inputMessageName: String
+    // In grpc all parameters are combined into a single parameter.
+    // Typically, this means all parameter updates are mapped to property updates of a newly introduced wrapper type.
+    // However, this wrapper type is not introduced if the endpoint already has a single message-based parameter (which is not optional).
+    // In those cases we want to handle a single parameter update for the single parameter.
+    var processedParameterUpdateAlready = false
+
     var outputMessageName: String
 
     var updatedOutputMessageName: String? {
@@ -111,9 +127,39 @@ class ProtoGRPCMethod: SomeGRPCMethod {
         case let .communicationalPattern(from, to):
             self.communicationPatternChange = (from, to)
         case let .response(from, to, backwardsMigration, migrationWarning):
-            self.responseChange = (from, to, backwardsMigration, migrationWarning)
-        case .parameter:
-            fatalError("Encountered parameter update for grpc method \(methodPath) which wasn't mapped to a property update: \(change.updated)")
+            self.responseChange = (
+                migration.typeStore.construct(from: from),
+                migration.typeStore.construct(from: to),
+                backwardsMigration,
+                migrationWarning
+            )
+        case let .parameter(parameter):
+            if case .idChange = parameter { // we ignore parameter renames!
+                break
+            }
+
+            guard let parameterUpdate = parameter.modeledUpdateChange else {
+                fatalError("Encountered parameter change for grpc method \(methodPath) which wasn't mapped to a property update: \(change)")
+            }
+
+            precondition(!processedParameterUpdateAlready, "Encountered multiple parameter updates for \(methodPath) with single parameter!")
+            processedParameterUpdateAlready = true
+            // TODO we must still handle that for single parameter endpoints!
+
+            switch parameterUpdate.updated {
+            case .parameterType:
+                break // parameter type is ignored
+            case .necessity:
+                fatalError("Encountered unsupported parameter update for \(methodPath): \(parameterUpdate)")
+                // TODO support necessity changes?
+            case let .type(from, to, forwardMigration, migrationWarning):
+                self.parameterChange = (
+                    migration.typeStore.construct(from: from),
+                    migration.typeStore.construct(from: to),
+                    forwardMigration,
+                    migrationWarning
+                )
+            }
         }
     }
 }

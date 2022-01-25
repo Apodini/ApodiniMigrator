@@ -153,23 +153,21 @@ struct GRPCMessage: SourceCodeRenderable, ModelContaining {
             // we record which fields were decoded. We use this information when generating our necessity migrations!
             "var decodedFieldNumbers: Set<Int> = []"
 
+            "while let \(message.fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
             Indent {
-                "while let \(message.fields.isEmpty ? "_" : "fieldNumber") = try decoder.nextFieldNumber() {"
-                Indent {
-                    "decodedFieldNumbers.insert(fieldNumber)"
-                    "switch fieldNumber {"
-                    for field in message.sortedFields where !field.unavailable { // unavailable fields are handled below
-                        field.fieldDecodeCase
-                    }
-                    "default: break"
-                    "}"
+                "decodedFieldNumbers.insert(fieldNumber)"
+                "switch fieldNumber {"
+                for field in message.sortedFields where !field.unavailable { // unavailable fields are handled below
+                    field.fieldDecodeCase
                 }
+                "default: break"
                 "}"
+            }
+            "}"
 
-                for field in message.sortedFields {
-                    // this handles migration to assign default values (e.g. when field was removed or necessity was migrated)
-                    field.fieldDecodeCaseStatements
-                }
+            for field in message.sortedFields {
+                // this handles migration to assign default values (e.g. when field was removed or necessity was migrated)
+                field.fieldDecodeCaseStatements
             }
         }
         "}"

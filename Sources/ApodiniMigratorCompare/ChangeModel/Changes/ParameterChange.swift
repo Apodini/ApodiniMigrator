@@ -35,7 +35,7 @@ public enum ParameterUpdateChange: Equatable {
         from: TypeInformation,
         to: TypeInformation,
         forwardMigration: Int,
-        conversionWarning: String?
+        migrationWarning: String?
     )
 }
 
@@ -90,7 +90,7 @@ extension ParameterUpdateChange: Codable {
                 from: try container.decode(TypeInformation.self, forKey: .from),
                 to: try container.decode(TypeInformation.self, forKey: .to),
                 forwardMigration: try container.decode(Int.self, forKey: .forwardMigration),
-                conversionWarning: try container.decodeIfPresent(String.self, forKey: .conversionWarning)
+                migrationWarning: try container.decodeIfPresent(String.self, forKey: .conversionWarning)
             )
         }
     }
@@ -108,11 +108,11 @@ extension ParameterUpdateChange: Codable {
             try container.encode(from, forKey: .from)
             try container.encode(to, forKey: .to)
             try container.encodeIfPresent(necessityMigration, forKey: .necessityMigration)
-        case let .type(from, to, forwardMigration, conversionWarning):
+        case let .type(from, to, forwardMigration, migrationWarning):
             try container.encode(from, forKey: .from)
             try container.encode(to, forKey: .to)
             try container.encode(forwardMigration, forKey: .forwardMigration)
-            try container.encodeIfPresent(conversionWarning, forKey: .conversionWarning)
+            try container.encodeIfPresent(migrationWarning, forKey: .conversionWarning)
         }
     }
 }
