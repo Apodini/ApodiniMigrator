@@ -43,6 +43,7 @@ extension HTTPInformation {
             throw LegacyServiceInformation.MigrationError.failedPortConversion(path: serverPath)
         }
 
+        self.protocol = .http
         self.hostname = hostname
         self.port = port
     }

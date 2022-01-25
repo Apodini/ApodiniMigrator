@@ -89,7 +89,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
 
         XCTAssertEqual(document.fileName, "api_test1.2.3")
         XCTAssertEqual(document.endpoints.isEmpty, false)
-        XCTAssertEqual(document.serviceInformation.http.urlFormatted, "http://127.0.0.1:8080")
+        XCTAssertEqual(document.serviceInformation.http.description, "http://127.0.0.1:8080")
         XCTAssertEqual(document.json.isEmpty, false)
         XCTAssertEqual(document.yaml.isEmpty, false)
     }

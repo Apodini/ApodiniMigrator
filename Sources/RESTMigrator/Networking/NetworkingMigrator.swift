@@ -9,12 +9,6 @@
 import Foundation
 import ApodiniMigratorCompare
 
-internal extension HTTPInformation {
-    var urlFormatted: String {
-        "http://\(description)"
-    }
-}
-
 struct NetworkingMigrator {
     let baseServiceInformation: ServiceInformation
     let serviceChanges: [ServiceInformationChange]
@@ -24,7 +18,7 @@ struct NetworkingMigrator {
     }
 
     func serverPath() -> String {
-        var serverPath = baseServiceInformation.http.urlFormatted
+        var serverPath = baseServiceInformation.http.description
 
         var rootPath = baseServiceInformation.exporter(for: RESTExporterConfiguration.self)
             .rootPath
@@ -32,7 +26,7 @@ struct NetworkingMigrator {
         for change in serviceChanges {
             if let update = change.modeledUpdateChange {
                 if case let .http(_, to) = update.updated {
-                    serverPath = to.urlFormatted
+                    serverPath = to.description
                 } else if case let .exporter(exporter) = update.updated,
                     let updatedExporter = exporter.modeledUpdateChange, // we already ensured exporter isn't removed in RESTMigrator initializer
                     updatedExporter.updated.to.type == .rest {
