@@ -23,10 +23,15 @@ extension ChangeableGRPCMessage {
             assert(self.containsRootTypeChange, "AnyObject inheritance assumption for Changeable broke")
         case let .property(property):
             if let renamedProperty = property.modeledIdentifierChange {
-                fields
-                    .filter { $0.name == renamedProperty.from.rawValue }
-                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) }
-                    .forEach { $0.applyIdChange(renamedProperty) }
+                for field in fields where field.name == renamedProperty.from.rawValue {
+                    if let protoField = field.tryTyped(for: ProtoGRPCMessageField.self) {
+                        protoField.applyIdChange(renamedProperty)
+                    } else if let apodiniField = field.tryTyped(for: ApodiniMessageField.self) {
+                        apodiniField.applyIdChange(renamedProperty)
+                    } else {
+                        fatalError("Renamed property isn't a updatable property. For update: \(change)!")
+                    }
+                }
             } else if let addedProperty = property.modeledAdditionChange {
                 // TODO we currently GUESS the property number!
                 let property = TypeProperty(
@@ -46,16 +51,25 @@ extension ChangeableGRPCMessage {
                 )))
                 assert(previousCount + 1 == self.fields.count, "AnyObject inheritance assumption for Changeable broke")
             } else if let removedProperty = property.modeledRemovalChange {
-                // TODO handle ApodiniFields!!!
-                fields
-                    .filter { $0.name == removedProperty.id.rawValue }
-                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) }
-                    .forEach { $0.applyRemovalChange(removedProperty) }
+                for field in fields where field.name == removedProperty.id.rawValue {
+                    if let protoField = field.tryTyped(for: ProtoGRPCMessageField.self) {
+                        protoField.applyRemovalChange(removedProperty)
+                    } else if let apodiniField = field.tryTyped(for: ApodiniMessageField.self) {
+                        apodiniField.applyRemovalChange(removedProperty)
+                    } else {
+                        fatalError("Removed property isn't a updatable property. For update: \(change)!")
+                    }
+                }
             } else if let updatedProperty = property.modeledUpdateChange {
-                fields
-                    .filter { $0.name == updatedProperty.id.rawValue }
-                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) }
-                    .forEach { $0.applyUpdateChange(updatedProperty) }
+                for field in fields where field.name == updatedProperty.id.rawValue {
+                    if let protoField = field.tryTyped(for: ProtoGRPCMessageField.self) {
+                        protoField.applyUpdateChange(updatedProperty)
+                    } else if let apodiniField = field.tryTyped(for: ApodiniMessageField.self) {
+                        apodiniField.applyUpdateChange(updatedProperty)
+                    } else {
+                        fatalError("Updated property isn't a updatable property. For update: \(change)!")
+                    }
+                }
             }
         case .case, .rawValueType:
             fatalError("Tried updating message with enum-only change type!")
