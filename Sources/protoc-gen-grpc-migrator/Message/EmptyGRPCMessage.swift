@@ -16,18 +16,23 @@ import OrderedCollections
 /// which we don't control.
 struct EmptyGRPCMessage: SomeGRPCMessage {
     let context: ProtoFileContext
+    let migration: MigrationContext
 
     var name: String
     var relativeName: String
     var fullName: String
 
-    let fields: [GRPCMessageField] = []
+    var fields: [GRPCMessageField] = []
 
     var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
     var nestedMessages: OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(name: String, nestedIn baseName: String?, context: ProtoFileContext) {
+    var unavailable = false
+    var containsRootTypeChange = false
+
+    init(name: String, nestedIn baseName: String?, context: ProtoFileContext, migration: MigrationContext) {
         self.context = context
+        self.migration = migration
 
         self.name = name
 

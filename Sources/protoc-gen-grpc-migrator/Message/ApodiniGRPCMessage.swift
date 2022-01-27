@@ -11,24 +11,29 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
-struct ApodiniGRPCMessage: SomeGRPCMessage {
+class ApodiniGRPCMessage: SomeGRPCMessage, ChangeableGRPCMessage {
     let context: ProtoFileContext
+    var migration: MigrationContext
 
     let name: String
     let relativeName: String
     let fullName: String
 
-    let fields: [GRPCMessageField]
+    var fields: [GRPCMessageField]
 
     // those two fields may be populated in `GRPCMessage`
     var nestedEnums: OrderedCollections.OrderedDictionary<String, GRPCEnum> = [:]
     var nestedMessages: OrderedCollections.OrderedDictionary<String, GRPCMessage> = [:]
 
-    init(of type: TypeInformation, context: ProtoFileContext) {
+    var unavailable = false
+    var containsRootTypeChange = false
+
+    init(of type: TypeInformation, context: ProtoFileContext, migration: MigrationContext) {
         precondition(type.isObject, "Cannot instantiate a GRPCMessage from a non object: \(type.rootType) \(type.typeName)")
         // TODO consider sanitizing, prefixing, sufixing the name etc (Generics Name to uniqueify)?
 
         self.context = context
+        self.migration = migration
 
         let typeName = type.typeName
         self.name = typeName.mangledName // TODO generics?
@@ -41,6 +46,6 @@ struct ApodiniGRPCMessage: SomeGRPCMessage {
 
         fields = type.objectProperties
             .enumerated()
-            .map { GRPCMessageField(ApodiniMessageField($1, number: $0, context: context)) }
+            .map { GRPCMessageField(ApodiniMessageField($1, number: $0, context: context, migration: migration)) }
     }
 }

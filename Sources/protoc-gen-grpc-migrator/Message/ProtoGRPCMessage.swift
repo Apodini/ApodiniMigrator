@@ -11,7 +11,7 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
-class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
+class ProtoGRPCMessage: SomeGRPCMessage, ChangeableGRPCMessage {
     let descriptor: Descriptor
     let context: ProtoFileContext
     let migration: MigrationContext
@@ -62,46 +62,5 @@ class ProtoGRPCMessage: SomeGRPCMessage, Changeable {
                 ProtoGRPCMessage(descriptor: message, context: context, migration: migration)
             )
         }
-    }
-
-    func applyUpdateChange(_ change: ModelChange.UpdateChange) {
-        switch change.updated {
-        case .rootType:
-            containsRootTypeChange = true // root type changes are unsupported
-        case let .property(property):
-            if let renamedProperty = property.modeledIdentifierChange {
-                fields
-                    .filter { $0.name == renamedProperty.from.rawValue }
-                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) }
-                    .forEach { $0.applyIdChange(renamedProperty) }
-            } else if let addedProperty = property.modeledAdditionChange {
-                // TODO we currently GUESS the property number!
-                let property = TypeProperty(
-                    name: addedProperty.added.name,
-                    type: migration.typeStore.construct(from: addedProperty.added.type),
-                    annotation: addedProperty.added.annotation
-                )
-
-                fields.append(GRPCMessageField(
-                    ApodiniMessageField(property, number: fields.count + 1, defaultValue: addedProperty.defaultValue, context: context)
-                ))
-            } else if let removedProperty = property.modeledRemovalChange {
-                fields
-                    .filter { $0.name == removedProperty.id.rawValue }
-                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) }
-                    .forEach { $0.applyRemovalChange(removedProperty) }
-            } else if let updatedProperty = property.modeledUpdateChange {
-                fields
-                    .filter { $0.name == updatedProperty.id.rawValue }
-                    .compactMap { $0.tryTyped(for: ProtoGRPCMessageField.self) }
-                    .forEach { $0.applyUpdateChange(updatedProperty) }
-            }
-        case .case, .rawValueType:
-            fatalError("Tried updating message with enum-only change type!")
-        }
-    }
-
-    func applyRemovalChange(_ change: ModelChange.RemovalChange) {
-        unavailable = true
     }
 }

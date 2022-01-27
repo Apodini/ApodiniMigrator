@@ -50,8 +50,16 @@ private struct EndpointWrappedParameters {
     let wrapperTypeId: DeltaIdentifier
 }
 
+enum ModelStorageDestination {
+    case apiDocument
+    case migrationGuide
+}
+
 extension APIDocument {
     /// This method can be used to combine several `Parameter`s of an `Endpoint` into a single one.
+    /// The created wrapper types will be stored as `reference` types in the `Endpoint`. Use the `TypeStore`
+    /// of the `APIDocument` to resolve the types.
+    ///
     /// - Parameters:
     ///   - migrationGuide: The `MigrationGuide` which should be considered. Change types are migrated accordingly.
     ///   - combination: The ``ParameterCombination``.
@@ -77,7 +85,7 @@ extension APIDocument {
 
         unsafeEndpoints = unsafeEndpoints.map { endpoint -> Endpoint in
             // we have an unsafe endpoints access here, types are NOT dereferenced
-            combineParameters(of: endpoint, using: combination, tracking: &combinedParameters)
+            combineParameters(of: endpoint, considering: &migrationGuide, using: combination, tracking: &combinedParameters, storeInto: .apiDocument)
                 ?? endpoint // if it returns nil, nothing was modified
         }
 
@@ -88,8 +96,10 @@ extension APIDocument {
 
     private mutating func combineParameters(
         of endpoint: Endpoint,
+        considering migrationGuide: inout MigrationGuide,
         using combination: ParameterCombination,
-        tracking combinedParameters: inout [DeltaIdentifier: EndpointWrappedParameters]
+        tracking combinedParameters: inout [DeltaIdentifier: EndpointWrappedParameters],
+        storeInto storage: ModelStorageDestination
     ) -> Endpoint? {
         var endpoint = endpoint
 
@@ -118,8 +128,20 @@ extension APIDocument {
             wrapperTypeId: wrappedParameter.typeInformation.deltaIdentifier
         )
 
-        // store the type in the APIDocument and store the type reference in the parameter
-        wrappedParameter.typeInformation = add(type: wrappedParameter.typeInformation)
+        switch storage {
+        case .apiDocument:
+            // store the type in the APIDocument and store the type reference in the parameter
+            wrappedParameter.typeInformation = add(type: wrappedParameter.typeInformation)
+        case .migrationGuide:
+            // encode the new type as a `addition` change
+            migrationGuide.modelChanges.append(.addition(
+                id: wrappedParameter.typeInformation.deltaIdentifier,
+                added: wrappedParameter.typeInformation
+            ))
+
+            wrappedParameter.typeInformation = wrappedParameter.typeInformation.asReference()
+        }
+
         // append the final parameter
         endpoint.parameters.append(wrappedParameter)
         return endpoint
@@ -136,7 +158,13 @@ extension APIDocument {
 
             // we are actually not interested in collecting these. we dont need to migrate update changes for them.
             var sink: [DeltaIdentifier: EndpointWrappedParameters] = [:]
-            if let modifiedEndpoint = combineParameters(of: additionChange.added, using: combination, tracking: &sink) {
+            if let modifiedEndpoint = combineParameters(
+                of: additionChange.added,
+                considering: &migrationGuide,
+                using: combination,
+                tracking: &sink,
+                storeInto: .migrationGuide
+            ) {
                 return .addition(
                     id: additionChange.id,
                     added: modifiedEndpoint,

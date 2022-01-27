@@ -11,9 +11,10 @@ import ApodiniMigrator
 import SwiftProtobuf
 import SwiftProtobufPluginLibrary
 
-struct ApodiniMessageField: SomeGRPCMessageField {
+class ApodiniMessageField: SomeGRPCMessageField, ChangeableGRPCField {
     private let property: TypeProperty
     let context: ProtoFileContext
+    let migration: MigrationContext
 
     var hasFieldPresence: Bool
 
@@ -52,14 +53,21 @@ struct ApodiniMessageField: SomeGRPCMessageField {
     var isPacked: Bool
     var isRepeated: Bool
 
-    init(_ property: TypeProperty, number: Int, defaultValue: Int? = nil, context: ProtoFileContext) {
+    var updatedName: String?
+    var unavailable = false
+    var fallbackValue: Int?
+    var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)?
+    var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)?
+
+    init(_ property: TypeProperty, number: Int, defaultValue: Int? = nil, context: ProtoFileContext, migration: MigrationContext) {
         // we ignore fluent property annotations
         self.property = property
         self.context = context
+        self.migration = migration
 
         self.name = property.name
 
-        self.type = property.protoType // TODO properties of added objects may be REFERENCED!!!
+        self.type = property.protoType
 
         let typeName = property.swiftType(namer: context.namer)
 
@@ -210,9 +218,13 @@ extension TypeInformation: FieldDescriptorLike {
 
     func enumDefaultValueDottedRelativeName(namer: SwiftProtobufNamer, for caseValue: String?) -> String? {
         switch self {
-        case .enum:
+        case let .optional(wrappedValue):
+             return wrappedValue.enumDefaultValueDottedRelativeName(namer: namer, for: caseValue)
+        case let .repeated(element):
+            return element.enumDefaultValueDottedRelativeName(namer: namer, for: caseValue)
+        case let .enum(_, _, cases, _):
             if let caseValue = caseValue {
-                for enumCase in enumCases where enumCase.rawValue == caseValue {
+                for enumCase in cases where enumCase.rawValue == caseValue {
                     return "." + enumCase.name
                 }
                 return nil

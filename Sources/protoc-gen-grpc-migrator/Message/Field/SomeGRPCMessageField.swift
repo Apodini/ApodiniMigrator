@@ -13,6 +13,7 @@ import ApodiniTypeInformation
 
 protocol SomeGRPCMessageField {
     var context: ProtoFileContext { get }
+    var migration: MigrationContext { get }
 
     var hasFieldPresence: Bool { get }
 
@@ -41,33 +42,11 @@ protocol SomeGRPCMessageField {
     var isRepeated: Bool { get }
 
     /// If present, this represents the update property name in the new web service version.
-    var updatedName: String? { get }
+    var updatedName: String? { get set }
     /// If true, it indicates that this property was removed in the latest version
-    var unavailable: Bool { get }
+    var unavailable: Bool { get set }
     /// Records the script id of a optional fallbackValue if marked `unavailable`.
-    var fallbackValue: Int? { get }
-    var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)? { get }
-    var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)? { get }
-}
-
-extension SomeGRPCMessageField {
-    var updatedName: String? {
-        nil
-    }
-
-    var unavailable: Bool {
-        false
-    }
-
-    var fallbackValue: Int? {
-        nil
-    }
-
-    var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)? {
-        nil
-    }
-
-    var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)? {
-        nil
-    }
+    var fallbackValue: Int? { get set }
+    var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)? { get set }
+    var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)? { get set }
 }

@@ -11,7 +11,7 @@ import ApodiniMigrator
 import SwiftProtobuf
 import SwiftProtobufPluginLibrary
 
-class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
+class ProtoGRPCMessageField: SomeGRPCMessageField, ChangeableGRPCField {
     let descriptor: FieldDescriptor
     let context: ProtoFileContext
     let migration: MigrationContext
@@ -101,29 +101,5 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, Changeable {
         sourceCodeComments = descriptor.protoSourceComments()
         
         self.number = Int(descriptor.number)
-    }
-
-    func applyIdChange(_ change: PropertyChange.IdentifierChange) {
-        precondition(change.from.rawValue == name, "Identifier change isn't in sync with property name!")
-        self.updatedName = change.to.rawValue
-    }
-
-    func applyUpdateChange(_ change: PropertyChange.UpdateChange) {
-        switch change.updated {
-        case let .necessity(from, to, necessityMigration):
-            self.necessityUpdate = (from, to, necessityMigration)
-        case let .type(from, to, forwardMigration, backwardMigration, _):
-            self.typeUpdate = (
-                migration.typeStore.construct(from: from),
-                migration.typeStore.construct(from: to),
-                forwardMigration,
-                backwardMigration
-            )
-        }
-    }
-
-    func applyRemovalChange(_ change: PropertyChange.RemovalChange) {
-        unavailable = true
-        self.fallbackValue = change.fallbackValue
     }
 }

@@ -38,10 +38,13 @@ extension ModelSearchResult {
             }
             protoEnum.applyUpdateChange(change)
         case let .message(message):
-            guard let protoMessage = message.tryTyped(for: ProtoGRPCMessage.self) else {
-                fatalError("Updated model isn't a native proto model. For update: \(change)!")
+            if let protoMessage = message.tryTyped(for: ProtoGRPCMessage.self) {
+                protoMessage.applyUpdateChange(change)
+            } else if let apodiniMessage = message.tryTyped(for: ApodiniGRPCMessage.self) {
+                apodiniMessage.applyUpdateChange(change)
+            } else {
+                fatalError("Updated model isn't a updatable model. For update: \(change)!")
             }
-            protoMessage.applyUpdateChange(change)
         }
     }
 

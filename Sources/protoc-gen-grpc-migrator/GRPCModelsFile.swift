@@ -138,13 +138,11 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             }
         }
 
-        /*
-        TODO this needs to be hnadleld!
-        for model in migration.newlyCreatedModels {
-            // TODO rework this once Endpoint additions are also properly hankded!
-            addedModels.append(ModelChange.addition(id: model.deltaIdentifier, added: model, defaultValue: nil, breaking: false, solvable: true).modeledAdditionChange!)
+        // Add Endpoint Parameter wrapper types (result of the `GRPCMethodParameterCombination`)
+        for model in migration.apiDocumentModelAdditions {
+            var this = self
+            this.add(model: model)
         }
-        */
 
         for renamedModel in renamedModels {
             guard let typeName = modelIdTranslation[renamedModel.from] else {

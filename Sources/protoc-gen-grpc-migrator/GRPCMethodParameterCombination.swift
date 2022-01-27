@@ -12,10 +12,6 @@ import ApodiniMigrator
 class GRPCMethodParameterCombination: ParameterCombination {
     let typeStore: TypesStore
 
-    // with this variable we track which models got added. We require this information,
-    // as we need to update our deltaIdentifier->TypeName mapping (used when processing model changes)
-    var newlyCreatedModels: [TypeInformation] = []
-
     init(typeStore: TypesStore) {
         self.typeStore = typeStore
     }
@@ -49,8 +45,6 @@ class GRPCMethodParameterCombination: ParameterCombination {
             properties: parameters.map(TypeProperty.init),
             context: Context() // TODO grpc Context keys if we ever get this way
         )
-
-        newlyCreatedModels.append(typeInformation)
 
         return Parameter(
             name: "request", // never used anywhere

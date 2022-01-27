@@ -9,7 +9,7 @@
 import Foundation
 import ApodiniMigrator
 
-protocol Changeable {
+protocol Changeable: AnyObject {
     associatedtype Element: ChangeableElement
 
     func applyIdChange(_ change: Change<Element>.IdentifierChange)

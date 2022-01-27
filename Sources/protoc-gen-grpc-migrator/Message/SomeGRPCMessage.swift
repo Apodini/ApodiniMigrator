@@ -13,6 +13,7 @@ import OrderedCollections
 
 protocol SomeGRPCMessage {
     var context: ProtoFileContext { get }
+    var migration: MigrationContext { get }
 
     var name: String { get }
     var relativeName: String { get }
@@ -20,10 +21,10 @@ protocol SomeGRPCMessage {
     var sourceCodeComments: String? { get }
 
     /// If true, this Message was removed in the latest version.
-    var unavailable: Bool { get }
-    var containsRootTypeChange: Bool { get }
+    var unavailable: Bool { get set }
+    var containsRootTypeChange: Bool { get set }
 
-    var fields: [GRPCMessageField] { get }
+    var fields: [GRPCMessageField] { get set }
     var sortedFields: [GRPCMessageField] { get }
 
     var nestedEnums: OrderedDictionary<String, GRPCEnum> { get }
@@ -33,14 +34,6 @@ protocol SomeGRPCMessage {
 extension SomeGRPCMessage {
     var sourceCodeComments: String? {
         nil
-    }
-
-    var unavailable: Bool {
-        false
-    }
-
-    var containsRootTypeChange: Bool {
-        false
     }
 
     var sortedFields: [GRPCMessageField] {

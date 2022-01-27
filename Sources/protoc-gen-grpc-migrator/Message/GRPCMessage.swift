@@ -12,10 +12,15 @@ import SwiftProtobufPluginLibrary
 import OrderedCollections
 
 @dynamicMemberLookup
-struct GRPCMessage: SourceCodeRenderable, ModelContaining {
+class GRPCMessage: SourceCodeRenderable, ModelContaining {
     private let message: SomeGRPCMessage
+
     var context: ProtoFileContext {
         message.context
+    }
+
+    var migration: MigrationContext {
+        message.migration
     }
 
     var fullName: String {
