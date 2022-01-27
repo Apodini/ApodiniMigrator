@@ -171,8 +171,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             }
 
             guard let result = find(for: typeName) else {
-                // fatalError("Failed to locate updated model with typeName '\(typeName.rawValue)' and id: \(updatedModel.id) (\(updatedModel))!")
-                continue // TODO this is most likely a parameter upadte which got modeled as a property update, we can't handle as we expect to only update PROTO messages!!!
+                fatalError("Failed to locate updated model with typeName '\(typeName.rawValue)' and id: \(updatedModel.id) (\(updatedModel))!")
             }
 
             result.handleUpdateChange(change: updatedModel)
