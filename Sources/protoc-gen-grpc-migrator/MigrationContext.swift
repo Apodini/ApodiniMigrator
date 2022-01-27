@@ -14,7 +14,7 @@ struct MigrationContext {
     public let document: APIDocument
     /// The `MigrationGuide`
     public let migrationGuide: MigrationGuide
-    ///
+    /// TODO document!!°!!
     public let typeStore: TypesStore
 
     public let newlyCreatedModels: [TypeInformation]

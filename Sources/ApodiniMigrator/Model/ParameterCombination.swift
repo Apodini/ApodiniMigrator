@@ -55,7 +55,7 @@ extension APIDocument {
     /// - Parameters:
     ///   - migrationGuide: The `MigrationGuide` which should be considered. Change types are migrated accordingly.
     ///   - combination: The ``ParameterCombination``.
-    public mutating func combineEndpointParametersIntoWrappedType( // swiftlint:disable:this function_body_length cyclomatic_complexity
+    public mutating func combineEndpointParametersIntoWrappedType(
         considering migrationGuide: inout MigrationGuide,
         using combination: ParameterCombination
     ) {
@@ -77,45 +77,87 @@ extension APIDocument {
 
         unsafeEndpoints = unsafeEndpoints.map { endpoint -> Endpoint in
             // we have an unsafe endpoints access here, types are NOT dereferenced
+            combineParameters(of: endpoint, using: combination, tracking: &combinedParameters)
+                ?? endpoint // if it returns nil, nothing was modified
+        }
 
-            var endpoint = endpoint // make it mutable
-            let previousState = endpoint.parameters // save the current state, so we can abort
+        handleParameterCombinationsOfAddedEndpoints(considering: &migrationGuide, using: combination)
 
-            var electedParameters: [Parameter] = []
-            endpoint.parameters.removeAll { parameter in
-                if combination.shouldBeMapped(parameter: parameter) {
-                    electedParameters.append(parameter)
-                    return true
-                }
-                return false
+        migrateParameterChangesToPropertyChanges(of: combinedParameters, considering: &migrationGuide, using: combination)
+    }
+
+    private mutating func combineParameters(
+        of endpoint: Endpoint,
+        using combination: ParameterCombination,
+        tracking combinedParameters: inout [DeltaIdentifier: EndpointWrappedParameters]
+    ) -> Endpoint? {
+        var endpoint = endpoint
+
+        var electedParameters: [Parameter] = []
+        endpoint.parameters.removeAll { parameter in
+            if combination.shouldBeMapped(parameter: parameter) {
+                electedParameters.append(parameter)
+                return true
             }
+            return false
+        }
 
-            guard !electedParameters.isEmpty else {
-                return endpoint
-            }
-
-            guard var wrappedParameter = combination.merge(endpoint: endpoint, parameters: electedParameters) else {
-                // merge was aborted by returning nil
-                endpoint.parameters = previousState // this way we preserve the original order
-                return endpoint
-            }
-
-            // this save must happen before we store the typeInfo in the APIDocument.
-            // Storing it will turn it into a type reference and we can't derive deltaIdentifiers from references!
-            combinedParameters[endpoint.deltaIdentifier] = EndpointWrappedParameters(
-                wrappedParameters: electedParameters.map { $0.deltaIdentifier },
-                wrapperTypeId: wrappedParameter.typeInformation.deltaIdentifier
-            )
-
-            // store the type in the APIDocument and store the type reference in the parameter
-            wrappedParameter.typeInformation = add(type: wrappedParameter.typeInformation)
-            // append the final parameter
-            endpoint.parameters.append(wrappedParameter)
+        guard !electedParameters.isEmpty else {
             return endpoint
         }
 
-        // TODO what about added endpoints (and their parameters)
+        guard var wrappedParameter = combination.merge(endpoint: endpoint, parameters: electedParameters) else {
+            // merge was aborted by returning nil
+            return nil
+        }
 
+        // this save must happen before we store the typeInfo in the APIDocument.
+        // Storing it will turn it into a type reference and we can't derive deltaIdentifiers from references!
+        combinedParameters[endpoint.deltaIdentifier] = EndpointWrappedParameters(
+            wrappedParameters: electedParameters.map { $0.deltaIdentifier },
+            wrapperTypeId: wrappedParameter.typeInformation.deltaIdentifier
+        )
+
+        // store the type in the APIDocument and store the type reference in the parameter
+        wrappedParameter.typeInformation = add(type: wrappedParameter.typeInformation)
+        // append the final parameter
+        endpoint.parameters.append(wrappedParameter)
+        return endpoint
+    }
+
+    private mutating func handleParameterCombinationsOfAddedEndpoints(
+        considering migrationGuide: inout MigrationGuide,
+        using combination: ParameterCombination
+    ) {
+        migrationGuide.endpointChanges = migrationGuide.endpointChanges.map { endpointChange -> EndpointChange in
+            guard let additionChange = endpointChange.modeledAdditionChange else {
+                return endpointChange
+            }
+
+            // we are actually not interested in collecting these. we dont need to migrate update changes for them.
+            var sink: [DeltaIdentifier: EndpointWrappedParameters] = [:]
+            if let modifiedEndpoint = combineParameters(of: additionChange.added, using: combination, tracking: &sink) {
+                return .addition(
+                    id: additionChange.id,
+                    added: modifiedEndpoint,
+                    defaultValue: additionChange.defaultValue,
+                    breaking: additionChange.breaking,
+                    solvable: additionChange.solvable
+                )
+            }
+
+            return endpointChange
+        }
+    }
+
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
+    private mutating func migrateParameterChangesToPropertyChanges(
+        of combinedParameters: [DeltaIdentifier: EndpointWrappedParameters],
+        considering migrationGuide: inout MigrationGuide,
+        using combination: ParameterCombination
+    ) {
+        // this method handles migration of `Endpoint.update` containing parameter changes.
+        // We need to handle parameter changes of parameters which we combined previously to be mapped to property changes.
         for endpointChange in migrationGuide.endpointChanges {
             // we only consider update changes about parameters ...
             guard let updateChange = endpointChange.modeledUpdateChange,
@@ -230,7 +272,7 @@ extension APIDocument {
                 } else {
                     fatalError("""
                                Encountered inconsistent data. Endpoint change which is part of the migration guide \
-                               is not part of the migration guide!
+                               is not part of the migration guide! LMAO!
                                """)
                 }
             }
