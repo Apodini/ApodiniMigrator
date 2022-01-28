@@ -7,22 +7,9 @@
 //
 
 import XCTest
-@testable import ApodiniMigratorCore
 @testable import ApodiniMigratorClientSupport
 
 final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
-    func testYAMLandJSON() throws {
-        for format in [OutputFormat.json, .yaml] {
-            let document: APIDocument = XCTAssertNoThrowWithResult(try Documents.v1.decodedContent())
-            let path = Path(XCTAssertNoThrowWithResult(try document.write(at: testDirectory, outputFormat: format)))
-            XCTAssertThrows(try APIDocument.decode(from: path + "invalid"))
-            let stringContent = XCTAssertNoThrowWithResult(try path.read() as String)
-            let documentFromPath = XCTAssertNoThrowWithResult(try APIDocument.decode(from: path))
-            XCTAssert(document == documentFromPath)
-            XCTAssertEqual(format.string(of: document).isEmpty, false)
-            XCTAssertEqual(stringContent.isEmpty, false)
-        }
-    }
     
     func testDecodingStrategy() {
         let decoder = JSONDecoder()
@@ -155,65 +142,5 @@ final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
         XCTAssert(!replaced.contains { $0 == 6 })
         numbers.replacingOccurrences(of: 6, with: 9)
         XCTAssert(numbers == replaced)
-    }
-}
-
-extension JSONDecoder.DateDecodingStrategy: Equatable {
-    public static func == (lhs: JSONDecoder.DateDecodingStrategy, rhs: JSONDecoder.DateDecodingStrategy) -> Bool {
-        switch (lhs, rhs) {
-        case (.deferredToDate, .deferredToDate):
-            return true
-        case (.secondsSince1970, .secondsSince1970):
-            return true
-        case (.millisecondsSince1970, .millisecondsSince1970):
-            return true
-        case (.iso8601, .iso8601):
-            return true
-        default:
-            return false
-        }
-    }
-}
-
-extension JSONDecoder.DataDecodingStrategy: Equatable {
-    public static func == (lhs: JSONDecoder.DataDecodingStrategy, rhs: JSONDecoder.DataDecodingStrategy) -> Bool {
-        switch (lhs, rhs) {
-        case (.deferredToData, .deferredToData):
-            return true
-        case (.base64, .base64):
-            return true
-        default:
-            return false
-        }
-    }
-}
-
-extension JSONEncoder.DateEncodingStrategy: Equatable {
-    public static func == (lhs: JSONEncoder.DateEncodingStrategy, rhs: JSONEncoder.DateEncodingStrategy) -> Bool {
-        switch (lhs, rhs) {
-        case (.deferredToDate, .deferredToDate):
-            return true
-        case (.secondsSince1970, .secondsSince1970):
-            return true
-        case (.millisecondsSince1970, .millisecondsSince1970):
-            return true
-        case (.iso8601, .iso8601):
-            return true
-        default:
-            return false
-        }
-    }
-}
-
-extension JSONEncoder.DataEncodingStrategy: Equatable {
-    public static func == (lhs: JSONEncoder.DataEncodingStrategy, rhs: JSONEncoder.DataEncodingStrategy) -> Bool {
-        switch (lhs, rhs) {
-        case (.deferredToData, .deferredToData):
-            return true
-        case (.base64, .base64):
-            return true
-        default:
-            return false
-        }
     }
 }

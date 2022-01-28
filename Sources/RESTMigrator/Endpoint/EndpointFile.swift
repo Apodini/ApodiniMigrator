@@ -8,6 +8,7 @@
 
 import Foundation
 import ApodiniMigrator
+import ApodiniDocumentExport
 
 /// An object that represents an `Type+Endpoint.swift` file in the client library
 class EndpointFile: GeneratedFile {

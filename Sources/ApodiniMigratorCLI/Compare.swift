@@ -9,6 +9,7 @@
 import Foundation
 import ArgumentParser
 import RESTMigrator
+import ApodiniDocumentExport
 
 struct Compare: ParsableCommand {
     static var configuration = CommandConfiguration(
