@@ -38,7 +38,7 @@ let package = Package(
         // testing runtime crashes
         .package(url: "https://github.com/norio-nomura/XCTAssertCrash.git", from: "0.2.0"),
         
-        .package(name: "ApodiniDocumentExport", path: "../ApodiniDocumentExport")
+        .package(url: "https://github.com/Apodini/ApodiniDocumentExport.git", .upToNextMinor(from: "0.1.0"))
     ],
     targets: [
         // The lowest level ApodiniMigrator package providing common API used across several targets, including
