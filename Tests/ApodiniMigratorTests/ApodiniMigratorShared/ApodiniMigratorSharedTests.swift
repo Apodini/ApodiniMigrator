@@ -144,3 +144,63 @@ final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
         XCTAssert(numbers == replaced)
     }
 }
+
+extension JSONDecoder.DateDecodingStrategy: Equatable {
+    public static func == (lhs: JSONDecoder.DateDecodingStrategy, rhs: JSONDecoder.DateDecodingStrategy) -> Bool {
+        switch (lhs, rhs) {
+        case (.deferredToDate, .deferredToDate):
+            return true
+        case (.secondsSince1970, .secondsSince1970):
+            return true
+        case (.millisecondsSince1970, .millisecondsSince1970):
+            return true
+        case (.iso8601, .iso8601):
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+extension JSONDecoder.DataDecodingStrategy: Equatable {
+    public static func == (lhs: JSONDecoder.DataDecodingStrategy, rhs: JSONDecoder.DataDecodingStrategy) -> Bool {
+        switch (lhs, rhs) {
+        case (.deferredToData, .deferredToData):
+            return true
+        case (.base64, .base64):
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+extension JSONEncoder.DateEncodingStrategy: Equatable {
+    public static func == (lhs: JSONEncoder.DateEncodingStrategy, rhs: JSONEncoder.DateEncodingStrategy) -> Bool {
+        switch (lhs, rhs) {
+        case (.deferredToDate, .deferredToDate):
+            return true
+        case (.secondsSince1970, .secondsSince1970):
+            return true
+        case (.millisecondsSince1970, .millisecondsSince1970):
+            return true
+        case (.iso8601, .iso8601):
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+extension JSONEncoder.DataEncodingStrategy: Equatable {
+    public static func == (lhs: JSONEncoder.DataEncodingStrategy, rhs: JSONEncoder.DataEncodingStrategy) -> Bool {
+        switch (lhs, rhs) {
+        case (.deferredToData, .deferredToData):
+            return true
+        case (.base64, .base64):
+            return true
+        default:
+            return false
+        }
+    }
+}
