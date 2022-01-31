@@ -42,6 +42,3 @@ struct Compare: ParsableCommand {
         }
     }
 }
-
-// MARK: - OutputFormat + ExpressibleByArgument
-extension OutputFormat: ExpressibleByArgument {}
