@@ -1,0 +1,19 @@
+{
+    "version": "test_1.2.3",
+    "http": {
+        "hostname": "127.0.0.1",
+        "port": 8080
+    },
+    "exporters": {
+        "rest": {
+            "encoderConfiguration": {
+                "dateEncodingStrategy": "deferredToDate",
+                "dataEncodingStrategy": "base64"
+            },
+            "decoderConfiguration": {
+                "dateDecodingStrategy": "deferredToDate",
+                "dataDecodingStrategy": "base64"
+            }
+        }
+    }
+}

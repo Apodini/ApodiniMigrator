@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import PathKit
 
 public extension String {
     /// Line break
@@ -47,10 +46,5 @@ public extension String {
             return first.lowercased() + dropFirst()
         }
         return self
-    }
-    
-    /// Returns encoded data of `self`
-    func data(_ encoding: Encoding = .utf8) -> Data {
-        data(using: encoding) ?? .init()
     }
 }
