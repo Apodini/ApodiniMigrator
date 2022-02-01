@@ -38,6 +38,8 @@ public struct GRPCFieldType: TypeInformationIdentifier {
     public init?(rawValue: String) {
         if let type = Int32(rawValue) {
             self.type = type
+        } else {
+            return nil
         }
     }
 }
@@ -56,6 +58,8 @@ public struct GRPCNumber: TypeInformationIdentifier {
     public init?(rawValue: String) {
         if let number = Int32(rawValue) {
             self.number = number
+        } else {
+            return nil
         }
     }
 }
