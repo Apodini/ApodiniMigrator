@@ -15,16 +15,30 @@ public struct GRPCName: TypeInformationIdentifier {
 
     // TODO do we need more context or can we just split it when processing?
 
+    public init(_ name: String) {
+        self.rawValue = name
+    }
+
     public init(rawValue: String) {
-        self.rawValue = rawValue
+        self.init(rawValue)
     }
 }
 
 public struct GRPCFieldType: TypeInformationIdentifier {
-    public let rawValue: String
+    public let type: Int32
 
-    public init(rawValue: String) {
-        self.rawValue = rawValue
+    public var rawValue: String {
+        "\(type)"
+    }
+
+    public init(type: Int32) {
+        self.type = type
+    }
+
+    public init?(rawValue: String) {
+        if let type = Int32(rawValue) {
+            self.type = type
+        }
     }
 }
 
@@ -42,8 +56,6 @@ public struct GRPCNumber: TypeInformationIdentifier {
     public init?(rawValue: String) {
         if let number = Int32(rawValue) {
             self.number = number
-        } else {
-            return nil
         }
     }
 }
