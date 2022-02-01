@@ -39,7 +39,7 @@ public struct ElementIdentifierStorage: Hashable {
         return Identifier(rawValue: rawValue)
     }
 
-    public func identifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier {
+    public func identifier<Identifier: ElementIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier {
         guard let identifier = identifierIfPresent(for: Identifier.self) else {
             fatalError("Failed to retrieve required Identifier \(type) as it wasn't present on storage for \(expectedType).")
         }
