@@ -21,7 +21,7 @@ protocol SomeGRPCMethod {
     /// If true, this Method was removed in the latest version.
     var unavailable: Bool { get }
     /// Carrying ``EndpointIdentifierChange`` changes (e.g. serviceName or servicePath changes)
-    var identifierChanges: [EndpointIdentifierChange] { get }
+    var identifierChanges: [ElementIdentifierChange] { get }
     var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)? { get }
     var responseChange: (
         from: TypeInformation,
@@ -74,7 +74,7 @@ extension SomeGRPCMethod {
         false
     }
 
-    var identifierChanges: [EndpointIdentifierChange] {
+    var identifierChanges: [ElementIdentifierChange] {
         []
     }
 

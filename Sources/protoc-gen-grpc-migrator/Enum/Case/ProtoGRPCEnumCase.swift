@@ -49,6 +49,9 @@ class ProtoGRPCEnumCase: SomeGRPCEnumCase, Changeable {
         case .rawValue:
             // same argument as in the `rawValueType` case
             break
+        case .identifier:
+            // TODO implement identifier changes!
+            break
         }
     }
 

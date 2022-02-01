@@ -19,7 +19,7 @@ public enum EndpointUpdateChange: Equatable {
     /// Describes an update change related to `EndpointIdentifier`s (e.g. Operation, Path or HandlerName).
     /// - Parameters:
     ///   - identifier: The ``EndpointIdentifierChange``.
-    case identifier(identifier: EndpointIdentifierChange)
+    case identifier(identifier: ElementIdentifierChange)
 
     /// Describes an update to the `CommunicationalPattern` of the `Endpoint`.
     case communicationalPattern(
@@ -116,7 +116,7 @@ extension EndpointUpdateChange: Codable {
         switch type {
         case .identifier:
             self = .identifier(
-                identifier: try container.decode(EndpointIdentifierChange.self, forKey: .identifier)
+                identifier: try container.decode(ElementIdentifierChange.self, forKey: .identifier)
             )
         case .communicationalPattern:
             self = .communicationalPattern(

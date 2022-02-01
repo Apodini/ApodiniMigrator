@@ -22,21 +22,33 @@ public enum EnumCaseUpdateChange: Equatable {
         from: String,
         to: String
     )
+
+    /// Describes and update change related to `TypeInformationIdentifier`s.
+    case identifier(identifier: ElementIdentifierChange)
 }
 
 extension EnumCaseUpdateChange: Codable {
     private enum UpdateType: String, Codable {
         case rawValue
+        case identifier
     }
 
     private enum CodingKeys: String, CodingKey {
         case type
+        
         case from
         case to
+
+        case identifier
     }
 
     private var type: UpdateType {
-        .rawValue
+        switch self {
+        case .rawValue:
+            return .rawValue
+        case .identifier:
+            return .identifier
+        }
     }
 
     public init(from decoder: Decoder) throws {
@@ -49,6 +61,10 @@ extension EnumCaseUpdateChange: Codable {
                 from: try container.decode(String.self, forKey: .from),
                 to: try container.decode(String.self, forKey: .to)
             )
+        case .identifier:
+            self = .identifier(
+                identifier: try container.decode(ElementIdentifierChange.self, forKey: .identifier)
+            )
         }
     }
 
@@ -60,6 +76,8 @@ extension EnumCaseUpdateChange: Codable {
         case let .rawValue(from, to):
             try container.encode(from, forKey: .from)
             try container.encode(to, forKey: .to)
+        case let .identifier(identifier):
+            try container.encode(identifier, forKey: .identifier)
         }
     }
 }

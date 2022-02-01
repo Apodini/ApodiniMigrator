@@ -67,7 +67,7 @@ public enum DataDecodingStrategy: String, Codable, Equatable {
         case .deferredToData:
             self = .deferredToData
         case .base64:
-            self = .deferredToData
+            self = .base64
         default:
             self = .deferredToData
         }

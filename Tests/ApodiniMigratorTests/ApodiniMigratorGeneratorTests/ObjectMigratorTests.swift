@@ -12,6 +12,8 @@ import XCTest
 @testable import ApodiniMigratorCompare
 
 final class ObjectMigratorTests: ApodiniMigratorXCTestCase {
+    // TODO tests identifier changes!
+
     private let user: TypeInformation = .object(
         name: .init(rawValue: "User"),
         properties: [

@@ -7,12 +7,13 @@
 //
 
 import Foundation
+// TODO move file!
 
-struct IdentifiersComparator: Comparator {
-    let lhs: [AnyEndpointIdentifier]
-    let rhs: [AnyEndpointIdentifier]
+struct ElementIdentifiersComparator: Comparator {
+    let lhs: [AnyElementIdentifier]
+    let rhs: [AnyElementIdentifier]
 
-    func compare(_ context: ChangeComparisonContext, _ results: inout [EndpointIdentifierChange]) {
+    func compare(_ context: ChangeComparisonContext, _ results: inout [ElementIdentifierChange]) {
         let matchedIds = lhs.matchedIds(with: rhs)
         let removalCandidates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
         let additionCandidates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }

@@ -13,9 +13,10 @@ struct EndpointComparator: Comparator {
     let rhs: Endpoint
 
     func compare(_ context: ChangeComparisonContext, _ results: inout [EndpointChange]) {
-        var identifierChanges: [EndpointIdentifierChange] = []
-        let identifiersComparator = IdentifiersComparator(lhs: .init(lhs.identifiers.values), rhs: .init(rhs.identifiers.values))
+        var identifierChanges: [ElementIdentifierChange] = []
+        let identifiersComparator = ElementIdentifiersComparator(lhs: .init(lhs.identifiers), rhs: .init(rhs.identifiers))
         identifiersComparator.compare(context, &identifierChanges)
+
         results.append(contentsOf: identifierChanges.map { change in
             .update(
                 id: lhs.deltaIdentifier,

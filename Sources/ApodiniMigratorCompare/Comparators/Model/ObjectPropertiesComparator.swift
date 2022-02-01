@@ -82,6 +82,22 @@ struct ObjectPropertiesComparator: Comparator {
         let lhsType = lhs.type
         let rhsType = rhs.type
 
+        var identifierChanges: [ElementIdentifierChange] = []
+        let identifiersComparator = ElementIdentifiersComparator(
+            lhs: .init(lhs.context.get(valueFor: TypeInformationIdentifierContextKey.self)),
+            rhs: .init(rhs.context.get(valueFor: TypeInformationIdentifierContextKey.self))
+        )
+        identifiersComparator.compare(context, &identifierChanges)
+
+        results.append(contentsOf: identifierChanges.map { change in
+            .update(
+                id: lhs.deltaIdentifier,
+                updated: .identifier(identifier: change),
+                breaking: change.breaking,
+                solvable: change.solvable
+            )
+        })
+
         if lhsType.typeName == rhsType.typeName && lhs.necessity != rhs.necessity {
             let currentLhsType = context.currentVersion(of: lhsType)
             let jsonValue = JSONValue(JSONStringBuilder.jsonString(currentLhsType.unwrapped, with: context.configuration.encoderConfiguration))

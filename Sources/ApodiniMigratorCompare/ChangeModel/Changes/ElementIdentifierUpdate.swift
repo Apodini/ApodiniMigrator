@@ -10,13 +10,13 @@ import Foundation
 
 /// ``Change`` type which is related to an `EndpointIdentifier`.
 /// `.update` changes are encoded as `EndpointIdentifierUpdateChange`.
-public typealias EndpointIdentifierChange = Change<AnyEndpointIdentifier>
+public typealias ElementIdentifierChange = Change<AnyElementIdentifier>
 
-extension AnyEndpointIdentifier: ChangeableElement {
-    public typealias Update = EndpointIdentifierUpdateChange
+extension AnyElementIdentifier: ChangeableElement {
+    public typealias Update = ElementIdentifierUpdateChange
 }
 
-public struct EndpointIdentifierUpdateChange: Codable, Equatable {
-    public let from: AnyEndpointIdentifier
-    public let to: AnyEndpointIdentifier
+public struct ElementIdentifierUpdateChange: Codable, Equatable {
+    public let from: AnyElementIdentifier
+    public let to: AnyElementIdentifier
 }

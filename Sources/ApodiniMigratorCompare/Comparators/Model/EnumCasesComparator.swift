@@ -56,13 +56,34 @@ struct EnumCasesComparator: Comparator {
 
         for matched in matchedIds {
             if let lhs = lhs.first(where: { $0.deltaIdentifier == matched }),
-               let rhs = rhs.first(where: { $0.deltaIdentifier == matched }),
-               lhs.rawValue != rhs.rawValue {
-                results.append(.update(
-                    id: lhs.deltaIdentifier,
-                    updated: .rawValue(from: lhs.rawValue, to: rhs.rawValue)
-                ))
+               let rhs = rhs.first(where: { $0.deltaIdentifier == matched }) {
+                compare(context, &results, lhs: lhs, rhs: rhs)
             }
+        }
+    }
+
+    private func compare(_ context: ChangeComparisonContext, _ results: inout [EnumCaseChange], lhs: EnumCase, rhs: EnumCase) {
+        var identifierChanges: [ElementIdentifierChange] = []
+        let identifiersComparator = ElementIdentifiersComparator(
+            lhs: .init(lhs.context.get(valueFor: TypeInformationIdentifierContextKey.self)),
+            rhs: .init(rhs.context.get(valueFor: TypeInformationIdentifierContextKey.self))
+        )
+        identifiersComparator.compare(context, &identifierChanges)
+
+        results.append(contentsOf: identifierChanges.map { change in
+            .update(
+                id: lhs.deltaIdentifier,
+                updated: .identifier(identifier: change),
+                breaking: change.breaking,
+                solvable: change.solvable
+            )
+        })
+
+        if lhs.rawValue != rhs.rawValue {
+            results.append(.update(
+                id: lhs.deltaIdentifier,
+                updated: .rawValue(from: lhs.rawValue, to: rhs.rawValue)
+            ))
         }
     }
 }

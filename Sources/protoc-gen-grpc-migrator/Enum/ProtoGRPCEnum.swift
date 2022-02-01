@@ -91,6 +91,9 @@ class ProtoGRPCEnum: SomeGRPCEnum, Changeable {
                     .compactMap { $0.tryTyped(for: ProtoGRPCEnumCase.self) }
                     .forEach { $0.applyUpdateChange(caseUpdate) }
             }
+        case .identifier:
+            // TODO do we support any identifier changes?
+            break
         case .rawValueType:
             // no need to handle this. if we generate a enum it is one without associated values
             // and cases are only encoded via their proto number. Therefore, it isn't relevant

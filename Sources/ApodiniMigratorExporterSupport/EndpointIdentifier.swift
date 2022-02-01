@@ -8,42 +8,12 @@
 
 import Foundation
 
-/// Some sort of identifier of an ``Endpoint``.
-public protocol EndpointIdentifier: RawRepresentable where Self.RawValue == String {
-    /// A string identifier, to uniquely identify this ``EndpointIdentifier``.
-    static var identifierType: String { get }
-}
+/// Some sort of identifier of an `Endpoint`.
+public protocol EndpointIdentifier: ElementIdentifier {}
 
-public extension EndpointIdentifier {
-    /// Default implementation. Uses the type name.
-    static var identifierType: String {
-        "\(Self.self)"
-    }
-}
-
-
-public struct AnyEndpointIdentifier: Codable, Hashable {
-    public let id: String
-    public let value: String
-
-    public init(id: String, value: String) {
-        self.id = id
-        self.value = value
-    }
-
-    public init<Identifier: EndpointIdentifier>(from identifier: Identifier) {
-        self.id = Identifier.identifierType
-        self.value = identifier.rawValue
-    }
-
-    public func typed<Identifier: EndpointIdentifier>(of type: Identifier.Type = Identifier.self) -> Identifier {
-        guard id == Identifier.identifierType else {
-            fatalError("Tired to cast \(self) to \(type) with non matching id \(Identifier.identifierType)!")
-        }
-
-        guard let typedValue = Identifier(rawValue: value) else {
-            fatalError("Unexpected error when creating typed version of \(Identifier.self) from \(self)!")
-        }
-        return typedValue
+extension EndpointIdentifier {
+    /// Default identifier
+    public static var type: IdentifierType {
+        .endpoint
     }
 }

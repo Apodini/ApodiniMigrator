@@ -8,8 +8,8 @@
 
 import Foundation
 
-extension AnyEndpointIdentifier: Value, DeltaIdentifiable {
+extension AnyElementIdentifier: Value, DeltaIdentifiable {
     public var deltaIdentifier: DeltaIdentifier {
-        DeltaIdentifier(rawValue: id)
+        DeltaIdentifier(rawValue: identifier)
     }
 }

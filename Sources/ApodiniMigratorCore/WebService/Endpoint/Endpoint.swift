@@ -33,7 +33,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
     ///
     /// Use ``identifier(for:)`` or ``identifierIfAvailable(for:)`` to retrieve an ``EndpointIdentifier``.
     /// Or use ``handlerName``, ``operation`` or ``path`` computed properties for quick access.
-    public var identifiers: OrderedDictionary<String, AnyEndpointIdentifier>
+    public var identifiers: ElementIdentifierStorage
 
     /// The communicational pattern of the endpoint.
     public let communicationalPattern: CommunicationalPattern
@@ -70,7 +70,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         let typeName = TypeName(rawValue: handlerName)
 
         self.deltaIdentifier = Self.deriveEndpointIdentifier(apodiniIdentifier: deltaIdentifier, handlerName: typeName)
-        self.identifiers = [:]
+        self.identifiers = ElementIdentifierStorage(expecting: .endpoint)
 
         self.parameters = parameters
         self.communicationalPattern = communicationalPattern
@@ -106,27 +106,19 @@ public struct Endpoint: Value, DeltaIdentifiable {
     }
 
     public mutating func add<Identifier: EndpointIdentifier>(identifier: Identifier) {
-        self.identifiers[Identifier.identifierType] = AnyEndpointIdentifier(from: identifier)
+        self.identifiers.add(identifier: identifier)
     }
 
-    public mutating func add(anyIdentifier: AnyEndpointIdentifier) {
-        self.identifiers[anyIdentifier.id] = anyIdentifier
+    public mutating func add(anyIdentifier: AnyElementIdentifier) {
+        self.identifiers.add(anyIdentifier: anyIdentifier)
     }
 
     public func identifierIfPresent<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier? {
-        guard let rawValue = self.identifiers[Identifier.identifierType]?.value else {
-            return nil
-        }
-
-        return Identifier(rawValue: rawValue)
+        identifiers.identifierIfPresent(for: type)
     }
 
     public func identifier<Identifier: EndpointIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier {
-        guard let identifier = identifierIfPresent(for: Identifier.self) else {
-            fatalError("Failed to retrieve required Identifier \(type) which wasn't present on endpoint \(deltaIdentifier).")
-        }
-
-        return identifier
+        identifiers.identifier(for: type)
     }
     
     public mutating func dereference(in typeStore: TypesStore) {
@@ -171,10 +163,7 @@ extension Endpoint: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         self.deltaIdentifier = try container.decode(DeltaIdentifier.self, forKey: .deltaIdentifier)
-        self.identifiers = try container.decode([String: String].self, forKey: .identifiers)
-            .reduce(into: [:]) { result, entry in
-                result[entry.key] = AnyEndpointIdentifier(id: entry.key, value: entry.value)
-            }
+        self.identifiers = try container.decode(ElementIdentifierStorage.self, forKey: .identifiers)
         self.communicationalPattern = try container.decode(CommunicationalPattern.self, forKey: .communicationalPattern)
         self.parameters = try container.decode([Parameter].self, forKey: .parameters)
         self.response = try container.decode(TypeInformation.self, forKey: .response)
@@ -182,33 +171,10 @@ extension Endpoint: Codable {
     }
 
     public func encode(to encoder: Encoder) throws {
-        struct AnyCodingKey: CodingKey {
-            var stringValue: String
-
-            init(stringValue: String) {
-                self.stringValue = stringValue
-            }
-
-            var intValue: Int? {
-                fatalError("Can't access intValue for AnyCodingKey!")
-            }
-
-            init?(intValue: Int) {
-                fatalError("Can't init from intValue for AnyCodingKey!")
-            }
-        }
-
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(deltaIdentifier, forKey: .deltaIdentifier)
-        
-        var identifierContainer = container.nestedContainer(keyedBy: AnyCodingKey.self, forKey: .identifiers)
-        var sortedIdentifiers = self.identifiers
-        sortedIdentifiers.sort()
-        for (key, value) in sortedIdentifiers {
-            try identifierContainer.encode(value.value, forKey: AnyCodingKey(stringValue: key))
-        }
-
+        try container.encode(identifiers, forKey: .identifiers)
         try container.encode(communicationalPattern, forKey: .communicationalPattern)
         try container.encode(parameters, forKey: .parameters)
         try container.encode(response, forKey: .response)

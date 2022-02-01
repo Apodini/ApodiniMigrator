@@ -32,12 +32,16 @@ public enum PropertyUpdateChange: Equatable {
         backwardMigration: Int,
         conversionWarning: String?
     )
+
+    /// Describes and update change related to `TypeInformationIdentifier`s.
+    case identifier(identifier: ElementIdentifierChange)
 }
 
 extension PropertyUpdateChange: Codable {
     private enum UpdateType: String, Codable {
         case necessity
         case type
+        case identifier
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -50,6 +54,8 @@ extension PropertyUpdateChange: Codable {
         case forwardMigration
         case backwardMigration
         case conversionWarning
+
+        case identifier
     }
 
     private var type: UpdateType {
@@ -58,6 +64,8 @@ extension PropertyUpdateChange: Codable {
             return .necessity
         case .type:
             return .type
+        case .identifier:
+            return .identifier
         }
     }
 
@@ -80,6 +88,10 @@ extension PropertyUpdateChange: Codable {
                 backwardMigration: try container.decode(Int.self, forKey: .backwardMigration),
                 conversionWarning: try container.decodeIfPresent(String.self, forKey: .conversionWarning)
             )
+        case .identifier:
+            self = .identifier(
+                identifier: try container.decode(ElementIdentifierChange.self, forKey: .identifier)
+            )
         }
     }
 
@@ -98,6 +110,8 @@ extension PropertyUpdateChange: Codable {
             try container.encode(forwardMigration, forKey: .forwardMigration)
             try container.encode(backwardMigration, forKey: .backwardMigration)
             try container.encodeIfPresent(conversionWarning, forKey: .conversionWarning)
+        case let .identifier(identifier):
+            try container.encode(identifier, forKey: .identifier)
         }
     }
 }

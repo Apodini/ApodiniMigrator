@@ -327,8 +327,8 @@ struct LegacyChangeArray: Decodable {
                         updated: .identifier(identifier: .update(
                             id: DeltaIdentifier(EndpointPath.identifierType),
                             updated: .init(
-                                from: AnyEndpointIdentifier(from: fromPath),
-                                to: AnyEndpointIdentifier(from: toPath)
+                                from: AnyElementIdentifier(from: fromPath),
+                                to: AnyElementIdentifier(from: toPath)
                             ),
                             breaking: change.breaking,
                             solvable: change.solvable
@@ -353,8 +353,8 @@ struct LegacyChangeArray: Decodable {
                         updated: .identifier(identifier: .update(
                             id: DeltaIdentifier(Operation.identifierType),
                             updated: .init(
-                                from: AnyEndpointIdentifier(from: fromOperation),
-                                to: AnyEndpointIdentifier(from: toOperation)
+                                from: AnyElementIdentifier(from: fromOperation),
+                                to: AnyElementIdentifier(from: toOperation)
                             ),
                             breaking: change.breaking,
                             solvable: change.solvable

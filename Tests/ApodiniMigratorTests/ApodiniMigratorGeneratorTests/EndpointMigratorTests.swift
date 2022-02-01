@@ -35,8 +35,8 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
             updated: .identifier(identifier: .update(
                 id: .init(EndpointPath.identifierType),
                 updated: .init(
-                    from: AnyEndpointIdentifier(from: endpoint.identifier(for: EndpointPath.self)),
-                    to: AnyEndpointIdentifier(from: EndpointPath(rawValue: "/v1/updatedTests/{second}"))
+                    from: AnyElementIdentifier(from: endpoint.identifier(for: EndpointPath.self)),
+                    to: AnyElementIdentifier(from: EndpointPath(rawValue: "/v1/updatedTests/{second}"))
                 ),
                 breaking: true,
                 solvable: true
@@ -52,8 +52,8 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
             updated: .identifier(identifier: .update(
                 id: .init(Operation.identifierType),
                 updated: .init(
-                    from: AnyEndpointIdentifier(from: endpoint.identifier(for: ApodiniMigratorCore.Operation.self)),
-                    to: AnyEndpointIdentifier(from: ApodiniMigratorCore.Operation.create)
+                    from: AnyElementIdentifier(from: endpoint.identifier(for: ApodiniMigratorCore.Operation.self)),
+                    to: AnyElementIdentifier(from: ApodiniMigratorCore.Operation.create)
                 ),
                 breaking: true,
                 solvable: true
@@ -139,8 +139,8 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
                 updated: .identifier(identifier: .update(
                     id: .init(EndpointPath.identifierType),
                     updated: .init(
-                        from: AnyEndpointIdentifier(from: endpoint.identifier(for: EndpointPath.self)),
-                        to: AnyEndpointIdentifier(from: EndpointPath(rawValue: "/v1/tests/{second}/{first}"))
+                        from: AnyElementIdentifier(from: endpoint.identifier(for: EndpointPath.self)),
+                        to: AnyElementIdentifier(from: EndpointPath(rawValue: "/v1/tests/{second}/{first}"))
                     ),
                     breaking: true,
                     solvable: true

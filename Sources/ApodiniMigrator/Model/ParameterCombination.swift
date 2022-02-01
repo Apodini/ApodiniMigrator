@@ -35,7 +35,7 @@ public protocol ParameterCombination {
 extension TypeProperty {
     /// Initialize a `TypeProperty` from a `Parameter`. This is used for ``ParameterMigration``.
     public init(from parameter: Parameter) {
-        self = TypeProperty(
+        self = TypeProperty( // TODO handle property context once introduced?
             name: parameter.name,
             type: parameter.necessity == .optional
                 ? parameter.typeInformation.asOptional

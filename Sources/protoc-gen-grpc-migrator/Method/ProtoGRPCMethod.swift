@@ -20,7 +20,7 @@ class ProtoGRPCMethod: SomeGRPCMethod {
     }
 
     // we track the content of all `update` EndpointChanges here
-    var identifierChanges: [EndpointIdentifierChange] = []
+    var identifierChanges: [ElementIdentifierChange] = []
     var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)?
     var parameterChange: ( // TODO support generating this change!
         from: TypeInformation,

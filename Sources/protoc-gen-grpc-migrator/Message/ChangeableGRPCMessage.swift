@@ -38,6 +38,7 @@ extension ChangeableGRPCMessage {
                     name: addedProperty.added.name,
                     type: migration.typeStore.construct(from: addedProperty.added.type),
                     annotation: addedProperty.added.annotation
+                    // TODO handle context once introduced?
                 )
 
                 let previousCount = fields.count
@@ -71,6 +72,9 @@ extension ChangeableGRPCMessage {
                     }
                 }
             }
+        case .identifier:
+            // TODO do we support any identifer changes?
+            break
         case .case, .rawValueType:
             fatalError("Tried updating message with enum-only change type!")
         }

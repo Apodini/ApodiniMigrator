@@ -34,6 +34,9 @@ extension ChangeableGRPCField {
                 backwardMigration
             )
             assert(self.typeUpdate != nil, "AnyObject inheritance assumption for Changeable broke")
+        case .identifier:
+            // TODO implement identifier changes!
+            break
         }
     }
 
