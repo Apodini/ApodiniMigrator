@@ -24,13 +24,32 @@ struct ModelComparator: Comparator {
             // we can't compare two types with different root type
             return
         }
-        
+
         if lhs.rootType == .object {
             let objectComparator = ObjectComparator(lhs: lhs, rhs: rhs)
             objectComparator.compare(context, &results)
         } else if lhs.rootType == .enum {
             let enumComparator = EnumComparator(lhs: lhs, rhs: rhs)
             enumComparator.compare(context, &results)
+        }
+
+        if let lhsTypeContext = lhs.context,
+           let rhsTypeContext = rhs.context {
+            var identifierChanges: [ElementIdentifierChange] = []
+            let identifiersComparator = ElementIdentifiersComparator(
+                lhs: .init(lhsTypeContext.get(valueFor: TypeInformationIdentifierContextKey.self)),
+                rhs: .init(rhsTypeContext.get(valueFor: TypeInformationIdentifierContextKey.self))
+            )
+            identifiersComparator.compare(context, &identifierChanges)
+
+            results.append(contentsOf: identifierChanges.map { change in
+                .update(
+                    id: lhs.deltaIdentifier,
+                    updated: .identifier(identifier: change),
+                    breaking: change.breaking,
+                    solvable: change.solvable
+                )
+            })
         }
     }
 }

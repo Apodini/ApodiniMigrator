@@ -5,9 +5,9 @@
         "package": "ApodiniTypeInformation",
         "repositoryURL": "https://github.com/Apodini/ApodiniTypeInformation.git",
         "state": {
-          "branch": "feature/typestore+typename",
-          "revision": "cbbbd99abefa05971c64532d18b8787b94e1c1f7",
-          "version": null
+          "branch": null,
+          "revision": "ba1d5e86f1d8fd89637d16a4b24740b6ad8cef81",
+          "version": "0.3.1"
         }
       },
       {
@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/Apodini/MetadataSystem.git",
         "state": {
           "branch": null,
-          "revision": "06cac46a958fdf700054f12f682b5c8f27577c9f",
-          "version": "0.1.1"
+          "revision": "7f0df17075a455dcf8b88b234dfaa295b0df7f27",
+          "version": "0.1.2"
         }
       },
       {

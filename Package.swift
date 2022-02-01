@@ -30,7 +30,8 @@ let package = Package(
         .executable(name: "protoc-gen-grpc-migrator", targets: ["protoc-gen-grpc-migrator"])
     ],
     dependencies: [
-        .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .branch("feature/typestore+typename")),
+        .package(url: "https://github.com/Apodini/MetadataSystem.git", .upToNextMinor(from: "0.1.2")),
+        .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .upToNextMinor(from: "0.3.1")),
         .package(url: "https://github.com/kylef/PathKit.git", from: "1.0.1"),
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.4.0")),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
@@ -58,7 +59,11 @@ let package = Package(
 
         // This target provides any necessary interfaces for Apodini exporters.
         .target(
-            name: "ApodiniMigratorExporterSupport"
+            name: "ApodiniMigratorExporterSupport",
+            dependencies: [
+                .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "ApodiniContext", package: "MetadataSystem")
+            ]
         ),
 
         // The core ApodiniMigrator package. It provides access to the TypeInformation framework and introduces
