@@ -35,7 +35,7 @@ struct ApodiniGrpcMethod: SomeGRPCMethod {
         self.methodName = endpoint.identifier(for: GRPCMethodName.self).rawValue
         self.serviceName = endpoint.identifier(for: GRPCServiceName.self).rawValue
 
-        self.streamingType = StreamingType(from: endpoint.communicationalPattern)
+        self.streamingType = StreamingType(from: endpoint.communicationPattern)
 
         precondition(endpoint.parameters.count == 1, "Received unexpected endpoint state for \(endpoint.handlerName) with multiple parameters: \(endpoint.parameters)")
         let endpointInput = endpoint.parameters.first! // swiftlint:disable:this force_unwrapping

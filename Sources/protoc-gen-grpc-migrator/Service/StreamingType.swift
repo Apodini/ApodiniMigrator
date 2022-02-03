@@ -71,7 +71,7 @@ extension StreamingType {
 }
 
 extension StreamingType {
-    init(from pattern: CommunicationalPattern) {
+    init(from pattern: CommunicationPattern) {
         switch pattern {
         case .requestResponse:
             self = .unary

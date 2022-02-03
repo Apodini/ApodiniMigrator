@@ -35,8 +35,8 @@ public struct Endpoint: Value, DeltaIdentifiable {
     /// Or use ``handlerName``, ``operation`` or ``path`` computed properties for quick access.
     public var identifiers: ElementIdentifierStorage
 
-    /// The communicational pattern of the endpoint.
-    public let communicationalPattern: CommunicationalPattern
+    /// The communication pattern of the endpoint.
+    public let communicationPattern: CommunicationPattern
     /// Parameters of the endpoint
     public var parameters: [Parameter]
     /// The reference of the `typeInformation` of the response
@@ -61,7 +61,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         handlerName: String,
         deltaIdentifier: String,
         operation: Operation,
-        communicationalPattern: CommunicationalPattern,
+        communicationPattern: CommunicationPattern,
         absolutePath: String,
         parameters: [Parameter],
         response: TypeInformation,
@@ -73,7 +73,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         self.identifiers = ElementIdentifierStorage(expecting: .endpoint)
 
         self.parameters = parameters
-        self.communicationalPattern = communicationalPattern
+        self.communicationPattern = communicationPattern
         self.response = response
         self.errors = errors
 
@@ -87,7 +87,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         handlerName: TypeName,
         deltaIdentifier: String,
         operation: Operation,
-        communicationalPattern: CommunicationalPattern,
+        communicationPattern: CommunicationPattern,
         absolutePath: String,
         parameters: [Parameter],
         response: TypeInformation,
@@ -97,7 +97,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
             handlerName: handlerName.rawValue,
             deltaIdentifier: deltaIdentifier,
             operation: operation,
-            communicationalPattern: communicationalPattern,
+            communicationPattern: communicationPattern,
             absolutePath: absolutePath,
             parameters: parameters,
             response: response,
@@ -153,6 +153,8 @@ extension Endpoint: Codable {
     private enum CodingKeys: String, CodingKey {
         case deltaIdentifier
         case identifiers
+        case communicationPattern
+        // To enable an import of previously encoded documents. Remove in the next version bump.
         case communicationalPattern
         case parameters
         case response
@@ -164,7 +166,11 @@ extension Endpoint: Codable {
 
         self.deltaIdentifier = try container.decode(DeltaIdentifier.self, forKey: .deltaIdentifier)
         self.identifiers = try container.decode(ElementIdentifierStorage.self, forKey: .identifiers)
-        self.communicationalPattern = try container.decode(CommunicationalPattern.self, forKey: .communicationalPattern)
+        if let communicationalPattern = try? container.decode(CommunicationPattern.self, forKey: .communicationalPattern) {
+            self.communicationPattern = communicationalPattern
+        } else {
+            self.communicationPattern = try container.decode(CommunicationPattern.self, forKey: .communicationPattern)
+        }
         self.parameters = try container.decode([Parameter].self, forKey: .parameters)
         self.response = try container.decode(TypeInformation.self, forKey: .response)
         self.errors = try container.decode([ErrorCode].self, forKey: .errors)
@@ -175,7 +181,7 @@ extension Endpoint: Codable {
 
         try container.encode(deltaIdentifier, forKey: .deltaIdentifier)
         try container.encode(identifiers, forKey: .identifiers)
-        try container.encode(communicationalPattern, forKey: .communicationalPattern)
+        try container.encode(communicationPattern, forKey: .communicationPattern)
         try container.encode(parameters, forKey: .parameters)
         try container.encode(response, forKey: .response)
         try container.encode(errors, forKey: .errors)
@@ -192,7 +198,7 @@ extension Endpoint: Equatable {
 
         return lhs.deltaIdentifier == rhs.deltaIdentifier
             && lhsIdentifiers == rhsIdentifiers
-            && lhs.communicationalPattern == rhs.communicationalPattern
+            && lhs.communicationPattern == rhs.communicationPattern
             && lhs.parameters == rhs.parameters
             && lhs.response == rhs.response
             && lhs.errors == rhs.errors

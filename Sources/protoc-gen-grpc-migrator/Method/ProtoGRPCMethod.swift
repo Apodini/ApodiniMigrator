@@ -21,7 +21,7 @@ class ProtoGRPCMethod: SomeGRPCMethod {
 
     // we track the content of all `update` EndpointChanges here
     var identifierChanges: [ElementIdentifierChange] = []
-    var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)?
+    var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)?
     var parameterChange: ( // TODO support generating this change!
         from: TypeInformation,
         to: TypeInformation,
@@ -124,7 +124,7 @@ class ProtoGRPCMethod: SomeGRPCMethod {
         switch change.updated {
         case let .identifier(identifier):
             self.identifierChanges.append(identifier)
-        case let .communicationalPattern(from, to):
+        case let .communicationPattern(from, to):
             self.communicationPatternChange = (from, to)
         case let .response(from, to, backwardsMigration, migrationWarning):
             self.responseChange = (

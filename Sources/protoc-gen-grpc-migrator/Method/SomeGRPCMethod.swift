@@ -22,7 +22,7 @@ protocol SomeGRPCMethod {
     var unavailable: Bool { get }
     /// Carrying ``EndpointIdentifierChange`` changes (e.g. serviceName or servicePath changes)
     var identifierChanges: [ElementIdentifierChange] { get }
-    var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)? { get }
+    var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)? { get }
     var responseChange: (
         from: TypeInformation,
         to: TypeInformation,
@@ -78,7 +78,7 @@ extension SomeGRPCMethod {
         []
     }
 
-    var communicationPatternChange: (from: CommunicationalPattern, to: CommunicationalPattern)? {
+    var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)? {
         nil
     }
 

@@ -16,7 +16,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
         handlerName: "TestHandler",
         deltaIdentifier: "testEndpoint",
         operation: .read,
-        communicationalPattern: .requestResponse,
+        communicationPattern: .requestResponse,
         absolutePath: "/v1/tests/{second}",
         parameters: [
             .init(name: "isDriving", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
@@ -349,7 +349,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
             handlerName: "someHandler",
             deltaIdentifier: "id",
             operation: .create,
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: "/v1/test",
             parameters: [param1, param2],
             response: .scalar(.bool),

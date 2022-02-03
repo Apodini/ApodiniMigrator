@@ -26,12 +26,12 @@ struct EndpointComparator: Comparator {
             )
         })
 
-        if lhs.communicationalPattern != rhs.communicationalPattern {
+        if lhs.communicationPattern != rhs.communicationPattern {
             results.append(.update(
                 id: lhs.deltaIdentifier,
-                updated: .communicationalPattern(
-                    from: lhs.communicationalPattern,
-                    to: rhs.communicationalPattern
+                updated: .communicationPattern(
+                    from: lhs.communicationPattern,
+                    to: rhs.communicationPattern
                 )
             ))
         }

@@ -22,7 +22,7 @@ extension Endpoint {
     init(from endpoint: LegacyEndpoint) {
         self.deltaIdentifier = endpoint.deltaIdentifier
         self.identifiers = ElementIdentifierStorage(expecting: .endpoint)
-        self.communicationalPattern = .requestResponse
+        self.communicationPattern = .requestResponse
         self.parameters = endpoint.parameters
         self.response = endpoint.response
         self.errors = endpoint.errors

@@ -51,7 +51,7 @@ final class AuxiliaryFileGeneratorTests: ApodiniMigratorXCTestCase {
             handlerName: "TestHandler",
             deltaIdentifier: "sayHelloWorld",
             operation: .read,
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: "/v1/hello",
             parameters: [],
             response: .scalar(.string),
