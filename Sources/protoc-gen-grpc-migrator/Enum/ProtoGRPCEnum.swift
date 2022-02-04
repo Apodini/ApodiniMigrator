@@ -76,7 +76,7 @@ class ProtoGRPCEnum: SomeGRPCEnum, Changeable {
                     .forEach { $0.applyIdChange(renamedEnumCase) }
             } else if let caseAddition = `case`.modeledAdditionChange {
                 // TODO we currently GUESS the enum case number!
-                let addedCase = GRPCEnumCase(ApodiniEnumCase(caseAddition.added, number: enumCases.count))
+                let addedCase = GRPCEnumCase(ApodiniEnumCase(caseAddition.added))
 
                 enumCases.append(addedCase)
                 uniquelyNamedValues.append(addedCase)

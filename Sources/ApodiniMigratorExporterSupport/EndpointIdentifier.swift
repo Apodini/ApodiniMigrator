@@ -10,10 +10,3 @@ import Foundation
 
 /// Some sort of identifier of an `Endpoint`.
 public protocol EndpointIdentifier: ElementIdentifier {}
-
-extension EndpointIdentifier {
-    /// Default identifier
-    public static var type: IdentifierType {
-        .endpoint
-    }
-}

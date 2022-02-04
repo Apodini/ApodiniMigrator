@@ -59,15 +59,18 @@ class ApodiniMessageField: SomeGRPCMessageField, ChangeableGRPCField {
     var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)?
     var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)?
 
-    init(_ property: TypeProperty, number: Int, defaultValue: Int? = nil, context: ProtoFileContext, migration: MigrationContext) {
+    init(_ property: TypeProperty, defaultValue: Int? = nil, context: ProtoFileContext, migration: MigrationContext) {
         // we ignore fluent property annotations
+
         self.property = property
         self.context = context
         self.migration = migration
 
-        self.name = property.name
+        let identifiers = property.context.get(valueFor: TypeInformationIdentifierContextKey.self)
 
-        self.type = property.protoType
+        self.name = property.name
+        self.type = .init(rawValue: Int(identifiers.identifier(for: GRPCFieldType.self).type))
+            ?? property.protoType
 
         let typeName = property.swiftType(namer: context.namer)
 
@@ -83,12 +86,12 @@ class ApodiniMessageField: SomeGRPCMessageField, ChangeableGRPCField {
 
         self.sourceCodeComments = nil
 
-        self.number = number
+        self.number = Int(identifiers.identifier(for: GRPCNumber.self).number)
 
         let type = property.type
         self.hasFieldPresence = property.hasPresence
         self.isMap = type.isDictionary
-        self.isPacked = false // TODO can we just assume this? https://developers.google.com/protocol-buffers/docs/encoding#packed
+        self.isPacked = false
         self.isRepeated = type.isRepeated
     }
 }
@@ -139,7 +142,6 @@ extension TypeInformation {
     ///
     /// This replicates https://github.com/Apodini/Apodini/blob/98363c4e3f4c692ce15fe7bf7c6d1e32f0f6b8c0/Sources/ProtobufferCoding/ProtoCoding.swift#L225-L249
     var protoFieldType: Google_Protobuf_FieldDescriptorProto.TypeEnum {
-        // TODO depending on custom conformances this might still yield wrong results
         switch self {
         case let .scalar(primitiveType):
             return primitiveType.protoFieldType

@@ -33,19 +33,12 @@ extension ChangeableGRPCMessage {
                     }
                 }
             } else if let addedProperty = property.modeledAdditionChange {
-                // TODO we currently GUESS the property number!
-                let property = TypeProperty(
-                    name: addedProperty.added.name,
-                    type: migration.typeStore.construct(from: addedProperty.added.type),
-                    annotation: addedProperty.added.annotation
-                    // TODO handle context once introduced?
-                )
+                var property = addedProperty.added
+                property.dereference(from: migration.typeStore)
 
                 let previousCount = fields.count
-
                 this.fields.append(GRPCMessageField(ApodiniMessageField(
                     property,
-                    number: fields.count + 1,
                     defaultValue: addedProperty.defaultValue,
                     context: context,
                     migration: migration
@@ -73,7 +66,8 @@ extension ChangeableGRPCMessage {
                 }
             }
         case .identifier:
-            // TODO do we support any identifer changes?
+            // identifier right now only consist of `GRPCName´. So we ignore those changes right now
+            // TODO handle e.g. property additions referencing the new name?
             break
         case .case, .rawValueType:
             fatalError("Tried updating message with enum-only change type!")

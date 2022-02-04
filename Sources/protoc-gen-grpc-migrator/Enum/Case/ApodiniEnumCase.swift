@@ -27,8 +27,10 @@ struct ApodiniEnumCase: SomeGRPCEnumCase {
 
     var number: Int
 
-    init(_ enumCase: EnumCase, number: Int) {
+    init(_ enumCase: EnumCase) {
         self.enumCase = enumCase
-        self.number = number
+
+        let identifiers = enumCase.context.get(valueFor: TypeInformationIdentifierContextKey.self)
+        self.number = Int(identifiers.identifier(for: GRPCNumber.self).number)
     }
 }

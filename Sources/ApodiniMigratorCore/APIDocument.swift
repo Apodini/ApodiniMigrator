@@ -12,12 +12,16 @@ import ApodiniTypeInformation
 /// This enum describes the document format version of the ``APIDocument``.
 /// ``APIDocumentVersion`` follows the SemVer versioning scheme.
 public enum APIDocumentVersion: String, Codable {
+    public static let current: APIDocumentVersion = .v2_1
+
     /// The original/legacy document format introduced with version 0.1.0.
     /// - Note: This version is assumed when no `version` field is present in the document root.
     ///     ApodiniMigrator supports parsing legacy documents till 0.3.0.
     case v1 = "1.0.0"
     /// The current document format introduced with version 0.2.0.
     case v2 = "2.0.0"
+    /// The document format introduced with version 0.3.0.
+    case v2_1 = "2.1.0" // swiftlint:disable:this identifier_name
 }
 
 /// A API document describing an Apodini Web Service.
@@ -140,7 +144,7 @@ extension APIDocument: Codable {
             self._endpoints = endpoints.map { Endpoint(from: $0) }
 
             try typeStore = container.decode(TypesStore.self, forKey: .legacyTypes)
-        case .v2:
+        case .v2, .v2_1:
             try serviceInformation = container.decode(ServiceInformation.self, forKey: .serviceInformation)
             try _endpoints = container.decode([Endpoint].self, forKey: .endpoints)
             try typeStore = container.decode(TypesStore.self, forKey: .types)
@@ -152,7 +156,7 @@ extension APIDocument: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(id, forKey: .id)
-        try container.encode(APIDocumentVersion.v2, forKey: .documentVersion)
+        try container.encode(APIDocumentVersion.current, forKey: .documentVersion)
         try container.encode(serviceInformation, forKey: .serviceInformation)
         try container.encode(_endpoints, forKey: .endpoints)
         try container.encode(typeStore, forKey: .types)

@@ -70,7 +70,7 @@ public struct Endpoint: Value, DeltaIdentifiable {
         let typeName = TypeName(rawValue: handlerName)
 
         self.deltaIdentifier = Self.deriveEndpointIdentifier(apodiniIdentifier: deltaIdentifier, handlerName: typeName)
-        self.identifiers = ElementIdentifierStorage(expecting: .endpoint)
+        self.identifiers = ElementIdentifierStorage()
 
         self.parameters = parameters
         self.communicationPattern = communicationPattern

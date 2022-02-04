@@ -9,7 +9,10 @@
 import Foundation
 import ApodiniMigrator
 
+extension TypeInformationIdentifiers: TypeIdentifiersDescription {}
+
 struct MigrationContext {
+    let exporterConfiguration: GRPCExporterConfiguration
     /// The base `APIDocument`
     let document: APIDocument
     /// The `MigrationGuide`
@@ -26,6 +29,10 @@ struct MigrationContext {
     let apiDocumentModelAdditions: [TypeInformation]
 
     init(document: APIDocument, migrationGuide: MigrationGuide) {
+        self.exporterConfiguration = document.serviceInformation.exporter(for: GRPCExporterConfiguration.self)
+
+        // TODO handle empty parameters!
+
         var document = document
         var migrationGuide = migrationGuide
 
@@ -61,6 +68,31 @@ struct MigrationContext {
             }
 
             _ = typeStore.store(addition.added)
+        }
+
+        // TODO document
+        for endpoint in document.endpoints {
+            let typeName = endpoint.handlerName.buildName(
+                printTargetName: true,
+                componentSeparator: ".",
+                genericsStart: "<",
+                genericsSeparator: ",",
+                genericsDelimiter: ">"
+            )
+
+            guard let identifiers = exporterConfiguration.identifiersOfSynthesizedTypes[typeName] else {
+                continue
+            }
+
+            if let inputIdentifiers = identifiers.inputIdentifiers {
+                precondition(endpoint.parameters.count == 1, "Unexpected endpoint count for \(endpoint)")
+                let parameter = endpoint.parameters[0]
+                parameter.typeInformation.augmentTypeWithIdentifiers(retrieveIdentifiers: { _ in inputIdentifiers })
+            }
+
+            if let outputIdentifiers = identifiers.outputIdentifiers {
+                endpoint.response.augmentTypeWithIdentifiers(retrieveIdentifiers: { _ in outputIdentifiers })
+            }
         }
 
         self.document = document

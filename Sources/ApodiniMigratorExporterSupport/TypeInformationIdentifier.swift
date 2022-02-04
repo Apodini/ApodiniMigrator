@@ -12,14 +12,7 @@ import ApodiniContext
 /// Some sort of identifier for `TypeInformation`-
 public protocol TypeInformationIdentifier: ElementIdentifier {}
 
-extension TypeInformationIdentifier {
-    /// Default identifier
-    public static var type: IdentifierType {
-        .typeInformation
-    }
-}
-
 public struct TypeInformationIdentifierContextKey: CodableContextKey, ContextKey {
     public typealias Value = ElementIdentifierStorage
-    public static var defaultValue = ElementIdentifierStorage(expecting: .typeInformation)
+    public static var defaultValue = ElementIdentifierStorage()
 }

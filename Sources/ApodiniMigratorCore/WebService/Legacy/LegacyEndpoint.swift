@@ -21,7 +21,7 @@ struct LegacyEndpoint: Codable {
 extension Endpoint {
     init(from endpoint: LegacyEndpoint) {
         self.deltaIdentifier = endpoint.deltaIdentifier
-        self.identifiers = ElementIdentifierStorage(expecting: .endpoint)
+        self.identifiers = ElementIdentifierStorage()
         self.communicationPattern = .requestResponse
         self.parameters = endpoint.parameters
         self.response = endpoint.response

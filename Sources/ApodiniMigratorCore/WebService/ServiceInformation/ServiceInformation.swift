@@ -57,11 +57,11 @@ public struct ServiceInformation: Value, Hashable {
     }
 
     public func exporter<Exporter: ExporterConfiguration>(for type: Exporter.Type = Exporter.self) -> Exporter {
-        guard let exporter = exporters[Exporter.type] else {
+        guard let exporter = exporterIfPresent(for: type) else {
             fatalError("Failed to retrieve exporter from ServiceInformation: \(type)")
         }
 
-        return exporter.typed()
+        return exporter
     }
 
     public func exporterIfPresent<Exporter: ExporterConfiguration>(for type: Exporter.Type = Exporter.self) -> Exporter? {

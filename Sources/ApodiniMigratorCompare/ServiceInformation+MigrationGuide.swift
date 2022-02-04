@@ -9,6 +9,19 @@
 import Foundation
 
 public extension ServiceInformation {
+    /// Force retrieves a `ExporterConfiguration`.
+    /// This method considers updates of the supplied ``MigrationGuide`` (e.g. if a ExporterConfiguration was removed in the update `APIDocument`).
+    func exporter<Exporter: ExporterConfiguration>(
+        for type: Exporter.Type = Exporter.self,
+        migrationGuide: MigrationGuide
+    ) -> Exporter {
+        guard let exporter = exporterIfPresent(for: type, migrationGuide: migrationGuide) else {
+            fatalError("Failed to retrieve exporter from ServiceInformation: \(type)")
+        }
+
+        return exporter
+    }
+
     /// Retrieve the `ExporterConfiguration` if its present.
     /// This method considers updates of the supplied ``MigrationGuide`` (e.g. if a ExporterConfiguration was removed in the update `APIDocument`).
     func exporterIfPresent<Exporter: ExporterConfiguration>(

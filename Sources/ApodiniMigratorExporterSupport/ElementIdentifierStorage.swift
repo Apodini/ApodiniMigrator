@@ -10,11 +10,9 @@ import Foundation
 import OrderedCollections
 
 public struct ElementIdentifierStorage: Hashable {
-    private let expectedType: IdentifierType
     private var identifiers: OrderedDictionary<String, AnyElementIdentifier>
 
-    public init(expecting expectedType: IdentifierType) {
-        self.expectedType = expectedType
+    public init() {
         self.identifiers = [:]
     }
     
@@ -27,7 +25,6 @@ public struct ElementIdentifierStorage: Hashable {
     }
 
     public mutating func add(anyIdentifier: AnyElementIdentifier) {
-        precondition(anyIdentifier.type == expectedType, "Only \(expectedType) identifiers can be added to this IdentifierStorage. Tried adding \(anyIdentifier)")
         self.identifiers[anyIdentifier.identifier] = anyIdentifier
     }
 
@@ -41,7 +38,7 @@ public struct ElementIdentifierStorage: Hashable {
 
     public func identifier<Identifier: ElementIdentifier>(for type: Identifier.Type = Identifier.self) -> Identifier {
         guard let identifier = identifierIfPresent(for: Identifier.self) else {
-            fatalError("Failed to retrieve required Identifier \(type) as it wasn't present on storage for \(expectedType).")
+            fatalError("Failed to retrieve required Identifier \(type) as it wasn't present on storage.")
         }
 
         return identifier
@@ -49,60 +46,38 @@ public struct ElementIdentifierStorage: Hashable {
 }
 
 extension ElementIdentifierStorage: Codable {
-    private enum CodingKeys: String, CodingKey {
-        case type
-        case elements
+    private struct StringCodingKey: CodingKey {
+        var stringValue: String
+        let intValue: Int? = nil
+
+        init(stringValue: String) {
+            self.stringValue = stringValue
+        }
+
+        init?(intValue: Int) {
+            nil
+        }
     }
 
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let container = try decoder.container(keyedBy: StringCodingKey.self)
 
-        // backwards compatibility layer
-        guard container.allKeys.contains(.type) && container.allKeys.contains(.elements) else {
-            let container = try decoder.singleValueContainer()
-            self.expectedType = .endpoint
-            self.identifiers = try container.decode([String: String].self)
-                .reduce(into: [:]) { result, entry in
-                    result[entry.key] = AnyElementIdentifier(type: .endpoint, identifier: entry.key, value: entry.value)
-                }
-            return
+        self.identifiers = [:]
+
+        for key in container.allKeys {
+            let value = try container.decode(String.self, forKey: key)
+            self.identifiers[key.stringValue] = AnyElementIdentifier(identifier: key.stringValue, value: value)
         }
-
-        let expectedType = try container.decode(IdentifierType.self, forKey: .type)
-        self.expectedType = expectedType
-
-        self.identifiers = try container.decode([String: String].self, forKey: .elements)
-            .reduce(into: [:]) { result, entry in
-                result[entry.key] = AnyElementIdentifier(type: expectedType, identifier: entry.key, value: entry.value)
-            }
     }
 
     public func encode(to encoder: Encoder) throws {
-        struct AnyCodingKey: CodingKey {
-            var stringValue: String
+        var container = encoder.container(keyedBy: StringCodingKey.self)
 
-            init(stringValue: String) {
-                self.stringValue = stringValue
-            }
-
-            var intValue: Int? {
-                fatalError("Can't access intValue for AnyCodingKey!")
-            }
-
-            init?(intValue: Int) {
-                fatalError("Can't init from intValue for AnyCodingKey!")
-            }
-        }
-
-        var container = encoder.container(keyedBy: CodingKeys.self)
-
-        try container.encode(expectedType, forKey: .type)
-
-        var identifierContainer = container.nestedContainer(keyedBy: AnyCodingKey.self, forKey: .elements)
         var sortedIdentifiers = self.identifiers
         sortedIdentifiers.sort()
+
         for (key, value) in sortedIdentifiers {
-            try identifierContainer.encode(value.value, forKey: AnyCodingKey(stringValue: key))
+            try container.encode(value.value, forKey: StringCodingKey(stringValue: key))
         }
     }
 }

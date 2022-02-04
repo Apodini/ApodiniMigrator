@@ -18,10 +18,44 @@ public struct GRPCExporterConfiguration: ExporterConfiguration {
     public let pathPrefix: String
     public let reflectionEnabled: Bool
 
-    public init(packageName: String, serviceName: String, pathPrefix: String, reflectionEnabled: Bool) {
+    /// Identifiers of synthesized types (input and output type wrappers) aren't stored
+    /// in the APIDocument along with the `TypeInformation` (as the don't exist).
+    /// Therefore we transport them separately.
+    /// Identified by the rawValue of the HandlerName (so result of `String(reflecting: MyHandler.self)`
+    /// which is the value saved in `Endpoint/handlerName`).
+    public var identifiersOfSynthesizedTypes: [String: EndpointSynthesizedTypes]
+
+    public init(
+        packageName: String,
+        serviceName: String,
+        pathPrefix: String,
+        reflectionEnabled: Bool,
+        identifiersOfSynthesizedTypes: [String: EndpointSynthesizedTypes] = [:]
+    ) {
         self.packageName = packageName
         self.serviceName = serviceName
         self.pathPrefix = pathPrefix
         self.reflectionEnabled = reflectionEnabled
+        self.identifiersOfSynthesizedTypes = identifiersOfSynthesizedTypes
+    }
+}
+
+public struct TypeInformationIdentifiers: Codable, Hashable {
+    public var identifiers: ElementIdentifierStorage
+    public var childrenIdentifiers: [String: ElementIdentifierStorage]
+
+    public init(identifiers: ElementIdentifierStorage, childrenIdentifiers: [String: ElementIdentifierStorage]) {
+        self.identifiers = identifiers
+        self.childrenIdentifiers = childrenIdentifiers
+    }
+}
+
+public struct EndpointSynthesizedTypes: Codable, Hashable {
+    public var inputIdentifiers: TypeInformationIdentifiers?
+    public var outputIdentifiers: TypeInformationIdentifiers?
+
+    public init(inputIdentifiers: TypeInformationIdentifiers?, outputIdentifiers: TypeInformationIdentifiers?) {
+        self.inputIdentifiers = inputIdentifiers
+        self.outputIdentifiers = outputIdentifiers
     }
 }
