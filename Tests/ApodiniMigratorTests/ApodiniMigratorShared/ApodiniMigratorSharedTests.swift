@@ -10,7 +10,6 @@ import XCTest
 @testable import ApodiniMigratorClientSupport
 
 final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
-    
     func testDecodingStrategy() {
         let decoder = JSONDecoder()
         

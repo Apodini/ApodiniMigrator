@@ -9,7 +9,7 @@
 import Foundation
 import OrderedCollections
 
-public struct ElementIdentifierStorage: Hashable {
+public struct ElementIdentifierStorage: Hashable { // TODO sort on equal!
     private var identifiers: OrderedDictionary<String, AnyElementIdentifier>
 
     public init() {
@@ -42,6 +42,19 @@ public struct ElementIdentifierStorage: Hashable {
         }
 
         return identifier
+    }
+
+    public static func == (lhs: ElementIdentifierStorage, rhs: ElementIdentifierStorage) -> Bool {
+        guard lhs.identifiers.count == rhs.identifiers.count else {
+            return false
+        }
+
+        var lhsIdentifiers = lhs.identifiers
+        var rhsIdentifiers = rhs.identifiers
+        lhsIdentifiers.sort()
+        rhsIdentifiers.sort()
+
+        return lhsIdentifiers == rhsIdentifiers
     }
 }
 
