@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "ApodiniDocumentExport",
+        "repositoryURL": "https://github.com/Apodini/ApodiniDocumentExport.git",
+        "state": {
+          "branch": null,
+          "revision": "0a3fe4195f011057ad2cd5150c9091f2a17c2ec1",
+          "version": "0.1.1"
+        }
+      },
+      {
         "package": "ApodiniTypeInformation",
         "repositoryURL": "https://github.com/Apodini/ApodiniTypeInformation.git",
         "state": {

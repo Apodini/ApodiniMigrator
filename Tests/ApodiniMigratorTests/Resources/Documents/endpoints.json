@@ -1,0 +1,16 @@
+[
+    {
+        "deltaIdentifier": "endpoint",
+        "identifiers": {
+            "EndpointPath": "/test1/test",
+            "HandlerName": "someHandler",
+            "Operation": "create"
+        },
+        "communicationalPattern": "requestResponse",
+        "parameters": [],
+        "response": {
+            "scalar": "Bool"
+        },
+        "errors": []
+    }
+]

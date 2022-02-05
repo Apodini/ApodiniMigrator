@@ -43,7 +43,9 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.18.0"),
 
         // testing runtime crashes
-        .package(url: "https://github.com/norio-nomura/XCTAssertCrash.git", from: "0.2.0")
+        .package(url: "https://github.com/norio-nomura/XCTAssertCrash.git", from: "0.2.0"),
+        
+        .package(url: "https://github.com/Apodini/ApodiniDocumentExport.git", .upToNextMinor(from: "0.1.0"))
     ],
     targets: [
         // The lowest level ApodiniMigrator package providing common API used across several targets, including
@@ -53,7 +55,8 @@ let package = Package(
             dependencies: [
                 .product(name: "PathKit", package: "PathKit"),
                 .product(name: "FineJSON", package: "FineJSON"),
-                .product(name: "Yams", package: "Yams")
+                .product(name: "Yams", package: "Yams"),
+                .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport")
             ]
         ),
 
@@ -113,7 +116,8 @@ let package = Package(
                 .target(name: "ApodiniMigrator"),
                 .target(name: "ApodiniMigratorCompare"),
                 .target(name: "ApodiniMigratorClientSupport"),
-                .product(name: "Logging", package: "swift-log")
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport")
             ],
             resources: [
                 .process("Resources")
@@ -141,7 +145,8 @@ let package = Package(
                 .target(name: "RESTMigrator"),
                 .target(name: "gRPCMigrator"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "Logging", package: "swift-log")
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport")
             ]
         ),
 
@@ -164,7 +169,8 @@ let package = Package(
                 "RESTMigrator",
                 "ApodiniMigratorCompare",
                 "ApodiniMigratorClientSupport",
-                .product(name: "XCTAssertCrash", package: "XCTAssertCrash", condition: .when(platforms: [.macOS]))
+                .product(name: "XCTAssertCrash", package: "XCTAssertCrash", condition: .when(platforms: [.macOS])),
+                .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport")
             ],
             resources: [
                 .process("Resources")

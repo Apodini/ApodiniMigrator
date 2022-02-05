@@ -10,6 +10,7 @@ import XCTest
 @testable import ApodiniMigratorCore
 @testable import ApodiniMigratorClientSupport
 @testable import RESTMigrator
+import ApodiniDocumentExport
 
 final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
     func testDSLEndpointIdentifier() {
@@ -88,7 +89,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
         )
 
         XCTAssertEqual(document.fileName, "api_test1.2.3")
-        XCTAssertEqual(document.endpoints.isEmpty, false)
+        XCTAssertEqual(document.endpoints, XCTAssertNoThrowWithResult(try Documents.endpoints.decodedContent()))
         XCTAssertEqual(document.serviceInformation.http.description, "http://127.0.0.1:8080")
         XCTAssertEqual(document.json.isEmpty, false)
         XCTAssertEqual(document.yaml.isEmpty, false)
