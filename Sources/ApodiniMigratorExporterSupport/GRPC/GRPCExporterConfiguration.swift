@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OrderedCollections
 
 public struct GRPCExporterConfiguration: ExporterConfiguration {
     public static var type: ApodiniExporterType {
@@ -23,14 +24,14 @@ public struct GRPCExporterConfiguration: ExporterConfiguration {
     /// Therefore we transport them separately.
     /// Identified by the rawValue of the HandlerName (so result of `String(reflecting: MyHandler.self)`
     /// which is the value saved in `Endpoint/handlerName`).
-    public var identifiersOfSynthesizedTypes: [String: EndpointSynthesizedTypes]
+    public var identifiersOfSynthesizedTypes: OrderedDictionary<String, EndpointSynthesizedTypes>
 
     public init(
         packageName: String,
         serviceName: String,
         pathPrefix: String,
         reflectionEnabled: Bool,
-        identifiersOfSynthesizedTypes: [String: EndpointSynthesizedTypes] = [:]
+        identifiersOfSynthesizedTypes: OrderedDictionary<String, EndpointSynthesizedTypes> = [:]
     ) {
         self.packageName = packageName
         self.serviceName = serviceName
@@ -42,9 +43,12 @@ public struct GRPCExporterConfiguration: ExporterConfiguration {
 
 public struct TypeInformationIdentifiers: Codable, Hashable {
     public var identifiers: ElementIdentifierStorage
-    public var childrenIdentifiers: [String: ElementIdentifierStorage]
+    public var childrenIdentifiers: OrderedDictionary<String, ElementIdentifierStorage>
 
-    public init(identifiers: ElementIdentifierStorage, childrenIdentifiers: [String: ElementIdentifierStorage]) {
+    public init(
+        identifiers: ElementIdentifierStorage = .init(),
+        childrenIdentifiers: OrderedDictionary<String, ElementIdentifierStorage> = [:]
+    ) {
         self.identifiers = identifiers
         self.childrenIdentifiers = childrenIdentifiers
     }

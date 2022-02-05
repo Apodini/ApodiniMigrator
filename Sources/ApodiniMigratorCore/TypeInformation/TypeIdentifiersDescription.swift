@@ -21,6 +21,12 @@ public extension TypeInformation {
                 break
             }
 
+            // we might have multiple endpoints with the same return type.
+            // This checks for possible duplications.
+            if !context.get(valueFor: TypeInformationIdentifierContextKey.self).isEmpty {
+                break
+            }
+
             context.unsafeAdd(TypeInformationIdentifierContextKey.self, value: identifiers.identifiers)
 
             for (key, storage) in identifiers.childrenIdentifiers {
@@ -32,6 +38,12 @@ public extension TypeInformation {
             }
         case let .object(_, properties, context):
             guard let identifiers = retrieveIdentifiers(self) else {
+                break
+            }
+
+            // we might have multiple endpoints with the same return type.
+            // This checks for possible duplications.
+            if !context.get(valueFor: TypeInformationIdentifierContextKey.self).isEmpty {
                 break
             }
 
