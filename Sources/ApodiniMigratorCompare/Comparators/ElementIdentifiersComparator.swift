@@ -9,11 +9,20 @@
 import Foundation
 // TODO move file!
 
-struct ElementIdentifiersComparator: Comparator {
-    let lhs: [AnyElementIdentifier]
-    let rhs: [AnyElementIdentifier]
+public struct ElementIdentifiersComparator: Comparator {
+    public let lhs: [AnyElementIdentifier]
+    public let rhs: [AnyElementIdentifier]
+
+    public init(lhs: [AnyElementIdentifier], rhs: [AnyElementIdentifier]) {
+        self.lhs = lhs
+        self.rhs = rhs
+    }
 
     func compare(_ context: ChangeComparisonContext, _ results: inout [ElementIdentifierChange]) {
+        compare(&results)
+    }
+
+    public func compare(_ results: inout [ElementIdentifierChange]) {
         let matchedIds = lhs.matchedIds(with: rhs)
         let removalCandidates = lhs.filter { !matchedIds.contains($0.deltaIdentifier) }
         let additionCandidates = rhs.filter { !matchedIds.contains($0.deltaIdentifier) }

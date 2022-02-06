@@ -20,15 +20,19 @@ class GRPCMethodParameterCombination: ParameterCombination {
         true // in grpc all parameters are combined!
     }
 
+    // TODO we also do reponse type wrapping!
+
     func merge(endpoint: Endpoint, parameters: [Parameter]) -> Parameter? {
+        // TODO insert Empty if there are zero parameters!
+
         if parameters.count == 1,
            var first = parameters.first {
             first.dereference(in: typeStore)
 
             if (first.typeInformation.protoType == .message || first.typeInformation.protoType == .group)
-                && !first.typeInformation.isOptional {
-                // TODO how does ApodiniGRPC react to optional single parameters,
-                //   => does it introduce a wrapper type on necessity changes?
+                   && !first.typeInformation.isRepeated {
+                // we (and ApodiniGRPC) don't care if the web service declared this property as optional.
+                // grpc requires parameter to be required and it doesn't hurt to always send a optional parameter.
                 return nil
             }
         }
@@ -45,6 +49,10 @@ class GRPCMethodParameterCombination: ParameterCombination {
             properties: parameters.map(TypeProperty.init),
             context: Context() // TODO grpc Context keys if we ever get this way
         )
+
+        // TODO save for which endpoint we combine parameters.
+        //  => if the endpoint already existed we would need to check under the updated name
+        //  for newly added properties?
 
         return Parameter(
             name: "request", // never used anywhere

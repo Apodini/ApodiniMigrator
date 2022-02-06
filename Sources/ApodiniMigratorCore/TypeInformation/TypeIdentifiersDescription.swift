@@ -63,6 +63,8 @@ public extension TypeInformation {
         case let .dictionary(_, value):
             return value.augmentTypeWithIdentifiers(retrieveIdentifiers: retrieveIdentifiers)
         case .scalar:
+            // TODO remove
+            print("Encountered scalar!!!")
             break // do nothing on a scalar
         case .reference:
             fatalError("Unexpected referenced \(self) which we can't follow!")

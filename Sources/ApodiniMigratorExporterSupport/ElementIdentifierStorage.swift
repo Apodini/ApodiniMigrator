@@ -12,6 +12,10 @@ import OrderedCollections
 public struct ElementIdentifierStorage: Hashable { // TODO sort on equal!
     private var identifiers: OrderedDictionary<String, AnyElementIdentifier>
 
+    public var values: OrderedDictionary<String, AnyElementIdentifier>.Values {
+        identifiers.values
+    }
+
     public init() {
         self.identifiers = [:]
     }
