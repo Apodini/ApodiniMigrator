@@ -19,7 +19,7 @@ public struct RESTExporterConfiguration: ExporterConfiguration {
     public var decoderConfiguration: DecoderConfiguration
     public var caseInsensitiveRouting: Bool
     /// The entry point to the REST web service
-    public var rootPath: String? // TODO support in the Migrator!
+    public var rootPath: String?
 
     public init(
         encoderConfiguration: EncoderConfiguration,

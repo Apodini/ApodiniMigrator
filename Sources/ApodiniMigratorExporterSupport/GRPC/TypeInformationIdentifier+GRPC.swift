@@ -8,12 +8,8 @@
 
 import Foundation
 
-// TODO documentation?
-
 public struct GRPCName: TypeInformationIdentifier {
     public let rawValue: String
-
-    // TODO do we need more context or can we just split it when processing?
 
     public init(_ name: String) {
         self.rawValue = name

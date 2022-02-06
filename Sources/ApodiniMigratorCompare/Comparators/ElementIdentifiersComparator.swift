@@ -7,7 +7,6 @@
 //
 
 import Foundation
-// TODO move file!
 
 public struct ElementIdentifiersComparator: Comparator {
     public let lhs: [AnyElementIdentifier]

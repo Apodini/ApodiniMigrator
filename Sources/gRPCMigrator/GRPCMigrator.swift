@@ -49,7 +49,6 @@ public struct GRPCMigrator: Migrator {
         self.document = try APIDocument.decode(from: Path(documentPath))
         self.documentPath = documentPath
 
-        // TODO support multiple proto file (non priority though)
         self.protoFile = path.lastComponent
         self.protoFilePath = Path(path.absolute().description.replacingOccurrences(of: path.lastComponent, with: ""))
 

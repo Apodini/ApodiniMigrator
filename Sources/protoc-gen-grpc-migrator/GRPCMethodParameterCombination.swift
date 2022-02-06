@@ -10,6 +10,8 @@ import Foundation
 import ApodiniMigrator
 
 class GRPCMethodParameterCombination: ParameterCombination {
+    let shouldCallForZeroParameters = false
+
     let typeStore: TypesStore
 
     init(typeStore: TypesStore) {
@@ -20,13 +22,11 @@ class GRPCMethodParameterCombination: ParameterCombination {
         true // in grpc all parameters are combined!
     }
 
-    // TODO we also do reyponse type wrapping!
-
     func merge(parameters: [Parameter], of endpoint: Endpoint) -> Parameter? {
         if parameters.isEmpty {
             // TODO insert parameter with grpc Empty Type if there are zero parameters!
-            print("We currently do not support combining parameters with zero parameters: \(endpoint)")
-            return nil // TODO support?
+            //  (requires modifications in the ParameterCombination to be passed here!
+            preconditionFailure("We currently do not support combining parameters with zero parameters: \(endpoint)")
         }
 
         if parameters.count == 1,

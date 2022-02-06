@@ -17,7 +17,6 @@ extension TypeInformation: ChangeableElement {
     public typealias Update = ModelUpdateChange
 }
 
-// TODO support identifier changes?
 public enum ModelUpdateChange: Equatable {
     // common
     /// Describes a change to the `RootType` of a `TypeInformation` (e.g. object to enum).

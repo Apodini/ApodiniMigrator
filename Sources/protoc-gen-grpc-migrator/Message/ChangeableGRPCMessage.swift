@@ -67,7 +67,6 @@ extension ChangeableGRPCMessage {
             }
         case .identifier:
             // identifier right now only consist of `GRPCName´. So we ignore those changes right now
-            // TODO handle e.g. property additions referencing the new name?
             break
         case .case, .rawValueType:
             fatalError("Tried updating message with enum-only change type!")

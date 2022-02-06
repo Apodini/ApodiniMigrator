@@ -33,8 +33,6 @@ struct MigrationContext {
         let lhsConfiguration = document.serviceInformation.exporter(for: GRPCExporterConfiguration.self)
         let rhsConfiguration = document.serviceInformation.exporter(for: GRPCExporterConfiguration.self, migrationGuide: migrationGuide)
 
-        // TODO handle empty parameters!
-
         var document = document
         var migrationGuide = migrationGuide
 
@@ -60,7 +58,7 @@ struct MigrationContext {
         for model in document.models where !typeStoreState.contains(model.deltaIdentifier) {
             // TODO rework this, types added through APIDcoument are added trhough proto files
             //  the others are added through migrationGuide!
-            // TODO apiDocumentModelAdditions.append(model)
+            // apiDocumentModelAdditions.append(model)
 
             // TODO => with this we can remove the whole "ApodiniGRPCMessage" updateable thing????
         }
@@ -249,8 +247,6 @@ struct MigrationContext {
 
             let updatedName = childrenNameMapping[child.deltaIdentifier] ?? child.deltaIdentifier
 
-            // TODO it is guaranteed that at least one thing exists (e.g. to analyze removed or added identifiers?)
-            //  -> should we assert existence at all? => robustness in the future to add or remove identifiers?
             guard let lhsStorage = lhsIdentifiers.childrenIdentifiers[child.name],
                   let rhsStorage = rhsIdentifiers.childrenIdentifiers[updatedName.rawValue]  else {
                 fatalError("Found property for which we couldn't find matching identifier storage \(child) in '\(typeId.rawValue)'")

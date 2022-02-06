@@ -12,6 +12,11 @@ import Foundation
 /// A `ParameterCombination` can be used to merge multiple parameters into a single one.
 /// Which parameters are combined can be selected.
 public protocol ParameterCombination {
+    /// This property controls if ``merge(parameters:of:)`` is still called if the `Endpoint` doesn't
+    /// have any parameters at all.
+    /// By default this is `false`.
+    var shouldCallForZeroParameters: Bool { get }
+
     /// This predicate indicates which Endpoint `Parameter` should be combined.
     ///
     /// - Parameter parameter: The `Parameter` which is checked.
@@ -29,6 +34,13 @@ public protocol ParameterCombination {
     /// - Parameter parameters: All the `Parameter`s which are to be combined.
     /// - Returns: The merged `Parameter`. Return `nil` to abort the merge (e.g. not merging a single parameter).
     func merge(parameters: [Parameter], of endpoint: Endpoint) -> Parameter?
+}
+
+extension ParameterCombination {
+    /// By default false.
+    public var shouldCallForZeroParameters: Bool {
+        false
+    }
 }
 
 // MARK: ParameterCombination
@@ -114,8 +126,8 @@ extension APIDocument {
             return false
         }
 
-        guard !electedParameters.isEmpty else {
-            return nil // TODO how to control mapping of empty parameter inputs!
+        if electedParameters.isEmpty && (!electedParameters.isEmpty || !combination.shouldCallForZeroParameters) {
+            return nil
         }
 
         guard var wrappedParameter = combination.merge(parameters: electedParameters, of: endpoint) else {

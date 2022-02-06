@@ -150,8 +150,7 @@ class ProtoGRPCMethod: SomeGRPCMethod {
             case .parameterType:
                 break // parameter type is ignored
             case .necessity:
-                fatalError("Encountered unsupported parameter update for \(methodPath): \(parameterUpdate)")
-                // TODO support necessity changes?
+                break // grpc parameters are always required!
             case let .type(from, to, forwardMigration, migrationWarning):
                 self.parameterChange = (
                     migration.typeStore.construct(from: from),

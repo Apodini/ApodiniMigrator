@@ -9,7 +9,7 @@
 import Foundation
 import OrderedCollections
 
-public struct ElementIdentifierStorage: Hashable { // TODO sort on equal!
+public struct ElementIdentifierStorage: Hashable {
     private var identifiers: OrderedDictionary<String, AnyElementIdentifier>
 
     public var values: OrderedDictionary<String, AnyElementIdentifier>.Values {
