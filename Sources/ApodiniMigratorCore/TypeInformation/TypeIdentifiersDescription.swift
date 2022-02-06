@@ -8,13 +8,21 @@
 
 import Foundation
 
+/// Describes a set of identifiers for a `TypeInformation`
 public protocol TypeIdentifiersDescription {
+    /// The `ElementIdentifier`s stored in the `ElementIdentifierStorage` concerning the `Context` of the root `TypeInformation`.
     var identifiers: ElementIdentifierStorage { get }
+    /// The individual `ElementIdentifierStorage`s concerning the children of the type (e.g. properties or enum cases).
     var childrenIdentifiers: [String: ElementIdentifierStorage] { get }
 }
 
 public extension TypeInformation {
+    /// Write the identifiers of a `TypeIdentifiersDescription` into the `Context`s of the `TypeInformation` (and its children).
+    /// - Parameter retrieveIdentifiers: A closure which returns the matching `TypeIdentifiersDescription` for the given `TypeInformation`.
     func augmentTypeWithIdentifiers(retrieveIdentifiers: (TypeInformation) -> TypeIdentifiersDescription?) {
+        // swiftlint:disable:previous cyclomatic_complexity
+        // disabled for compactness reasons
+
         switch self {
         case let .enum(_, _, cases, context):
             guard let identifiers = retrieveIdentifiers(self) else {

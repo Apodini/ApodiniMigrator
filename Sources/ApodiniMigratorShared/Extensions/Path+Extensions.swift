@@ -11,7 +11,6 @@ import PathKit
 import ApodiniDocumentExport
 
 public extension Path {
-    
     /// Returns all swift files in `self` and in subdirectories of `self`
     func recursiveSwiftFiles() throws -> [Path] {
         guard isDirectory else {

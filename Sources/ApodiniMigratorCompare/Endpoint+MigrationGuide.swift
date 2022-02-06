@@ -9,6 +9,8 @@
 import Foundation
 
 extension Endpoint {
+    /// Retrieve an `EndpointIdentifier` of the `Endpoint`.
+    /// This method considers changes of the `EndpointIdentifier` in the `MigrationGuide`.
     public func updatedIdentifierIfPresent<Identifier: EndpointIdentifier>(
         for type: Identifier.Type = Identifier.self,
         considering migrationGuide: MigrationGuide
@@ -17,6 +19,8 @@ extension Endpoint {
         return checkForUpdated(identifier: type, in: migrationGuide) ?? identifier
     }
 
+    /// Retrieve an `EndpointIdentifier` of the `Endpoint`.
+    /// This method considers changes of the `EndpointIdentifier` in the `MigrationGuide`.
     public func updatedIdentifier<Identifier: EndpointIdentifier>(
         for type: Identifier.Type = Identifier.self,
         considering migrationGuide: MigrationGuide

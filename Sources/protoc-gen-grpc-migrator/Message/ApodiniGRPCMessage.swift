@@ -45,7 +45,7 @@ class ApodiniGRPCMessage: SomeGRPCMessage, ChangeableGRPCMessage {
         let typeName = type.typeName
         self.name = typeName.mangledName // TODO generics?
 
-        self.fullName = type.retrieveFullName(namer: context.namer)!
+        self.fullName = type.retrieveFullName(namer: context.namer)! // swiftlint:disable:this force_unwrapping
         self.relativeName = fullName
             .components(separatedBy: ".")
             .last

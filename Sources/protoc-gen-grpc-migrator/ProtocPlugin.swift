@@ -43,6 +43,7 @@ struct ProtocPluginBoostrap: ParsableCommand {
                 do {
                     try requestData.write(to: dumpURL)
                 } catch {
+                    // swiftlint:disable:next force_unwrapping
                     FileHandle.standardError.write("Failed to write PROTOC_GEN_GRPC_DUMP to \(debugDumpPath): \(error)".data(using: .utf8)!)
                 }
             }

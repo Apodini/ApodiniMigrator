@@ -12,6 +12,8 @@ import ApodiniMigrator
 protocol ChangeableGRPCMessage: Changeable, SomeGRPCMessage where Element == TypeInformation {}
 
 extension ChangeableGRPCMessage {
+    // disabled for the sake of compactness:
+    // swiftlint:disable:next cyclomatic_complexity
     func applyUpdateChange(_ change: ModelChange.UpdateChange) {
         // we know that Changeable has class requirements. Its just Swift still doesn't allow
         // us to mutate state. And we can't carry the mutating state to the outside sadly.
