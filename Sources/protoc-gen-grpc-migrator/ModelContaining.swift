@@ -40,8 +40,8 @@ extension ModelContaining {
             assert(nextName.name == model.typeName.mangledName)
 
             // name must be free in both dictionaries
-            precondition(nestedMessages[nextName.name] == nil, "Addition of model would result in a collision with a existent message.")
-            precondition(nestedEnums[nextName.name] == nil, "Addition of model would result in a collision with a existent enum.")
+            precondition(nestedMessages[nextName.name] == nil, "Addition of model would result in a collision with a existent message: \(nextName.name)")
+            precondition(nestedEnums[nextName.name] == nil, "Addition of model would result in a collision with a existent enum: \(nextName.name)")
 
             switch model.rootType {
             case .object:

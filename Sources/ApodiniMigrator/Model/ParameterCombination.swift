@@ -28,18 +28,19 @@ public protocol ParameterCombination {
     ///     Note: All `TypeInformation` of the provided endpoint is NOT dereferenced.
     /// - Parameter parameters: All the `Parameter`s which are to be combined.
     /// - Returns: The merged `Parameter`. Return `nil` to abort the merge (e.g. not merging a single parameter).
-    func merge(endpoint: Endpoint, parameters: [Parameter]) -> Parameter?
+    func merge(parameters: [Parameter], of endpoint: Endpoint) -> Parameter?
 }
 
 // MARK: ParameterCombination
 extension TypeProperty {
     /// Initialize a `TypeProperty` from a `Parameter`. This is used for ``ParameterMigration``.
-    public init(from parameter: Parameter) {
-        self = TypeProperty( // TODO handle property context once introduced?
+    public init(from parameter: Parameter, context: Context = Context()) {
+        self = TypeProperty(
             name: parameter.name,
             type: parameter.necessity == .optional
                 ? parameter.typeInformation.asOptional
-                : parameter.typeInformation
+                : parameter.typeInformation,
+            context: context
         )
     }
 }
@@ -58,12 +59,12 @@ enum ModelStorageDestination {
 extension APIDocument {
     /// This method can be used to combine several `Parameter`s of an `Endpoint` into a single one.
     /// The created wrapper types will be stored as `reference` types in the `Endpoint`. Use the `TypeStore`
-    /// of the `APIDocument` to resolve the types.
+    /// of the `APIDocument` or the model additions in the `MigrationGuide` respectively to resolve the types.
     ///
     /// - Parameters:
     ///   - migrationGuide: The `MigrationGuide` which should be considered. Change types are migrated accordingly.
     ///   - combination: The ``ParameterCombination``.
-    public mutating func combineEndpointParametersIntoWrappedType(
+    public mutating func applyEndpointParameterCombination(
         considering migrationGuide: inout MigrationGuide,
         using combination: ParameterCombination
     ) {
@@ -73,17 +74,18 @@ extension APIDocument {
         //  - Introduces the new wrapper type into the type store of the APIDocument
         //
         // Migrate the MigrationGuide:
-        //  - Map Parameter ADDITIONS, if they would be mapped into the wrapping parameter, as PROPERTY ADDITIONS of the wrapper type.
-        //  - Map Parameter UPDATES, which concern parameters of the wrapping parameter, to PROPERTY UPDATES.
+        //  - Map Parameter ADDITIONS, if they would be mapped into the wrapping parameter, as PROPERTY additions of the wrapper type.
+        //  - Map Parameter UPDATES, which concern parameters of the wrapping parameter, to PROPERTY updates.
+        //  - Lastly we also need to consider ADDED ENDPOINTS in the migrationGuide and apply all of the above.
 
-        // mapping: [Endpoint: [Parameter]]
+        // mapping: [Endpoint: EndpointWrappedParameters]
         // this saves all combined parameters considering only parameters in the BASE APIDocument.
         // We don't track ADDED parameter (contained in the migration guide) as we don't need this information.
         // We only track this to detect if any of those parameters have a respective PARAMETER UPDATE in the migration guide.
         // Those must be mapped to PROPERTY UPDATE.
         var combinedParameters: [DeltaIdentifier: EndpointWrappedParameters] = [:]
 
-        unsafeEndpoints = unsafeEndpoints.map { endpoint -> Endpoint in
+        unsafeEndpoints = unsafeEndpoints.map { endpoint in
             // we have an unsafe endpoints access here, types are NOT dereferenced
             combineParameters(of: endpoint, considering: &migrationGuide, using: combination, tracking: &combinedParameters, storeInto: .apiDocument)
                 ?? endpoint // if it returns nil, nothing was modified
@@ -113,10 +115,10 @@ extension APIDocument {
         }
 
         guard !electedParameters.isEmpty else {
-            return endpoint
+            return nil // TODO how to control mapping of empty parameter inputs!
         }
 
-        guard var wrappedParameter = combination.merge(endpoint: endpoint, parameters: electedParameters) else {
+        guard var wrappedParameter = combination.merge(parameters: electedParameters, of: endpoint) else {
             // merge was aborted by returning nil
             return nil
         }

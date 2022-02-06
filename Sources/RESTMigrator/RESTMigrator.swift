@@ -77,7 +77,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         )
 
         // combine multiple content parameters into a single content parameter
-        document.combineEndpointParametersIntoWrappedType(
+        document.applyEndpointParameterCombination(
             considering: &migrationGuide,
             using: RESTContentParameterCombination()
         )

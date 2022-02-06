@@ -20,10 +20,14 @@ class GRPCMethodParameterCombination: ParameterCombination {
         true // in grpc all parameters are combined!
     }
 
-    // TODO we also do reponse type wrapping!
+    // TODO we also do reyponse type wrapping!
 
-    func merge(endpoint: Endpoint, parameters: [Parameter]) -> Parameter? {
-        // TODO insert Empty if there are zero parameters!
+    func merge(parameters: [Parameter], of endpoint: Endpoint) -> Parameter? {
+        if parameters.isEmpty {
+            // TODO insert parameter with grpc Empty Type if there are zero parameters!
+            print("We currently do not support combining parameters with zero parameters: \(endpoint)")
+            return nil // TODO support?
+        }
 
         if parameters.count == 1,
            var first = parameters.first {
@@ -37,22 +41,19 @@ class GRPCMethodParameterCombination: ParameterCombination {
             }
         }
 
+        // TODO it is crucial that we get the naming right,
+        //  property updates will be applied to ProtoMessages
         let typeName = TypeName(
-            // TODO prepend with the packageName!
-            rawValue: endpoint.handlerName
-                .rawValue // TODO how to handle generics in the name
-                .appending("___INPUT")
+            definedIn: endpoint.handlerName.definedIn,
+            // TODO maybe use the grpc method name?
+            rootType: TypeNameComponent(name: endpoint.handlerName.mangledName.appending("Input"))
         )
 
         let typeInformation: TypeInformation = .object(
             name: typeName,
-            properties: parameters.map(TypeProperty.init),
-            context: Context() // TODO grpc Context keys if we ever get this way
+            properties: parameters.map { TypeProperty(from: $0) },
+            context: Context() // context key for grpc identifiers are added later on
         )
-
-        // TODO save for which endpoint we combine parameters.
-        //  => if the endpoint already existed we would need to check under the updated name
-        //  for newly added properties?
 
         return Parameter(
             name: "request", // never used anywhere

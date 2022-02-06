@@ -15,7 +15,7 @@ struct RESTContentParameterCombination: ParameterCombination {
         parameter.parameterType == .content
     }
 
-    func merge(endpoint: Endpoint, parameters: [Parameter]) -> Parameter? {
+    func merge(parameters: [Parameter], of endpoint: Endpoint) -> Parameter? {
         if parameters.count == 1 { // we don't need to merge if its just a single parameter
             return nil
         }
@@ -30,7 +30,7 @@ struct RESTContentParameterCombination: ParameterCombination {
 
         let typeInformation: TypeInformation = .object(
             name: typeName,
-            properties: parameters.map(TypeProperty.init),
+            properties: parameters.map { TypeProperty(from: $0) },
             context: Context() // just create an empty one
         )
 

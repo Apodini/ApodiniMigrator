@@ -45,21 +45,29 @@ struct MigrationContext {
         // To do this, we track the current `TypeStore` state with the means of `DeltaIdentifier`.
         let typeStoreState = Set(document.models.map { $0.deltaIdentifier })
 
-        let combination = GRPCMethodParameterCombination(typeStore: document.typeStore)
-        document.combineEndpointParametersIntoWrappedType(
+        document.applyEndpointParameterCombination(
             considering: &migrationGuide,
-            using: combination
+            using: GRPCMethodParameterCombination(typeStore: document.typeStore)
+        )
+
+        document.applyEndpointResponseTypeWrapping(
+            considering: &migrationGuide,
+            using: GRPCMethodResponseWrapping()
         )
 
         // Based on `typeStoreState` we derive which models got added via the ParameterCombination
         var apiDocumentModelAdditions: [TypeInformation] = []
         for model in document.models where !typeStoreState.contains(model.deltaIdentifier) {
-            apiDocumentModelAdditions.append(model)
+            // TODO rework this, types added through APIDcoument are added trhough proto files
+            //  the others are added through migrationGuide!
+            // TODO apiDocumentModelAdditions.append(model)
+
+            // TODO => with this we can remove the whole "ApodiniGRPCMessage" updateable thing????
         }
 
         // it is important that we pull out the typeStore only after the `ParameterCombination` has run.
-        // Above operation will store new types (only for the endpoints which are part of the APIDocument)
-        // which will be stored there. Endpoint Parameter will have reference type.
+        // Above operation will store new types (only for the endpoints which are part of the APIDocument!!)
+        // which will be stored there. Endpoint Parameter will have `.reference` type.
         var typeStore = document.typeStore
 
         // Now we add all the newly introduced types contained in the migration guide to the custom maintained `TypeStore`.
@@ -76,7 +84,7 @@ struct MigrationContext {
         self.document = document
         self.migrationGuide = migrationGuide
         self.typeStore = typeStore
-        self.apiDocumentModelAdditions = apiDocumentModelAdditions
+        self.apiDocumentModelAdditions = Array(apiDocumentModelAdditions)
 
         computeIdentifiersOfSynthesizedEndpointTypes(lhs: lhsConfiguration, rhs: rhsConfiguration)
     }
@@ -111,8 +119,6 @@ struct MigrationContext {
                 let lhsInputIdentifiers = lhsIdentifiers.inputIdentifiers ?? TypeInformationIdentifiers()
                 let rhsInputIdentifiers = rhsIdentifiers.inputIdentifiers ?? TypeInformationIdentifiers()
 
-                // TODO we can enforce that the base type isn't wrapped or anything right?
-                //  => it could be optional
                 precondition(endpoint.parameters.count == 1, "Unexpected endpoint count for \(endpoint)")
                 let parameter = endpoint.parameters[0]
 
@@ -127,7 +133,6 @@ struct MigrationContext {
             if lhsIdentifiers.outputIdentifiers != nil || rhsIdentifiers.outputIdentifiers != nil {
                 let lhsOutputIdentifiers = lhsIdentifiers.outputIdentifiers ?? TypeInformationIdentifiers()
                 let rhsOutputIdentifiers = rhsIdentifiers.outputIdentifiers ?? TypeInformationIdentifiers()
-                // TODO for the response wrapper! we need to consider (and map) endpoint updates (optionals and arrays and stuff)!
                 computeIdentifiersOfSynthesizedType(
                     of: endpoint.response,
                     lhs: lhsOutputIdentifiers,
@@ -202,8 +207,6 @@ struct MigrationContext {
         case .enum:
             preconditionFailure("Some assumption broke. Encountered synthesized wrapper type which is a enum. Expected a object: \(typeInformation)")
         default:
-            // arrays are never created for endpoint types?
-            break // TODO remove this again, happens as output types aren't wrapped yet!
             fatalError("Encountered unexpected typeInformation model \(typeInformation) when computing changes of synthesized type children")
         }
     }

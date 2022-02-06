@@ -140,6 +140,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
 
         // Add Endpoint Parameter wrapper types (result of the `GRPCMethodParameterCombination`)
         for model in migration.apiDocumentModelAdditions {
+            // TODO only add models which aren't in the proto file!
             var this = self
             this.add(model: model)
         }

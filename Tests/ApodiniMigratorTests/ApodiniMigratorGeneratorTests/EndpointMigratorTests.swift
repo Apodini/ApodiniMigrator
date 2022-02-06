@@ -356,7 +356,7 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
             errors: []
         ))
 
-        document.combineEndpointParametersIntoWrappedType(considering: &migrationGuide, using: RESTContentParameterCombination())
+        document.applyEndpointParameterCombination(considering: &migrationGuide, using: RESTContentParameterCombination())
 
         let endpoint = try XCTUnwrap(document.endpoints.first)
 
