@@ -11,7 +11,7 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
-protocol SomeGRPCMessage {
+protocol SomeGRPCMessage: AnyObject {
     var context: ProtoFileContext { get }
     var migration: MigrationContext { get }
 
@@ -27,8 +27,8 @@ protocol SomeGRPCMessage {
     var fields: [GRPCMessageField] { get set }
     var sortedFields: [GRPCMessageField] { get }
 
-    var nestedEnums: OrderedDictionary<String, GRPCEnum> { get }
-    var nestedMessages: OrderedDictionary<String, GRPCMessage> { get }
+    var nestedEnums: OrderedDictionary<String, GRPCEnum> { get set }
+    var nestedMessages: OrderedDictionary<String, GRPCMessage> { get set }
 }
 
 extension SomeGRPCMessage {

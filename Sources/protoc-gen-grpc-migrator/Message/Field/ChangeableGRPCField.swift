@@ -14,39 +14,57 @@ protocol ChangeableGRPCField: Changeable, SomeGRPCMessageField where Element == 
 extension ChangeableGRPCField {
     func applyIdChange(_ change: PropertyChange.IdentifierChange) {
         precondition(change.from.rawValue == name, "Identifier change isn't in sync with property name!")
-        var this = self
-        this.updatedName = change.to.rawValue
-        assert(self.updatedName != nil, "Some of our assumptions broke")
+        self.updatedName = change.to.rawValue
     }
 
     func applyUpdateChange(_ change: PropertyChange.UpdateChange) {
-        var this = self
-
         switch change.updated {
         case let .necessity(from, to, necessityMigration):
-            this.necessityUpdate = (from, to, necessityMigration)
-            assert(self.necessityUpdate != nil, "AnyObject inheritance assumption for Changeable broke")
+            self.necessityUpdate = (from, to, necessityMigration)
         case let .type(from, to, forwardMigration, backwardMigration, _):
-            this.typeUpdate = (
+            self.typeUpdate = (
                 migration.typeStore.construct(from: from),
                 migration.typeStore.construct(from: to),
                 forwardMigration,
                 backwardMigration
             )
-            assert(self.typeUpdate != nil, "AnyObject inheritance assumption for Changeable broke")
-        case .identifier:
-            // TODO implement identifier changes!
-            break
+            grpcFieldTypeSanityCheck()
+        case let .identifier(identifier):
+            switch identifier.id.rawValue {
+            case GRPCNumber.identifierType:
+                guard let identifierUpdate = identifier.modeledUpdateChange else {
+                    preconditionFailure("Encountered unexpected update type for `\(GRPCNumber.self)` identifier: \(identifier)")
+                }
+
+                self.number = Int(identifierUpdate.updated.to.typed(of: GRPCNumber.self).number)
+            case GRPCFieldType.identifierType:
+                guard let identifierUpdate = identifier.modeledUpdateChange else {
+                    preconditionFailure("Encountered unexpected update type for `\(GRPCFieldType.self)` identifier: \(identifier)")
+                }
+
+                self.protoFieldTypeUpdate = .init(rawValue: Int(identifierUpdate.updated.to.typed(of: GRPCFieldType.self).type))
+                grpcFieldTypeSanityCheck()
+            default:
+                break
+            }
         }
     }
 
     func applyRemovalChange(_ change: PropertyChange.RemovalChange) {
-        var this = self
+        self.unavailable = true
+        self.fallbackValue = change.fallbackValue
+    }
 
-        this.unavailable = true
-        this.fallbackValue = change.fallbackValue
+    private func grpcFieldTypeSanityCheck() {
+        guard let typeUpdate = typeUpdate,
+              let protoFieldTypeUpdate = protoFieldTypeUpdate else {
+            return
+        }
 
-        assert(self.unavailable, "AnyObject inheritance assumption for Changeable broke")
-        assert(self.fallbackValue == change.fallbackValue, "AnyObject inheritance assumption for Changeable broke")
+        let type = typeUpdate.to.protoType
+
+        if type != protoFieldTypeUpdate {
+            FileHandle.standardError.write("WARN: Updated protoType \(type) for \(name) is different from the updated on expected on the server side: \(protoFieldTypeUpdate)".data(.utf8))
+        }
     }
 }

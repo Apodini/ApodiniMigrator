@@ -41,9 +41,13 @@ public struct GRPCMigrator: Migrator {
     private let migrationGuide: MigrationGuide
     private let migrationGuidePath: String?
 
+    /// This flag controls if the protoc plugin will write out
+    /// the protoc request into a binary blob. This is helpful for debugging purposes.
+    private let protocGenDumpRequestPath: String?
+
     private let httpServer: HTTPInformation
 
-    public init(protoFile: String, documentPath: String, migrationGuidePath: String? = nil) throws {
+    public init(protoFile: String, documentPath: String, migrationGuidePath: String? = nil, protocGenDumpRequestPath: String?) throws {
         let path = Path(protoFile)
 
         self.document = try APIDocument.decode(from: Path(documentPath))
@@ -78,6 +82,8 @@ public struct GRPCMigrator: Migrator {
             )
         }
 
+        self.protocGenDumpRequestPath = protocGenDumpRequestPath
+
         var httpInformation = document.serviceInformation.http
         for change in migrationGuide.serviceChanges {
             if let update = change.modeledUpdateChange,
@@ -100,16 +106,15 @@ public struct GRPCMigrator: Migrator {
                         "MigrationGuide": migrationGuidePath ?? "", // empty as migrationGuide might be nil
                         "APIDocument": documentPath
                     ],
-                    environment: [
-                        // TODO control!
-                        "PROTOC_GEN_GRPC_DUMP": "./dump.binary"
-                    ]
+                    environment: protocGenDumpRequestPath != nil
+                        ? [ "PROTOC_GEN_GRPC_DUMP": protocGenDumpRequestPath! ] // swiftlint:disable:this force_unwrapping
+                        : nil
                 )
 
                 Directory("Networking") {
                     ResourceFile(copy: "GRPCNetworking.swift")
                         .replacing(.hostname, with: httpServer.hostname)
-                        .replacing(.port, with: httpServer.port.description) // TODO this is wrong?
+                        .replacing(.port, with: httpServer.port.description)
                     ResourceFile(copy: "GRPCNetworkingError.swift")
                     ResourceFile(copy: "GRPCResponseStream.swift")
                 }

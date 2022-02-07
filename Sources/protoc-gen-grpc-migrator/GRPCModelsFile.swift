@@ -31,6 +31,8 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         ""
     }
 
+    var updatedPackageName: String
+
     var modelIdTranslation: [DeltaIdentifier: TypeName] = [:]
 
     var nestedEnums: OrderedDictionary<String, GRPCEnum> = [:]
@@ -42,6 +44,8 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         self.context = context
         self.migration = migration
 
+        self.updatedPackageName = migration.rhsExporterConfiguration.packageName
+
         for `enum` in file.enums {
             self.nestedEnums[`enum`.name] = GRPCEnum(
                 ProtoGRPCEnum(descriptor: `enum`, context: context)
@@ -50,7 +54,8 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
 
         for message in file.messages {
             self.nestedMessages[message.name] = GRPCMessage(
-                ProtoGRPCMessage(descriptor: message, context: context, migration: migration)
+                ProtoGRPCMessage(descriptor: message, context: context, migration: migration),
+                parentFullName: nil
             )
         }
 
@@ -80,10 +85,9 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             message
         }
 
-        if !protoFile.package.isEmpty && !nestedMessages.isEmpty {
-            // TODO check update grpc configuration for updated package name!
+        if !updatedPackageName.isEmpty && !nestedMessages.isEmpty {
             ""
-            "fileprivate let _protobuf_package = \"\(protoFile.package)\""
+            "fileprivate let _protobuf_package = \"\(updatedPackageName)\""
         }
 
         for `enum` in nestedEnums.values {
@@ -138,12 +142,6 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
             }
         }
 
-        // Add Endpoint Parameter wrapper types (result of the `GRPCMethodParameterCombination`)
-        for model in migration.apiDocumentModelAdditions { // TODO removable?
-            var this = self
-            this.add(model: model)
-        }
-
         for renamedModel in renamedModels {
             guard let typeName = modelIdTranslation[renamedModel.from] else {
                 fatalError("Encountered identifier change with id \(renamedModel.from) which isn't present in our typeName lookup!")
@@ -159,10 +157,7 @@ class GRPCModelsFile: SourceCodeRenderable, ModelContaining {
         // we sort them such that we don't cause any conflicts with creation of `EmptyGRPCMessage` structs
         for addedModel in addedModels.sorted(by: \.added.typeName.nestedTypes.count) {
             let model = migration.typeStore.construct(from: addedModel.added)
-
-            // see https://stackoverflow.com/questions/51623693/cannot-use-mutating-member-on-immutable-value-self-is-immutable
-            var this = self // we are a class so this works!
-            this.add(model: model)
+            self.add(model: model)
         }
 
         for updatedModel in updatedModels {

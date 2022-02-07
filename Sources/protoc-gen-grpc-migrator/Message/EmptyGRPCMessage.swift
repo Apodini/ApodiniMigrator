@@ -14,7 +14,7 @@ import OrderedCollections
 /// Describes an empty grpc message.
 /// We use this type in cases, where a added `TypeInformation` is nested into a type
 /// which we don't control.
-struct EmptyGRPCMessage: SomeGRPCMessage {
+class EmptyGRPCMessage: SomeGRPCMessage {
     let context: ProtoFileContext
     let migration: MigrationContext
 

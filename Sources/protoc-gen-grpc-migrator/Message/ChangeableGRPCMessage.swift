@@ -15,14 +15,9 @@ extension ChangeableGRPCMessage {
     // disabled for the sake of compactness:
     // swiftlint:disable:next cyclomatic_complexity
     func applyUpdateChange(_ change: ModelChange.UpdateChange) {
-        // we know that Changeable has class requirements. Its just Swift still doesn't allow
-        // us to mutate state. And we can't carry the mutating state to the outside sadly.
-        var this = self
-
         switch change.updated {
         case .rootType:
-            this.containsRootTypeChange = true // root type changes are unsupported
-            assert(self.containsRootTypeChange, "AnyObject inheritance assumption for Changeable broke")
+            self.containsRootTypeChange = true // root type changes are unsupported
         case let .property(property):
             if let renamedProperty = property.modeledIdentifierChange {
                 for field in fields where field.name == renamedProperty.from.rawValue {
@@ -38,14 +33,12 @@ extension ChangeableGRPCMessage {
                 var property = addedProperty.added
                 property.dereference(from: migration.typeStore)
 
-                let previousCount = fields.count
-                this.fields.append(GRPCMessageField(ApodiniMessageField(
+                self.fields.append(GRPCMessageField(ApodiniMessageField(
                     property,
                     defaultValue: addedProperty.defaultValue,
                     context: context,
                     migration: migration
                 )))
-                assert(previousCount + 1 == self.fields.count, "AnyObject inheritance assumption for Changeable broke")
             } else if let removedProperty = property.modeledRemovalChange {
                 for field in fields where field.name == removedProperty.id.rawValue {
                     if let protoField = field.tryTyped(for: ProtoGRPCMessageField.self) {
@@ -76,8 +69,6 @@ extension ChangeableGRPCMessage {
     }
 
     func applyRemovalChange(_ change: ModelChange.RemovalChange) {
-        var this = self
-        this.unavailable = true
-        assert(self.unavailable, "AnyObject inheritance assumption for Changeable broke")
+        self.unavailable = true
     }
 }

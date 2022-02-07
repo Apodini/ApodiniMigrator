@@ -15,7 +15,11 @@ struct GlobalMigrateOptions: ParsableArguments {
     @OptionGroup
     var generateOptions: GlobalGenerateOptions
 
-    @Option(name: .shortAndLong, help: "Path where the migration guide is located, e.g. /path/to/migration_guide.json")
+    @Option(
+        name: .shortAndLong,
+        help: "Path where the migration guide is located, e.g. /path/to/migration_guide.json",
+        completion: .file(extensions: ["json", "yaml"])
+    )
     var migrationGuidePath: String
 
     subscript<T>(dynamicMember member: KeyPath<GlobalGenerateOptions, T>) -> T {

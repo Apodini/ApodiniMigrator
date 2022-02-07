@@ -36,7 +36,7 @@ extension TypeProperty: FieldDescriptorLike {
     }
 
     var hasPresence: Bool {
-        type.isOptional || necessity == .optional
+        type.hasPresence
     }
 
     var mapKeyAndValueDescription: (key: FieldDescriptorLike, value: FieldDescriptorLike)? {

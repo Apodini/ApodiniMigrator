@@ -10,6 +10,13 @@ import Foundation
 import ArgumentParser
 
 struct GRPCSpecificOptions: ParsableArguments {
-    @Option(name: .shortAndLong, help: "Path where the grpc proto file is located, e.g. /path/to/MyWebService.proto")
+    @Option(
+        name: .shortAndLong,
+        help: "Path where the grpc proto file is located, e.g. /path/to/MyWebService.proto",
+        completion: .file(extensions: ["proto"])
+    )
     var protoPath: String
+
+    @Option(name: .long, help: "Specify the path to which you want to dump the protoc plugin request binary. For Debugging purposes!")
+    var protocGenDumpRequestPath: String = ""
 }

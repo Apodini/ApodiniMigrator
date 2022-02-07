@@ -20,12 +20,6 @@ struct MigrationContext {
     /// and all types which are newly introduced via the `MigrationGuide`.
     /// This TypeStore also contains the wrapper types created through the `ParameterCombination`.
     let typeStore: TypesStore
-    /// Array of `TypeInformation` of Endpoint Parameter wrapper types which were newly and dynamically created
-    /// AND got added to the `APIDocument` `TypeStore` (wrapper types derive from ADDED endpoints are stored
-    /// as model additions in the MigrationGuide).
-    /// The MigrationGuide might contain **property changes** for those models.
-    /// NOTE: Those models are guaranteed to be **dereferenced**!
-    let apiDocumentModelAdditions: [TypeInformation]
 
     let lhsExporterConfiguration: GRPCExporterConfiguration
     let rhsExporterConfiguration: GRPCExporterConfiguration
@@ -36,13 +30,6 @@ struct MigrationContext {
 
         var document = document
         var migrationGuide = migrationGuide
-
-        // We have the following problem: with the ParameterCombination new types get added to two different places:
-        // (1) the APIDocument TypeStore and (2) to the MigrationGuide through Model addition changes.
-        // As our library basis is not based on the `APIDocument` but on the proto files, we need to uncover
-        // which values got added to the `TypeStore` such that we can manually add it to our generated files.
-        // To do this, we track the current `TypeStore` state with the means of `DeltaIdentifier`.
-        let typeStoreState = Set(document.models.map { $0.deltaIdentifier })
 
         document.applyEndpointParameterCombination(
             considering: &migrationGuide,
@@ -58,16 +45,6 @@ struct MigrationContext {
             considering: &migrationGuide,
             using: GRPCMethodResponseWrapping(lhs: lhsConfiguration, rhs: rhsConfiguration, migrationGuide: migrationGuide)
         )
-
-        // Based on `typeStoreState` we derive which models got added via the ParameterCombination
-        var apiDocumentModelAdditions: [TypeInformation] = []
-        for model in document.models where !typeStoreState.contains(model.deltaIdentifier) {
-            // TODO rework this, types added through APIDcoument are added trhough proto files
-            //  the others are added through migrationGuide!
-            // apiDocumentModelAdditions.append(model)
-
-            // TODO => with this we can remove the whole "ApodiniGRPCMessage" updateable thing????
-        }
 
         // it is important that we pull out the typeStore only after the `ParameterCombination` has run.
         // Above operation will store new types (only for the endpoints which are part of the APIDocument!!)
@@ -87,7 +64,6 @@ struct MigrationContext {
         self.document = document
         self.migrationGuide = migrationGuide
         self.typeStore = typeStore
-        self.apiDocumentModelAdditions = Array(apiDocumentModelAdditions)
         self.lhsExporterConfiguration = lhsConfiguration
         self.rhsExporterConfiguration = rhsConfiguration
 
@@ -173,7 +149,6 @@ struct MigrationContext {
             let parsed = grpcName.parsed(migration: self)
             identifiers.add(identifier: GRPCName(rawValue: parsed.rawValue))
 
-            // TODO rework this in the MetadataSystem!
             context.unsafeAdd(TypeInformationIdentifierContextKey.self, value: identifiers, allowOverwrite: true)
         }
     }
@@ -317,31 +292,7 @@ struct MigrationContext {
     }
 }
 
-// TODO move this extension!
-extension Endpoint {
-    var swiftTypeName: String {
-        handlerName.buildName(
-            printTargetName: true,
-            componentSeparator: ".",
-            genericsStart: "<",
-            genericsSeparator: ",",
-            genericsDelimiter: ">"
-        )
-    }
-
-    func updatedSwiftTypeName(considering migrationGuide: MigrationGuide) -> String {
-        updatedIdentifier(for: TypeName.self, considering: migrationGuide)
-            .buildName(
-                printTargetName: true,
-                componentSeparator: ".",
-                genericsStart: "<",
-                genericsSeparator: ",",
-                genericsDelimiter: ">"
-            )
-    }
-}
-
-extension TypeInformationIdentifiers {
+private extension TypeInformationIdentifiers {
     mutating func rewritePackageName(migration: MigrationContext) {
         guard let grpcName = identifiers.identifierIfPresent(for: GRPCName.self) else {
             return

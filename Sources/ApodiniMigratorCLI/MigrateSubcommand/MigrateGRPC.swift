@@ -31,7 +31,8 @@ struct MigrateGRPC: ParsableCommand {
             let migrator = try GRPCMigrator(
                 protoFile: grpcOptions.protoPath,
                 documentPath: globalOptions.documentPath,
-                migrationGuidePath: globalOptions.migrationGuidePath
+                migrationGuidePath: globalOptions.migrationGuidePath,
+                protocGenDumpRequestPath: grpcOptions.protocGenDumpRequestPath.isEmpty ? nil : grpcOptions.protocGenDumpRequestPath
             )
 
             try migrator.run(packageName: globalOptions.packageName, packagePath: globalOptions.targetDirectory)

@@ -28,9 +28,11 @@ struct PluginOptions {
     }
 
     enum FileNaming: String {
+        // swiftlint:disable identifier_name
         case FullPath
         case PathToUnderscores
         case DropPath
+        // swiftlint:enable identifier_name
     }
 
     private(set) var documentPath: String?

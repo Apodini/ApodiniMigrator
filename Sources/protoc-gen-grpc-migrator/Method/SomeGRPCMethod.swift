@@ -23,6 +23,12 @@ protocol SomeGRPCMethod {
     /// Carrying ``EndpointIdentifierChange`` changes (e.g. serviceName or servicePath changes)
     var identifierChanges: [ElementIdentifierChange] { get }
     var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)? { get }
+    var parameterChange: (
+        from: TypeInformation,
+        to: TypeInformation,
+        forwardMigration: Int,
+        conversionWarning: String?
+    )? { get }
     var responseChange: (
         from: TypeInformation,
         to: TypeInformation,
@@ -39,6 +45,7 @@ protocol SomeGRPCMethod {
 
     var inputMessageName: String { get }
     var outputMessageName: String { get }
+    var updatedInputMessageName: String? { get }
     var updatedOutputMessageName: String? { get }
 }
 
@@ -82,7 +89,15 @@ extension SomeGRPCMethod {
         nil
     }
 
+    var parameterChange: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, conversionWarning: String?)? {
+        nil
+    }
+
     var responseChange: (from: TypeInformation, to: TypeInformation, backwardsMigration: Int, migrationWarning: String?)? {
+        nil
+    }
+
+    var updatedInputMessageName: String? {
         nil
     }
 

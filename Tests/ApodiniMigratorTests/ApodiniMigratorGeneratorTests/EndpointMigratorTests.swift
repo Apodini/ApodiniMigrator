@@ -336,7 +336,6 @@ final class EndpointMigratorTests: ApodiniMigratorXCTestCase {
     }
 
     func testWrappedContentParameter() throws {
-        // TODO this doesn't test the migrationGuide Migration!
         let param1 = Parameter(name: "first", typeInformation: .scalar(.string), parameterType: .content, isRequired: true)
         let param2 = Parameter(name: "second", typeInformation: .scalar(.int), parameterType: .content, isRequired: false)
 

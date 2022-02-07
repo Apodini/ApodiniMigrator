@@ -38,6 +38,18 @@ public struct AnyElementIdentifier: Hashable {
         self.init(identifier: Identifier.identifierType, value: identifier.rawValue)
     }
 
+    public func tryTyped<Identifier: ElementIdentifier>(of identifier: Identifier.Type = Identifier.self) -> Identifier? {
+        guard self.identifier == Identifier.identifierType else {
+            return nil
+        }
+
+        guard let typedValue = Identifier(rawValue: value) else {
+            fatalError("Unexpected error when creating typed version of \(Identifier.self) from \(self)!")
+        }
+
+        return typedValue
+    }
+
     public func typed<Identifier: ElementIdentifier>(of identifier: Identifier.Type = Identifier.self) -> Identifier {
         guard self.identifier == Identifier.identifierType else {
             fatalError("Tired to cast \(self) to \(Identifier.self) with non matching id \(Identifier.identifierType)!")

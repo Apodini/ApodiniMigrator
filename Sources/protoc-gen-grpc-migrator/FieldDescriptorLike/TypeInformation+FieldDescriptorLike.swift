@@ -38,6 +38,13 @@ extension TypeInformation {
 }
 
 extension TypeInformation: FieldDescriptorLike {
+    enum ProtoMagics {
+        static var typeInfoEmptyName = TypeName(rawValue: "Apodini.Empty")
+
+        static var googleProtobufEmpty = "SwiftProtobuf.Google_Protobuf_Empty"
+        static var googleProtobufTimestamp = "SwiftProtobuf.Google_Protobuf_Timestamp"
+    }
+
     var protoType: Google_Protobuf_FieldDescriptorProto.TypeEnum {
         protoFieldType
     }
@@ -61,7 +68,7 @@ extension TypeInformation: FieldDescriptorLike {
     }
 
     var hasPresence: Bool {
-        isOptional
+        isOptional || (label != .repeated && protoType == .message)
     }
 
     var mapKeyAndValueDescription: (key: FieldDescriptorLike, value: FieldDescriptorLike)? {
@@ -73,11 +80,6 @@ extension TypeInformation: FieldDescriptorLike {
         }
     }
 
-    // TODO move magic constant!
-    private static var emptyName: TypeName {
-        TypeName(rawValue: "Apodini.Empty")
-    }
-
     func retrieveFullName(namer: SwiftProtobufNamer) -> String? {
         switch self {
             // repeated and optional are handled separately in the protobuf name builder
@@ -86,8 +88,8 @@ extension TypeInformation: FieldDescriptorLike {
         case let .optional(wrappedValue):
             return wrappedValue.retrieveFullName(namer: namer)
         case let .object(name, _, context):
-            if name == Self.emptyName {
-                return "SwiftProtobuf.Google_Protobuf_Empty"
+            if name == ProtoMagics.typeInfoEmptyName {
+                return ProtoMagics.googleProtobufEmpty
             }
 
             let grpcName = context.get(valueFor: TypeInformationIdentifierContextKey.self)
@@ -102,7 +104,7 @@ extension TypeInformation: FieldDescriptorLike {
 
             return namer.fullName(enum: grpcName)
         case .scalar(.date):
-            return "SwiftProtobuf.Google_Protobuf_Timestamp"
+            return ProtoMagics.googleProtobufTimestamp
         default:
             return nil
         }

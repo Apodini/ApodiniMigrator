@@ -21,7 +21,7 @@ class ProtoGRPCEnumCase: SomeGRPCEnumCase, Changeable {
 
     var unavailable = false
 
-    let number: Int
+    var number: Int
 
     var aliasOf: GRPCEnumCase?
     var aliases: [GRPCEnumCase]
@@ -49,9 +49,16 @@ class ProtoGRPCEnumCase: SomeGRPCEnumCase, Changeable {
         case .rawValue:
             // same argument as in the `rawValueType` case
             break
-        case .identifier:
-            // TODO implement identifier changes!
-            break
+        case let .identifier(identifier):
+            guard identifier.id.rawValue == GRPCNumber.identifierType else {
+                break
+            }
+
+            guard let identifierUpdate = identifier.modeledUpdateChange else {
+                preconditionFailure("Encountered unexpected update type for `GRPCNumber` identifier: \(identifier)")
+            }
+
+            self.number = Int(identifierUpdate.updated.to.typed(of: GRPCNumber.self).number)
         }
     }
 

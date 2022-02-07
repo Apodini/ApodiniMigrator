@@ -28,7 +28,12 @@ struct GenerateGRPC: ParsableCommand {
         logger.info("Starting generation of package \(globalOptions.packageName)")
 
         do {
-            let migrator = try GRPCMigrator(protoFile: grpcOptions.protoPath, documentPath: globalOptions.documentPath, migrationGuidePath: nil)
+            let migrator = try GRPCMigrator(
+                protoFile: grpcOptions.protoPath,
+                documentPath: globalOptions.documentPath,
+                migrationGuidePath: nil,
+                protocGenDumpRequestPath: grpcOptions.protocGenDumpRequestPath.isEmpty ? nil : grpcOptions.protocGenDumpRequestPath
+            )
 
             try migrator.run(packageName: globalOptions.packageName, packagePath: globalOptions.targetDirectory)
             logger.info("Package \(globalOptions.packageName) was generated successfully. You can open the package via \(globalOptions.packageName)/Package.swift")

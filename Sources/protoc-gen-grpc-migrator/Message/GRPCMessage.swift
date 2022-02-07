@@ -14,6 +14,9 @@ import OrderedCollections
 @dynamicMemberLookup
 class GRPCMessage: SourceCodeRenderable, ModelContaining {
     private let message: SomeGRPCMessage
+    /// This property points to the parent grpc full message name if this message is a nested type.
+    /// We need this to properly build the protoMessageName.
+    private let parentFullName: String?
 
     var context: ProtoFileContext {
         message.context
@@ -29,35 +32,24 @@ class GRPCMessage: SourceCodeRenderable, ModelContaining {
 
     var nestedEnums: OrderedDictionary<String, GRPCEnum> {
         get {
-            guard let message = tryTyped(for: ProtoGRPCMessage.self) else {
-                fatalError("Tried to access enums of a non ProtoGRPCMessage type.")
-            }
-            return message.nestedEnums
+            message.nestedEnums
         }
         set {
-            guard let message = tryTyped(for: ProtoGRPCMessage.self) else {
-                fatalError("Tried to access enums of a non ProtoGRPCMessage type.")
-            }
             message.nestedEnums = newValue
         }
     }
     var nestedMessages: OrderedDictionary<String, GRPCMessage> {
         get {
-            guard let message = tryTyped(for: ProtoGRPCMessage.self) else {
-                fatalError("Tried to access enums of a non ProtoGRPCMessage type.")
-            }
-            return message.nestedMessages
+            message.nestedMessages
         }
         set {
-            guard let message = tryTyped(for: ProtoGRPCMessage.self) else {
-                fatalError("Tried to access enums of a non ProtoGRPCMessage type.")
-            }
             message.nestedMessages = newValue
         }
     }
 
-    init(_ message: SomeGRPCMessage) {
+    init(_ message: SomeGRPCMessage, parentFullName: String?) {
         self.message = message
+        self.parentFullName = parentFullName
     }
 
     subscript<T>(dynamicMember member: KeyPath<SomeGRPCMessage, T>) -> T {
@@ -113,9 +105,13 @@ class GRPCMessage: SourceCodeRenderable, ModelContaining {
         MARKComment("RuntimeSupport")
         "extension \(message.fullName): \(moduleName).Message, \(moduleName)._MessageImplementationBase, \(moduleName)._ProtoNameProviding {"
         Indent {
-            // TODO CHECK PARENT!
-            // TODO respect parent descriptor file + file package name!
-            "\(context.options.visibility) static let protoMessageName: String = \"\(message.name)\""
+            if let parentFullName = self.parentFullName {
+                "\(context.options.visibility) static let protoMessageName: String = \(parentFullName).protoMessageName + \".\(message.name)\""
+            } else if !migration.rhsExporterConfiguration.packageName.isEmpty {
+                "\(context.options.visibility) static let protoMessageName: String = _protobuf_package + \".\(message.name)\""
+            } else {
+                "\(context.options.visibility) static let protoMessageName: String = \"\(message.name)\""
+            }
 
             if message.fields.isEmpty {
                 "\(context.options.visibility) static let _protobuf_nameMap = \(moduleName)._NameMap()"

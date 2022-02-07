@@ -57,6 +57,7 @@ class ApodiniMessageField: SomeGRPCMessageField, ChangeableGRPCField {
     var fallbackValue: Int?
     var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)?
     var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)?
+    var protoFieldTypeUpdate: Google_Protobuf_FieldDescriptorProto.TypeEnum?
 
     init(_ property: TypeProperty, defaultValue: Int? = nil, context: ProtoFileContext, migration: MigrationContext) {
         // we ignore fluent property annotations
@@ -68,8 +69,13 @@ class ApodiniMessageField: SomeGRPCMessageField, ChangeableGRPCField {
         let identifiers = property.context.get(valueFor: TypeInformationIdentifierContextKey.self)
 
         self.name = property.name
-        self.type = .init(rawValue: Int(identifiers.identifier(for: GRPCFieldType.self).type))
-            ?? property.protoType
+        self.type = property.protoType
+
+        // swiftlint:disable:next force_unwrapping
+        let grpcFieldType = Google_Protobuf_FieldDescriptorProto.TypeEnum(rawValue: Int(identifiers.identifier(for: GRPCFieldType.self).type))!
+        if grpcFieldType != type {
+            FileHandle.standardError.write("WARN: Derived prototype \(type) for \(property.name) is different from the expected on the server side: \(grpcFieldType)".data(.utf8))
+        }
 
         self.typeName = property.swiftType(namer: context.namer)
         self.storageType = property.swiftStorageType(namer: context.namer)

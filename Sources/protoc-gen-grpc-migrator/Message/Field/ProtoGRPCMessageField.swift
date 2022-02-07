@@ -34,7 +34,7 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, ChangeableGRPCField {
 
     let sourceCodeComments: String?
 
-    let number: Int
+    var number: Int
 
     var fieldMapNames: String {
         let protoName: String = descriptor.name
@@ -72,6 +72,7 @@ class ProtoGRPCMessageField: SomeGRPCMessageField, ChangeableGRPCField {
     var fallbackValue: Int?
     var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)?
     var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)?
+    var protoFieldTypeUpdate: Google_Protobuf_FieldDescriptorProto.TypeEnum?
 
     init(descriptor: FieldDescriptor, context: ProtoFileContext, migration: MigrationContext) {
         precondition(descriptor.protoType != .group, ".group field types are not supported!")

@@ -22,7 +22,7 @@ struct ApodiniEnumCase: SomeGRPCEnumCase {
         self.enumCase = enumCase
 
         self.name = enumCase.name
-        self.relativeName = enumCase.name // TODO currently simplyfied! (e.g. backticks unhandled)
+        self.relativeName = enumCase.name // currently simplified! (e.g. backticks excaping is unhandled)
         self.dottedRelativeName = "." + relativeName
 
         let identifiers = enumCase.context.get(valueFor: TypeInformationIdentifierContextKey.self)

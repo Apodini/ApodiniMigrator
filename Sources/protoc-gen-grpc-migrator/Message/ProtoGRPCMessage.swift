@@ -59,7 +59,8 @@ class ProtoGRPCMessage: SomeGRPCMessage, ChangeableGRPCMessage {
 
         for message in descriptor.messages {
             nestedMessages[message.name] = GRPCMessage(
-                ProtoGRPCMessage(descriptor: message, context: context, migration: migration)
+                ProtoGRPCMessage(descriptor: message, context: context, migration: migration),
+                parentFullName: fullName
             )
         }
     }

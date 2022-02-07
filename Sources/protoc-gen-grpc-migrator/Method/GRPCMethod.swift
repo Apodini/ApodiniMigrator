@@ -99,13 +99,41 @@ struct GRPCMethod: SourceCodeRenderable {
 
         var renderableContent: String {
             var updatedStreamingType: StreamingType = method.streamingType
+            var parameterMigration: String? = nil // swiftlint:disable:this redundant_optional_initialization
+            // this closure is used to insert a call to the response migration closure generated below
+            var responseMigration: (String) -> String = { $0 }
+            var alreadyBuiltCall = false
+
             if let change = method.communicationPatternChange {
                 precondition(StreamingType(from: change.from) == method.streamingType)
                 updatedStreamingType = StreamingType(from: change.to)
             }
 
-            // this closure is used to insert a call to the migration closure generated below
-            var responseMigration: (String) -> String = { $0 }
+            if let typeChange = method.parameterChange {
+                var `try` = "try"
+
+                if method.streamingType.isStreamingResponse && updatedStreamingType.isStreamingResponse {
+                    // workaround for now as we don't have an throws context available.
+                    // we could in theory, as we stream response, wrap the migration into the AsyncSequence response
+                    // but this makes everything even more complicated
+                    `try` = "try!"
+                }
+
+                let migrationLine = { (name: String) -> String in
+                    // swiftlint:disable:next force_unwrapping
+                    "\(`try`) \(method.updatedInputMessageName!).from(\(name), script: \(typeChange.forwardMigration))"
+                }
+
+                if method.streamingType.isStreamingRequest {
+                    parameterMigration = """
+                                                 let requests = \(sequence == .sequence ? "\(`try`) ": "")\
+                                                 requests.compactMap { \(migrationLine("$0")) }
+                                                 """
+                } else {
+                    parameterMigration = "let request = \(migrationLine("request"))"
+                }
+            }
+
             if let change = method.responseChange {
                 "let migrateResponse: (\(method.updatedOutputMessageName!)) throws -> \(method.outputMessageName) = {"
                 Indent("try \(method.outputMessageName).from($0, script: \(change.backwardsMigration))")
@@ -115,8 +143,6 @@ struct GRPCMethod: SourceCodeRenderable {
                 }
             }
 
-            var alreadyBuiltCall = false
-
             switch (method.streamingType.isStreamingRequest, updatedStreamingType.isStreamingRequest) {
             case (true, false): // requests -> request
                 if method.streamingType.isStreamingResponse {
@@ -124,7 +150,7 @@ struct GRPCMethod: SourceCodeRenderable {
                     Indent {
                         ".flatMap { element in"
                         Indent {
-                            GRPCCall(for: method, streamingType: updatedStreamingType)
+                            GRPCCall(for: method, streamingType: updatedStreamingType, parameterMigration: parameterMigration)
                             alreadyBuiltCall = true
                             "return result"
                         }
@@ -136,7 +162,7 @@ struct GRPCMethod: SourceCodeRenderable {
                     Indent {
                         ".map { request -> \(method.outputMessageName) in"
                         Indent {
-                            GRPCCall(for: method, streamingType: updatedStreamingType)
+                            GRPCCall(for: method, streamingType: updatedStreamingType, parameterMigration: parameterMigration)
                             alreadyBuiltCall = true
                             "return result"
                         }
@@ -160,7 +186,7 @@ struct GRPCMethod: SourceCodeRenderable {
                 // unless its a conversion from `\(outputMessageName) -> GRPCResponseStream` build the call
                 // we need to handle that single case differently, as we aren't in a `async throws` context
                 // and therefore need to wrap that thing into Task and try-catch.
-                GRPCCall(for: method, streamingType: updatedStreamingType)
+                GRPCCall(for: method, streamingType: updatedStreamingType, parameterMigration: parameterMigration)
             }
 
             switch (method.streamingType.isStreamingResponse, updatedStreamingType.isStreamingResponse) {
@@ -171,7 +197,7 @@ struct GRPCMethod: SourceCodeRenderable {
                     Indent {
                         "do {"
                         Indent {
-                            GRPCCall(for: method, streamingType: method.streamingType)
+                            GRPCCall(for: method, streamingType: updatedStreamingType, parameterMigration: parameterMigration)
                             "continuation.yield(\(responseMigration("result"))"
                             "continuation.finish()"
                         }
@@ -208,13 +234,19 @@ struct GRPCMethod: SourceCodeRenderable {
     struct GRPCCall: SourceCodeRenderable {
         let method: SomeGRPCMethod
         let streamingType: StreamingType
+        let parameterMigration: String?
 
-        init(for method: SomeGRPCMethod, streamingType: StreamingType) {
+        init(for method: SomeGRPCMethod, streamingType: StreamingType, parameterMigration: String?) {
             self.method = method
             self.streamingType = streamingType
+            self.parameterMigration = parameterMigration
         }
 
         var renderableContent: String {
+            if let parameterMigration = parameterMigration {
+                parameterMigration
+            }
+
             "let result = "
                 + (!streamingType.isStreamingResponse ? "try await ": "")
                 + "perform\(streamingType.grpcCallTypeString)("

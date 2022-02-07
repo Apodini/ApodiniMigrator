@@ -41,8 +41,7 @@ struct ApodiniGrpcMethod: SomeGRPCMethod {
             precondition(endpoint.parameters.count == 1, "Received unexpected endpoint state for \(endpoint.handlerName) with multiple parameters: \(endpoint.parameters)")
             self.inputMessageName = endpointInput.typeInformation.swiftType(namer: context.namer)
         } else {
-            // TODO manage magic constant in central space!
-            self.inputMessageName = "SwiftProtobuf.Google_Protobuf_Empty"
+            self.inputMessageName = TypeInformation.ProtoMagics.googleProtobufEmpty
         }
 
         self.outputMessageName = endpoint.response.swiftType(namer: context.namer)

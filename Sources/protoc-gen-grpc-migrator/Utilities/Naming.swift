@@ -149,11 +149,6 @@ private func sanitizeTypeName(_ string: String, disambiguator: String, forbidden
 enum GRPCNamingUtils {
     // Returns the type prefix to use for a given
     static func typePrefix(protoPackage: String) -> String {
-        // TODO support?
-        // if fileOptions.hasSwiftPrefix {
-        //     return fileOptions.swiftPrefix
-        // }
-
         if protoPackage.isEmpty {
             return String()
         }
@@ -233,7 +228,7 @@ extension UnicodeScalar {
     /// - Returns: The uppercased version of the receiver, or `self`.
     func ascUppercased() -> UnicodeScalar {
         if isASCLowercase {
-            return UnicodeScalar(value - 0x20)!
+            return UnicodeScalar(value - 0x20)! // swiftlint:disable:this force_unwrapping
         }
         return self
     }

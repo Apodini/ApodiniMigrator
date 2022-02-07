@@ -104,7 +104,6 @@ struct GRPCMessageField {
             let decodeLine = "try decoder.\(decoderMethod)(\(fieldTypeArg)value: &\(field.storedProperty))"
 
             if let change = field.typeUpdate {
-                // TODO seemingly we need to append "?"
                 "var \(field.storedProperty): \(change.to.swiftStorageType(namer: context.namer)) = \(change.to.swiftDefaultValue(namer: context.namer))"
                 decodeLine
                 "self.\(field.storedProperty) = try \(field.typeName).from(\(field.storedProperty), script: \(change.backwardMigration))"
@@ -195,7 +194,7 @@ struct GRPCMessageField {
         Indent("try visitor.\(visitMethod)(\(traitsArg)value: \(typeMigrationClosure(varName)), fieldNumber: \(field.number))")
 
         if let change = field.necessityUpdate, change.to == .required {
-            let migratedValue = "try \(field.typeName).from(from: \(change.necessityMigration))"
+            let migratedValue = "try \(field.typeName).instance(from: \(change.necessityMigration))"
 
             "} else {"
             Indent("""
@@ -221,6 +220,8 @@ struct GRPCMessageField {
             if change.to != .required {
                 defaultEncodeLine()
             } else {
+                // storeProperty might be generated non-optional even though it is expected,
+                // which might yield warning (due to https://github.com/Apodini/Apodini/issues/424).
                 """
                 try container.encode(\
                 \(field.storedProperty) ?? (try \(field.typeName).instance(from: \(change.necessityMigration))), \

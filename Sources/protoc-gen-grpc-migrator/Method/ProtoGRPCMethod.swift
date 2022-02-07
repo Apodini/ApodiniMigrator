@@ -22,7 +22,7 @@ class ProtoGRPCMethod: SomeGRPCMethod {
     // we track the content of all `update` EndpointChanges here
     var identifierChanges: [ElementIdentifierChange] = []
     var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)?
-    var parameterChange: ( // TODO support generating this change!
+    var parameterChange: (
         from: TypeInformation,
         to: TypeInformation,
         forwardMigration: Int,
@@ -77,6 +77,15 @@ class ProtoGRPCMethod: SomeGRPCMethod {
     var streamingType: StreamingType
 
     var inputMessageName: String
+
+    var updatedInputMessageName: String? {
+        guard let change = parameterChange else {
+            return nil
+        }
+
+        return change.to.swiftType(namer: service.protobufNamer)
+    }
+
     // In grpc all parameters are combined into a single parameter.
     // Typically, this means all parameter updates are mapped to property updates of a newly introduced wrapper type.
     // However, this wrapper type is not introduced if the endpoint already has a single message-based parameter (which is not optional).
@@ -151,6 +160,8 @@ class ProtoGRPCMethod: SomeGRPCMethod {
             case .necessity:
                 break // grpc parameters are always required!
             case let .type(from, to, forwardMigration, migrationWarning):
+                // a lot of endpoints will have wrapper types, which won't result in a type change!
+                // though for endpoints were no wrapper type is introduced, there may still be a type change!
                 self.parameterChange = (
                     migration.typeStore.construct(from: from),
                     migration.typeStore.construct(from: to),

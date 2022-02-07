@@ -39,7 +39,7 @@ extension PrimitiveType {
             return .float
         case .date:
             return .message // ApodiniGRPC uses SwiftProtobuf.Google_Protobuf_Timestamp
-        case .uuid, .url: // TODO how is this handled with our migration stuff?
+        case .uuid, .url:
             return .string // ApodiniGRPC uses a string in the encoding!
         case .data:
             return .bytes

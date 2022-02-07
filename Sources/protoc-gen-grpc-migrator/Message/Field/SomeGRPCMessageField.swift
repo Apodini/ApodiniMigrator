@@ -11,7 +11,7 @@ import SwiftProtobufPluginLibrary
 import SwiftProtobuf
 import ApodiniTypeInformation
 
-protocol SomeGRPCMessageField {
+protocol SomeGRPCMessageField: AnyObject {
     var context: ProtoFileContext { get }
     var migration: MigrationContext { get }
 
@@ -33,7 +33,7 @@ protocol SomeGRPCMessageField {
 
     var sourceCodeComments: String? { get }
 
-    var number: Int { get }
+    var number: Int { get set }
 
     var fieldMapNames: String { get }
 
@@ -49,4 +49,7 @@ protocol SomeGRPCMessageField {
     var fallbackValue: Int? { get set }
     var necessityUpdate: (from: Necessity, to: Necessity, necessityMigration: Int)? { get set }
     var typeUpdate: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, backwardMigration: Int)? { get set }
+    /// This change is derived from a change of the `GRPCFieldType` TypeInformationIdentifier.
+    /// We track this only for informational purposes to check if our `typeUpdate` is consistent with what the server expects!
+    var protoFieldTypeUpdate: Google_Protobuf_FieldDescriptorProto.TypeEnum? { get set }
 }

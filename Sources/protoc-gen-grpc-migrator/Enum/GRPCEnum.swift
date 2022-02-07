@@ -125,8 +125,21 @@ struct GRPCEnum: SourceCodeRenderable {
             "\(context.options.visibility) init\(context.hasUnknownPreservingSemantics ? "": "?")(rawValue: Int) {"
             Indent {
                 "switch rawValue {"
-                for enumCase in `enum`.enumCasesSorted {
+                var generatedNumbers: [Int] = []
+
+                for enumCase in `enum`.enumCasesSorted where !enumCase.unavailable {
                     "case \(enumCase.number): self = \(enumCase.dottedRelativeName)"
+                    generatedNumbers.append(enumCase.number)
+                }
+
+                // in some non-well maintained web service migrations it might be the case that
+                // the grpc number of a removed case is reassigned to an existing or new property.
+                // Therefore, whe need to avoid potential collisions
+                for enumCase in `enum`.enumCasesSorted where enumCase.unavailable {
+                    """
+                    \(generatedNumbers.contains(enumCase.number) ? "// [DEPRECATED]" : "")\
+                    case \(enumCase.number): self = \(enumCase.dottedRelativeName)
+                    """
                 }
 
                 if context.hasUnknownPreservingSemantics {
@@ -141,6 +154,17 @@ struct GRPCEnum: SourceCodeRenderable {
         "}"
     }
 
+    private func nameMapLine(enumCase: GRPCEnumCase) -> String {
+        if enumCase.aliases.isEmpty {
+            return "\(enumCase.number): .same(proto: \"\(enumCase.name)\")"
+        } else {
+            let aliasNames = enumCase.aliases
+                .map { "\"\($0.name)\"" }
+                .joined(separator: ", ")
+            return "\(enumCase.number): .aliased(proto: \"\(enumCase.name)\", aliases: [\(aliasNames)])"
+        }
+    }
+
     @SourceCodeBuilder
     var protobufferRuntimeSupport: String {
         ""
@@ -150,15 +174,16 @@ struct GRPCEnum: SourceCodeRenderable {
             "\(context.options.visibility) static let _protobuf_nameMap: \(context.namer.swiftProtobufModuleName)._NameMap = ["
             Indent {
                 Joined(by: ",") {
-                    for enumCase in `enum`.enumCasesSorted {
-                        if enumCase.aliases.isEmpty {
-                            "\(enumCase.number): .same(proto: \"\(enumCase.name)\")"
-                        } else {
-                            let aliasNames = enumCase.aliases
-                                .map { "\"\($0.name)\"" }
-                                .joined(separator: ", ")
-                            "\(enumCase.number): .aliased(proto: \"\(enumCase.name)\", aliases: [\(aliasNames)])"
-                        }
+                    // see above for explanation
+                    var generatedNumbers: [Int] = []
+
+                    for enumCase in `enum`.enumCasesSorted where !enumCase.unavailable {
+                        nameMapLine(enumCase: enumCase)
+                        generatedNumbers.append(enumCase.number)
+                    }
+
+                    for enumCase in `enum`.enumCasesSorted where enumCase.unavailable {
+                        "\(generatedNumbers.contains(enumCase.number) ? "// [DEPRECATED] " : "")\(nameMapLine(enumCase: enumCase))"
                     }
                 }
             }

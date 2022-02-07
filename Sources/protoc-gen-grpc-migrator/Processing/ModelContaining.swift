@@ -11,7 +11,7 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 import OrderedCollections
 
-protocol ModelContaining {
+protocol ModelContaining: AnyObject {
     var context: ProtoFileContext { get }
     var migration: MigrationContext { get }
 
@@ -20,18 +20,18 @@ protocol ModelContaining {
     var nestedMessages: OrderedDictionary<String, GRPCMessage> { get set }
     var nestedEnums: OrderedDictionary<String, GRPCEnum> { get set }
 
-    mutating func add(model: TypeInformation, using nameIterator: inout Array<TypeNameComponent>.Iterator, depth: Int)
+    func add(model: TypeInformation, using nameIterator: inout Array<TypeNameComponent>.Iterator, depth: Int)
 
     func find(for typeName: TypeName, using nameIterator: inout Array<TypeNameComponent>.Iterator, depth: Int) -> ModelSearchResult?
 }
 
 extension ModelContaining {
-    mutating func add(model: TypeInformation) {
+    func add(model: TypeInformation) {
         var typeNameIterator = model.typeName.makeIterator()
         add(model: model, using: &typeNameIterator, depth: 0)
     }
 
-    mutating func add(model: TypeInformation, using nameIterator: inout Array<TypeNameComponent>.Iterator, depth: Int) {
+    func add(model: TypeInformation, using nameIterator: inout Array<TypeNameComponent>.Iterator, depth: Int) {
         guard let nextName = nameIterator.next() else {
             fatalError("Run out of iterable elements.")
         }
@@ -46,7 +46,8 @@ extension ModelContaining {
             switch model.rootType {
             case .object:
                 nestedMessages[nextName.name] = GRPCMessage(
-                    ApodiniGRPCMessage(of: model, context: context, migration: migration)
+                    ApodiniGRPCMessage(of: model, context: context, migration: migration),
+                    parentFullName: fullName.isEmpty ? nil : fullName
                 )
             case .enum:
                 nestedEnums[nextName.name] = GRPCEnum(
@@ -70,7 +71,8 @@ extension ModelContaining {
                         nestedIn: fullName,
                         context: context,
                         migration: migration
-                    )
+                    ),
+                    parentFullName: fullName.isEmpty ? nil : fullName
                 )
             ].add(model: model, using: &nameIterator, depth: depth + 1)
         }
