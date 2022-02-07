@@ -22,4 +22,4 @@ jobs:
       packagename: ApodiniMigrator
       supportsmacos11: true
       testdocc: false
-      installprotoc: true
+      # installprotoc: true
