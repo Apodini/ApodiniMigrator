@@ -144,7 +144,6 @@ class ProtoGRPCMethod: SomeGRPCMethod {
 
             precondition(!processedParameterUpdateAlready, "Encountered multiple parameter updates for \(methodPath) with single parameter!")
             processedParameterUpdateAlready = true
-            // TODO we must still handle that for single parameter endpoints!
 
             switch parameterUpdate.updated {
             case .parameterType:

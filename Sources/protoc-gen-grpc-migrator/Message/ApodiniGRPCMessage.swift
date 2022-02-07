@@ -30,7 +30,6 @@ class ApodiniGRPCMessage: SomeGRPCMessage, ChangeableGRPCMessage {
 
     init(of type: TypeInformation, context: ProtoFileContext, migration: MigrationContext) {
         precondition(type.isObject, "Cannot instantiate a GRPCMessage from a non object: \(type.rootType) \(type.typeName)")
-        // TODO consider sanitizing, prefixing, sufixing the name etc (Generics Name to uniqueify)?
 
         // swiftlint:disable:next force_unwrapping
         let identifiers = type.context!.get(valueFor: TypeInformationIdentifierContextKey.self)
@@ -38,18 +37,12 @@ class ApodiniGRPCMessage: SomeGRPCMessage, ChangeableGRPCMessage {
         self.context = context
         self.migration = migration
 
-        // TODO grpcName not directly usabel, e.g. we must use the old packageName
         let grpcName = identifiers.identifier(for: GRPCName.self)
-        // TODO use the grpcName?
+            .parsed()
 
-        let typeName = type.typeName
-        self.name = typeName.mangledName // TODO generics?
-
-        self.fullName = type.retrieveFullName(namer: context.namer)! // swiftlint:disable:this force_unwrapping
-        self.relativeName = fullName
-            .components(separatedBy: ".")
-            .last
-            .unsafelyUnwrapped
+        self.name = grpcName.typeName
+        self.fullName = context.namer.fullName(message: grpcName)
+        self.relativeName = context.namer.relativeName(message: grpcName)
 
         fields = type.objectProperties
             .map { GRPCMessageField(ApodiniMessageField($0, context: context, migration: migration)) }

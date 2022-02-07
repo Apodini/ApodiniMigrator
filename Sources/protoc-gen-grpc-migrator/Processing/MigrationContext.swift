@@ -12,8 +12,6 @@ import ApodiniMigrator
 extension TypeInformationIdentifiers: TypeIdentifiersDescription {}
 
 struct MigrationContext {
-    // TODO save previous package name etc?
-    let exporterConfiguration: GRPCExporterConfiguration
     /// The base `APIDocument`
     let document: APIDocument
     /// The `MigrationGuide`
@@ -28,6 +26,9 @@ struct MigrationContext {
     /// The MigrationGuide might contain **property changes** for those models.
     /// NOTE: Those models are guaranteed to be **dereferenced**!
     let apiDocumentModelAdditions: [TypeInformation]
+
+    let lhsExporterConfiguration: GRPCExporterConfiguration
+    let rhsExporterConfiguration: GRPCExporterConfiguration
 
     init(document: APIDocument, migrationGuide: MigrationGuide) {
         let lhsConfiguration = document.serviceInformation.exporter(for: GRPCExporterConfiguration.self)
@@ -45,12 +46,17 @@ struct MigrationContext {
 
         document.applyEndpointParameterCombination(
             considering: &migrationGuide,
-            using: GRPCMethodParameterCombination(typeStore: document.typeStore)
+            using: GRPCMethodParameterCombination(
+                typeStore: document.typeStore,
+                lhs: lhsConfiguration,
+                rhs: rhsConfiguration,
+                migrationGuide: migrationGuide
+            )
         )
 
         document.applyEndpointResponseTypeWrapping(
             considering: &migrationGuide,
-            using: GRPCMethodResponseWrapping()
+            using: GRPCMethodResponseWrapping(lhs: lhsConfiguration, rhs: rhsConfiguration, migrationGuide: migrationGuide)
         )
 
         // Based on `typeStoreState` we derive which models got added via the ParameterCombination
@@ -78,31 +84,29 @@ struct MigrationContext {
             _ = typeStore.store(addition.added)
         }
 
-        self.exporterConfiguration = rhsConfiguration
         self.document = document
         self.migrationGuide = migrationGuide
         self.typeStore = typeStore
         self.apiDocumentModelAdditions = Array(apiDocumentModelAdditions)
+        self.lhsExporterConfiguration = lhsConfiguration
+        self.rhsExporterConfiguration = rhsConfiguration
 
-        computeIdentifiersOfSynthesizedEndpointTypes(lhs: lhsConfiguration, rhs: rhsConfiguration)
+        computeIdentifiersOfSynthesizedEndpointTypes()
     }
 
-    private mutating func computeIdentifiersOfSynthesizedEndpointTypes(
-        lhs lhsConfiguration: GRPCExporterConfiguration,
-        rhs rhsConfiguration: GRPCExporterConfiguration
-    ) {
+    private mutating func computeIdentifiersOfSynthesizedEndpointTypes() {
         for endpoint in document.endpoints {
             let swiftTypeName = endpoint.swiftTypeName
             let updatedSwiftTypeName = endpoint.updatedSwiftTypeName(considering: migrationGuide)
 
-            guard let lhsIdentifiers = lhsConfiguration.identifiersOfSynthesizedTypes[swiftTypeName] else {
+            guard let lhsIdentifiers = lhsExporterConfiguration.identifiersOfSynthesizedTypes[swiftTypeName] else {
                 continue // happens when neither input nor output type of an endpoint is synthesized
             }
 
             // we have the base type which didn't change, which we augment with the base identifiers
             _augmentIdentifiersOfSynthesizedTypes(of: endpoint, with: lhsIdentifiers)
 
-            guard let rhsIdentifiers = rhsConfiguration.identifiersOfSynthesizedTypes[updatedSwiftTypeName] else {
+            guard let rhsIdentifiers = rhsExporterConfiguration.identifiersOfSynthesizedTypes[updatedSwiftTypeName] else {
                 continue // endpoint (and its types) were probably removed in latest version (or aren't synthesized anymore)
             }
 
@@ -146,7 +150,7 @@ struct MigrationContext {
 
         for change in migrationGuide.endpointChanges {
             guard let addedEndpoint = change.modeledAdditionChange,
-                  let identifiers = rhsConfiguration.identifiersOfSynthesizedTypes[addedEndpoint.added.swiftTypeName] else {
+                  let identifiers = rhsExporterConfiguration.identifiersOfSynthesizedTypes[addedEndpoint.added.swiftTypeName] else {
                 // either not an added endpoint or added endpoint doesn't have any synthesized types!
                 continue
             }
@@ -155,6 +159,22 @@ struct MigrationContext {
             endpoint.dereference(in: typeStore)
 
             _augmentIdentifiersOfSynthesizedTypes(of: endpoint, with: identifiers)
+        }
+
+        // we rewrite the `GRPCName` identifier for all added models to use the previous packageName!
+        for change in migrationGuide.modelChanges {
+            guard let addedModel = change.modeledAdditionChange,
+                  let context = addedModel.added.context,
+                  var identifiers = context.get(valueFor: TypeInformationIdentifierContextKey.self),
+                  let grpcName = identifiers.identifierIfPresent(for: GRPCName.self) else {
+                continue
+            }
+
+            let parsed = grpcName.parsed(migration: self)
+            identifiers.add(identifier: GRPCName(rawValue: parsed.rawValue))
+
+            // TODO rework this in the MetadataSystem!
+            context.unsafeAdd(TypeInformationIdentifierContextKey.self, value: identifiers, allowOverwrite: true)
         }
     }
 
@@ -280,19 +300,25 @@ struct MigrationContext {
     }
 
     private func _augmentIdentifiersOfSynthesizedTypes(of endpoint: Endpoint, with identifiers: EndpointSynthesizedTypes) {
-        if let inputIdentifiers = identifiers.inputIdentifiers {
+        if var inputIdentifiers = identifiers.inputIdentifiers {
             precondition(endpoint.parameters.count == 1, "Unexpected endpoint count for \(endpoint)")
             let parameter = endpoint.parameters[0]
+
+            inputIdentifiers.rewritePackageName(migration: self)
+
             parameter.typeInformation.augmentTypeWithIdentifiers(retrieveIdentifiers: { _ in inputIdentifiers })
         }
 
-        if let outputIdentifiers = identifiers.outputIdentifiers {
+        if var outputIdentifiers = identifiers.outputIdentifiers {
+            outputIdentifiers.rewritePackageName(migration: self)
+
             endpoint.response.augmentTypeWithIdentifiers(retrieveIdentifiers: { _ in outputIdentifiers })
         }
     }
 }
 
-private extension Endpoint {
+// TODO move this extension!
+extension Endpoint {
     var swiftTypeName: String {
         handlerName.buildName(
             printTargetName: true,
@@ -312,5 +338,16 @@ private extension Endpoint {
                 genericsSeparator: ",",
                 genericsDelimiter: ">"
             )
+    }
+}
+
+extension TypeInformationIdentifiers {
+    mutating func rewritePackageName(migration: MigrationContext) {
+        guard let grpcName = identifiers.identifierIfPresent(for: GRPCName.self) else {
+            return
+        }
+
+        let parsed = grpcName.parsed(migration: migration)
+        identifiers.add(identifier: GRPCName(rawValue: parsed.rawValue))
     }
 }

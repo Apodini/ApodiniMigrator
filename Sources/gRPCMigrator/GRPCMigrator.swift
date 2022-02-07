@@ -101,6 +101,7 @@ public struct GRPCMigrator: Migrator {
                         "APIDocument": documentPath
                     ],
                     environment: [
+                        // TODO control!
                         "PROTOC_GEN_GRPC_DUMP": "./dump.binary"
                     ]
                 )
@@ -108,7 +109,7 @@ public struct GRPCMigrator: Migrator {
                 Directory("Networking") {
                     ResourceFile(copy: "GRPCNetworking.swift")
                         .replacing(.hostname, with: httpServer.hostname)
-                        .replacing(.port, with: httpServer.port.description)
+                        .replacing(.port, with: httpServer.port.description) // TODO this is wrong?
                     ResourceFile(copy: "GRPCNetworkingError.swift")
                     ResourceFile(copy: "GRPCResponseStream.swift")
                 }

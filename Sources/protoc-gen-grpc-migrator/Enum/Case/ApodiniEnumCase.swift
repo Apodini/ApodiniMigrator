@@ -12,23 +12,18 @@ import ApodiniMigrator
 struct ApodiniEnumCase: SomeGRPCEnumCase {
     private let enumCase: EnumCase
 
-    var name: String {
-        enumCase.name
-    }
-
-    // TODO check that naming is consistent with ApodiniGRPC
-    var relativeName: String {
-        enumCase.name
-    }
-
-    var dottedRelativeName: String {
-        "." + enumCase.name
-    }
+    let name: String
+    let relativeName: String
+    let dottedRelativeName: String
 
     var number: Int
 
     init(_ enumCase: EnumCase) {
         self.enumCase = enumCase
+
+        self.name = enumCase.name
+        self.relativeName = enumCase.name // TODO currently simplyfied! (e.g. backticks unhandled)
+        self.dottedRelativeName = "." + relativeName
 
         let identifiers = enumCase.context.get(valueFor: TypeInformationIdentifierContextKey.self)
         self.number = Int(identifiers.identifier(for: GRPCNumber.self).number)

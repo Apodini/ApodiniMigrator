@@ -36,12 +36,11 @@ struct EmptyGRPCMessage: SomeGRPCMessage {
 
         self.name = name
 
-        // TODO is this the same as in the `Namer`?
-        self.relativeName = name
+        self.relativeName = GRPCNamingUtils.sanitize(messageName: name, forbiddenTypeNames: [context.namer.swiftProtobufModuleName])
         if let baseName = baseName, !baseName.isEmpty {
-            self.fullName = baseName + "." + name
+            self.fullName = baseName + "." + relativeName
         } else {
-            self.fullName = name
+            self.fullName = GRPCNamingUtils.typePrefix(protoPackage: migration.lhsExporterConfiguration.packageName) + "." + relativeName
         }
     }
 }

@@ -91,7 +91,7 @@ class ProtoGRPCEnum: SomeGRPCEnum, Changeable {
                     .forEach { $0.applyUpdateChange(caseUpdate) }
             }
         case .identifier:
-            // TODO do we support any identifier changes?
+            // identifier right now only consist of `GRPCName´. So we ignore those changes right now
             break
         case .rawValueType:
             // no need to handle this. if we generate a enum it is one without associated values

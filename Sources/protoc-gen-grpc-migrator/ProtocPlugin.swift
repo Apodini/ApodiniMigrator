@@ -58,7 +58,12 @@ struct ProtocPluginBoostrap: ParsableCommand {
         try plugin.generate()
 
         let response = try plugin.response.serializedData()
-        try FileHandle.standardOutput.write(contentsOf: response)
+
+        if !path.isEmpty {
+            print(">>> Would successfully write contents of response!")
+        } else {
+            try FileHandle.standardOutput.write(contentsOf: response)
+        }
     }
 }
 

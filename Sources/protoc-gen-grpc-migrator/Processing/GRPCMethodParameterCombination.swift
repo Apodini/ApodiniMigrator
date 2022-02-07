@@ -10,12 +10,16 @@ import Foundation
 import ApodiniMigrator
 
 class GRPCMethodParameterCombination: ParameterCombination {
-    let shouldCallForZeroParameters = false
-
     let typeStore: TypesStore
+    let lhsConfiguration: GRPCExporterConfiguration
+    let rhsConfiguration: GRPCExporterConfiguration
+    let migrationGuide: MigrationGuide
 
-    init(typeStore: TypesStore) {
+    init(typeStore: TypesStore, lhs: GRPCExporterConfiguration, rhs: GRPCExporterConfiguration, migrationGuide: MigrationGuide) {
         self.typeStore = typeStore
+        self.lhsConfiguration = lhs
+        self.rhsConfiguration = rhs
+        self.migrationGuide = migrationGuide
     }
 
     func shouldBeMapped(parameter: Parameter) -> Bool {
@@ -23,11 +27,7 @@ class GRPCMethodParameterCombination: ParameterCombination {
     }
 
     func merge(parameters: [Parameter], of endpoint: Endpoint) -> Parameter? {
-        if parameters.isEmpty {
-            // TODO insert parameter with grpc Empty Type if there are zero parameters!
-            //  (requires modifications in the ParameterCombination to be passed here!
-            preconditionFailure("We currently do not support combining parameters with zero parameters: \(endpoint)")
-        }
+        precondition(!parameters.isEmpty, "Endpoints with zero parameters are handled inside `ApodiniGRPCMessage`: \(endpoint)")
 
         if parameters.count == 1,
            var first = parameters.first {
@@ -41,12 +41,19 @@ class GRPCMethodParameterCombination: ParameterCombination {
             }
         }
 
-        // TODO it is crucial that we get the naming right,
-        //  property updates will be applied to ProtoMessages
+        guard let identifiers = lhsConfiguration.identifiersOfSynthesizedTypes[endpoint.swiftTypeName]?.inputIdentifiers
+            ?? rhsConfiguration.identifiersOfSynthesizedTypes[endpoint.updatedSwiftTypeName(considering: migrationGuide)]?.inputIdentifiers else {
+            fatalError("When combining parameters for \(endpoint.handlerName.rawValue) failed to locate TypeInformationIdentifiers!")
+        }
+
+        // don't use the packageName, it might contain the update package name
+        let grpcName = identifiers.identifiers.identifier(for: GRPCName.self)
+            .parsed()
+
         let typeName = TypeName(
             definedIn: endpoint.handlerName.definedIn,
-            // TODO maybe use the grpc method name?
-            rootType: TypeNameComponent(name: endpoint.handlerName.mangledName.appending("Input"))
+            rootType: TypeNameComponent(name: grpcName.typeName),
+            nestedTypes: grpcName.nestedTypes.map { TypeNameComponent(name: $0) }
         )
 
         let typeInformation: TypeInformation = .object(

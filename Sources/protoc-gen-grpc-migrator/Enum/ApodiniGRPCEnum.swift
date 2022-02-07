@@ -30,25 +30,13 @@ struct ApodiniGRPCEnum: SomeGRPCEnum {
 
         // swiftlint:disable:next force_unwrapping
         let identifiers = type.context!.get(valueFor: TypeInformationIdentifierContextKey.self)
-        // TODO grpcName not directly usabel, e.g. we must use the old packageName
         let grpcName = identifiers.identifier(for: GRPCName.self)
-        // TODO use grpcName?
+            .parsed()
 
         self.context = context
 
-        // TODO consider sanitizing, prefixing, sufixing the name etc (Generics Name to uniqueify)?
-
-        self.fullName = type.typeName.buildName(
-            printTargetName: false,
-            componentSeparator: ".",
-            genericsStart: "Of",
-            genericsSeparator: "And",
-            genericsDelimiter: ""
-        )
-        self.relativeName = fullName
-            .components(separatedBy: ".")
-            .last
-            .unsafelyUnwrapped
+        self.relativeName = context.namer.relativeName(enum: grpcName)
+        self.fullName = context.namer.fullName(enum: grpcName)
 
         self.enumCases = type.enumCases
             .map { .init(ApodiniEnumCase($0)) }

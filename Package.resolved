@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/Apodini/ApodiniTypeInformation.git",
         "state": {
           "branch": null,
-          "revision": "e2d568ed9ad10276233b7642f788c4143e07bc2c",
-          "version": "0.3.3"
+          "revision": "ab8fd4fc28c446df09e3b451789d03d53dc82cf9",
+          "version": "0.3.4"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/Apodini/MetadataSystem.git",
         "state": {
           "branch": null,
-          "revision": "30b8886934e49d64130868ac0b89219c35fc5447",
-          "version": "0.1.3"
+          "revision": "f655813f1953af8d3aaac432dad35f394e7bdf75",
+          "version": "0.1.6"
         }
       },
       {
