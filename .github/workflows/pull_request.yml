@@ -20,8 +20,7 @@ jobs:
       packagename: ApodiniMigrator
       supportsmacos11: true
       testdocc: false
-      aptgetdependencies: "protobuf-compiler"
-      yumdependencies: "protobuf-compiler"
+      installprotoc: true
   reuse_action:
     name: REUSE Compliance Check
     uses: Apodini/.github/.github/workflows/reuse.yml@main
