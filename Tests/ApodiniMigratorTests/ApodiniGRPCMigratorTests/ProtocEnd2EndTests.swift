@@ -19,11 +19,7 @@ final class ProtocEnd2EndTests: ApodiniMigratorXCTestCase {
         FileHeaderComment.testsDate = .testsDate
     }
 
-    // TODO test v2
-    // TODO test v1
     func apiDocumentOption(path: Path) -> String {
-        // ,MigrationGuide=/Users/andi/XcodeProjects/TUM/ApodiniMigrator/Resources/ExampleDocuments/migration_guide.json
-        // ,APIDocument=/Users/andi/XcodeProjects/TUM/ApodiniMigrator/Resources/ExampleDocuments/api_v1.0.0.json
         "APIDocument=\(path.absolute().description)"
     }
 
