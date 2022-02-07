@@ -10,7 +10,7 @@ import Foundation
 import SwiftProtobufPluginLibrary
 import PathKit
 
-struct PluginOptions {
+public struct PluginOptions {
     enum ParserError: Error {
         case unknownParameter(key: String)
         case invalidParameterValue(name: String, value: String)
@@ -43,7 +43,7 @@ struct PluginOptions {
     private(set) var protoToModuleMappings = ProtoFileToModuleMappings()
     private(set) var fileNaming = FileNaming.FullPath
 
-    init(parameter: String) throws { // swiftlint:disable:this cyclomatic_complexity
+    public init(parameter: String) throws { // swiftlint:disable:this cyclomatic_complexity
         for (key, value) in Self.parseParameterString(parameter) {
             switch key {
             case "APIDocument":

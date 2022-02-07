@@ -27,6 +27,7 @@ let package = Package(
         .library(name: "RESTMigrator", targets: ["RESTMigrator"]),
         .library(name: "gRPCMigrator", targets: ["gRPCMigrator"]),
         .executable(name: "migrator", targets: ["ApodiniMigratorCLI"]),
+        .library(name: "ProtocGRPCPluginLibrary", targets: ["ProtocGRPCPluginLibrary"]),
         .executable(name: "protoc-gen-grpc-migrator", targets: ["protoc-gen-grpc-migrator"])
     ],
     dependencies: [
@@ -136,6 +137,26 @@ let package = Package(
             ]
         ),
 
+        .target(
+            name: "ProtocGRPCPluginLibrary",
+            dependencies: [
+                .target(name: "ApodiniMigrator"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
+                .product(name: "SwiftProtobuf", package: "swift-protobuf"),
+                .product(name: "OrderedCollections", package: "swift-collections")
+            ]
+        ),
+
+        .executableTarget(
+            name: "protoc-gen-grpc-migrator",
+            dependencies: [
+                .product(name: "PathKit", package: "PathKit"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .target(name: "ProtocGRPCPluginLibrary")
+            ]
+        ),
+
         // This target implements the command line interface of the ApodiniMigrator utility.
         // It offers command to generate and migrate client libraries and a sub command
         // to compare API documents.
@@ -150,25 +171,15 @@ let package = Package(
             ]
         ),
 
-        .executableTarget(
-            name: "protoc-gen-grpc-migrator",
-            dependencies: [
-                .target(name: "ApodiniMigrator"),
-                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
-                .product(name: "SwiftProtobuf", package: "swift-protobuf"),
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "OrderedCollections", package: "swift-collections")
-            ]
-        ),
-
         // The unified test target.
         .testTarget(
             name: "ApodiniMigratorTests",
             dependencies: [
-                "ApodiniMigratorCore",
-                "RESTMigrator",
-                "ApodiniMigratorCompare",
-                "ApodiniMigratorClientSupport",
+                .target(name: "ApodiniMigratorCore"),
+                .target(name: "RESTMigrator"),
+                .target(name: "ApodiniMigratorCompare"),
+                .target(name: "ApodiniMigratorClientSupport"),
+                .target(name: "ProtocGRPCPluginLibrary"),
                 .product(name: "XCTAssertCrash", package: "XCTAssertCrash", condition: .when(platforms: [.macOS])),
                 .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport")
             ],
