@@ -44,16 +44,12 @@ struct GRPCMethod: SourceCodeRenderable {
             ? [.sequence, .asyncSequence]
             : [nil]
 
-        var generics: [String] = []
-        if method.streamingType.isStreamingRequest {
-            generics.append("RequestStream")
-        }
-
         for sequenceProtocol in sequenceProtocols {
             EmptyLine()
 
-            if let comments = method.sourceCodeComments {
-                comments // placing comments into source code!
+            if var comments = method.sourceCodeComments, !comments.isEmpty {
+                _ = comments.removeLast() // removing last trailing "\n"
+                comments
             }
 
             if method.unavailable {
@@ -68,7 +64,7 @@ struct GRPCMethod: SourceCodeRenderable {
             }
             SwiftFunction(
                 name: method.methodWrapperFunctionName,
-                generics: generics,
+                generics: method.streamingType.isStreamingRequest ? ["RequestStream"] : [],
                 arguments: [
                     "_ \(method.streamingType.requestParameterName): \(requestParameterType)",
                     "callOptions: CallOptions? = nil"

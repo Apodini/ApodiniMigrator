@@ -52,7 +52,9 @@ extension SourceCodeComponentBuilderProtocol {
 
     /// Build the block of ``SourceCodeComponent``s.
     public static func buildBlock(_ components: [SourceCodeComponent]...) -> [SourceCodeComponent] {
-        components.flatten()
+        components
+            .filter { !$0.isEmpty }
+            .flatten()
     }
 
     /// Build either first.
@@ -76,7 +78,9 @@ extension SourceCodeComponentBuilderProtocol {
 
     /// Build an array (for loops).
     public static func buildArray(_ components: [[SourceCodeComponent]]) -> [SourceCodeComponent] {
-        components.flatten()
+        components
+            .filter { !$0.isEmpty }
+            .flatten()
     }
 }
 
@@ -88,7 +92,14 @@ extension SourceCodeBuilderProtocol {
     public static func buildFinalResult(_ component: [SourceCodeComponent]) -> String {
         component
             .map { $0.render() }
+            .filter { !$0.isEmpty }
             .flatten()
             .joined(separator: "\n")
+    }
+
+    /// Build the final source code file content.
+    /// This will render all the ``SourceCodeComponent``s and join them by the line separator `\n`.
+    public static func buildFinalResult(_ component: [SourceCodeComponent]) -> Group {
+        Group(content: component)
     }
 }

@@ -62,7 +62,8 @@ class GRPCMessage: SourceCodeRenderable, ModelContaining {
 
     var renderableContent: String {
         ""
-        if let comments = message.sourceCodeComments {
+        if var comments = message.sourceCodeComments, !comments.isEmpty {
+            _ = comments.removeLast() // removing last trailing "\n"
             comments
         }
         if message.unavailable {
@@ -113,6 +114,7 @@ class GRPCMessage: SourceCodeRenderable, ModelContaining {
                 "\(context.options.visibility) static let protoMessageName: String = \"\(message.name)\""
             }
 
+            EmptyLine()
             if message.fields.isEmpty {
                 "\(context.options.visibility) static let _protobuf_nameMap = \(moduleName)._NameMap()"
             } else {
@@ -129,9 +131,10 @@ class GRPCMessage: SourceCodeRenderable, ModelContaining {
 
 
             // we don't generate `isInitialized` as we don't support proto2 or extensions
-
+            EmptyLine()
             decodeMessageMethod
-            ""
+
+            EmptyLine()
             traverseMessageMethod
         }
         "}"

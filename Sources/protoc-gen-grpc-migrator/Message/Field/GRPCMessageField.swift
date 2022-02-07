@@ -34,7 +34,8 @@ struct GRPCMessageField {
 
     @SourceCodeBuilder
     var propertyInterface: String {
-        if let comments = field.sourceCodeComments {
+        if var comments = field.sourceCodeComments, !comments.isEmpty {
+            _ = comments.removeLast() // removing last trailing "\n"
             comments
         }
 
@@ -115,7 +116,7 @@ struct GRPCMessageField {
     }
 
     @SourceCodeBuilder
-    var fieldDecodeCaseStatements: String {
+    var fieldDecodeCaseStatements: Group {
         if field.unavailable {
             if let fallbackValue = field.fallbackValue {
                 "\(field.storedProperty) = try \(field.typeName).instance(from: \(fallbackValue))"

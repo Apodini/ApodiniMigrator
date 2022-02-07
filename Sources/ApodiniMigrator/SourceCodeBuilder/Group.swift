@@ -26,6 +26,7 @@ public struct Group: SourceCodeComponent {
     public func render() -> [String] {
         content
             .map { $0.render() }
+            .filter { !$0.isEmpty }
             .flatten()
     }
 }

@@ -35,7 +35,8 @@ struct GRPCEnum: SourceCodeRenderable {
         var deprecatedCases: [GRPCEnumCase] = []
 
         ""
-        if let comments = `enum`.sourceCodeComments {
+        if var comments = `enum`.sourceCodeComments, !comments.isEmpty {
+            _ = comments.removeLast() // removing last trailing "\n"
             comments
         }
 
@@ -61,7 +62,8 @@ struct GRPCEnum: SourceCodeRenderable {
                 // if new cases are added, the client developer will be made aware of
                 // through compiler errors to when it is required to adjust switch statements!
 
-                if let comments = enumCase.sourceCodeComments {
+                if var comments = enumCase.sourceCodeComments, !comments.isEmpty {
+                    _ = comments.removeLast() // removing last trailing "\n"
                     comments
                 }
 

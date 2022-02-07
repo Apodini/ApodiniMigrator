@@ -78,7 +78,8 @@ class GRPCService: SourceCodeRenderable {
 
     var renderableContent: String {
         ""
-        if let comments = self.serviceSourceComments {
+        if var comments = serviceSourceComments, !comments.isEmpty {
+            _ = comments.removeLast() // removing last trailing "\n"
             comments
         }
 
