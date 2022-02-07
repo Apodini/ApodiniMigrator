@@ -22,3 +22,5 @@ jobs:
       packagename: ApodiniMigrator
       supportsmacos11: true
       testdocc: false
+      aptgetdependencies: "protobuf-compiler"
+      yumdependencies: "protobuf-compiler"
