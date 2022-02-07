@@ -10,6 +10,7 @@ import Foundation
 import SwiftProtobufPluginLibrary
 import PathKit
 
+/// Plugin options for a ``ProtocPlugin``.
 public struct PluginOptions {
     enum ParserError: Error {
         case unknownParameter(key: String)
@@ -43,6 +44,7 @@ public struct PluginOptions {
     private(set) var protoToModuleMappings = ProtoFileToModuleMappings()
     private(set) var fileNaming = FileNaming.FullPath
 
+    /// Create a new `PluginOptions` instance from a rawValue string. Passed by protoc.
     public init(parameter: String) throws { // swiftlint:disable:this cyclomatic_complexity
         for (key, value) in Self.parseParameterString(parameter) {
             switch key {

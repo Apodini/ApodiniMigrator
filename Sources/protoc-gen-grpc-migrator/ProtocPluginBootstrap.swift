@@ -13,10 +13,9 @@ import ProtocGRPCPluginLibrary
 import PathKit
 
 @main
-struct ProtocPluginBoostrap: ParsableCommand {
+struct ProtocPluginBootstrap: ParsableCommand {
     static var configuration = CommandConfiguration(
-        abstract: "asdf",
-        version: "0.1.2"
+        abstract: "Protoc Plugin Boostrap - Protoc plugin for the grpc client library migrator"
     )
 
     @Argument(completion: .directory)

@@ -11,6 +11,7 @@ import ApodiniMigrator
 import ArgumentParser
 import SwiftProtobufPluginLibrary
 
+/// Instance of a protoc plugin. Entry point to the grpc migrator.
 public struct ProtocPlugin {
     private let request: Google_Protobuf_Compiler_CodeGeneratorRequest
     private let options: PluginOptions
@@ -18,11 +19,14 @@ public struct ProtocPlugin {
     private let migration: MigrationContext
     private let descriptorSet: DescriptorSet
 
+    /// The `Google_Protobuf_Compiler_CodeGeneratorResponse` which is to be returned to protoc.
+    /// Only set after calling ``generate()``.
     public var response = Google_Protobuf_Compiler_CodeGeneratorResponse(
         files: [],
         supportedFeatures: [.proto3Optional]
     )
 
+    /// Initialize a new plugin instance, providing the protoco request and the plugin options.
     public init(request: Google_Protobuf_Compiler_CodeGeneratorRequest, options: PluginOptions) throws {
         self.request = request
         self.options = options
@@ -44,6 +48,7 @@ public struct ProtocPlugin {
         self.descriptorSet = DescriptorSet(protos: request.protoFile)
     }
 
+    /// Generate the client code.
     public mutating func generate() throws {
         for name in request.fileToGenerate {
             let fileDescriptor = descriptorSet.lookupFileDescriptor(protoName: name)
