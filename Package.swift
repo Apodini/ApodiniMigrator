@@ -177,6 +177,7 @@ let package = Package(
             dependencies: [
                 .target(name: "ApodiniMigratorCore"),
                 .target(name: "RESTMigrator"),
+                .target(name: "gRPCMigrator"),
                 .target(name: "ApodiniMigratorCompare"),
                 .target(name: "ApodiniMigratorClientSupport"),
                 .target(name: "ProtocGRPCPluginLibrary"),

@@ -19,4 +19,7 @@ struct GRPCSpecificOptions: ParsableArguments {
 
     @Option(name: .long, help: "Specify the path to which you want to dump the protoc plugin request binary. For Debugging purposes!")
     var protocGenDumpRequestPath: String = ""
+
+    @Option(name: .long, help: "Manually specify the path to the `protoc-gen-grpc-migrator` protoco plugin.")
+    var protocGrpcPluginPath: String = ""
 }

@@ -21,9 +21,15 @@ enum Documents: String, TestResource {
     case v2_2 = "api_qonectiq2.0.0_2" // swiftlint:disable:this identifier_name
     case migrationGuide_2 = "migration_guide_2" // swiftlint:disable:this identifier_name
 
+    case protoV1 = "api_qonectiq1.0.0.proto"
     case protobufCodeGeneratorRequest = "protobuf-code-generator-request"
 
     var fileName: String {
-        rawValue + ".json"
+        switch self {
+        case .protoV1:
+            return rawValue
+        default:
+            return rawValue + ".json"
+        }
     }
 }

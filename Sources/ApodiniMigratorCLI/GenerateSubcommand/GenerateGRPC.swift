@@ -32,7 +32,8 @@ struct GenerateGRPC: ParsableCommand {
                 protoFile: grpcOptions.protoPath,
                 documentPath: globalOptions.documentPath,
                 migrationGuidePath: nil,
-                protocGenDumpRequestPath: grpcOptions.protocGenDumpRequestPath.isEmpty ? nil : grpcOptions.protocGenDumpRequestPath
+                protocGenDumpRequestPath: grpcOptions.protocGenDumpRequestPath.isEmpty ? nil : grpcOptions.protocGenDumpRequestPath,
+                protocPluginBinaryPath: grpcOptions.protocGrpcPluginPath.isEmpty ? nil : grpcOptions.protocGrpcPluginPath
             )
 
             try migrator.run(packageName: globalOptions.packageName, packagePath: globalOptions.targetDirectory)

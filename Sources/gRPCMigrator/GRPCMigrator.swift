@@ -44,10 +44,19 @@ public struct GRPCMigrator: Migrator {
     /// This flag controls if the protoc plugin will write out
     /// the protoc request into a binary blob. This is helpful for debugging purposes.
     private let protocGenDumpRequestPath: String?
+    /// If supplied, this allows to manually supply the path to the `protoc-gen-grpc-migrator` binary.
+    /// Otherwise protoc will search the `PATH` variable for the executable.
+    private let protocPluginBinaryPath: String?
 
     private let httpServer: HTTPInformation
 
-    public init(protoFile: String, documentPath: String, migrationGuidePath: String? = nil, protocGenDumpRequestPath: String?) throws {
+    public init(
+        protoFile: String,
+        documentPath: String,
+        migrationGuidePath: String? = nil,
+        protocGenDumpRequestPath: String? = nil,
+        protocPluginBinaryPath: String? = nil
+    ) throws {
         let path = Path(protoFile)
 
         self.document = try APIDocument.decode(from: Path(documentPath))
@@ -83,6 +92,7 @@ public struct GRPCMigrator: Migrator {
         }
 
         self.protocGenDumpRequestPath = protocGenDumpRequestPath
+        self.protocPluginBinaryPath = protocPluginBinaryPath
 
         var httpInformation = document.serviceInformation.http
         for change in migrationGuide.serviceChanges {
@@ -106,9 +116,8 @@ public struct GRPCMigrator: Migrator {
                         "MigrationGuide": migrationGuidePath ?? "", // empty as migrationGuide might be nil
                         "APIDocument": documentPath
                     ],
-                    environment: protocGenDumpRequestPath != nil
-                        ? [ "PROTOC_GEN_GRPC_DUMP": protocGenDumpRequestPath! ] // swiftlint:disable:this force_unwrapping
-                        : nil
+                    manualPluginPaths: protocPluginBinaryPath.map { ["protoc-gen-grpc-migrator": $0] },
+                    environment: protocGenDumpRequestPath.map { ["PROTOC_GEN_GRPC_DUMP": $0] }
                 )
 
                 Directory("Networking") {
