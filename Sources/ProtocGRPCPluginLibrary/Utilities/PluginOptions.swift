@@ -28,21 +28,10 @@ public struct PluginOptions {
         }
     }
 
-    enum FileNaming: String {
-        // swiftlint:disable identifier_name
-        case FullPath
-        case PathToUnderscores
-        case DropPath
-        // swiftlint:enable identifier_name
-    }
-
     private(set) var documentPath: String?
     private(set) var migrationGuidePath: String?
 
     private(set) var visibility: Visibility = .internal
-    private(set) var keepMethodCasing = false
-    private(set) var protoToModuleMappings = ProtoFileToModuleMappings()
-    private(set) var fileNaming = FileNaming.FullPath
 
     /// Create a new `PluginOptions` instance from a rawValue string. Passed by protoc.
     public init(parameter: String) throws { // swiftlint:disable:this cyclomatic_complexity
@@ -59,32 +48,6 @@ public struct PluginOptions {
             case "Visibility":
                 if let value = Visibility(rawValue: value) {
                     self.visibility = value
-                } else {
-                    throw ParserError.invalidParameterValue(name: key, value: value)
-                }
-
-            case "KeepMethodCasing":
-                if let value = Bool(value) {
-                    self.keepMethodCasing = value
-                } else {
-                    throw ParserError.invalidParameterValue(name: key, value: value)
-                }
-
-            case "ProtoPathModuleMappings":
-                if !value.isEmpty {
-                    do {
-                        try self.protoToModuleMappings = ProtoFileToModuleMappings(path: value)
-                    } catch {
-                        throw ParserError.wrappedError(
-                            message: "Parameter 'ProtoPathModuleMappings=\(value)'",
-                            error: error
-                        )
-                    }
-                }
-
-            case "FileNaming":
-                if let value = FileNaming(rawValue: value) {
-                    self.fileNaming = value
                 } else {
                     throw ParserError.invalidParameterValue(name: key, value: value)
                 }
