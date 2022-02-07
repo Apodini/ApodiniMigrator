@@ -51,6 +51,12 @@ enum OutputFiles: String, TestResource {
     case endpointMultipleChanges
     case endpointWrappedContentParameter
 
+    // grpc end2end
+    case pbFileV1 = "QONECTIQ.pb.v1"
+    case grpcFileV1 = "QONECTIQ.grpc.v1"
+    case pbFileV2 = "QONECTIQ.pb.v2"
+    case grpcFileV2 = "QONECTIQ.grpc.v2"
+
     var fileName: String {
         rawValue.upperFirst + ".swift"
     }

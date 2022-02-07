@@ -11,8 +11,6 @@ import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 
 class GRPCClientsFile: SourceCodeRenderable {
-    private static var evaluatedMigrationGuide = false
-
     let protoFile: FileDescriptor
     let context: ProtoFileContext
     let migration: MigrationContext
@@ -45,9 +43,6 @@ class GRPCClientsFile: SourceCodeRenderable {
     }
 
     private func parseEndpointChanges() {
-        precondition(!Self.evaluatedMigrationGuide, "Some assumptions about the implementation changed. Tried to evaluate migration guide twice!")
-        Self.evaluatedMigrationGuide = true
-
         var addedEndpoints: [EndpointChange.AdditionChange] = []
         var updatedEndpoints: [EndpointChange.UpdateChange] = []
         var removedEndpoints: [EndpointChange.RemovalChange] = []

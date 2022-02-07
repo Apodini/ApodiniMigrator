@@ -181,7 +181,8 @@ let package = Package(
                 .target(name: "ApodiniMigratorClientSupport"),
                 .target(name: "ProtocGRPCPluginLibrary"),
                 .product(name: "XCTAssertCrash", package: "XCTAssertCrash", condition: .when(platforms: [.macOS])),
-                .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport")
+                .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf")
             ],
             resources: [
                 .process("Resources")
