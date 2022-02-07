@@ -23,7 +23,7 @@ public enum DateDecodingStrategy: String, Codable, Equatable {
     /// Encode the `Date` as an ISO-8601-formatted string (in RFC 3339 format) on available platforms. If not available, `.deferredToDate` is used
     case iso8601
 
-    fileprivate init(from strategy: JSONDecoder.DateDecodingStrategy) {
+    init(from strategy: JSONDecoder.DateDecodingStrategy) {
         switch strategy {
         case .deferredToDate:
             self = .deferredToDate
@@ -39,7 +39,7 @@ public enum DateDecodingStrategy: String, Codable, Equatable {
     }
 
     /// Corresponding strategy of `JSONDecoder`
-    fileprivate var toJSONDecoderStrategy: JSONDecoder.DateDecodingStrategy {
+    var toJSONDecoderStrategy: JSONDecoder.DateDecodingStrategy {
         switch self {
         case .deferredToDate:
             return .deferredToDate
@@ -62,7 +62,7 @@ public enum DataDecodingStrategy: String, Codable, Equatable {
     /// Decode the `Data` from a Base64-encoded string. This is the default strategy.
     case base64
 
-    fileprivate init(from strategy: JSONDecoder.DataDecodingStrategy) {
+    init(from strategy: JSONDecoder.DataDecodingStrategy) {
         switch strategy {
         case .deferredToData:
             self = .deferredToData
@@ -74,7 +74,7 @@ public enum DataDecodingStrategy: String, Codable, Equatable {
     }
 
     /// Corresponding strategy of `JSONDecoder`
-    fileprivate var toJSONDecoderStrategy: JSONDecoder.DataDecodingStrategy {
+    var toJSONDecoderStrategy: JSONDecoder.DataDecodingStrategy {
         switch self {
         case .deferredToData:
             return .deferredToData

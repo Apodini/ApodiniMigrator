@@ -8,8 +8,31 @@
 
 import XCTest
 @testable import ApodiniMigratorClientSupport
+@testable import ApodiniMigratorExporterSupport
 
 final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
+    func testCodingStrategies() {
+        for strategy in [JSONEncoder.DataEncodingStrategy.deferredToData, .base64] {
+            let mapped = DataEncodingStrategy(from: strategy)
+            XCTAssertEqual(strategy, mapped.toJSONEncoderStrategy)
+        }
+
+        for strategy in [JSONEncoder.DateEncodingStrategy.deferredToDate, .iso8601, .millisecondsSince1970, .secondsSince1970] {
+            let mapped = DateEncodingStrategy(from: strategy)
+            XCTAssertEqual(strategy, mapped.toJSONEncoderStrategy)
+        }
+
+        for strategy in [JSONDecoder.DataDecodingStrategy.deferredToData, .base64] {
+            let mapped = DataDecodingStrategy(from: strategy)
+            XCTAssertEqual(strategy, mapped.toJSONDecoderStrategy)
+        }
+
+        for strategy in [JSONDecoder.DateDecodingStrategy.deferredToDate, .iso8601, .millisecondsSince1970, .secondsSince1970] {
+            let mapped = DateDecodingStrategy(from: strategy)
+            XCTAssertEqual(strategy, mapped.toJSONDecoderStrategy)
+        }
+    }
+
     func testDecodingStrategy() {
         let decoder = JSONDecoder()
         
