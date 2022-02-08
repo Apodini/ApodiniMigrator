@@ -16,6 +16,6 @@ on:
 jobs:
   spm_update:
     name: Swift Package Update
-    uses: Apodini/.github/.github/workflows/spm-update.yml@main
+    uses: Apodini/.github/.github/workflows/spm-update.yml@v1
     secrets:
       token: ${{ secrets.ACCESS_TOKEN }}
