@@ -14,9 +14,9 @@
         "package": "ApodiniTypeInformation",
         "repositoryURL": "https://github.com/Apodini/ApodiniTypeInformation.git",
         "state": {
-          "branch": "feature/apodini-migrator-0.3",
-          "revision": "778ee1984e0fbccbabc55eed80f75aa0e5120e28",
-          "version": null
+          "branch": null,
+          "revision": "40247bedd5153b7641e95a11bd826b16a15fd12e",
+          "version": "0.3.6"
         }
       },
       {

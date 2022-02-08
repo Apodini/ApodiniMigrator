@@ -146,7 +146,7 @@ public struct GRPCMigrator: Migrator {
         SwiftPackageFile(swiftTools: "5.5")
             .platform(".macOS(.v12)", ".iOS(.v15)") // async-await support is annotated with availability, therefore v12 requirement
             .dependency(url: "https://github.com/grpc/grpc-swift.git", ".exact(\"1.6.0-async-await.1\")")
-            .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.2.0\")")
+            .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.3.0\")")
             .product(library: .packageName, targets: .packageName)
 
 
