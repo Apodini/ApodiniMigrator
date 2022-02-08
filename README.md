@@ -53,7 +53,6 @@ SUBCOMMANDS:
   generate                Generate a client library from an API document.
 
   See 'migrator help <subcommand>' for detailed help.
-
 ```
 ### Compare
 
@@ -209,16 +208,17 @@ In order to generate the intermediary client library for the initial version run
 
 ```console
 $ ./migrator generate
-info org.apodini.migrator : Starting generation of package QONECTIQ
-info org.apodini.migrator : Preparing project directories...
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/HTTP
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Utils
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Resources
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Endpoints
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Models
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Networking
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Tests
-info org.apodini.migrator : Package QONECTIQ was generated successfully. You can open the package via QONECTIQ/Package.swift
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Starting generation of package QONECTIQ
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Starting library generation at: ~
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Creating directory Sources at: ~/QONECTIQ
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Creating directory QONECTIQ at: ~/QONECTIQ/Sources
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Creating directory Endpoints at: ~/QONECTIQ/Sources/QONECTIQ
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Handling library composite EndpointsMigrator at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Rendering file Event+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Rendering file HomeFeed+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : ...
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Package QONECTIQ was generated successfully. You can open the package via QONECTIQ/Package.swift
+
 ```
 Each endpoint of the library can be accessed via the caseless enumeration `API` as follows:
 
@@ -251,57 +251,9 @@ $ ./migrator migrate
 2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory QONECTIQ at: ~/QONECTIQ/Sources
 2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Endpoints at: ~/QONECTIQ/Sources/QONECTIQ
 2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Handling library composite EndpointsMigrator at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file User+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventCategory+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Event+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserStatistic+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeed+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Empty+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Review+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory HTTP at: ~/QONECTIQ/Sources/QONECTIQ
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file ApodiniError.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file HTTPAuthorization.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file HTTPHeaders.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file HTTPMethod.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file Parameters.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Models at: ~/QONECTIQ/Sources/QONECTIQ
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Handling library composite ModelsMigrator at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Empty.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserBadge.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeedTheme.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserStatistic.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventCategoryMediator.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file CategoryStatus.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Event.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventCategory.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventCategoryGroup.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventMediator.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Experience.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeed.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeedCategory.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeedEvent.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Rating.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Review.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file ReviewForm.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file User.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserLogin.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserRegisterForm.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Networking at: ~/QONECTIQ/Sources/QONECTIQ
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file Handler.swift at: ~/QONECTIQ/Sources/QONECTIQ/Networking
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file NetworkingService.swift at: ~/QONECTIQ/Sources/QONECTIQ/Networking
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Resources at: ~/QONECTIQ/Sources/QONECTIQ
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file js-convert-scripts.json at: ~/QONECTIQ/Sources/QONECTIQ/Resources
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file json-values.json at: ~/QONECTIQ/Sources/QONECTIQ/Resources
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Utils at: ~/QONECTIQ/Sources/QONECTIQ
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file Utils.swift at: ~/QONECTIQ/Sources/QONECTIQ/Utils
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file API.swift at: ~/QONECTIQ/Sources/QONECTIQ
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Tests at: ~/QONECTIQ
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory QONECTIQTests at: ~/QONECTIQ/Tests
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file QONECTIQTests.swift at: ~/QONECTIQ/Tests/QONECTIQTests
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file XCTestManifests.swift at: ~/QONECTIQ/Tests/QONECTIQTests
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file LinuxMain.swift at: ~/QONECTIQ/Tests
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Package.swift at: ~/QONECTIQ
-2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file Readme.md at: ~/QONECTIQ
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Rendering file Event+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-09T00:24:50+0100 info org.apodini.migrator.rest : Rendering file HomeFeed+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : ...
 2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Package QONECTIQ was migrated successfully. You can open the package via QONECTIQ/Package.swift
 ```
 
