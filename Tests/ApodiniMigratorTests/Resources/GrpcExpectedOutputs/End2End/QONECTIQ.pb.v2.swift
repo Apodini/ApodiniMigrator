@@ -951,7 +951,13 @@ extension QONECTIQ_CategoryStatus: Codable {
     }
     
     public init(from decoder: Swift.Decoder) throws {
-        let nameRawValue: String = try decoder.singleValueContainer().decode(String.self)
+        let container = try decoder.singleValueContainer()
+        if let number = try? container.decode(Int.self) {
+            self = .init(rawValue: number)
+            return
+        }
+        
+        let nameRawValue: String = try container.decode(String.self)
         switch nameRawValue {
         case "available": self = .available
         case "unavailable": self = .unavailable
@@ -999,7 +1005,13 @@ extension QONECTIQ_EventCategoryGroup: Codable {
     }
     
     public init(from decoder: Swift.Decoder) throws {
-        let nameRawValue: String = try decoder.singleValueContainer().decode(String.self)
+        let container = try decoder.singleValueContainer()
+        if let number = try? container.decode(Int.self) {
+            self = .init(rawValue: number)
+            return
+        }
+        
+        let nameRawValue: String = try container.decode(String.self)
         switch nameRawValue {
         case "marketing": self = .marketing
         case "blogging": self = .blogging
@@ -1042,7 +1054,13 @@ extension QONECTIQ_Experience: Codable {
     }
     
     public init(from decoder: Swift.Decoder) throws {
-        let nameRawValue: String = try decoder.singleValueContainer().decode(String.self)
+        let container = try decoder.singleValueContainer()
+        if let number = try? container.decode(Int.self) {
+            self = .init(rawValue: number)
+            return
+        }
+        
+        let nameRawValue: String = try container.decode(String.self)
         switch nameRawValue {
         case "beginner": self = .beginner
         case "expert": self = .expert
@@ -1085,7 +1103,13 @@ extension QONECTIQ_Rating: Codable {
     }
     
     public init(from decoder: Swift.Decoder) throws {
-        let nameRawValue: String = try decoder.singleValueContainer().decode(String.self)
+        let container = try decoder.singleValueContainer()
+        if let number = try? container.decode(Int.self) {
+            self = .init(rawValue: number)
+            return
+        }
+        
+        let nameRawValue: String = try container.decode(String.self)
         switch nameRawValue {
         case "outstanding": self = .outstanding
         case "exceedsExpectation": self = .exceedsExpectation
@@ -1129,7 +1153,13 @@ extension QONECTIQ_HomeFeedTheme: Codable {
     }
     
     public init(from decoder: Swift.Decoder) throws {
-        let nameRawValue: String = try decoder.singleValueContainer().decode(String.self)
+        let container = try decoder.singleValueContainer()
+        if let number = try? container.decode(Int.self) {
+            self = .init(rawValue: number)
+            return
+        }
+        
+        let nameRawValue: String = try container.decode(String.self)
         switch nameRawValue {
         case "basic": self = .basic
         case "classic": self = .classic
@@ -1170,7 +1200,13 @@ extension QONECTIQ_UserBadge: Codable {
     }
     
     public init(from decoder: Swift.Decoder) throws {
-        let nameRawValue: String = try decoder.singleValueContainer().decode(String.self)
+        let container = try decoder.singleValueContainer()
+        if let number = try? container.decode(Int.self) {
+            self = .init(rawValue: number)
+            return
+        }
+        
+        let nameRawValue: String = try container.decode(String.self)
         switch nameRawValue {
         case "newbie": self = .newbie
         case "explorer": self = .explorer
