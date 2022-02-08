@@ -32,7 +32,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Apodini/MetadataSystem.git", .upToNextMinor(from: "0.1.6")),
-        .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .upToNextMinor(from: "0.3.5")),
+        .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .branch("feature/apodini-migrator-0.3")),
         .package(url: "https://github.com/kylef/PathKit.git", from: "1.0.1"),
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.4.0")),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
