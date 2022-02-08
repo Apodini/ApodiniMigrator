@@ -16,6 +16,10 @@ struct ProtocGenerator: LibraryNode {
         case missingGRPCMigratorPlugin(message: String)
     }
 
+    static let logger: Logger = {
+        .init(label: "org.apodini.migrator.grpc")
+    }()
+
     let pluginName: String
     let protoPath: String
     let protoFile: String
@@ -46,9 +50,16 @@ struct ProtocGenerator: LibraryNode {
         }
 
         let executableName = "protoc-gen-\(pluginName)"
+        var manualPluginPaths = manualPluginPaths
 
-        guard manualPluginPaths[executableName] != nil || findExecutable(named: executableName) != nil else {
-            throw HandleError.missingGRPCMigratorPlugin(message: "It seems that the `protoc-gen-\(pluginName)` is not installed.")
+        if manualPluginPaths[executableName] == nil {
+            if findExecutable(named: executableName) == nil {
+                guard let localPlugin = tryToLocateLocalProtocPlugin(name: executableName) else {
+                    throw HandleError.missingGRPCMigratorPlugin(message: "It seems that the `protoc-gen-\(pluginName)` is not installed.")
+                }
+
+                manualPluginPaths[executableName] = localPlugin
+            }
         }
 
         var args: [String] = [
@@ -74,5 +85,18 @@ struct ProtocGenerator: LibraryNode {
             args,
             environment: environment
         )
+    }
+
+    private func tryToLocateLocalProtocPlugin(name: String) -> String? {
+        let path = Path(stringLiteral: Bundle.main.bundlePath) + name
+        guard path.exists else {
+            print("""
+                  Tried to locate \(name) plugin in local dev environment, but couldn't find it (potential bundle locations: \(Bundle.allBundles.map { $0.bundlePath })). \
+                  Please add the `\(name)` to your PATH variable.
+                  """)
+            return nil
+        }
+
+        return path.string
     }
 }
