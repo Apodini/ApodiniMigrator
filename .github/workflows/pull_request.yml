@@ -54,3 +54,4 @@ jobs:
           unzip protoc-3.19.4-linux-x86_64.zip
           mv bin/* /usr/local/bin
           mv include/* /usr/local/include
+          protoc --version
