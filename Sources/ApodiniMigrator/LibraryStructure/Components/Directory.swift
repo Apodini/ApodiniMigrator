@@ -38,7 +38,7 @@ public class Directory: LibraryComposite {
     public func handle(at path: Path, with context: MigrationContext) throws {
         let directoryPath = path + self.path.description(with: context)
 
-        context.logger.debug("Creating directory \(self.path.description(with: context)) at: \(path.absolute())")
+        context.logger.info("Creating directory \(self.path.description(with: context)) at: \(path.abbreviate())")
         try directoryPath.mkpath()
     }
 }

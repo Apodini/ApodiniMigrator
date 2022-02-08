@@ -16,8 +16,7 @@ SPDX-License-Identifier: MIT
 
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/Apodini/ApodiniMigrator/blob/develop/LICENSES)
 [![swift-version](https://img.shields.io/badge/Swift-5.5-orange.svg)](https://github.com/apple/swift)
-[![REUSE Compliance Check](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/reuseaction.yml)
-[![Build and Test](https://github.com/Apodini/ApodiniMigrator/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/build-and-test.yml)
+[![Build](https://github.com/Apodini/ApodiniMigrator/actions/workflows/build.yml/badge.svg)](https://github.com/Apodini/ApodiniMigrator/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/Apodini/ApodiniMigrator/branch/develop/graph/badge.svg?token=5MMKMPO5NR)](https://codecov.io/gh/Apodini/ApodiniMigrator)
 
 `ApodiniMigrator` is a Swift package that performs several automated tasks, to migrate client applications after a Web Service publishes a new version that contains breaking changes. The tasks include automated generation of an intermediary client library that contains all required components to establish a client-server communication. Furthermore, `ApodiniMigrator` is able to automatically generate a machine-readable migration guide in either `json` or `yaml` format, that describes the changes between two subsequent Web API versions, and includes auxiliary migrating actions. By means of the migration guide, `ApodiniMigrator` can automatically migrate the intermediary client library, ensuring therefore the compatibility with the new Web API version. It is part of [**Apodini**](https://github.com/Apodini/Apodini), a composable framework to build Web Services in using Swift.
@@ -33,6 +32,7 @@ This library requires at least Swift 5.5 and macOS 12. Furthermore, it makes use
 ```console
 ApodiniMigrator $ swift build --configuration release
 ApodiniMigrator $ cp -f .build/release/migrator /usr/local/bin/migrator
+ApodiniMigrator $ cp -f .build/debug/protoc-gen-grpc-migrator /usr/local/bin/protoc-gen-grpc-migrator
 ```
 
 ## Usage
@@ -40,8 +40,7 @@ After installing `migrator` CLI, `migrator --help` command gives an overview of 
 
 ```console
 $ migrator --help
-OVERVIEW: A utility to automatically generate migration guides and migrated
-client libraries
+OVERVIEW: Automatically generate migration guides and migrate client libraries.
 
 USAGE: migrator <subcommand>
 
@@ -49,14 +48,12 @@ OPTIONS:
   -h, --help              Show help information.
 
 SUBCOMMANDS:
-  compare (default)       A utility to compare API documents and automatically
-                          generate a migration guide between two versions
-  migrate                 A utility to migrate a client library out of an API
-                          document and a migration guide
-  generate                A utility to generate a client library out of a API
-                          document
+  compare                 Compare API documents and automatically generate a migration guide between two versions.
+  migrate                 Migrate a client library using the base API document and a migration guide.
+  generate                Generate a client library from an API document.
 
   See 'migrator help <subcommand>' for detailed help.
+
 ```
 ### Compare
 
@@ -64,67 +61,143 @@ SUBCOMMANDS:
 
 ```console
 $ migrator compare --help
-OVERVIEW: A utility to compare API documents and automatically generate a
-migration guide between two versions
+OVERVIEW: Compare API documents and automatically generate a migration guide between two versions.
 
 USAGE: migrator compare --old-document-path <old-document-path> --new-document-path <new-document-path> --migration-guide-path <migration-guide-path> [--format <format>]
 
 OPTIONS:
   -o, --old-document-path <old-document-path>
-                          Path to API document of the old version, e.g.
-                          /path/to/api_v1.0.0.json
+                          Path to API document of the old version, e.g. /path/to/api_v1.0.0.json 
   -n, --new-document-path <new-document-path>
-                          Path to API document of the new version, e.g.
-                          /path/to/api_v1.2.0.yaml
+                          Path to API document of the new version, e.g. /path/to/api_v1.2.0.yaml 
   -m, --migration-guide-path <migration-guide-path>
-                          Path to a directoy where the migration guide should
-                          be persisted, e.g. /path/to/directory
-  -f, --format <format>   Output format of the migration guide, either JSON or
-                          YAML. JSON by default (default: json)
+                          Path to a directory where the migration guide should be persisted, e.g. /path/to/directory 
+  -f, --format <format>   Output format of the migration guide, either JSON or YAML. JSON by default (default: json)
   -h, --help              Show help information.
 ```
 
 ### Generate
-`generate` subcommand can automatically generate an intermediary client library in Swift programming language following a RESTful API. The library includes all the models and API calling methods of an API Web Service and can be added as a dependency in an existing iOS or macOS using Swift Package Manager.
+`generate` subcommand can automatically generate an intermediary client library in the Swift programming language for supported WebAPI types.
+The library includes all the models and API calling methods of an API Web Service and can be added as a dependency in an existing iOS or macOS using Swift Package Manager.
+
+```console
+OVERVIEW: Generate a client library from an API document.
+
+USAGE: migrator generate <subcommand>
+
+OPTIONS:
+  -h, --help              Show help information.
+
+SUBCOMMANDS:
+  rest                    Generate a REST client library from an API document.
+  grpc                    Generate a gRPC client library from an API document.
+
+  See 'migrator help generate <subcommand>' for detailed help.
+```
+
+Subcommand for generating a RESTful client library:
 
 ```console
 $ migrator generate --help
-OVERVIEW: A utility to generate a client library out of a API document
+OVERVIEW: Generate a REST client library from an API document.
 
-USAGE: migrator generate --package-name <package-name> --target-directory <target-directory> --document-path <document-path>
+USAGE: migrator generate rest --package-name <package-name> --target-directory <target-directory> --document-path <document-path>
 
 OPTIONS:
-  -p, --package-name <package-name>
-                          Name of the package
+  -n, --package-name <package-name>
+                          Name of the package 
   -t, --target-directory <target-directory>
-                          Output path of the package (without package name)
+                          Output path of the package (without package name) 
   -d, --document-path <document-path>
-                          Path where the api_vX.Y.Z file is located, e.g.
-                          /path/to/api_v1.0.0.json
+                          Path where the base api_vX.Y.Z file is located, e.g. /path/to/api_v1.0.0.json 
   -h, --help              Show help information.
 ```
+
+Subcommand for generating a gRPC client library:
+
+```console
+OVERVIEW: Generate a gRPC client library from an API document.
+
+USAGE: migrator generate grpc --package-name <package-name> --target-directory <target-directory> --document-path <document-path> --proto-path <proto-path> [--protoc-gen-dump-request-path <protoc-gen-dump-request-path>] [--protoc-grpc-plugin-path <protoc-grpc-plugin-path>]
+
+OPTIONS:
+  -n, --package-name <package-name>
+                          Name of the package 
+  -t, --target-directory <target-directory>
+                          Output path of the package (without package name) 
+  -d, --document-path <document-path>
+                          Path where the base api_vX.Y.Z file is located, e.g. /path/to/api_v1.0.0.json 
+  -p, --proto-path <proto-path>
+                          Path where the grpc proto file is located, e.g. /path/to/MyWebService.proto 
+  --protoc-gen-dump-request-path <protoc-gen-dump-request-path>
+                          Specify the path to which you want to dump the protoc plugin request binary. For Debugging purposes! 
+  --protoc-grpc-plugin-path <protoc-grpc-plugin-path>
+                          Manually specify the path to the `protoc-gen-grpc-migrator` protoco plugin. 
+  -h, --help              Show help information.
+```
+
 ### Migrate
 
-`migrate` subcommand performs the automated migration of the intermediary client library generated in the previous step. It makes use of the machine-readable migration guide and the `Document` that initially generated the library:
+`migrate` subcommand performs the automated migration of the intermediary client library generated in the previous step.
+It makes use of the machine-readable migration guide and the `Document` that initially generated the library:
+
+```console
+OVERVIEW: Migrate a client library using the base API document and a migration guide.
+
+USAGE: migrator migrate <subcommand>
+
+OPTIONS:
+  -h, --help              Show help information.
+
+SUBCOMMANDS:
+  rest                    Migrate a gRPC client library from an API document and a migration guide.
+  grpc                    Migrate a gRPC client library from proto files, an API document and a migration guide.
+
+  See 'migrator help migrate <subcommand>' for detailed help.
+```
+
+Subcommand for migrating a RESTful client library:
 
 ```console
 $ migrator migrate --help
-OVERVIEW: A utility to migrate a client library out of an API document and a
-migration guide
+OVERVIEW: Migrate a gRPC client library from an API document and a migration guide.
 
-USAGE: migrator migrate --package-name <package-name> --target-directory <target-directory> --document-path <document-path> --migration-guide-path <migration-guide-path>
+USAGE: migrator migrate rest --package-name <package-name> --target-directory <target-directory> --document-path <document-path> --migration-guide-path <migration-guide-path>
 
 OPTIONS:
-  -p, --package-name <package-name>
-                          Name of the package
+  -n, --package-name <package-name>
+                          Name of the package 
   -t, --target-directory <target-directory>
-                          Output path of the package (without package name)
+                          Output path of the package (without package name) 
   -d, --document-path <document-path>
-                          Path where the API document of the old version file
-                          is located, e.g. /path/to/api_v1.2.3.yaml
+                          Path where the base api_vX.Y.Z file is located, e.g. /path/to/api_v1.0.0.json 
   -m, --migration-guide-path <migration-guide-path>
-                          Path where the migration guide is located, e.g.
-                          /path/to/migration_guide.json
+                          Path where the migration guide is located, e.g. /path/to/migration_guide.json 
+  -h, --help              Show help information.
+```
+
+Subcommand for generating a gRPC client library:
+
+```console
+OVERVIEW: Migrate a gRPC client library from proto files, an API document and a migration guide.
+
+USAGE: migrator migrate grpc --package-name <package-name> --target-directory <target-directory> --document-path <document-path> --migration-guide-path <migration-guide-path> --proto-path <proto-path> [--protoc-gen-dump-request-path <protoc-gen-dump-request-path>] [--protoc-grpc-plugin-path <protoc-grpc-plugin-path>]
+
+OPTIONS:
+  -n, --package-name <package-name>
+                          Name of the package 
+  -t, --target-directory <target-directory>
+                          Output path of the package (without package name) 
+  -d, --document-path <document-path>
+                          Path where the base api_vX.Y.Z file is located, e.g. /path/to/api_v1.0.0.json 
+  -m, --migration-guide-path <migration-guide-path>
+                          Path where the migration guide is located, e.g. /path/to/migration_guide.json 
+  -p, --proto-path <proto-path>
+                          Path where the grpc proto file is located, e.g. /path/to/MyWebService.proto 
+  --protoc-gen-dump-request-path <protoc-gen-dump-request-path>
+                          Specify the path to which you want to dump the protoc plugin request binary. For Debugging purposes! 
+  --protoc-grpc-plugin-path <protoc-grpc-plugin-path>
+                          Manually specify the path to the `protoc-gen-grpc-migrator` protoco plugin. 
   -h, --help              Show help information.
 ```
 
@@ -172,16 +245,64 @@ Once the migration guide has been generated, use `migrate` argument to migrate t
 
 ```console
 $ ./migrator migrate
-info org.apodini.migrator : Starting migration of package QONECTIQ
-info org.apodini.migrator : Preparing project directories...
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/HTTP
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Utils
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Resources
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Endpoints
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Models
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Sources/QONECTIQ/Networking
-info org.apodini.migrator : Persisting content at Resources/QONECTIQ/Tests
-info org.apodini.migrator : Package QONECTIQ was migrated successfully. You can open the package via QONECTIQ/Package.swift
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Starting migration of package QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Starting library generation at: ~
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Sources at: ~/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory QONECTIQ at: ~/QONECTIQ/Sources
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Endpoints at: ~/QONECTIQ/Sources/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Handling library composite EndpointsMigrator at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file User+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventCategory+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Event+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserStatistic+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeed+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Empty+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Review+Endpoint.swift at: ~/QONECTIQ/Sources/QONECTIQ/Endpoints
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory HTTP at: ~/QONECTIQ/Sources/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file ApodiniError.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file HTTPAuthorization.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file HTTPHeaders.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file HTTPMethod.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file Parameters.swift at: ~/QONECTIQ/Sources/QONECTIQ/HTTP
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Models at: ~/QONECTIQ/Sources/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Handling library composite ModelsMigrator at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Empty.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserBadge.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeedTheme.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserStatistic.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventCategoryMediator.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file CategoryStatus.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Event.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventCategory.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventCategoryGroup.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file EventMediator.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Experience.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeed.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeedCategory.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file HomeFeedEvent.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Rating.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Review.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file ReviewForm.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file User.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserLogin.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file UserRegisterForm.swift at: ~/QONECTIQ/Sources/QONECTIQ/Models
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Networking at: ~/QONECTIQ/Sources/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file Handler.swift at: ~/QONECTIQ/Sources/QONECTIQ/Networking
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file NetworkingService.swift at: ~/QONECTIQ/Sources/QONECTIQ/Networking
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Resources at: ~/QONECTIQ/Sources/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file js-convert-scripts.json at: ~/QONECTIQ/Sources/QONECTIQ/Resources
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file json-values.json at: ~/QONECTIQ/Sources/QONECTIQ/Resources
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Utils at: ~/QONECTIQ/Sources/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file Utils.swift at: ~/QONECTIQ/Sources/QONECTIQ/Utils
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file API.swift at: ~/QONECTIQ/Sources/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory Tests at: ~/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Creating directory QONECTIQTests at: ~/QONECTIQ/Tests
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file QONECTIQTests.swift at: ~/QONECTIQ/Tests/QONECTIQTests
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file XCTestManifests.swift at: ~/QONECTIQ/Tests/QONECTIQTests
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file LinuxMain.swift at: ~/QONECTIQ/Tests
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Rendering file Package.swift at: ~/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Copying resource file Readme.md at: ~/QONECTIQ
+2022-02-08T23:08:31+0100 info org.apodini.migrator.rest : Package QONECTIQ was migrated successfully. You can open the package via QONECTIQ/Package.swift
 ```
 
 ## Contributing

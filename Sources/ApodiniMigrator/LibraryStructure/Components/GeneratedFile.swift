@@ -32,7 +32,7 @@ public extension GeneratedFile {
     /// Default implementation to write the generated file and handle ``Placeholder`` replacements.
     func handle(at path: Path, with context: MigrationContext) throws {
         precondition(!fileName.isEmpty)
-        context.logger.debug("Rendering file \(fileName.description(with: context)) at: \(path.absolute())")
+        context.logger.info("Rendering file \(fileName.description(with: context)) at: \(path.abbreviate())")
         let filePath = path + fileName.description(with: context)
         try filePath.write(formattedFile(with: context), encoding: .utf8)
     }

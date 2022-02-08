@@ -37,7 +37,7 @@ public extension LibraryComposite {
 
     /// Default implementation for handle, which does nothing.
     func handle(at path: Path, with context: MigrationContext) throws {
-        context.logger.debug("Handling library composite \(Self.self) at: \(path.absolute())")
+        context.logger.info("Handling library composite \(Self.self) at: \(path.abbreviate())")
     }
 }
 

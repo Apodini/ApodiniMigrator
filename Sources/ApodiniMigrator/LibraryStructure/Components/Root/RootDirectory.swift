@@ -59,6 +59,8 @@ public class RootDirectory: LibraryComposite {
         let rootPath = path + packageName
         try? rootPath.delete()
         try rootPath.mkpath()
+        
+        context.logger.info("Starting library generation at: \(path.abbreviate())")
 
         packageSwift.targets.append(contentsOf: sources.targets.map { $0.targetDescription(with: context) })
         packageSwift.targets.append(contentsOf: tests?.targets.map { $0.targetDescription(with: context) } ?? [])
