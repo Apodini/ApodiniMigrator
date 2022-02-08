@@ -16,10 +16,6 @@ struct ProtocGenerator: LibraryNode {
         case missingGRPCMigratorPlugin(message: String)
     }
 
-    static let logger: Logger = {
-        .init(label: "org.apodini.migrator.grpc")
-    }()
-
     let pluginName: String
     let protoPath: String
     let protoFile: String
