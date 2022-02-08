@@ -265,7 +265,7 @@ struct GRPCMethod: SourceCodeRenderable {
 
             Indent {
                 """
-                path: \"\(method.updatedMethodPath ?? method.methodPath)\",
+                path: \"\(method.updatedMethodPath)\",
                 \(streamingType.requestParameterName): \(streamingType.requestParameterName),
                 callOptions: callOptions ?? defaultCallOptions,
                 responseType: \(method.updatedOutputMessageName ?? method.outputMessageName).self

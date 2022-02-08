@@ -22,10 +22,14 @@ class GRPCService: SourceCodeRenderable {
     var protobufNamer: SwiftProtobufNamer {
         context.namer
     }
+    
+    var updatedPackageName: String {
+        file.migration.rhsExporterConfiguration.packageName
+    }
 
     var servicePath: String {
-        if !file.protoFile.package.isEmpty {
-            return file.protoFile.package + "." + serviceName
+        if !updatedPackageName.isEmpty {
+            return updatedPackageName + "." + serviceName
         } else {
             return serviceName
         }

@@ -18,7 +18,8 @@ class StubGRPCMethod: SomeGRPCMethod {
     let migration: ProtocGRPCPluginLibrary.MigrationContext
     let namer: SwiftProtobufPluginLibrary.SwiftProtobufNamer
     let deltaIdentifier: DeltaIdentifier
-
+    
+    let updatedPackageName: String
     let methodName: String
     let serviceName: String
 
@@ -36,8 +37,9 @@ class StubGRPCMethod: SomeGRPCMethod {
 
     init(
         deltaIdentifier: DeltaIdentifier = "StubGRPCMethod",
-        methodName: String = "method",
+        packageName: String = "package",
         serviceName: String = "service",
+        methodName: String = "method",
         streamingType: StreamingType = .unary,
         inputMessageName: String = TypeInformation.ProtoMagics.googleProtobufEmpty,
         outputMessageName: String = TypeInformation.ProtoMagics.googleProtobufEmpty,
@@ -48,8 +50,9 @@ class StubGRPCMethod: SomeGRPCMethod {
         self.namer = .mock()
 
         self.deltaIdentifier = deltaIdentifier
-        self.methodName = methodName
+        self.updatedPackageName = packageName
         self.serviceName = serviceName
+        self.methodName = methodName
 
         self.streamingType = streamingType
 

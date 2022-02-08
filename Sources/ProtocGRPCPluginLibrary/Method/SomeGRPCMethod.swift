@@ -16,11 +16,9 @@ protocol SomeGRPCMethod: AnyObject {
     var migration: MigrationContext { get }
     var namer: SwiftProtobufNamer { get }
 
-    var methodName: String { get }
-    var updatedMethodName: String? { get }
-
+    var updatedPackageName: String { get }
     var serviceName: String { get }
-    var updatedServiceName: String? { get }
+    var methodName: String { get }
 
     var sourceCodeComments: String? { get }
 
@@ -43,7 +41,6 @@ protocol SomeGRPCMethod: AnyObject {
     )? { get set }
 
     var methodPath: String { get }
-    var updatedMethodPath: String? { get }
 
     var methodWrapperFunctionName: String { get }
 
@@ -98,14 +95,19 @@ extension SomeGRPCMethod {
         return nil
     }
 
-    var updatedMethodPath: String? {
-        let serviceName = updatedServiceName
-        let methodName = updatedMethodName
-        if serviceName == nil && methodName == nil {
-            return nil
+    var updatedMethodPath: String {
+        let packageName = updatedPackageName
+        let serviceName = updatedServiceName ?? serviceName
+        let methodName = updatedMethodName ?? methodName
+        
+        let servicePath: String
+        if !packageName.isEmpty {
+            servicePath = packageName + "." + serviceName
+        } else {
+            servicePath = serviceName
         }
 
-        return "\(serviceName ?? self.serviceName)/\(methodName ?? self.methodName)"
+        return "/\(servicePath)/\(methodName)"
     }
 
     var updatedInputMessageName: String? {

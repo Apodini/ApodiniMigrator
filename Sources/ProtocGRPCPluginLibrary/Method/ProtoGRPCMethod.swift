@@ -43,9 +43,12 @@ class ProtoGRPCMethod: SomeGRPCMethod {
         backwardsMigration: Int,
         migrationWarning: String?
     )?
-
-    var methodName: String
+    
+    var updatedPackageName: String {
+        service.updatedPackageName
+    }
     var serviceName: String
+    var methodName: String
 
     var streamingType: StreamingType
 
@@ -60,7 +63,7 @@ class ProtoGRPCMethod: SomeGRPCMethod {
         self.apodiniIdentifiers = .init(of: method)
 
         self.methodName = method.name
-        self.serviceName = service.servicePath
+        self.serviceName = service.serviceName
 
         self.sourceCodeComments = method.protoSourceComments()
 

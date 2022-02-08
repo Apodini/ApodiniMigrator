@@ -18,9 +18,12 @@ class ApodiniGrpcMethod: SomeGRPCMethod {
     var deltaIdentifier: DeltaIdentifier {
         endpoint.deltaIdentifier
     }
-
-    var methodName: String
+    
+    var updatedPackageName: String {
+        migration.rhsExporterConfiguration.packageName
+    }
     var serviceName: String
+    var methodName: String
 
     var streamingType: StreamingType
 

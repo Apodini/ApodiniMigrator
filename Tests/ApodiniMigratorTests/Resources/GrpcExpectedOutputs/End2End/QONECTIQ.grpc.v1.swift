@@ -33,7 +33,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_Review {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/AddReviewHandler",
+            path: "/QONECTIQ.QONECTIQ/AddReviewHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_Review.self
@@ -48,7 +48,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> SwiftProtobuf.Google_Protobuf_Empty {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/CreateCategoryHandler",
+            path: "/QONECTIQ.QONECTIQ/CreateCategoryHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -63,7 +63,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> SwiftProtobuf.Google_Protobuf_Empty {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/CreateEventHandler",
+            path: "/QONECTIQ.QONECTIQ/CreateEventHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -78,7 +78,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_User {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/CreateUserRegisterFormHandler",
+            path: "/QONECTIQ.QONECTIQ/CreateUserRegisterFormHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_User.self
@@ -93,7 +93,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_Event {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/DeleteEventHandler",
+            path: "/QONECTIQ.QONECTIQ/DeleteEventHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_Event.self
@@ -108,7 +108,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> SwiftProtobuf.Google_Protobuf_Empty {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/DeleteUserHandler",
+            path: "/QONECTIQ.QONECTIQ/DeleteUserHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -123,7 +123,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_GetAllUsersHandlerResponse {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetAllUsersHandler",
+            path: "/QONECTIQ.QONECTIQ/GetAllUsersHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_GetAllUsersHandlerResponse.self
@@ -138,7 +138,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_GetCategoriesHandlerResponse {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetCategoriesHandler",
+            path: "/QONECTIQ.QONECTIQ/GetCategoriesHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_GetCategoriesHandlerResponse.self
@@ -153,7 +153,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_CategoryEventsHandlerResponse {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetCategoryEventsHandler",
+            path: "/QONECTIQ.QONECTIQ/GetCategoryEventsHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_CategoryEventsHandlerResponse.self
@@ -168,7 +168,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_EventCategory {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetCategoryHandler",
+            path: "/QONECTIQ.QONECTIQ/GetCategoryHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_EventCategory.self
@@ -183,7 +183,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_Event {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetEventHandler",
+            path: "/QONECTIQ.QONECTIQ/GetEventHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_Event.self
@@ -198,7 +198,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_GetEventsHandlerResponse {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetEventsHandler",
+            path: "/QONECTIQ.QONECTIQ/GetEventsHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_GetEventsHandlerResponse.self
@@ -213,7 +213,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_ExperienceUsersHandlerResponse {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetExperienceUsersHandler",
+            path: "/QONECTIQ.QONECTIQ/GetExperienceUsersHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_ExperienceUsersHandlerResponse.self
@@ -228,7 +228,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_GroupCategoriesHandlerResponse {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetGroupCategoriesHandler",
+            path: "/QONECTIQ.QONECTIQ/GetGroupCategoriesHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_GroupCategoriesHandlerResponse.self
@@ -243,7 +243,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_HomeFeed {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetHomeFeedHandler",
+            path: "/QONECTIQ.QONECTIQ/GetHomeFeedHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_HomeFeed.self
@@ -258,7 +258,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_GetParticipantsOfEventHandlerResponse {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetParticipantsOfEventHandler",
+            path: "/QONECTIQ.QONECTIQ/GetParticipantsOfEventHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_GetParticipantsOfEventHandlerResponse.self
@@ -273,7 +273,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_ReviewsHandlerResponse {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetReviewsHandler",
+            path: "/QONECTIQ.QONECTIQ/GetReviewsHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_ReviewsHandlerResponse.self
@@ -288,7 +288,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_User {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetUserHandler",
+            path: "/QONECTIQ.QONECTIQ/GetUserHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_User.self
@@ -303,7 +303,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_User {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/GetUserLoginHandler",
+            path: "/QONECTIQ.QONECTIQ/GetUserLoginHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_User.self
@@ -318,7 +318,7 @@ extension QONECTIQAsyncClient {
         callOptions: CallOptions? = nil
     ) async throws -> QONECTIQ_Event {
         let result = try await performAsyncUnaryCall(
-            path: "QONECTIQ.QONECTIQ/UpdateEventHandler",
+            path: "/QONECTIQ.QONECTIQ/UpdateEventHandler",
             request: request,
             callOptions: callOptions ?? defaultCallOptions,
             responseType: QONECTIQ_Event.self

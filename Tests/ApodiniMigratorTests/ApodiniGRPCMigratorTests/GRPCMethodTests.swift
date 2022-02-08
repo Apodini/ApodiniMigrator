@@ -69,7 +69,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty {
                           let result = try await performAsyncUnaryCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               request: request,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -85,7 +85,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty {
                           let requests = [request]
                           let result = try await performAsyncClientStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -102,7 +102,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty {
                           let result = try await performAsyncUnaryCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               request: request,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -117,7 +117,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty {
                           let result = performAsyncServerStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               request: request,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -138,7 +138,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty {
                           let result = try await performAsyncUnaryCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               request: request,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -154,7 +154,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty {
                           let requests = [request]
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -175,7 +175,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty where RequestStream: Sequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = try await performAsyncClientStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -188,7 +188,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty where RequestStream: AsyncSequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = try await performAsyncClientStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -205,7 +205,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           let stream = AsyncThrowingStream(wrapping: requests)
                               .map { request -> SwiftProtobuf.Google_Protobuf_Empty in
                                   let result = try await performAsyncUnaryCall(
-                                      path: "service/method",
+                                      path: "/package.service/method",
                                       request: request,
                                       callOptions: callOptions ?? defaultCallOptions,
                                       responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -226,7 +226,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           let stream = requests
                               .map { request -> SwiftProtobuf.Google_Protobuf_Empty in
                                   let result = try await performAsyncUnaryCall(
-                                      path: "service/method",
+                                      path: "/package.service/method",
                                       request: request,
                                       callOptions: callOptions ?? defaultCallOptions,
                                       responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -249,7 +249,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty where RequestStream: Sequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = try await performAsyncClientStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -262,7 +262,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty where RequestStream: AsyncSequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = try await performAsyncClientStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -279,7 +279,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           let stream = GRPCResponseStream(wrapping: AsyncThrowingStream(wrapping: requests)
                               .flatMap { request -> GRPCAsyncResponseStream<SwiftProtobuf.Google_Protobuf_Empty> in
                                   let result = performAsyncServerStreamingCall(
-                                      path: "service/method",
+                                      path: "/package.service/method",
                                       request: request,
                                       callOptions: callOptions ?? defaultCallOptions,
                                       responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -300,7 +300,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           let stream = GRPCResponseStream(wrapping: requests
                               .flatMap { request -> GRPCAsyncResponseStream<SwiftProtobuf.Google_Protobuf_Empty> in
                                   let result = performAsyncServerStreamingCall(
-                                      path: "service/method",
+                                      path: "/package.service/method",
                                       request: request,
                                       callOptions: callOptions ?? defaultCallOptions,
                                       responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -323,7 +323,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty where RequestStream: Sequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = try await performAsyncClientStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -336,7 +336,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty where RequestStream: AsyncSequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = try await performAsyncClientStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -351,7 +351,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty where RequestStream: Sequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -368,7 +368,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) async throws -> SwiftProtobuf.Google_Protobuf_Empty where RequestStream: AsyncSequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -389,7 +389,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> {
                           let result = performAsyncServerStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               request: request,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -407,7 +407,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                               Task.detached {
                                   do {
                                       let result = try await performAsyncUnaryCall(
-                                          path: "service/method",
+                                          path: "/package.service/method",
                                           request: request,
                                           callOptions: callOptions ?? defaultCallOptions,
                                           responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -430,7 +430,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> {
                           let result = performAsyncServerStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               request: request,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -449,7 +449,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                               Task.detached {
                                   do {
                                       let result = try await performAsyncClientStreamingCall(
-                                          path: "service/method",
+                                          path: "/package.service/method",
                                           requests: requests,
                                           callOptions: callOptions ?? defaultCallOptions,
                                           responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -472,7 +472,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> {
                           let result = performAsyncServerStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               request: request,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -488,7 +488,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> {
                           let requests = [request]
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -505,7 +505,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> where RequestStream: Sequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -518,7 +518,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> where RequestStream: AsyncSequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -535,7 +535,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           let stream = AsyncThrowingStream(wrapping: requests)
                               .map { request -> SwiftProtobuf.Google_Protobuf_Empty in
                                   let result = try await performAsyncUnaryCall(
-                                      path: "service/method",
+                                      path: "/package.service/method",
                                       request: request,
                                       callOptions: callOptions ?? defaultCallOptions,
                                       responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -553,7 +553,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           let stream = requests
                               .map { request -> SwiftProtobuf.Google_Protobuf_Empty in
                                   let result = try await performAsyncUnaryCall(
-                                      path: "service/method",
+                                      path: "/package.service/method",
                                       request: request,
                                       callOptions: callOptions ?? defaultCallOptions,
                                       responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -573,7 +573,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> where RequestStream: Sequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -586,7 +586,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> where RequestStream: AsyncSequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -604,7 +604,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                               Task.detached {
                                   do {
                                       let result = try await performAsyncClientStreamingCall(
-                                          path: "service/method",
+                                          path: "/package.service/method",
                                           requests: requests,
                                           callOptions: callOptions ?? defaultCallOptions,
                                           responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -626,7 +626,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                               Task.detached {
                                   do {
                                       let result = try await performAsyncClientStreamingCall(
-                                          path: "service/method",
+                                          path: "/package.service/method",
                                           requests: requests,
                                           callOptions: callOptions ?? defaultCallOptions,
                                           responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -649,7 +649,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> where RequestStream: Sequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -662,7 +662,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           callOptions: CallOptions? = nil
                       ) -> GRPCResponseStream<SwiftProtobuf.Google_Protobuf_Empty> where RequestStream: AsyncSequence, RequestStream.Element == SwiftProtobuf.Google_Protobuf_Empty {
                           let result = performAsyncBidirectionalStreamingCall(
-                              path: "service/method",
+                              path: "/package.service/method",
                               requests: requests,
                               callOptions: callOptions ?? defaultCallOptions,
                               responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -679,7 +679,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           let stream = GRPCResponseStream(wrapping: AsyncThrowingStream(wrapping: requests)
                               .flatMap { request -> GRPCAsyncResponseStream<SwiftProtobuf.Google_Protobuf_Empty> in
                                   let result = performAsyncServerStreamingCall(
-                                      path: "service/method",
+                                      path: "/package.service/method",
                                       request: request,
                                       callOptions: callOptions ?? defaultCallOptions,
                                       responseType: SwiftProtobuf.Google_Protobuf_Empty.self
@@ -697,7 +697,7 @@ final class GRPCMethodTests: ApodiniMigratorXCTestCase {
                           let stream = GRPCResponseStream(wrapping: requests
                               .flatMap { request -> GRPCAsyncResponseStream<SwiftProtobuf.Google_Protobuf_Empty> in
                                   let result = performAsyncServerStreamingCall(
-                                      path: "service/method",
+                                      path: "/package.service/method",
                                       request: request,
                                       callOptions: callOptions ?? defaultCallOptions,
                                       responseType: SwiftProtobuf.Google_Protobuf_Empty.self
