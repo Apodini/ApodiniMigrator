@@ -27,31 +27,3 @@ jobs:
   swiftlint:
     name: SwiftLint
     uses: Apodini/.github/.github/workflows/swiftlint.yml@v1
-  linux:
-    name: Linux ${{ matrix.linux }} ${{ matrix.configuration }}
-    container:
-      image: swift:${{ matrix.linux }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        linux: [ focal, amazonlinux2 ]
-        configuration: [ debug, release, release_testing ]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install apt-get Dependencies
-        if: matrix.linux != 'centos8' && matrix.linux != 'amazonlinux2'
-        run: apt-get update && apt-get install -y --no-install-recommends wget unzip
-      - name: Install yum Dependencies
-        if: matrix.linux == 'amazonlinux2'
-        run: yum update -y && yum install -y wget unzip
-      - name: Install yum Dependencies
-        if: matrix.linux == 'centos8'
-        run: yum update -y --nobest && yum install -y wget unzip
-      - name: Install protoc
-        run: |
-          wget 'https://github.com/protocolbuffers/protobuf/releases/download/v3.19.4/protoc-3.19.4-linux-x86_64.zip'
-          unzip protoc-3.19.4-linux-x86_64.zip
-          mv bin/* /usr/local/bin
-          mv include/* /usr/local/include
-          protoc --version
