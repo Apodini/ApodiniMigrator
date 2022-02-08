@@ -1,16 +1,38 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
 
 import XCTest
 @testable import ApodiniMigratorClientSupport
+@testable import ApodiniMigratorExporterSupport
 
 final class ApodiniMigratorSharedTests: ApodiniMigratorXCTestCase {
-    
+    func testCodingStrategies() {
+        for strategy in [JSONEncoder.DataEncodingStrategy.deferredToData, .base64] {
+            let mapped = DataEncodingStrategy(from: strategy)
+            XCTAssertEqual(strategy, mapped.toJSONEncoderStrategy)
+        }
+
+        for strategy in [JSONEncoder.DateEncodingStrategy.deferredToDate, .iso8601, .millisecondsSince1970, .secondsSince1970] {
+            let mapped = DateEncodingStrategy(from: strategy)
+            XCTAssertEqual(strategy, mapped.toJSONEncoderStrategy)
+        }
+
+        for strategy in [JSONDecoder.DataDecodingStrategy.deferredToData, .base64] {
+            let mapped = DataDecodingStrategy(from: strategy)
+            XCTAssertEqual(strategy, mapped.toJSONDecoderStrategy)
+        }
+
+        for strategy in [JSONDecoder.DateDecodingStrategy.deferredToDate, .iso8601, .millisecondsSince1970, .secondsSince1970] {
+            let mapped = DateDecodingStrategy(from: strategy)
+            XCTAssertEqual(strategy, mapped.toJSONDecoderStrategy)
+        }
+    }
+
     func testDecodingStrategy() {
         let decoder = JSONDecoder()
         

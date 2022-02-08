@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -39,6 +39,10 @@ public enum ModelUpdateChange: Equatable {
     case rawValueType(
         from: TypeInformation,
         to: TypeInformation
+    )
+
+    case identifier(
+        identifier: ElementIdentifierChange
     )
 }
 
@@ -81,6 +85,7 @@ extension ModelUpdateChange: Codable {
         case property
         case `case`
         case rawValueType
+        case identifier
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -93,6 +98,8 @@ extension ModelUpdateChange: Codable {
         case property
 
         case `case`
+
+        case identifier
     }
 
     private var type: UpdateType {
@@ -105,6 +112,8 @@ extension ModelUpdateChange: Codable {
             return .case
         case .rawValueType:
             return .rawValueType
+        case .identifier:
+            return .identifier
         }
     }
 
@@ -132,6 +141,10 @@ extension ModelUpdateChange: Codable {
                 from: try container.decode(TypeInformation.self, forKey: .from),
                 to: try container.decode(TypeInformation.self, forKey: .to)
             )
+        case .identifier:
+            self = .identifier(
+                identifier: try container.decode(ElementIdentifierChange.self, forKey: .identifier)
+            )
         }
     }
 
@@ -151,6 +164,8 @@ extension ModelUpdateChange: Codable {
         case let .rawValueType(from, to):
             try container.encode(from, forKey: .from)
             try container.encode(to, forKey: .to)
+        case let .identifier(identifier):
+            try container.encode(identifier, forKey: .identifier)
         }
     }
 }

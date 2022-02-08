@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -20,7 +20,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
             handlerName: "SomeHandler",
             deltaIdentifier: "0.1.0.0.1",
             operation: .create,
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: "/v1/test",
             parameters: [],
             response: .scalar(.bool),
@@ -31,7 +31,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
             handlerName: "SomeHandler",
             deltaIdentifier: "getSomeHandler",
             operation: .read,
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: "/v1/test",
             parameters: [],
             response: .scalar(.bool),
@@ -40,29 +40,6 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
         
         XCTAssert(noIDEndpoint.deltaIdentifier == .init(noIDEndpoint.handlerName.buildName()))
         XCTAssert(withIDEndpoint.deltaIdentifier == "getSomeHandler")
-    }
-
-    func testWrappedContentParameters() throws {
-        let param1 = Parameter(name: "first", typeInformation: .scalar(.string), parameterType: .content, isRequired: true)
-        let param2 = Parameter(name: "second", typeInformation: .scalar(.int), parameterType: .content, isRequired: false)
-
-        let endpoint = Endpoint(
-            handlerName: "someHandler",
-            deltaIdentifier: "id",
-            operation: .create,
-            communicationalPattern: .requestResponse,
-            absolutePath: "/v1/test",
-            parameters: [param1, param2],
-            response: .scalar(.bool),
-            errors: []
-        )
-
-        XCTAssert(endpoint.parameters.count == 1)
-        let contentParameter = try XCTUnwrap(endpoint.parameters.first)
-        XCTAssert(contentParameter.isWrapped)
-        XCTAssert(contentParameter.typeInformation.isObject)
-        XCTAssert(contentParameter.necessity == .required)
-        XCTAssert(contentParameter.name == "\(Parameter.wrappedContentParameter)")
     }
     
     func testEndpointPath() throws {
@@ -103,7 +80,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
                 handlerName: "someHandler",
                 deltaIdentifier: "endpoint",
                 operation: .create,
-                communicationalPattern: .requestResponse,
+                communicationPattern: .requestResponse,
                 absolutePath: "/test1/test",
                 parameters: [],
                 response: .scalar(.bool),
@@ -113,7 +90,7 @@ final class ApodiniMigratorModelsTests: ApodiniMigratorXCTestCase {
 
         XCTAssertEqual(document.fileName, "api_test1.2.3")
         XCTAssertEqual(document.endpoints, XCTAssertNoThrowWithResult(try Documents.endpoints.decodedContent()))
-        XCTAssertEqual(document.serviceInformation, XCTAssertNoThrowWithResult(try Documents.serviceInformation.decodedContent()))
+        XCTAssertEqual(document.serviceInformation.http.description, "http://127.0.0.1:8080")
         XCTAssertEqual(document.json.isEmpty, false)
         XCTAssertEqual(document.yaml.isEmpty, false)
     }

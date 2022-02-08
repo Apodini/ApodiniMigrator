@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -40,7 +40,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         handlerName: "handlerName",
         deltaIdentifier: "test",
         operation: .read,
-        communicationalPattern: .requestResponse,
+        communicationPattern: .requestResponse,
         absolutePath: "/v1/tests/{second}",
         parameters: [
             .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
@@ -65,7 +65,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: .create,
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: lhs.identifier(for: EndpointPath.self).description,
             parameters: lhs.parameters,
             response: lhs.response,
@@ -101,7 +101,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: .read,
-            communicationalPattern: lhs.communicationalPattern,
+            communicationPattern: lhs.communicationPattern,
             absolutePath: "/v1/newTests/{second}",
             parameters: lhs.parameters,
             response: lhs.response,
@@ -136,7 +136,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.operation,
-            communicationalPattern: .bidirectionalStream,
+            communicationPattern: .bidirectionalStream,
             absolutePath: lhs.path.description,
             parameters: lhs.parameters,
             response: lhs.response,
@@ -154,8 +154,8 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(change.solvable, true)
         let updateChange = try XCTUnwrap(change.modeledUpdateChange)
 
-        guard case let .communicationalPattern(from, to) = updateChange.updated else {
-            XCTFail("Change did not store the updated communicational pattern")
+        guard case let .communicationPattern(from, to) = updateChange.updated else {
+            XCTFail("Change did not store the updated communication pattern")
             return
         }
 
@@ -169,7 +169,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.identifier(),
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: lhs.identifier(for: EndpointPath.self).description,
             parameters: lhs.parameters + newParameter,
             response: lhs.response,
@@ -213,7 +213,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.identifier(),
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: lhs.identifier(for: EndpointPath.self).description,
             parameters: lhs.parameters.filter { $0.name != "first" },
             response: lhs.response,
@@ -251,7 +251,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.identifier(),
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: lhs.identifier(for: EndpointPath.self).description,
             parameters: [
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
@@ -295,7 +295,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.identifier(),
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: lhs.identifier(for: EndpointPath.self).description,
             parameters: [
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: true),
@@ -336,8 +336,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
         XCTAssertEqual(from, .optional)
         XCTAssertEqual(to, .required)
 
-        if let id = necessityMigration,
-           let json = comparisonContext.jsonValues[id] {
+        if let json = comparisonContext.jsonValues[necessityMigration] {
             let instance = XCTAssertNoThrowWithResult(try String.instance(from: json))
             XCTAssertEqual(instance, "")
         }
@@ -348,7 +347,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.identifier(),
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             // removing from path as well
             absolutePath: lhs.identifier(for: EndpointPath.self).description.replacingOccurrences(of: "{second}", with: ""),
             parameters: [
@@ -399,7 +398,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: lhs.identifier(),
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: lhs.identifier(for: EndpointPath.self).description,
             parameters: [
                 .init(name: "isRunning", typeInformation: .scalar(.string), parameterType: .lightweight, isRequired: false),
@@ -454,7 +453,7 @@ final class EndpointComparatorTests: ApodiniMigratorXCTestCase {
             handlerName: lhs.handlerName,
             deltaIdentifier: lhs.deltaIdentifier.description,
             operation: .read,
-            communicationalPattern: .requestResponse,
+            communicationPattern: .requestResponse,
             absolutePath: lhs.identifier(for: EndpointPath.self).description,
             parameters: lhs.parameters,
             response: try TypeInformation(type: RHSResponse.self),

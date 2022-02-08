@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -62,7 +62,7 @@ class EndpointMethodMigrator: SourceCodeRenderable {
                 default:
                     break
                 }
-            case let .response(from, to, migration, warning):
+            case let .response(_, to, migration, _):
                 self.responseString = to.unsafeTypeString
                 self.responseConvertID = migration
             case let .parameter(parameter):
@@ -98,12 +98,12 @@ class EndpointMethodMigrator: SourceCodeRenderable {
 
             for change in updatedParameters[parameter.deltaIdentifier, default: []] {
                 switch change.updated {
-                case let .parameterType(from, to):
+                case let .parameterType(_, to):
                     parameterType = to
-                case let .necessity(from, to, migration):
+                case let .necessity(_, _, migration):
                     necessityValueJSONId = migration
                     precondition(convertFromToJSONId == nil, "Provided necessity value for a parameter that already has a convert method")
-                case let .type(from, to, forwardMigration, warning):
+                case let .type(_, to, forwardMigration, _):
                     convertFromToJSONId = forwardMigration
                     newType = to
                     precondition(necessityValueJSONId == nil, "Provided a convert method for a parameter that already has a necessity value")

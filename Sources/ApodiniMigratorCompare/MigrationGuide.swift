@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -11,12 +11,16 @@ import Foundation
 /// This enum describes the document format version of the ``MigrationGuide``.
 /// ``MigrationGuideDocumentVersion`` follows the SemVer versioning scheme.
 public enum MigrationGuideDocumentVersion: String, Codable {
+    public static let current: MigrationGuideDocumentVersion = .v2_1
+
     /// The original/legacy document format introduced with version 0.1.0.
     /// - Note: This version is assumed when no `version` field is present in the document root.
     ///     ApodiniMigrator supports parsing legacy documents till 0.3.0.
     case v1 = "1.0.0"
     /// The current document format and updated change model introduced with version 0.2.0.
     case v2 = "2.0.0"
+    /// The document format introduced with version 0.3.0.
+    case v2_1 = "2.1.0" // swiftlint:disable:this identifier_name
 }
 
 /// Migration guide
@@ -40,11 +44,11 @@ public struct MigrationGuide {
     }
 
     /// Captures any changes happening to the `ServiceInformation`, describing the web service.
-    public let serviceChanges: [ServiceInformationChange]
+    public var serviceChanges: [ServiceInformationChange]
     /// Captures any changes done to web service models.
-    public let modelChanges: [ModelChange]
+    public var modelChanges: [ModelChange]
     /// Captures any changes done to web service endpoints.
-    public let endpointChanges: [EndpointChange]
+    public var endpointChanges: [EndpointChange]
 
 
     /// Dictionary holding all registered convert scripts which are referenced from change objects
@@ -186,7 +190,7 @@ extension MigrationGuide: Codable {
             self.serviceChanges = serviceChanges
             self.modelChanges = modelChanges
             self.endpointChanges = endpointChanges
-        case .v2:
+        case .v2, .v2_1:
             _compareConfiguration = try container.decodeIfPresent(CompareConfiguration.self, forKey: .compareConfiguration)
 
             serviceChanges = try container.decodeIfPresentOrInitEmpty([ServiceInformationChange].self, forKey: .serviceChanges)
@@ -200,7 +204,7 @@ extension MigrationGuide: Codable {
 
         try container.encode(summary, forKey: .summary)
         try container.encodeIfPresent(id, forKey: .id)
-        try container.encode(MigrationGuideDocumentVersion.v2, forKey: .documentVersion)
+        try container.encode(MigrationGuideDocumentVersion.current, forKey: .documentVersion)
         try container.encode(from, forKey: .from)
         try container.encode(to, forKey: .to)
         try container.encodeIfPresent(compareConfiguration, forKey: .compareConfiguration)

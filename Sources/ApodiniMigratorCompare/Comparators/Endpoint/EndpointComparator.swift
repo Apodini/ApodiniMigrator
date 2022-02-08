@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -13,9 +13,10 @@ struct EndpointComparator: Comparator {
     let rhs: Endpoint
 
     func compare(_ context: ChangeComparisonContext, _ results: inout [EndpointChange]) {
-        var identifierChanges: [EndpointIdentifierChange] = []
-        let identifiersComparator = IdentifiersComparator(lhs: .init(lhs.identifiers.values), rhs: .init(rhs.identifiers.values))
+        var identifierChanges: [ElementIdentifierChange] = []
+        let identifiersComparator = ElementIdentifiersComparator(lhs: .init(lhs.identifiers), rhs: .init(rhs.identifiers))
         identifiersComparator.compare(context, &identifierChanges)
+
         results.append(contentsOf: identifierChanges.map { change in
             .update(
                 id: lhs.deltaIdentifier,
@@ -25,12 +26,12 @@ struct EndpointComparator: Comparator {
             )
         })
 
-        if lhs.communicationalPattern != rhs.communicationalPattern {
+        if lhs.communicationPattern != rhs.communicationPattern {
             results.append(.update(
                 id: lhs.deltaIdentifier,
-                updated: .communicationalPattern(
-                    from: lhs.communicationalPattern,
-                    to: rhs.communicationalPattern
+                updated: .communicationPattern(
+                    from: lhs.communicationPattern,
+                    to: rhs.communicationPattern
                 )
             ))
         }

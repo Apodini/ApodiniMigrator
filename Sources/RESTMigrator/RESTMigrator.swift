@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -9,6 +9,20 @@
 import Foundation
 import Logging
 import ApodiniMigrator
+
+extension Placeholder {
+    static var serverPath: Placeholder {
+        Placeholder("serverpath")
+    }
+
+    static var encoderConfiguration: Placeholder {
+        Placeholder("encoder___configuration")
+    }
+
+    static var decoderConfiguration: Placeholder {
+        Placeholder("decoder___configuration")
+    }
+}
 
 public struct RESTMigrator: ApodiniMigrator.Migrator {
     enum MigratorError: Error {
@@ -21,8 +35,8 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         .init(label: "org.apodini.migrator.rest")
     }()
 
-    private let document: APIDocument
-    private let migrationGuide: MigrationGuide
+    private var document: APIDocument
+    private var migrationGuide: MigrationGuide
 
     /// Networking migrator
     private let networkingMigrator: NetworkingMigrator
@@ -48,7 +62,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
             )
         }
 
-        if document.serviceInformation.exporterIfPresent(for: RESTExporterConfiguration.self, migrationGuide: migrationGuide) == nil {
+        guard document.serviceInformation.exporterIfPresent(for: RESTExporterConfiguration.self, migrationGuide: migrationGuide) != nil else {
             throw MigratorError.incompatible(
                 message: """
                          RESTMigrator is not compatible with the provided documents. The web service either \
@@ -60,6 +74,12 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
         networkingMigrator = NetworkingMigrator(
             baseServiceInformation: document.serviceInformation,
             serviceChanges: migrationGuide.serviceChanges
+        )
+
+        // combine multiple content parameters into a single content parameter
+        document.applyEndpointParameterCombination(
+            considering: &migrationGuide,
+            using: RESTContentParameterCombination()
         )
     }
 
@@ -95,9 +115,9 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
                 Directory("Networking") {
                     ResourceFile(copy: "Handler.swift", filePrefix: { FileHeaderComment() })
                     ResourceFile(copy: "NetworkingService.swift", filePrefix: { FileHeaderComment() })
-                        .replacing(Placeholder("serverpath"), with: networkingMigrator.serverPath())
-                        .replacing(Placeholder("encoder___configuration"), with: encoderConfiguration.networkingDescription)
-                        .replacing(Placeholder("decoder___configuration"), with: decoderConfiguration.networkingDescription)
+                        .replacing(.serverPath, with: networkingMigrator.serverPath())
+                        .replacing(.encoderConfiguration, with: encoderConfiguration.networkingDescription)
+                        .replacing(.decoderConfiguration, with: decoderConfiguration.networkingDescription)
                 }
 
                 Directory("Resources") {
@@ -133,7 +153,7 @@ public struct RESTMigrator: ApodiniMigrator.Migrator {
 
         SwiftPackageFile(swiftTools: "5.5")
             .platform(".macOS(.v11)", ".iOS(.v13)")
-            .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.2.0\")")
+            .dependency(url: "https://github.com/Apodini/ApodiniMigrator.git", ".upToNextMinor(from: \"0.3.0\")")
             .product(library: .packageName, targets: .packageName)
 
         ReadMeFile("Readme.md")

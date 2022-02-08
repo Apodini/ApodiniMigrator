@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -13,7 +13,7 @@ import ApodiniDocumentExport
 
 struct Compare: ParsableCommand {
     static var configuration = CommandConfiguration(
-        abstract: "A utility to compare API documents and automatically generate a migration guide between two versions"
+        abstract: "Compare API documents and automatically generate a migration guide between two versions."
     )
     
     @Option(name: .shortAndLong, help: "Path to API document of the old version, e.g. /path/to/api_v1.0.0.json")
@@ -22,7 +22,7 @@ struct Compare: ParsableCommand {
     @Option(name: .shortAndLong, help: "Path to API document of the new version, e.g. /path/to/api_v1.2.0.yaml")
     var newDocumentPath: String
     
-    @Option(name: .shortAndLong, help: "Path to a directoy where the migration guide should be persisted, e.g. /path/to/directory")
+    @Option(name: .shortAndLong, help: "Path to a directory where the migration guide should be persisted, e.g. /path/to/directory")
     var migrationGuidePath: String
     
     @Option(name: .shortAndLong, help: "Output format of the migration guide, either JSON or YAML. JSON by default")

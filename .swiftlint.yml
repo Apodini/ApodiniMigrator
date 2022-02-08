@@ -326,6 +326,7 @@ excluded: # paths to ignore during linting. Takes precedence over `included`.
   - .build
   - .swiftpm
   - Sources/RESTMigrator/Resources
+  - Sources/gRPCMigrator/Resources
   - Tests/ApodiniMigratorTests/Resources
 
 closure_body_length: # Closure bodies should not span too many lines.
@@ -359,8 +360,8 @@ identifier_name:
     - at
 
 large_tuple: # Tuples shouldn't have too many members. Create a custom type instead.
-  - 2 # warning - default: 2
-  - 2 # error - default: 3
+  - 4 # warning - default: 2
+  - 4 # error - default: 3
 
 line_length: # Lines should not span too many characters.
   warning: 150 # default: 120

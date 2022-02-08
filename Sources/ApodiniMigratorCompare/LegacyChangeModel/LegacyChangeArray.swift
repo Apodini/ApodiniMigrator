@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -327,8 +327,8 @@ struct LegacyChangeArray: Decodable {
                         updated: .identifier(identifier: .update(
                             id: DeltaIdentifier(EndpointPath.identifierType),
                             updated: .init(
-                                from: AnyEndpointIdentifier(from: fromPath),
-                                to: AnyEndpointIdentifier(from: toPath)
+                                from: AnyElementIdentifier(from: fromPath),
+                                to: AnyElementIdentifier(from: toPath)
                             ),
                             breaking: change.breaking,
                             solvable: change.solvable
@@ -353,8 +353,8 @@ struct LegacyChangeArray: Decodable {
                         updated: .identifier(identifier: .update(
                             id: DeltaIdentifier(Operation.identifierType),
                             updated: .init(
-                                from: AnyEndpointIdentifier(from: fromOperation),
-                                to: AnyEndpointIdentifier(from: toOperation)
+                                from: AnyElementIdentifier(from: fromOperation),
+                                to: AnyElementIdentifier(from: toOperation)
                             ),
                             breaking: change.breaking,
                             solvable: change.solvable
@@ -458,7 +458,7 @@ struct LegacyChangeArray: Decodable {
                                 from: fromType,
                                 to: toType,
                                 forwardMigration: convertFromTo,
-                                conversionWarning: change.convertionWarning
+                                migrationWarning: change.convertionWarning
                             )
                         }
 

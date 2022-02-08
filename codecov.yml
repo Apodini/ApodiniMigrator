@@ -9,6 +9,7 @@
 ignore:
 - "Tests"
 - "Sources/ApodiniMigratorCompare/LegacyChangeModel"
+- "Sources/ProtocGRPCPluginLibrary/FieldDescriptorLike/FieldDescriptorLike+Naming.swift"
 
 codecov:
   require_ci_to_pass: yes

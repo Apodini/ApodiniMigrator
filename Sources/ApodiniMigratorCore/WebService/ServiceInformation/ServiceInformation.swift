@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -50,12 +50,18 @@ public struct ServiceInformation: Value, Hashable {
         return self
     }
 
+    @discardableResult
+    public mutating func add(anyExporter: AnyExporterConfiguration) -> Self {
+        exporters[anyExporter.type] = anyExporter
+        return self
+    }
+
     public func exporter<Exporter: ExporterConfiguration>(for type: Exporter.Type = Exporter.self) -> Exporter {
-        guard let exporter = exporters[Exporter.type] else {
+        guard let exporter = exporterIfPresent(for: type) else {
             fatalError("Failed to retrieve exporter from ServiceInformation: \(type)")
         }
 
-        return exporter.typed()
+        return exporter
     }
 
     public func exporterIfPresent<Exporter: ExporterConfiguration>(for type: Exporter.Type = Exporter.self) -> Exporter? {

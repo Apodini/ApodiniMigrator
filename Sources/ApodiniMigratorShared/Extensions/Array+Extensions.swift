@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -10,7 +10,7 @@ import Foundation
 
 public extension Array {
     /// This method can be used to flatten an array of arrays.
-    /// - Returns: Returns the flattened array, where they are all appened to one big array.
+    /// - Returns: Returns the flattened array, where they are all append to one big array.
     func flatten<InnerElement>() -> [InnerElement] where Element == [InnerElement] {
         self.reduce(into: []) { result, element in
             result.append(contentsOf: element)

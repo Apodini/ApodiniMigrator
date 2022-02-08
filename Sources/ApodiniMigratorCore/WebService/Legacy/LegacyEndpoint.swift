@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -21,8 +21,8 @@ struct LegacyEndpoint: Codable {
 extension Endpoint {
     init(from endpoint: LegacyEndpoint) {
         self.deltaIdentifier = endpoint.deltaIdentifier
-        self.identifiers = [:]
-        self.communicationalPattern = .requestResponse
+        self.identifiers = ElementIdentifierStorage()
+        self.communicationPattern = .requestResponse
         self.parameters = endpoint.parameters
         self.response = endpoint.response
         self.errors = endpoint.errors

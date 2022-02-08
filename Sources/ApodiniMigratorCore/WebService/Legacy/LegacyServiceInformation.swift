@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -43,6 +43,7 @@ extension HTTPInformation {
             throw LegacyServiceInformation.MigrationError.failedPortConversion(path: serverPath)
         }
 
+        self.protocol = .http
         self.hostname = hostname
         self.port = port
     }
@@ -64,7 +65,7 @@ extension ServiceInformation {
     }
 }
 
-private extension String {
+public extension String {
     /// Retrieves the substring of a matched group of a `NSTextCheckingResult`.
     /// - Parameters:
     ///   - match: The match (corresponding to the self String)

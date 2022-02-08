@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -50,6 +50,12 @@ enum OutputFiles: String, TestResource {
     case endpointDeletedChange
     case endpointMultipleChanges
     case endpointWrappedContentParameter
+
+    // grpc end2end
+    case pbFileV1 = "QONECTIQ.pb.v1"
+    case grpcFileV1 = "QONECTIQ.grpc.v1"
+    case pbFileV2 = "QONECTIQ.pb.v2"
+    case grpcFileV2 = "QONECTIQ.grpc.v2"
 
     var fileName: String {
         rawValue.upperFirst + ".swift"

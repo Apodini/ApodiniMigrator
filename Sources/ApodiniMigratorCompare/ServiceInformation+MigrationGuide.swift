@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -9,6 +9,19 @@
 import Foundation
 
 public extension ServiceInformation {
+    /// Force retrieves a `ExporterConfiguration`.
+    /// This method considers updates of the supplied ``MigrationGuide`` (e.g. if a ExporterConfiguration was removed in the update `APIDocument`).
+    func exporter<Exporter: ExporterConfiguration>(
+        for type: Exporter.Type = Exporter.self,
+        migrationGuide: MigrationGuide
+    ) -> Exporter {
+        guard let exporter = exporterIfPresent(for: type, migrationGuide: migrationGuide) else {
+            fatalError("Failed to retrieve exporter from ServiceInformation: \(type)")
+        }
+
+        return exporter
+    }
+
     /// Retrieve the `ExporterConfiguration` if its present.
     /// This method considers updates of the supplied ``MigrationGuide`` (e.g. if a ExporterConfiguration was removed in the update `APIDocument`).
     func exporterIfPresent<Exporter: ExporterConfiguration>(

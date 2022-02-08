@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -45,7 +45,7 @@ struct DecoderInitializer: SourceCodeRenderable {
         // I'm honestly not sure why we don't support both changes at the same time (and only one change per property)
         // I'm just rewriting the thing and don't really have the time to fix things.
 
-        if case let .necessity(from, to, migration) = change.updated {
+        if case let .necessity(_, to, migration) = change.updated {
             if to != .optional {
                 return property.decoderInitLine
             }
@@ -55,7 +55,7 @@ struct DecoderInitializer: SourceCodeRenderable {
                    (\(property.type.unsafeTypeString).self, forKey: .\(property.name)) \
                    ?? (try \(property.type.unsafeTypeString).instance(from: \(migration)))
                    """
-        } else if case let .type(from, to, forwardMigration, backwardMigration, hint) = change.updated {
+        } else if case let .type(_, to, _, backwardMigration, _) = change.updated {
             let decodeMethod = "decode\(to.isOptional ? "IfPresent" : "")"
             return """
                    \(property.name) = try \(property.type.unsafeTypeString).from(\

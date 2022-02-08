@@ -1,7 +1,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -27,7 +27,7 @@ public enum ParameterUpdateChange: Equatable {
     case necessity(
         from: Necessity,
         to: Necessity,
-        necessityMigration: Int?
+        necessityMigration: Int
     )
 
     /// Describes an update of the parameter type.
@@ -35,7 +35,7 @@ public enum ParameterUpdateChange: Equatable {
         from: TypeInformation,
         to: TypeInformation,
         forwardMigration: Int,
-        conversionWarning: String?
+        migrationWarning: String?
     )
 }
 
@@ -83,14 +83,14 @@ extension ParameterUpdateChange: Codable {
             self = .necessity(
                 from: try container.decode(Necessity.self, forKey: .from),
                 to: try container.decode(Necessity.self, forKey: .to),
-                necessityMigration: try container.decodeIfPresent(Int.self, forKey: .necessityMigration)
+                necessityMigration: try container.decode(Int.self, forKey: .necessityMigration)
             )
         case .type:
             self = .type(
                 from: try container.decode(TypeInformation.self, forKey: .from),
                 to: try container.decode(TypeInformation.self, forKey: .to),
                 forwardMigration: try container.decode(Int.self, forKey: .forwardMigration),
-                conversionWarning: try container.decodeIfPresent(String.self, forKey: .conversionWarning)
+                migrationWarning: try container.decodeIfPresent(String.self, forKey: .conversionWarning)
             )
         }
     }
@@ -108,11 +108,11 @@ extension ParameterUpdateChange: Codable {
             try container.encode(from, forKey: .from)
             try container.encode(to, forKey: .to)
             try container.encodeIfPresent(necessityMigration, forKey: .necessityMigration)
-        case let .type(from, to, forwardMigration, conversionWarning):
+        case let .type(from, to, forwardMigration, migrationWarning):
             try container.encode(from, forKey: .from)
             try container.encode(to, forKey: .to)
             try container.encode(forwardMigration, forKey: .forwardMigration)
-            try container.encodeIfPresent(conversionWarning, forKey: .conversionWarning)
+            try container.encodeIfPresent(migrationWarning, forKey: .conversionWarning)
         }
     }
 }

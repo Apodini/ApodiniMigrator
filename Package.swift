@@ -4,7 +4,7 @@
 //
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -21,19 +21,27 @@ let package = Package(
         .library(name: "ApodiniMigratorShared", targets: ["ApodiniMigratorShared"]),
         .library(name: "ApodiniMigratorCore", targets: ["ApodiniMigratorCore"]),
         .library(name: "ApodiniMigratorClientSupport", targets: ["ApodiniMigratorClientSupport"]),
+        .library(name: "ApodiniMigratorExporterSupport", targets: ["ApodiniMigratorExporterSupport"]),
         .library(name: "ApodiniMigratorCompare", targets: ["ApodiniMigratorCompare"]),
         .library(name: "ApodiniMigrator", targets: ["ApodiniMigrator"]),
         .library(name: "RESTMigrator", targets: ["RESTMigrator"]),
-        .executable(name: "migrator", targets: ["ApodiniMigratorCLI"])
+        .library(name: "gRPCMigrator", targets: ["gRPCMigrator"]),
+        .executable(name: "migrator", targets: ["ApodiniMigratorCLI"]),
+        .library(name: "ProtocGRPCPluginLibrary", targets: ["ProtocGRPCPluginLibrary"]),
+        .executable(name: "protoc-gen-grpc-migrator", targets: ["protoc-gen-grpc-migrator"])
     ],
     dependencies: [
-        .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .upToNextMinor(from: "0.3.0")),
+        .package(url: "https://github.com/Apodini/MetadataSystem.git", .upToNextMinor(from: "0.1.6")),
+        .package(url: "https://github.com/Apodini/ApodiniTypeInformation.git", .upToNextMinor(from: "0.3.6")),
         .package(url: "https://github.com/kylef/PathKit.git", from: "1.0.1"),
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "0.4.0")),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/omochi/FineJSON.git", from: "1.14.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "4.0.0"),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
+
+        // gRPC
+        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.18.0"),
 
         // testing runtime crashes
         .package(url: "https://github.com/norio-nomura/XCTAssertCrash.git", from: "0.2.0"),
@@ -53,26 +61,35 @@ let package = Package(
             ]
         ),
 
+        // This target provides any necessary interfaces for Apodini exporters.
+        .target(
+            name: "ApodiniMigratorExporterSupport",
+            dependencies: [
+                .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "ApodiniContext", package: "MetadataSystem")
+            ]
+        ),
+
         // The core ApodiniMigrator package. It provides access to the TypeInformation framework and introduces
         // the generalized API document.
         .target(
             name: "ApodiniMigratorCore",
             dependencies: [
                 .target(name: "ApodiniMigratorShared"),
+                .target(name: "ApodiniMigratorExporterSupport"),
                 .product(name: "ApodiniTypeInformation", package: "ApodiniTypeInformation"),
                 .product(name: "Yams", package: "Yams"),
                 .product(name: "OrderedCollections", package: "swift-collections")
             ]
         ),
 
-        // This target provides any necessary interfaces for REST client libraries!
+        // This target provides any necessary interfaces for the generated client libraries!
         .target(
             name: "ApodiniMigratorClientSupport",
             dependencies: [
                 .target(name: "ApodiniMigratorCore")
             ]
         ),
-
         // The Compare target builds upon the Core package containing the generalized MigrationGuide
         // and all the necessary utilities for the comparison algorithms.
         .target(
@@ -108,6 +125,38 @@ let package = Package(
             ]
         ),
 
+        // This target packages the gRPC client library generator and migrator.
+        .target(
+            name: "gRPCMigrator",
+            dependencies: [
+                .target(name: "ApodiniMigrator"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf")
+            ],
+            resources: [
+                .process("Resources")
+            ]
+        ),
+
+        .target(
+            name: "ProtocGRPCPluginLibrary",
+            dependencies: [
+                .target(name: "ApodiniMigrator"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
+                .product(name: "SwiftProtobuf", package: "swift-protobuf"),
+                .product(name: "OrderedCollections", package: "swift-collections")
+            ]
+        ),
+
+        .executableTarget(
+            name: "protoc-gen-grpc-migrator",
+            dependencies: [
+                .product(name: "PathKit", package: "PathKit"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .target(name: "ProtocGRPCPluginLibrary")
+            ]
+        ),
+
         // This target implements the command line interface of the ApodiniMigrator utility.
         // It offers command to generate and migrate client libraries and a sub command
         // to compare API documents.
@@ -115,6 +164,7 @@ let package = Package(
             name: "ApodiniMigratorCLI",
             dependencies: [
                 .target(name: "RESTMigrator"),
+                .target(name: "gRPCMigrator"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport")
@@ -125,12 +175,15 @@ let package = Package(
         .testTarget(
             name: "ApodiniMigratorTests",
             dependencies: [
-                "ApodiniMigratorCore",
-                "RESTMigrator",
-                "ApodiniMigratorCompare",
-                "ApodiniMigratorClientSupport",
+                .target(name: "ApodiniMigratorCore"),
+                .target(name: "RESTMigrator"),
+                .target(name: "gRPCMigrator"),
+                .target(name: "ApodiniMigratorCompare"),
+                .target(name: "ApodiniMigratorClientSupport"),
+                .target(name: "ProtocGRPCPluginLibrary"),
                 .product(name: "XCTAssertCrash", package: "XCTAssertCrash", condition: .when(platforms: [.macOS])),
-                .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport")
+                .product(name: "ApodiniDocumentExport", package: "ApodiniDocumentExport"),
+                .product(name: "SwiftProtobufPluginLibrary", package: "swift-protobuf")
             ],
             resources: [
                 .process("Resources")

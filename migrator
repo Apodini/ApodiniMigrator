@@ -32,9 +32,9 @@ def command(action:)
 
     case action
     when ACTION::MIGRATE
-        return "#{migrator} migrate -t=#{target} -d=#{target}/#{oldAPI} -m=#{target}/ExampleDocuments/migration_guide.json -p=#{packageName}"
+        return "#{migrator} migrate rest -t=#{target} -d=#{target}/#{oldAPI} -m=#{target}/ExampleDocuments/migration_guide.json -n=#{packageName}"
     when ACTION::GENERATE
-        return "#{migrator} generate -d=#{target}/#{oldAPI} -p=#{packageName} -t=#{target}"
+        return "#{migrator} generate rest -d=#{target}/#{oldAPI} -n=#{packageName} -t=#{target}"
     when ACTION::COMPARE
         return "#{migrator} compare -o #{target}/#{oldAPI} -n #{target}/#{newAPI} -m #{target}/ExampleDocuments -f json"
     else

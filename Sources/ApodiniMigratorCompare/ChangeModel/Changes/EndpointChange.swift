@@ -1,6 +1,6 @@
 // This source file is part of the Apodini open source project
 //
-// SPDX-FileCopyrightText: 2019-2021 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
+// SPDX-FileCopyrightText: 2019-2022 Paul Schmiedmayer and the Apodini project authors (see CONTRIBUTORS.md) <paul.schmiedmayer@tum.de>
 //
 // SPDX-License-Identifier: MIT
 //
@@ -19,12 +19,12 @@ public enum EndpointUpdateChange: Equatable {
     /// Describes an update change related to `EndpointIdentifier`s (e.g. Operation, Path or HandlerName).
     /// - Parameters:
     ///   - identifier: The ``EndpointIdentifierChange``.
-    case identifier(identifier: EndpointIdentifierChange)
+    case identifier(identifier: ElementIdentifierChange)
 
-    /// Describes an update to the `CommunicationalPattern` of the `Endpoint`.
-    case communicationalPattern(
-        from: CommunicationalPattern,
-        to: CommunicationalPattern
+    /// Describes an update to the `CommunicationPattern` of the `Endpoint`.
+    case communicationPattern(
+        from: CommunicationPattern,
+        to: CommunicationPattern
     )
 
     /// Describes an update to the response type of the `Endpoint`.
@@ -77,7 +77,7 @@ extension EndpointUpdateChange: UpdateChangeWithNestedChange {
 extension EndpointUpdateChange: Codable {
     private enum UpdateType: String, Codable {
         case identifier
-        case communicationalPattern
+        case communicationPattern
         case response
         case parameter
     }
@@ -100,8 +100,8 @@ extension EndpointUpdateChange: Codable {
         switch self {
         case .identifier:
             return .identifier
-        case .communicationalPattern:
-            return .communicationalPattern
+        case .communicationPattern:
+            return .communicationPattern
         case .response:
             return .response
         case .parameter:
@@ -116,12 +116,12 @@ extension EndpointUpdateChange: Codable {
         switch type {
         case .identifier:
             self = .identifier(
-                identifier: try container.decode(EndpointIdentifierChange.self, forKey: .identifier)
+                identifier: try container.decode(ElementIdentifierChange.self, forKey: .identifier)
             )
-        case .communicationalPattern:
-            self = .communicationalPattern(
-                from: try container.decode(CommunicationalPattern.self, forKey: .from),
-                to: try container.decode(CommunicationalPattern.self, forKey: .to)
+        case .communicationPattern:
+            self = .communicationPattern(
+                from: try container.decode(CommunicationPattern.self, forKey: .from),
+                to: try container.decode(CommunicationPattern.self, forKey: .to)
             )
         case .response:
             self = .response(
@@ -144,7 +144,7 @@ extension EndpointUpdateChange: Codable {
         switch self {
         case let .identifier(identifier):
             try container.encode(identifier, forKey: .identifier)
-        case let .communicationalPattern(from, to):
+        case let .communicationPattern(from, to):
             try container.encode(from, forKey: .from)
             try container.encode(to, forKey: .to)
         case let .response(from, to, backwardsMigration, migrationWarning):
