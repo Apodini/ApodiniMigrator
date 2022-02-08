@@ -166,8 +166,8 @@ extension Endpoint: Codable {
 
         self.deltaIdentifier = try container.decode(DeltaIdentifier.self, forKey: .deltaIdentifier)
         self.identifiers = try container.decode(ElementIdentifierStorage.self, forKey: .identifiers)
-        if let communicationalPattern = try? container.decode(CommunicationPattern.self, forKey: .communicationalPattern) {
-            self.communicationPattern = communicationalPattern
+        if container.allKeys.contains(.communicationalPattern) {
+            self.communicationPattern = try container.decode(CommunicationPattern.self, forKey: .communicationalPattern)
         } else {
             self.communicationPattern = try container.decode(CommunicationPattern.self, forKey: .communicationPattern)
         }
