@@ -15,10 +15,19 @@ class ProtoGRPCMethod: SomeGRPCMethod {
     private let method: MethodDescriptor
     var apodiniIdentifiers: GRPCMethodApodiniAnnotations
 
+    var deltaIdentifier: DeltaIdentifier {
+        apodiniIdentifiers.deltaIdentifier
+    }
+
     var migration: MigrationContext {
         service.file.migration
     }
 
+    var namer: SwiftProtobufNamer {
+        service.protobufNamer
+    }
+
+    var unavailable = false
     // we track the content of all `update` EndpointChanges here
     var identifierChanges: [ElementIdentifierChange] = []
     var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)?
@@ -38,69 +47,12 @@ class ProtoGRPCMethod: SomeGRPCMethod {
     var methodName: String
     var serviceName: String
 
-    var updatedMethodName: String? {
-        for change in identifierChanges {
-            // we ignore addition and removal change (assumption is, as long as there is a grpc
-            // exporter, all endpoints have service name and rpc method identifiers!)
-            guard change.id.rawValue == GRPCMethodName.identifierType,
-                  let update = change.modeledUpdateChange else {
-                continue
-            }
-
-            precondition(update.updated.from.value == methodName)
-            return update.updated.to.value
-        }
-
-        return nil
-    }
-
-    var updatedServiceName: String? {
-        for change in identifierChanges {
-            // we ignore addition and removal change (assumption is, as long as there is a grpc
-            // exporter, all endpoints have service name and rpc method identifiers!)
-            guard change.id.rawValue == GRPCServiceName.identifierType,
-                  let update = change.modeledUpdateChange else {
-                continue
-            }
-
-            precondition(update.updated.from.value == serviceName)
-            return update.updated.to.value
-        }
-
-        return nil
-    }
-
-    var unavailable = false
-
-    var sourceCodeComments: String?
-
     var streamingType: StreamingType
 
     var inputMessageName: String
-
-    var updatedInputMessageName: String? {
-        guard let change = parameterChange else {
-            return nil
-        }
-
-        return change.to.swiftType(namer: service.protobufNamer)
-    }
-
-    // In grpc all parameters are combined into a single parameter.
-    // Typically, this means all parameter updates are mapped to property updates of a newly introduced wrapper type.
-    // However, this wrapper type is not introduced if the endpoint already has a single message-based parameter (which is not optional).
-    // In those cases we want to handle a single parameter update for the single parameter.
-    var processedParameterUpdateAlready = false
-
     var outputMessageName: String
 
-    var updatedOutputMessageName: String? {
-        guard let change = responseChange else {
-            return nil
-        }
-
-        return change.to.swiftType(namer: service.protobufNamer)
-    }
+    var sourceCodeComments: String?
 
     init(_ method: MethodDescriptor, locatedIn service: GRPCService) {
         self.service = service
@@ -125,50 +77,5 @@ class ProtoGRPCMethod: SomeGRPCMethod {
 
         self.inputMessageName = service.protobufNamer.fullName(message: method.inputType)
         self.outputMessageName = service.protobufNamer.fullName(message: method.outputType)
-    }
-
-    func registerUpdateChange(_ change: EndpointChange.UpdateChange) {
-        precondition(apodiniIdentifiers.deltaIdentifier == change.id)
-
-        switch change.updated {
-        case let .identifier(identifier):
-            self.identifierChanges.append(identifier)
-        case let .communicationPattern(from, to):
-            self.communicationPatternChange = (from, to)
-        case let .response(from, to, backwardsMigration, migrationWarning):
-            self.responseChange = (
-                migration.typeStore.construct(from: from),
-                migration.typeStore.construct(from: to),
-                backwardsMigration,
-                migrationWarning
-            )
-        case let .parameter(parameter):
-            if case .idChange = parameter { // we ignore parameter renames!
-                break
-            }
-
-            guard let parameterUpdate = parameter.modeledUpdateChange else {
-                fatalError("Encountered parameter change for grpc method \(methodPath) which wasn't mapped to a property update: \(change)")
-            }
-
-            precondition(!processedParameterUpdateAlready, "Encountered multiple parameter updates for \(methodPath) with single parameter!")
-            processedParameterUpdateAlready = true
-
-            switch parameterUpdate.updated {
-            case .parameterType:
-                break // parameter type is ignored
-            case .necessity:
-                break // grpc parameters are always required!
-            case let .type(from, to, forwardMigration, migrationWarning):
-                // a lot of endpoints will have wrapper types, which won't result in a type change!
-                // though for endpoints were no wrapper type is introduced, there may still be a type change!
-                self.parameterChange = (
-                    migration.typeStore.construct(from: from),
-                    migration.typeStore.construct(from: to),
-                    forwardMigration,
-                    migrationWarning
-                )
-            }
-        }
     }
 }

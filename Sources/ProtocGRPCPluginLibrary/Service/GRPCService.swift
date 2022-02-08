@@ -53,7 +53,7 @@ class GRPCService: SourceCodeRenderable {
     }
 
     func addEndpoint(_ endpoint: Endpoint) {
-        let method = ApodiniGrpcMethod(endpoint, context: context)
+        let method = ApodiniGrpcMethod(endpoint, context: context, migration: file.migration)
         precondition(
             !self.methods.contains(where: { $0.methodName == method.methodName }),
             "Added endpoint collides with existing method \(serviceName).\(method.methodName)"
@@ -64,16 +64,14 @@ class GRPCService: SourceCodeRenderable {
 
     func handleEndpointUpdate(_ update: EndpointChange.UpdateChange) {
         methods
-            .compactMap { $0.tryTyped(as: ProtoGRPCMethod.self) }
-            .filter { $0.apodiniIdentifiers.deltaIdentifier == update.id }
+            .filter { $0.deltaIdentifier == update.id }
             .forEach { $0.registerUpdateChange(update) }
     }
 
     func handleEndpointRemoval(_ removal: EndpointChange.RemovalChange) {
         methods
-            .compactMap { $0.tryTyped(as: ProtoGRPCMethod.self) }
-            .filter { $0.apodiniIdentifiers.deltaIdentifier == removal.id }
-            .forEach { $0.unavailable = true }
+            .filter { $0.deltaIdentifier == removal.id }
+            .forEach { $0.registerRemovalChange(removal) }
     }
 
     var renderableContent: String {

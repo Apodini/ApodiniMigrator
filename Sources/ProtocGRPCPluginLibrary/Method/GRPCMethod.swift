@@ -30,6 +30,14 @@ struct GRPCMethod: SourceCodeRenderable {
         self.context = context
     }
 
+    func registerRemovalChange(_ change: EndpointChange.RemovalChange) {
+        method.registerRemovalChange(change)
+    }
+
+    func registerUpdateChange(_ change: EndpointChange.UpdateChange) {
+        method.registerUpdateChange(change)
+    }
+
     subscript<T>(dynamicMember member: KeyPath<SomeGRPCMethod, T>) -> T {
         method[keyPath: member]
     }
@@ -76,7 +84,7 @@ struct GRPCMethod: SourceCodeRenderable {
                 async: !method.streamingType.isStreamingResponse, // we return AsyncSequence instantly on streaming response!
                 throws: !method.streamingType.isStreamingResponse,
                 whereClause: sequenceProtocol.map {
-                    "where RequestStream: \($0), RequestStream.Element == \(method.inputMessageName)"
+                    "where RequestStream: \($0.rawValue), RequestStream.Element == \(method.inputMessageName)"
                 }
             ) {
                 RequestMethodBody(for: method, sequence: sequenceProtocol)
@@ -122,9 +130,9 @@ struct GRPCMethod: SourceCodeRenderable {
 
                 if method.streamingType.isStreamingRequest {
                     parameterMigration = """
-                                                 let requests = \(sequence == .sequence ? "\(`try`) ": "")\
-                                                 requests.compactMap { \(migrationLine("$0")) }
-                                                 """
+                                         let requests = \(sequence == .sequence ? "\(`try`) ": "")\
+                                         requests.compactMap { \(migrationLine("$0")) }
+                                         """
                 } else {
                     parameterMigration = "let request = \(migrationLine("request"))"
                 }
@@ -141,10 +149,10 @@ struct GRPCMethod: SourceCodeRenderable {
 
             switch (method.streamingType.isStreamingRequest, updatedStreamingType.isStreamingRequest) {
             case (true, false): // requests -> request
-                if method.streamingType.isStreamingResponse {
-                    "let result = GRPCResponseStream(wrapping: \(sequence == .sequence ? "AsyncThrowingSequence(wrapping: requests)": "requests")"
+                if updatedStreamingType.isStreamingResponse {
+                    "let stream = GRPCResponseStream(wrapping: \(sequence == .sequence ? "AsyncThrowingStream(wrapping: requests)": "requests")"
                     Indent {
-                        ".flatMap { element in"
+                        ".flatMap { request -> GRPCAsyncResponseStream<\(method.outputMessageName)> in"
                         Indent {
                             GRPCCall(for: method, streamingType: updatedStreamingType, parameterMigration: parameterMigration)
                             alreadyBuiltCall = true
@@ -152,9 +160,8 @@ struct GRPCMethod: SourceCodeRenderable {
                         }
                         "})"
                     }
-                    // "return result" is generated below
                 } else {
-                    "let stream = \(sequence == .sequence ? "AsyncThrowingSequence(wrapping: requests)": "requests")"
+                    "let stream = \(sequence == .sequence ? "AsyncThrowingStream(wrapping: requests)": "requests")"
                     Indent {
                         ".map { request -> \(method.outputMessageName) in"
                         Indent {
@@ -164,13 +171,18 @@ struct GRPCMethod: SourceCodeRenderable {
                         }
                         "}"
                     }
+                }
 
+                if !method.streamingType.isStreamingResponse {
                     "var iterator = stream.makeAsyncIterator()"
                     "guard let result = try await iterator.next() else {"
                     Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didNotReceiveAnyResponse)")
                     "}"
-                    // "return result" is generated below
+                } else {
+                    "let result = GRPCResponseStream(wrapping: stream)"
                 }
+
+                // "return result" is generated below
             case (false, true): // request -> requests
                 "let requests = [request]"
             default:
@@ -178,50 +190,54 @@ struct GRPCMethod: SourceCodeRenderable {
             }
 
             let goingToGenerateCallLater = (method.streamingType.isStreamingResponse, updatedStreamingType.isStreamingResponse) == (true, false)
-            if !alreadyBuiltCall || goingToGenerateCallLater {
+            if !alreadyBuiltCall && !goingToGenerateCallLater {
                 // unless its a conversion from `\(outputMessageName) -> GRPCResponseStream` build the call
                 // we need to handle that single case differently, as we aren't in a `async throws` context
                 // and therefore need to wrap that thing into Task and try-catch.
                 GRPCCall(for: method, streamingType: updatedStreamingType, parameterMigration: parameterMigration)
             }
 
-            switch (method.streamingType.isStreamingResponse, updatedStreamingType.isStreamingResponse) {
-            case (true, false): // GRPCAsyncResponseStream -> \(outputMessageName)
-                "return GRPCResponseStream { continuation in"
-                Indent {
-                    "Task.detached {"
+            if !alreadyBuiltCall {
+                switch (method.streamingType.isStreamingResponse, updatedStreamingType.isStreamingResponse) {
+                case (true, false): // GRPCAsyncResponseStream -> \(outputMessageName)
+                    "return GRPCResponseStream { continuation in"
                     Indent {
-                        "do {"
+                        "Task.detached {"
                         Indent {
-                            GRPCCall(for: method, streamingType: updatedStreamingType, parameterMigration: parameterMigration)
-                            "continuation.yield(\(responseMigration("result"))"
-                            "continuation.finish()"
+                            "do {"
+                            Indent {
+                                GRPCCall(for: method, streamingType: updatedStreamingType, parameterMigration: parameterMigration)
+                                "continuation.yield(\(responseMigration("result")))"
+                                "continuation.finish()"
+                            }
+                            "} catch {"
+                            Indent("continuation.finish(throwing: error)")
+                            "}"
                         }
-                        "} catch {"
-                        Indent("continuation.finish(throwing: error)")
                         "}"
                     }
                     "}"
+                case (false, true): // \(outputMessageName) -> GRPCResponseStream
+                    """
+                    var iterator = result.makeAsyncIterator()
+                    guard let response = try await iterator.next() else {
+                    """
+                    Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didNotReceiveAnyResponse)")
+                    """
+                    }
+                    return \(responseMigration("response"))
+                    """
+                case (true, true):
+                    // convert to our custom AsyncSequence wrapper type (required as we can't instantiate a GRPCAsyncResponseStream)
+                    if method.responseChange != nil {
+                        "return GRPCResponseStream(wrapping: result.compactMap { \(responseMigration("$0")) })"
+                    } else {
+                        "return GRPCResponseStream(wrapping: result)"
+                    }
+                default:
+                    "return \(responseMigration("result"))"
                 }
-                "}"
-            case (false, true): // \(outputMessageName) -> GRPCResponseStream
-                """
-                var iterator = result.makeAsyncIterator()
-                guard let response = try await iterator.next() else {
-                """
-                Indent("throw GRPCNetworkingError.streamingTypeMigrationError(type: .didNotReceiveAnyResponse)")
-                """
-                }
-                return \(responseMigration("response"))
-                """
-            case (true, true):
-                // convert to our custom AsyncSequence wrapper type (required as we can't instantiate a GRPCAsyncResponseStream)
-                if method.responseChange != nil {
-                    "return GRPCResponseStream(wrapping: result.compactMap { \(responseMigration("$0")) })"
-                } else {
-                    "return GRPCResponseStream(wrapping: result)"
-                }
-            default:
+            } else {
                 "return \(responseMigration("result"))"
             }
         }

@@ -34,7 +34,7 @@ public struct PluginOptions {
     private(set) var visibility: Visibility = .internal
 
     /// Create a new `PluginOptions` instance from a rawValue string. Passed by protoc.
-    public init(parameter: String) throws { // swiftlint:disable:this cyclomatic_complexity
+    public init(parameter: String) throws {
         for (key, value) in Self.parseParameterString(parameter) {
             switch key {
             case "APIDocument":

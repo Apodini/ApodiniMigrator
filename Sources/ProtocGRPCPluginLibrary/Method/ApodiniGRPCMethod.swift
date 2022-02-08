@@ -7,11 +7,17 @@
 //
 
 import Foundation
-import ApodiniMigratorCore
+import ApodiniMigrator
 import SwiftProtobufPluginLibrary
 
-struct ApodiniGrpcMethod: SomeGRPCMethod {
+class ApodiniGrpcMethod: SomeGRPCMethod {
     let endpoint: Endpoint
+    let migration: MigrationContext
+    var namer: SwiftProtobufNamer
+
+    var deltaIdentifier: DeltaIdentifier {
+        endpoint.deltaIdentifier
+    }
 
     var methodName: String
     var serviceName: String
@@ -21,16 +27,18 @@ struct ApodiniGrpcMethod: SomeGRPCMethod {
     var inputMessageName: String
     var outputMessageName: String
 
-    var unavailable: Bool {
-        false
-    }
+    var sourceCodeComments: String?
 
-    var sourceCodeComments: String? {
-        nil
-    }
+    var unavailable = false
+    var identifierChanges: [ElementIdentifierChange] = []
+    var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)?
+    var parameterChange: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, conversionWarning: String?)?
+    var responseChange: (from: TypeInformation, to: TypeInformation, backwardsMigration: Int, migrationWarning: String?)?
 
-    init(_ endpoint: Endpoint, context: ProtoFileContext) {
+    init(_ endpoint: Endpoint, context: ProtoFileContext, migration: MigrationContext) {
         self.endpoint = endpoint
+        self.migration = migration
+        self.namer = context.namer
 
         self.methodName = endpoint.identifier(for: GRPCMethodName.self).rawValue
         self.serviceName = endpoint.identifier(for: GRPCServiceName.self).rawValue

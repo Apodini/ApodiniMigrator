@@ -8,8 +8,14 @@
 
 import Foundation
 import ApodiniMigrator
+import SwiftProtobufPluginLibrary
 
-protocol SomeGRPCMethod {
+protocol SomeGRPCMethod: AnyObject {
+    var deltaIdentifier: DeltaIdentifier { get }
+
+    var migration: MigrationContext { get }
+    var namer: SwiftProtobufNamer { get }
+
     var methodName: String { get }
     var updatedMethodName: String? { get }
 
@@ -19,22 +25,22 @@ protocol SomeGRPCMethod {
     var sourceCodeComments: String? { get }
 
     /// If true, this Method was removed in the latest version.
-    var unavailable: Bool { get }
+    var unavailable: Bool { get set }
     /// Carrying ``EndpointIdentifierChange`` changes (e.g. serviceName or servicePath changes)
-    var identifierChanges: [ElementIdentifierChange] { get }
-    var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)? { get }
+    var identifierChanges: [ElementIdentifierChange] { get set }
+    var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)? { get set }
     var parameterChange: (
         from: TypeInformation,
         to: TypeInformation,
         forwardMigration: Int,
         conversionWarning: String?
-    )? { get }
+    )? { get set }
     var responseChange: (
         from: TypeInformation,
         to: TypeInformation,
         backwardsMigration: Int,
         migrationWarning: String?
-    )? { get }
+    )? { get set }
 
     var methodPath: String { get }
     var updatedMethodPath: String? { get }
@@ -61,12 +67,37 @@ extension SomeGRPCMethod {
     }
 
     var updatedMethodName: String? {
-        nil
+        for change in identifierChanges {
+            // we ignore addition and removal change (assumption is, as long as there is a grpc
+            // exporter, all endpoints have service name and rpc method identifiers!)
+            guard change.id.rawValue == GRPCMethodName.identifierType,
+                  let update = change.modeledUpdateChange else {
+                continue
+            }
+
+            precondition(update.updated.from.value == methodName)
+            return update.updated.to.value
+        }
+
+        return nil
     }
 
     var updatedServiceName: String? {
-        nil
+        for change in identifierChanges {
+            // we ignore addition and removal change (assumption is, as long as there is a grpc
+            // exporter, all endpoints have service name and rpc method identifiers!)
+            guard change.id.rawValue == GRPCServiceName.identifierType,
+                  let update = change.modeledUpdateChange else {
+                continue
+            }
+
+            precondition(update.updated.from.value == serviceName)
+            return update.updated.to.value
+        }
+
+        return nil
     }
+
     var updatedMethodPath: String? {
         let serviceName = updatedServiceName
         let methodName = updatedMethodName
@@ -77,31 +108,19 @@ extension SomeGRPCMethod {
         return "\(serviceName ?? self.serviceName)/\(methodName ?? self.methodName)"
     }
 
-    var unavailable: Bool {
-        false
-    }
-
-    var identifierChanges: [ElementIdentifierChange] {
-        []
-    }
-
-    var communicationPatternChange: (from: CommunicationPattern, to: CommunicationPattern)? {
-        nil
-    }
-
-    var parameterChange: (from: TypeInformation, to: TypeInformation, forwardMigration: Int, conversionWarning: String?)? {
-        nil
-    }
-
-    var responseChange: (from: TypeInformation, to: TypeInformation, backwardsMigration: Int, migrationWarning: String?)? {
-        nil
-    }
-
     var updatedInputMessageName: String? {
-        nil
+        guard let change = parameterChange else {
+            return nil
+        }
+
+        return change.to.swiftType(namer: namer)
     }
 
     var updatedOutputMessageName: String? {
-        nil
+        guard let change = responseChange else {
+            return nil
+        }
+
+        return change.to.swiftType(namer: namer)
     }
 }
