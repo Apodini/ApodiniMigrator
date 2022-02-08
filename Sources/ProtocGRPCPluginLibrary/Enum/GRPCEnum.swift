@@ -225,7 +225,22 @@ struct GRPCEnum: SourceCodeRenderable {
             ""
             "\(context.options.visibility) init(from decoder: Swift.Decoder) throws {"
             Indent {
-                "let nameRawValue: String = try decoder.singleValueContainer().decode(String.self)"
+                "let container = try decoder.singleValueContainer()"
+
+                // As we need to conform to the SwiftProtobuf `Enum` protocol we have RawRepresentable conformance
+                // with rawValue of `Int` (the proto number). The JSONStringBuilder works on the TypeInformation
+                // representation of the type. Meaning it will create default value of `0` (Int rawValue type)
+                // and this value will be passed to the decoder initializer. Either we change the logic in the JSONStringBuilder
+                // or, as we do here, work around the issue, by implementing number decoding.
+                "if let number = try? container.decode(Int.self) {"
+                Indent {
+                    "self = .init(rawValue: number)"
+                    "return"
+                }
+                "}"
+                ""
+
+                "let nameRawValue: String = try container.decode(String.self)"
                 "switch nameRawValue {"
                 for enumCase in `enum`.enumCasesSorted {
                     "case \"\(enumCase.name)\": self = \(enumCase.dottedRelativeName)"
