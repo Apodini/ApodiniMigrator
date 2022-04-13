@@ -32,7 +32,7 @@ This library requires at least Swift 5.5 and macOS 12. Furthermore, it makes use
 ```console
 ApodiniMigrator $ swift build --configuration release
 ApodiniMigrator $ cp -f .build/release/migrator /usr/local/bin/migrator
-ApodiniMigrator $ cp -f .build/debug/protoc-gen-grpc-migrator /usr/local/bin/protoc-gen-grpc-migrator
+ApodiniMigrator $ cp -f .build/release/protoc-gen-grpc-migrator /usr/local/bin/protoc-gen-grpc-migrator
 ```
 
 ## Usage
