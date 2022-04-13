@@ -27,12 +27,19 @@ This library requires at least Swift 5.5 and macOS 12. Furthermore, it makes use
 
 ## Installation/Setup/Integration
 
-`ApodiniMigrator` offers a Command-line interface program to execute its functionalities. After cloning the project, one can run the following commands on the root of the project to install `migrator` CLI
+`ApodiniMigrator` offers a Command-line interface program to execute its functionalities. After cloning the project, one can run the following commands on the root of the project to install `migrator` CLI as well as the Protocol Buffer compiler plugin.
 
 ```console
-ApodiniMigrator $ swift build --configuration release
-ApodiniMigrator $ cp -f .build/release/migrator /usr/local/bin/migrator
-ApodiniMigrator $ cp -f .build/release/protoc-gen-grpc-migrator /usr/local/bin/protoc-gen-grpc-migrator
+$ swift build --configuration release
+$ cp -f .build/release/migrator /usr/local/bin/migrator
+$ cp -f .build/release/protoc-gen-grpc-migrator /usr/local/bin/protoc-gen-grpc-migrator
+```
+
+To use the gRPC Apodini Migrator you will also need to install the Protocol Buffer compiler and the respective Swift plugins.
+
+```console
+$ brew install protobuf
+$ brew install swift-protobuf grpc-swift
 ```
 
 ## Usage
