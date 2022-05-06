@@ -15,11 +15,9 @@ on:
 jobs:
   build_and_test:
     name: Build and Test
-    uses: Apodini/.github/.github/workflows/build-and-test.yml@main
+    uses: Apodini/.github/.github/workflows/build-and-test.yml@v1
     with:
       packagename: ApodiniMigrator
-      supportsmacos11: true
-      testdocc: false
       installprotoc: true
   reuse_action:
     name: REUSE Compliance Check
