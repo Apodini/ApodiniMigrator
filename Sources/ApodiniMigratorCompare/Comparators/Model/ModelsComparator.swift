@@ -51,8 +51,7 @@ struct ModelsComparator: Comparator {
 
         for removal in removalCandidates where !pairs.contains(where: { $0.contains(removal.deltaIdentifier) }) {
             results.append(.removal(
-                id: removal.deltaIdentifier,
-                breaking: false
+                id: removal.deltaIdentifier
             ))
         }
 

@@ -705,7 +705,7 @@
         {
             "type": "removal",
             "id": "CategoryStatus",
-            "breaking": false,
+            "breaking": true,
             "solvable": false
         },
         {
