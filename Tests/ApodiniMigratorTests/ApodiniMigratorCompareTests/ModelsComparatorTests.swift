@@ -63,7 +63,7 @@ final class ModelsComparatorTests: ApodiniMigratorXCTestCase {
         let change = try XCTUnwrap(modelChanges.first)
         XCTAssertEqual(change.id, programmingLanguages.deltaIdentifier)
         XCTAssertEqual(change.type, .removal)
-        XCTAssertEqual(change.breaking, false)
+        XCTAssertEqual(change.breaking, true)
         XCTAssertEqual(change.solvable, false)
 
         let removalChange = try XCTUnwrap(change.modeledRemovalChange)
