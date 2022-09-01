@@ -7,7 +7,7 @@
         "state": {
           "branch": null,
           "revision": "7de65b4c81929b56eadad190b11f02cf42ff9afe",
-          "version": "0.1.0"
+          "version": "0.1.1"
         }
       },
       {
@@ -105,8 +105,8 @@
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
           "branch": null,
-          "revision": "5d66f7ba25daf4f94100e7022febf3c75e37a6c7",
-          "version": "1.4.2"
+          "revision": "6fe203dc33195667ce1759bf0182975e4653ba1c",
+          "version": "1.4.4"
         }
       },
       {
@@ -114,8 +114,8 @@
         "repositoryURL": "https://github.com/apple/swift-protobuf.git",
         "state": {
           "branch": null,
-          "revision": "e1499bc69b9040b29184f7f2996f7bab467c1639",
-          "version": "1.19.0"
+          "revision": "b8230909dedc640294d7324d37f4c91ad3dcf177",
+          "version": "1.20.1"
         }
       },
       {
